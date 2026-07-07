@@ -1,194 +1,335 @@
+/* ===========================
+   Kastiz ONE
+   Version 3
+   =========================== */
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
 }
 
-html,body{
-
+html{
     width:100%;
     height:100%;
-
-    background:#ffffff;
-
-    color:#111111;
-
-    font-family:'Inter',sans-serif;
-
 }
 
 body{
 
-    display:flex;
+    width:100%;
+    min-height:100vh;
 
+    font-family:"Inter",sans-serif;
+
+    background:#ffffff;
+    color:#111111;
+
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+
+}
+
+.page{
+
+    min-height:100vh;
+
+    display:flex;
     flex-direction:column;
 
 }
 
-main{
+/* ===========================
+   HERO
+=========================== */
+
+.hero{
 
     flex:1;
 
     display:flex;
-
+    flex-direction:column;
+    align-items:center;
     justify-content:center;
 
-    align-items:center;
-
-    padding:40px;
+    padding:32px;
 
 }
 
-.hero{
+/* ===========================
+   LOGO
+=========================== */
 
-    width:100%;
+.logo-wrapper{
 
-    max-width:760px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
+    margin-bottom:56px;
 
 }
 
 .logo{
 
-    font-size:72px;
+    font-size:96px;
+    font-weight:600;
+    letter-spacing:-7px;
 
-    font-weight:700;
+    color:#111;
 
-    letter-spacing:-4px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
-    margin-bottom:40px;
+    user-select:none;
+
+}
+
+.logo-letter{
+
+    display:inline-block;
 
     opacity:0;
 
-    animation:fadeLogo .9s ease forwards;
+    transform:translateY(18px);
+
+    transition:
+            opacity .5s ease,
+            transform .5s ease;
 
 }
 
-@keyframes fadeLogo{
+.logo-letter.visible{
 
-    from{
+    opacity:1;
+    transform:translateY(0);
 
-        opacity:0;
+}
 
-        transform:translateY(12px);
+.logo-letter.pulse{
+
+    animation:pulse 1.2s ease;
+
+}
+
+@keyframes pulse{
+
+    0%{
+
+        transform:scale(1);
 
     }
 
-    to{
+    50%{
 
-        opacity:1;
+        transform:scale(1.08);
 
-        transform:translateY(0);
+    }
+
+    100%{
+
+        transform:scale(1);
 
     }
 
 }
 
-.search-wrapper{
+/* ===========================
+   SEARCH
+=========================== */
+
+.search-container{
 
     width:100%;
+    display:flex;
+    justify-content:center;
+
+}
+
+.search-box{
+
+    position:relative;
+
+    width:min(760px,92vw);
+
+    height:60px;
 
     display:flex;
-
     align-items:center;
 
-    border:1px solid #dddddd;
+    background:#ffffff;
 
-    border-radius:40px;
+    border:1px solid #dadce0;
 
-    padding:6px 8px 6px 24px;
+    border-radius:16px;
 
     transition:.25s;
 
-    box-shadow:0 2px 10px rgba(0,0,0,.05);
+    box-shadow:
+            0 1px 2px rgba(0,0,0,.05);
 
 }
 
-.search-wrapper:hover{
+.search-box:hover{
 
-    box-shadow:0 6px 20px rgba(0,0,0,.10);
+    border-color:#c8c8c8;
 
-}
+    box-shadow:
 
-.search-wrapper:focus-within{
-
-    box-shadow:0 8px 28px rgba(0,0,0,.12);
+            0 5px 18px rgba(0,0,0,.08);
 
 }
 
-#question{
+.search-box:focus-within{
+
+    border-color:#c5c5c5;
+
+    box-shadow:
+
+            0 8px 26px rgba(0,0,0,.10);
+
+}
+
+/* search icon */
+
+.search-icon{
+
+    width:48px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    color:#9aa0a6;
+
+    flex-shrink:0;
+
+}
+
+.search-icon svg{
+
+    width:20px;
+    height:20px;
+
+}
+
+/* input */
+
+input{
 
     flex:1;
 
-    border:none;
+    height:100%;
 
+    border:none;
     outline:none;
 
-    font-size:20px;
+    font-size:17px;
 
-    height:58px;
+    background:transparent;
 
-}
+    color:#111;
 
-#question::placeholder{
-
-    color:#777;
+    z-index:2;
 
 }
 
-.search-icons{
+input::placeholder{
+
+    color:transparent;
+
+}
+
+/* animated suggestions */
+
+.suggestion-text{
+
+    position:absolute;
+
+    left:48px;
+    right:200px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    color:#9aa0a6;
+
+    font-size:17px;
+
+    pointer-events:none;
+
+    white-space:nowrap;
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    transition:opacity .3s;
+
+}
+
+/* controls */
+
+.right-controls{
 
     display:flex;
-
     align-items:center;
 
-    gap:8px;
+    gap:6px;
+
+    margin-right:8px;
 
 }
 
 .icon-button{
 
-    width:42px;
-
-    height:42px;
+    width:38px;
+    height:38px;
 
     border:none;
 
     background:transparent;
 
-    cursor:pointer;
-
-    font-size:20px;
-
     border-radius:50%;
 
-    transition:.2s;
+    cursor:pointer;
+
+    color:#5f6368;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    transition:.25s;
+
+}
+
+.icon-button svg{
+
+    width:21px;
+    height:21px;
 
 }
 
 .icon-button:hover{
 
-    background:#f3f3f3;
+    background:#f2f2f2;
 
 }
 
-.ai-button{
+/* AI pill */
+
+.ai-pill{
 
     border:none;
 
-    background:#111;
+    height:34px;
 
-    color:white;
+    padding:0 15px;
 
-    border-radius:22px;
+    border-radius:999px;
 
-    padding:10px 18px;
+    background:#f5f5f7;
 
+    color:#111;
+
+    font-size:14px;
     font-weight:600;
 
     cursor:pointer;
@@ -197,27 +338,30 @@ main{
 
 }
 
-.ai-button:hover{
+.ai-pill:hover{
 
-    background:#333;
+    background:#ebebed;
 
 }
 
-#oneButton{
+/* send */
 
-    margin-top:26px;
+.send-button{
+
+    width:42px;
+    height:42px;
 
     border:none;
 
+    border-radius:50%;
+
     background:#111;
 
-    color:white;
+    color:#fff;
 
-    font-size:18px;
-
-    padding:15px 42px;
-
-    border-radius:30px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 
     cursor:pointer;
 
@@ -225,41 +369,53 @@ main{
 
 }
 
-#oneButton:hover{
+.send-button svg{
 
-    transform:translateY(-2px);
-
-    box-shadow:0 10px 25px rgba(0,0,0,.18);
+    width:18px;
+    height:18px;
 
 }
+
+.send-button:hover{
+
+    transform:translateX(2px);
+
+    background:#000;
+
+}
+
+/* ===========================
+   FOOTER
+=========================== */
 
 footer{
 
     width:100%;
 
-    padding:18px 40px;
-
-    border-top:1px solid #efefef;
+    padding:26px 40px;
 
 }
 
-.footer-location{
+.location{
 
-    color:#777;
+    text-align:center;
 
-    font-size:14px;
+    color:#8b8b8b;
+
+    font-size:13px;
 
     margin-bottom:18px;
 
 }
 
-.footer{
+.footer-row{
 
     display:flex;
 
     justify-content:space-between;
-
     align-items:center;
+
+    gap:20px;
 
     font-size:14px;
 
@@ -269,68 +425,159 @@ footer{
 .footer-right{
 
     display:flex;
-
-    gap:22px;
+    gap:18px;
 
 }
 
 .footer-center{
 
-    color:#999;
-
-    font-size:13px;
+    color:#555;
 
 }
 
-.footer a{
+.footer-center strong{
 
-    color:#666;
+    color:#111;
+    font-weight:600;
+
+}
+
+footer a{
+
+    color:#6f6f6f;
 
     text-decoration:none;
 
+    transition:.2s;
+
 }
 
-.footer a:hover{
+footer a:hover{
 
     color:#111;
 
 }
 
-@media(max-width:768px){
+/* ===========================
+   RESPONSIVE
+=========================== */
 
-.logo{
+@media (max-width:900px){
 
-    font-size:54px;
+    .logo{
 
-}
+        font-size:76px;
 
-.search-wrapper{
+        letter-spacing:-5px;
 
-    padding-left:18px;
-
-}
-
-#question{
-
-    font-size:17px;
+    }
 
 }
 
-.footer{
+@media (max-width:700px){
 
-    flex-direction:column;
+    .hero{
 
-    gap:18px;
+        padding:22px;
+
+    }
+
+    .logo{
+
+        font-size:58px;
+
+        letter-spacing:-4px;
+
+        margin-bottom:0;
+
+    }
+
+    .logo-wrapper{
+
+        margin-bottom:42px;
+
+    }
+
+    .search-box{
+
+        height:56px;
+
+        border-radius:15px;
+
+    }
+
+    .suggestion-text{
+
+        right:130px;
+
+        font-size:15px;
+
+    }
+
+    .ai-pill{
+
+        display:none;
+
+    }
+
+    footer{
+
+        padding:20px;
+
+    }
+
+    .footer-row{
+
+        flex-direction:column;
+
+        gap:14px;
+
+    }
+
+    .footer-left,
+    .footer-right{
+
+        flex-wrap:wrap;
+        justify-content:center;
+
+    }
 
 }
 
-.footer-left,
-.footer-right{
+@media (max-width:480px){
 
-    flex-wrap:wrap;
+    .logo{
 
-    justify-content:center;
+        font-size:48px;
 
-}
+    }
+
+    .search-box{
+
+        width:95vw;
+
+    }
+
+    .icon-button{
+
+        width:34px;
+        height:34px;
+
+    }
+
+    .send-button{
+
+        width:38px;
+        height:38px;
+
+    }
+
+    .suggestion-text{
+
+        font-size:14px;
+
+        right:90px;
+
+    }
 
 }
