@@ -1,162 +1,311 @@
-const input = document.getElementById("question");
-const button = document.getElementById("oneButton");
+/*
+=====================================
+Kastiz ONE
+Version 3
+=====================================
+*/
 
-const placeholders = [
+const input = document.getElementById("searchInput");
+const suggestion = document.getElementById("suggestionText");
 
-"How can I make your life easier?",
+const logoO = document.querySelector(".logo-o");
+const logoN = document.querySelector(".logo-n");
+const logoE = document.querySelector(".logo-e");
 
-"Find me a lawyer.",
+const locationText = document.getElementById("locationText");
 
-"Book me the cheapest flight.",
+/* =====================================
+   Auto Focus
+===================================== */
 
-"Plan my vacation.",
+window.addEventListener("load", () => {
 
-"Find my next apartment.",
+    input.focus();
 
-"Compare insurance plans.",
+    startLogoAnimation();
 
-"Find the best mortgage.",
+    startSuggestionAnimation();
 
-"Help me move overseas.",
+    detectLocation();
 
-"Find me a doctor.",
+});
 
-"I need a dentist.",
+/* =====================================
+   Animated ONE Logo
+===================================== */
 
-"Find the best restaurant nearby.",
+function startLogoAnimation() {
 
-"Recommend a new laptop.",
+    function play() {
 
-"Help me buy a car.",
+        logoO.classList.remove("visible", "pulse");
+        logoN.classList.remove("visible", "pulse");
+        logoE.classList.remove("visible", "pulse");
 
-"Save me money.",
+        setTimeout(() => {
 
-"Find me a new job.",
+            logoO.classList.add("visible");
 
-"Plan my honeymoon.",
+        }, 200);
 
-"Register my company.",
+        setTimeout(() => {
 
-"Build me a website.",
+            logoN.classList.add("visible");
 
-"Find the best deal.",
+        }, 850);
 
-"Make my life easier."
+        setTimeout(() => {
+
+            logoE.classList.add("visible");
+
+        }, 1500);
+
+        setTimeout(() => {
+
+            logoO.classList.add("pulse");
+            logoN.classList.add("pulse");
+            logoE.classList.add("pulse");
+
+        }, 2200);
+
+    }
+
+    play();
+
+    setInterval(play, 6000);
+
+}
+
+/* =====================================
+   Animated Suggestions
+===================================== */
+
+const suggestions = [
+
+    "Ask anything",
+
+    "Summarize documents",
+
+    "Translate instantly",
+
+    "Search the web",
+
+    "Generate images",
+
+    "Write better emails",
+
+    "Plan your next trip",
+
+    "Analyze data",
+
+    "Brainstorm ideas",
+
+    "Learn something new",
+
+    "Code with AI",
+
+    "Compare products",
+
+    "Create presentations",
+
+    "Explain difficult topics",
+
+    "Practice English",
+
+    "Discover nearby places"
 
 ];
 
 let current = 0;
-let placeholderTimer;
 
-// Focus automatically
-window.onload = () => {
-    input.focus();
-};
+function showSuggestion(text) {
 
-// Change placeholder
-function changePlaceholder() {
+    suggestion.style.opacity = 0;
 
-    if (input.value !== "") return;
+    setTimeout(() => {
 
-    current++;
+        if (input.value.length === 0) {
 
-    if (current >= placeholders.length) {
+            suggestion.textContent = text;
 
-        current = 0;
+            suggestion.style.opacity = 1;
 
-    }
+        }
 
-    input.placeholder = placeholders[current];
+    }, 250);
 
 }
 
-// First message stays for 10 seconds
-setTimeout(() => {
+function startSuggestionAnimation() {
 
-    placeholderTimer = setInterval(changePlaceholder, 5000);
+    showSuggestion(suggestions[current]);
 
-},10000);
+    setInterval(() => {
 
-// Stop changing while typing
+        if (input.value.length > 0) return;
+
+        current++;
+
+        if (current >= suggestions.length) {
+
+            current = 0;
+
+        }
+
+        showSuggestion(suggestions[current]);
+
+    }, 2600);
+
+}
+
 input.addEventListener("input", () => {
 
-    if(input.value !== ""){
+    if (input.value.length > 0) {
 
-        clearInterval(placeholderTimer);
+        suggestion.style.opacity = 0;
 
-    }else{
+    } else {
 
-        placeholderTimer = setInterval(changePlaceholder,5000);
-
-    }
-
-});
-
-// Press ENTER
-input.addEventListener("keydown",(e)=>{
-
-    if(e.key==="Enter"){
-
-        e.preventDefault();
-
-        button.click();
+        suggestion.style.opacity = 1;
 
     }
 
 });
 
-// Temporary buttons
+/* =====================================
+   Submit
+===================================== */
 
-document.getElementById("micButton").onclick=()=>{
+document.querySelector(".search-container").addEventListener("submit", function (e) {
 
-    alert("Voice Search\n\nComing soon.");
+    e.preventDefault();
 
-};
+    const query = input.value.trim();
 
-document.getElementById("imageButton").onclick=()=>{
+    if (!query) return;
 
-    alert("Image Search\n\nComing soon.");
+    console.log("Search:", query);
 
-};
+    // Future:
+    // window.location.href = "/search?q=" + encodeURIComponent(query);
 
-document.getElementById("aiButton").onclick=()=>{
+});
 
-    alert("AI Mode\n\nONE Pro feature coming soon.");
+/* =====================================
+   AI Pill
+===================================== */
 
-};
+document.querySelector(".ai-pill").addEventListener("click", () => {
 
-// ONE IT
+    input.focus();
 
-button.addEventListener("click",()=>{
+});
 
-    const question=input.value.trim();
+/* =====================================
+   Location
+===================================== */
 
-    if(question===""){
+function detectLocation() {
 
-        input.focus();
+    if (!navigator.geolocation) {
+
+        locationText.textContent = "";
 
         return;
 
     }
 
-    alert(
+    navigator.geolocation.getCurrentPosition(
 
-`ONE is thinking...
+        async position => {
 
-Searching trusted sources...
+            try {
 
-Comparing the best options...
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
 
-Building your execution plan...
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`
+                );
 
+                const data = await response.json();
 
-You asked:
+                const address = data.address || {};
 
-"${question}"
+                const city =
+                    address.city ||
+                    address.town ||
+                    address.village ||
+                    address.county ||
+                    "";
 
+                const state =
+                    address.state ||
+                    "";
 
-Version 3 will replace this popup with real results.`
+                const country =
+                    address.country ||
+                    "";
+
+                const parts = [city, state, country].filter(Boolean);
+
+                if (parts.length > 0) {
+
+                    locationText.textContent =
+                        "Your location: " + parts.join(", ");
+
+                } else {
+
+                    locationText.textContent = "";
+
+                }
+
+            } catch (e) {
+
+                locationText.textContent = "";
+
+            }
+
+        },
+
+        () => {
+
+            locationText.textContent = "";
+
+        }
 
     );
+
+}
+
+/* =====================================
+   Keyboard Shortcut
+===================================== */
+
+document.addEventListener("keydown", (e) => {
+
+    if (e.key === "/" && document.activeElement !== input) {
+
+        e.preventDefault();
+
+        input.focus();
+
+    }
+
+});
+
+/* =====================================
+   Escape Clears Search
+===================================== */
+
+input.addEventListener("keydown", (e) => {
+
+    if (e.key === "Escape") {
+
+        input.value = "";
+
+        suggestion.style.opacity = 1;
+
+    }
 
 });
