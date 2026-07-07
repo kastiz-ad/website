@@ -2,72 +2,145 @@ const input = document.getElementById("question");
 const button = document.getElementById("oneButton");
 
 const placeholders = [
-    "Need a lawyer?",
-    "Book the cheapest flight.",
-    "Find me a new apartment.",
-    "Buy my first home.",
-    "Find the best mortgage.",
-    "Compare insurance plans.",
-    "Need a new job?",
-    "Write my resume.",
-    "Help me move overseas.",
-    "Find the best laptop.",
-    "Recommend a new phone.",
-    "Where should I eat tonight?",
-    "Find the best restaurant nearby.",
-    "Book a hotel.",
-    "Plan my weekend.",
-    "Find me a doctor.",
-    "I need a dentist.",
-    "Find a good school.",
-    "Start a business.",
-    "Register my company.",
-    "Help me save money.",
-    "Invest my savings.",
-    "Compare credit cards.",
-    "Find a tax accountant.",
-    "Create a workout plan.",
-    "Plan my wedding.",
-    "Find a babysitter.",
-    "Translate this document.",
-    "Explain this contract.",
-    "Help me buy a car.",
-    "How to learn a new language?.",
-    "What's the smartest option?",
-    "Make my life easier."
-    "What can I do today?"
+
+"How can I make your life easier?",
+
+"Find me a lawyer.",
+
+"Book me the cheapest flight.",
+
+"Plan my vacation.",
+
+"Find my next apartment.",
+
+"Compare insurance plans.",
+
+"Find the best mortgage.",
+
+"Help me move overseas.",
+
+"Find me a doctor.",
+
+"I need a dentist.",
+
+"Find the best restaurant nearby.",
+
+"Recommend a new laptop.",
+
+"Help me buy a car.",
+
+"Save me money.",
+
+"Find me a new job.",
+
+"Plan my honeymoon.",
+
+"Register my company.",
+
+"Build me a website.",
+
+"Find the best deal.",
+
+"Make my life easier."
+
 ];
 
 let current = 0;
+let placeholderTimer;
 
-setInterval(() => {
+// Focus automatically
+window.onload = () => {
+    input.focus();
+};
+
+// Change placeholder
+function changePlaceholder() {
+
+    if (input.value !== "") return;
+
     current++;
 
     if (current >= placeholders.length) {
+
         current = 0;
+
     }
 
     input.placeholder = placeholders[current];
-}, 4000);
 
-// Press ENTER to ONE it
-input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-        e.preventDefault();
-        button.click();
+}
+
+// First message stays for 10 seconds
+setTimeout(() => {
+
+    placeholderTimer = setInterval(changePlaceholder, 5000);
+
+},10000);
+
+// Stop changing while typing
+input.addEventListener("input", () => {
+
+    if(input.value !== ""){
+
+        clearInterval(placeholderTimer);
+
+    }else{
+
+        placeholderTimer = setInterval(changePlaceholder,5000);
+
     }
+
 });
 
-button.addEventListener("click", () => {
+// Press ENTER
+input.addEventListener("keydown",(e)=>{
 
-    const question = input.value.trim();
+    if(e.key==="Enter"){
 
-    if (question === "") {
-        alert("Tell ONE how it can make your life easier.");
+        e.preventDefault();
+
+        button.click();
+
+    }
+
+});
+
+// Temporary buttons
+
+document.getElementById("micButton").onclick=()=>{
+
+    alert("Voice Search\n\nComing soon.");
+
+};
+
+document.getElementById("imageButton").onclick=()=>{
+
+    alert("Image Search\n\nComing soon.");
+
+};
+
+document.getElementById("aiButton").onclick=()=>{
+
+    alert("AI Mode\n\nONE Pro feature coming soon.");
+
+};
+
+// ONE IT
+
+button.addEventListener("click",()=>{
+
+    const question=input.value.trim();
+
+    if(question===""){
+
+        input.focus();
+
         return;
+
     }
 
     alert(
+
 `ONE is thinking...
 
 Searching trusted sources...
@@ -76,16 +149,14 @@ Comparing the best options...
 
 Building your execution plan...
 
-────────────────────────
 
 You asked:
 
 "${question}"
 
-Prototype V1
 
-Next step:
-We'll replace this popup with the real ONE search engine and results page.`
+Version 3 will replace this popup with real results.`
+
     );
 
 });
