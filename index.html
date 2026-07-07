@@ -1,149 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kastiz ONE</title>
 
-<meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<title>Kastiz | ONE</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<main>
+<div class="page">
 
-<div class="hero">
+    <main class="hero">
 
-<div id="logo" class="logo">
+        <!-- Animated Logo -->
+        <div class="logo-wrapper">
 
-ONE
+            <h1 class="logo">
+
+                <span class="logo-letter logo-o">O</span>
+                <span class="logo-letter logo-n">N</span>
+                <span class="logo-letter logo-e">E</span>
+
+            </h1>
+
+        </div>
+
+
+        <!-- Search -->
+        <form class="search-container" autocomplete="off">
+
+            <div class="search-box">
+
+                <!-- Search Icon -->
+                <div class="search-icon">
+
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M21 21l-4.35-4.35m1.35-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                </div>
+
+                <!-- Input -->
+                <input
+                        id="searchInput"
+                        type="text"
+                        spellcheck="false"
+                        autocomplete="off"
+                >
+
+                <!-- Animated Suggestion -->
+                <div id="suggestionText" class="suggestion-text"></div>
+
+                <!-- Right Controls -->
+                <div class="right-controls">
+
+                    <!-- Image Upload -->
+                    <button
+                            type="button"
+                            class="icon-button"
+                            title="Upload Image">
+
+                        <svg viewBox="0 0 24 24">
+
+                            <rect
+                                    x="3"
+                                    y="5"
+                                    width="18"
+                                    height="14"
+                                    rx="2"
+                                    ry="2"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"/>
+
+                            <circle
+                                    cx="9"
+                                    cy="10"
+                                    r="2"
+                                    fill="currentColor"/>
+
+                            <path
+                                    d="M21 17l-5-5-6 6-2-2-5 5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"/>
+
+                        </svg>
+
+                    </button>
+
+                    <!-- Microphone -->
+                    <button
+                            type="button"
+                            class="icon-button"
+                            title="Voice">
+
+                        <svg viewBox="0 0 24 24">
+
+                            <rect
+                                    x="9"
+                                    y="3"
+                                    width="6"
+                                    height="11"
+                                    rx="3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"/>
+
+                            <path
+                                    d="M6 11a6 6 0 0012 0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"/>
+
+                            <line
+                                    x1="12"
+                                    y1="17"
+                                    x2="12"
+                                    y2="21"
+                                    stroke="currentColor"
+                                    stroke-width="2"/>
+
+                            <line
+                                    x1="8"
+                                    y1="21"
+                                    x2="16"
+                                    y2="21"
+                                    stroke="currentColor"
+                                    stroke-width="2"/>
+
+                        </svg>
+
+                    </button>
+
+                    <!-- AI Pill -->
+                    <button
+                            type="button"
+                            class="ai-pill">
+
+                        AI
+
+                    </button>
+
+                    <!-- Send -->
+                    <button
+                            type="submit"
+                            class="send-button">
+
+                        <svg viewBox="0 0 24 24">
+
+                            <path
+                                    d="M5 12h12"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.2"
+                                    stroke-linecap="round"/>
+
+                            <path
+                                    d="M13 5l7 7-7 7"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"/>
+
+                        </svg>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+
+        <div class="location" id="locationText">
+            Detecting your location...
+        </div>
+
+        <div class="footer-row">
+
+            <div class="footer-left">
+
+                <a href="#">Partners</a>
+                <a href="#">Business</a>
+                <a href="#">Developers</a>
+
+            </div>
+
+            <div class="footer-center">
+
+                Powered by <strong>Kastiz</strong>
+
+            </div>
+
+            <div class="footer-right">
+
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Settings</a>
+
+            </div>
+
+        </div>
+
+    </footer>
 
 </div>
-
-<div class="search-wrapper">
-
-<input
-
-id="question"
-
-type="text"
-
-placeholder="How can I make your life easier?"
-
-autocomplete="off"
-
->
-
-<div class="search-icons">
-
-<button class="icon-button" id="micButton">
-
-🎤
-
-</button>
-
-<button class="icon-button" id="imageButton">
-
-📷
-
-</button>
-
-<button class="ai-button" id="aiButton">
-
-AI
-
-</button>
-
-</div>
-
-</div>
-
-<button id="oneButton">
-
-ONE it
-
-</button>
-
-</div>
-
-</main>
-
-<footer>
-
-<div class="footer-location">
-
-South Korea
-
-</div>
-
-<div class="footer">
-
-<div class="footer-left">
-
-<a href="#">
-
-Partners
-
-</a>
-
-<a href="#">
-
-Business
-
-</a>
-
-<a href="#">
-
-Developers
-
-</a>
-
-</div>
-
-<div class="footer-center">
-
-Powered by Kastiz
-
-</div>
-
-<div class="footer-right">
-
-<a href="#">
-
-Privacy
-
-</a>
-
-<a href="#">
-
-Terms
-
-</a>
-
-<a href="#">
-
-Settings
-
-</a>
-
-</div>
-
-</div>
-
-</footer>
 
 <script src="script.js"></script>
 
 </body>
-
 </html>
