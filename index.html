@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Kastiz ONE completes real-life missions with intelligent preparation, trusted providers, and user-approved execution." data-i18n-meta="description" />
+  <meta name="description" content="Kastiz ONE completes real-life missions." data-i18n-meta="description" />
   <meta name="theme-color" content="#ffffff" />
   <title>Kastiz ONE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,22 +16,28 @@
   <div class="app-shell">
     <header class="site-header" aria-label="Kastiz ONE navigation" data-i18n-aria="siteNavigation">
       <div class="header-left">
-        <div class="control-group" aria-label="Preferences" data-i18n-aria="preferences">
-          <div class="select-control theme-control">
-            <label class="sr-only" for="themeSelect" data-i18n="themeLabel">Theme</label>
-            <select id="themeSelect" aria-label="Theme" data-i18n-aria="themeLabel">
-              <option value="light" data-icon="☀️">Light</option>
-              <option value="gray" data-icon="🌤️">Gray</option>
-              <option value="midnight" data-icon="🌙">Midnight</option>
-            </select>
+        <div class="text-controls" aria-label="Preferences" data-i18n-aria="preferences">
+          <div class="text-dropdown" id="themeDropdown">
+            <button class="text-control" id="themeControl" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span id="themeControlText">Light</span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div class="dropdown-menu" role="listbox" aria-label="Theme" data-i18n-aria="themeLabel">
+              <button type="button" role="option" data-theme-option="light">Light</button>
+              <button type="button" role="option" data-theme-option="gray">Gray</button>
+              <button type="button" role="option" data-theme-option="midnight">Midnight</button>
+            </div>
           </div>
 
-          <div class="select-control language-control">
-            <label class="sr-only" for="languageSelect" data-i18n="languageLabel">Language</label>
-            <select id="languageSelect" aria-label="Language" data-i18n-aria="languageLabel">
-              <option value="en">English</option>
-              <option value="ko">한국어</option>
-            </select>
+          <div class="text-dropdown" id="languageDropdown">
+            <button class="text-control" id="languageControl" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span id="languageControlText">English</span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div class="dropdown-menu" role="listbox" aria-label="Language" data-i18n-aria="languageLabel">
+              <button type="button" role="option" data-language-option="en">English</button>
+              <button type="button" role="option" data-language-option="ko">한국어</button>
+            </div>
           </div>
         </div>
       </div>
