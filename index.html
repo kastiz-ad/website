@@ -17,28 +17,28 @@
     <header class="site-header" aria-label="Kastiz ONE navigation" data-i18n-aria="siteNavigation">
       <nav class="header-left" aria-label="Preferences" data-i18n-aria="preferences">
         <div class="nav-dropdown" id="themeDropdown">
-          <button class="nav-link nav-control" id="themeControl" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <button class="nav-text-trigger" id="themeControl" type="button" aria-haspopup="true" aria-expanded="false">
             <span id="themeControlText">Light</span>
-            <span class="chevron">▾</span>
+            <span class="nav-arrow">▾</span>
           </button>
 
-          <div class="nav-menu" role="listbox" aria-label="Theme" data-i18n-aria="themeLabel">
-            <button type="button" role="option" data-theme-option="light">Light</button>
-            <button type="button" role="option" data-theme-option="gray">Gray</button>
-            <button type="button" role="option" data-theme-option="midnight">Midnight</button>
-          </div>
+          <ul class="nav-dropdown-menu" role="menu" aria-label="Theme" data-i18n-aria="themeLabel">
+            <li><button type="button" role="menuitem" data-theme-option="light">Light</button></li>
+            <li><button type="button" role="menuitem" data-theme-option="gray">Gray</button></li>
+            <li><button type="button" role="menuitem" data-theme-option="midnight">Midnight</button></li>
+          </ul>
         </div>
 
         <div class="nav-dropdown" id="languageDropdown">
-          <button class="nav-link nav-control" id="languageControl" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <button class="nav-text-trigger" id="languageControl" type="button" aria-haspopup="true" aria-expanded="false">
             <span id="languageControlText">English</span>
-            <span class="chevron">▾</span>
+            <span class="nav-arrow">▾</span>
           </button>
 
-          <div class="nav-menu" role="listbox" aria-label="Language" data-i18n-aria="languageLabel">
-            <button type="button" role="option" data-language-option="en">English</button>
-            <button type="button" role="option" data-language-option="ko">한국어</button>
-          </div>
+          <ul class="nav-dropdown-menu" role="menu" aria-label="Language" data-i18n-aria="languageLabel">
+            <li><button type="button" role="menuitem" data-language-option="en">English</button></li>
+            <li><button type="button" role="menuitem" data-language-option="ko">한국어</button></li>
+          </ul>
         </div>
       </nav>
 
