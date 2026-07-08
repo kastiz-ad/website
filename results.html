@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Kastiz ONE has prepared your mission." />
+  <meta name="theme-color" content="#f7f5f0" />
+  <title>Kastiz ONE — Mission Ready</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;650;700;750;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="results.css" />
+</head>
+
+<body>
+  <div class="results-shell">
+    <header class="results-header">
+      <a href="index.html" class="brand" aria-label="Kastiz ONE home">ONE</a>
+
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle midnight mode" aria-pressed="false">
+          <span class="theme-toggle-track">
+            <span class="theme-toggle-thumb"></span>
+          </span>
+        </button>
+
+        <a href="#" class="header-link">Upgrade</a>
+        <a href="#" class="header-link">Login</a>
+      </div>
+    </header>
+
+    <main class="mission-layout">
+      <section class="mission-hero">
+        <div>
+          <p class="eyebrow">Mission Ready</p>
+          <h1 id="missionTitle">Your mission is ready.</h1>
+        </div>
+
+        <div class="mission-status-card">
+          <span class="status-dot"></span>
+          <span>Prepared by ONE</span>
+        </div>
+      </section>
+
+      <section class="mission-grid" id="missionGrid" aria-label="Prepared mission plan"></section>
+
+      <section class="bottom-actions" aria-label="Mission actions">
+        <button class="primary-action" id="makeRealityButton" type="button">Make It Reality</button>
+        <span class="action-copy">with ONE</span>
+        <button class="secondary-action" id="customizeButton" type="button">Customize</button>
+      </section>
+
+      <section class="approval-panel" id="approvalPanel" aria-label="Mission approval progress" hidden>
+        <div class="approval-header">
+          <h2>Mission Approved</h2>
+          <span id="approvalStatus">Starting execution</span>
+        </div>
+
+        <div class="approval-list" id="approvalList"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer" aria-label="Footer">
+      <div class="footer-left">
+        <span>South Korea</span>
+        <a href="#">Partners</a>
+        <a href="#">Business</a>
+        <a href="#">Developers</a>
+      </div>
+
+      <div class="footer-center">
+        <span>Powered by Kastiz</span>
+      </div>
+
+      <div class="footer-right">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Settings</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="results.js" defer></script>
+</body>
+</html>
