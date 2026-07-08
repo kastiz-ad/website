@@ -15,36 +15,36 @@
 <body>
   <div class="app-shell">
     <header class="site-header" aria-label="Kastiz ONE navigation" data-i18n-aria="siteNavigation">
-      <div class="header-left">
-        <div class="text-controls" aria-label="Preferences" data-i18n-aria="preferences">
-          <div class="text-dropdown" id="themeDropdown">
-            <button class="text-control" id="themeControl" type="button" aria-haspopup="listbox" aria-expanded="false">
-              <span id="themeControlText">Light</span>
-              <span class="chevron">⌄</span>
-            </button>
-            <div class="dropdown-menu" role="listbox" aria-label="Theme" data-i18n-aria="themeLabel">
-              <button type="button" role="option" data-theme-option="light">Light</button>
-              <button type="button" role="option" data-theme-option="gray">Gray</button>
-              <button type="button" role="option" data-theme-option="midnight">Midnight</button>
-            </div>
-          </div>
+      <nav class="header-left" aria-label="Preferences" data-i18n-aria="preferences">
+        <div class="nav-dropdown" id="themeDropdown">
+          <button class="nav-link nav-control" id="themeControl" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span id="themeControlText">Light</span>
+            <span class="chevron">▾</span>
+          </button>
 
-          <div class="text-dropdown" id="languageDropdown">
-            <button class="text-control" id="languageControl" type="button" aria-haspopup="listbox" aria-expanded="false">
-              <span id="languageControlText">English</span>
-              <span class="chevron">⌄</span>
-            </button>
-            <div class="dropdown-menu" role="listbox" aria-label="Language" data-i18n-aria="languageLabel">
-              <button type="button" role="option" data-language-option="en">English</button>
-              <button type="button" role="option" data-language-option="ko">한국어</button>
-            </div>
+          <div class="nav-menu" role="listbox" aria-label="Theme" data-i18n-aria="themeLabel">
+            <button type="button" role="option" data-theme-option="light">Light</button>
+            <button type="button" role="option" data-theme-option="gray">Gray</button>
+            <button type="button" role="option" data-theme-option="midnight">Midnight</button>
           </div>
         </div>
-      </div>
+
+        <div class="nav-dropdown" id="languageDropdown">
+          <button class="nav-link nav-control" id="languageControl" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <span id="languageControlText">English</span>
+            <span class="chevron">▾</span>
+          </button>
+
+          <div class="nav-menu" role="listbox" aria-label="Language" data-i18n-aria="languageLabel">
+            <button type="button" role="option" data-language-option="en">English</button>
+            <button type="button" role="option" data-language-option="ko">한국어</button>
+          </div>
+        </div>
+      </nav>
 
       <nav class="header-actions" aria-label="Account" data-i18n-aria="account">
-        <a href="#" class="header-link" data-i18n="upgrade">Upgrade</a>
-        <a href="#" class="header-link" data-i18n="login">Login</a>
+        <a href="upgrade.html" class="header-link" data-i18n="upgrade">Upgrade</a>
+        <a href="login.html" class="header-link" data-i18n="login">Login</a>
       </nav>
     </header>
 
