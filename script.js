@@ -384,14 +384,16 @@ languageControl.addEventListener("click", (event) => {
 });
 
 document.querySelectorAll("[data-theme-option]").forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
     setTheme(button.getAttribute("data-theme-option"));
     closeDropdowns();
   });
 });
 
 document.querySelectorAll("[data-language-option]").forEach((button) => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
     setLanguage(button.getAttribute("data-language-option"));
     closeDropdowns();
   });
