@@ -1,7 +1,11 @@
 const root = document.documentElement;
 const body = document.body;
-const themeSelect = document.getElementById("themeSelect");
-const languageSelect = document.getElementById("languageSelect");
+const themeDropdown = document.getElementById("themeDropdown");
+const languageDropdown = document.getElementById("languageDropdown");
+const themeControl = document.getElementById("themeControl");
+const languageControl = document.getElementById("languageControl");
+const themeControlText = document.getElementById("themeControlText");
+const languageControlText = document.getElementById("languageControlText");
 const missionForm = document.getElementById("missionForm");
 const missionInput = document.getElementById("missionInput");
 const missionRotator = document.getElementById("missionRotator");
@@ -19,7 +23,7 @@ const supportedThemes = ["light", "gray", "midnight"];
 
 const translations = {
   en: {
-    metaDescription: "Kastiz ONE completes real-life missions with intelligent preparation, trusted providers, and user-approved execution.",
+    description: "Kastiz ONE completes real-life missions.",
     siteNavigation: "Kastiz ONE navigation",
     preferences: "Preferences",
     themeLabel: "Theme",
@@ -44,9 +48,13 @@ const translations = {
     settings: "Settings",
     unknownLocation: "Unknown Location",
     themes: {
-      light: "☀️ Light",
-      gray: "🌤️ Gray",
-      midnight: "🌙 Midnight"
+      light: "Light",
+      gray: "Gray",
+      midnight: "Midnight"
+    },
+    languages: {
+      en: "English",
+      ko: "한국어"
     },
     missions: [
       "Plan my Japan trip.",
@@ -68,7 +76,7 @@ const translations = {
     ]
   },
   ko: {
-    metaDescription: "Kastiz ONE은 지능적인 준비, 신뢰 가능한 제공업체, 사용자 승인 기반 실행으로 현실의 미션을 완성합니다.",
+    description: "Kastiz ONE은 현실의 미션을 완성합니다.",
     siteNavigation: "Kastiz ONE 내비게이션",
     preferences: "설정",
     themeLabel: "테마",
@@ -93,9 +101,13 @@ const translations = {
     settings: "설정",
     unknownLocation: "알 수 없는 위치",
     themes: {
-      light: "☀️ 라이트",
-      gray: "🌤️ 그레이",
-      midnight: "🌙 미드나이트"
+      light: "라이트",
+      gray: "그레이",
+      midnight: "미드나이트"
+    },
+    languages: {
+      en: "English",
+      ko: "한국어"
     },
     missions: [
       "일본 여행 계획해줘",
@@ -190,11 +202,30 @@ const setMetaThemeColor = (theme) => {
     ?.setAttribute("content", colors[theme] || colors.light);
 };
 
-const updateThemeOptions = () => {
+const updateThemeControls = () => {
   const themeLabels = getTranslation("themes");
+  const currentTheme = root.getAttribute("data-theme") || "light";
 
-  [...themeSelect.options].forEach((option) => {
-    option.textContent = themeLabels[option.value] || option.textContent;
+  themeControlText.textContent = themeLabels[currentTheme] || themeLabels.light;
+
+  document.querySelectorAll("[data-theme-option]").forEach((button) => {
+    const value = button.getAttribute("data-theme-option");
+    button.textContent = themeLabels[value] || value;
+    button.classList.toggle("is-active", value === currentTheme);
+    button.setAttribute("aria-selected", String(value === currentTheme));
+  });
+};
+
+const updateLanguageControls = () => {
+  const languageLabels = getTranslation("languages");
+
+  languageControlText.textContent = languageLabels[activeLanguage] || "English";
+
+  document.querySelectorAll("[data-language-option]").forEach((button) => {
+    const value = button.getAttribute("data-language-option");
+    button.textContent = languageLabels[value] || value;
+    button.classList.toggle("is-active", value === activeLanguage);
+    button.setAttribute("aria-selected", String(value === activeLanguage));
   });
 };
 
@@ -202,9 +233,9 @@ const setTheme = (theme) => {
   const nextTheme = supportedThemes.includes(theme) ? theme : "light";
 
   root.setAttribute("data-theme", nextTheme);
-  themeSelect.value = nextTheme;
   localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
   setMetaThemeColor(nextTheme);
+  updateThemeControls();
 };
 
 const updateLocation = () => {
@@ -268,12 +299,11 @@ const setLanguage = (language) => {
 
   root.setAttribute("lang", activeLanguage);
   document.documentElement.lang = activeLanguage;
-  languageSelect.value = activeLanguage;
-
   localStorage.setItem(STORAGE_KEYS.language, activeLanguage);
 
   updateTextContent();
-  updateThemeOptions();
+  updateThemeControls();
+  updateLanguageControls();
   updateLocation();
   resetMissionRotator();
 };
@@ -325,12 +355,54 @@ const syncInputState = () => {
   missionForm.querySelector(".search-box").classList.toggle("has-value", missionInput.value.trim().length > 0);
 };
 
-themeSelect.addEventListener("change", () => {
-  setTheme(themeSelect.value);
+const closeDropdowns = () => {
+  themeDropdown.classList.remove("is-open");
+  languageDropdown.classList.remove("is-open");
+  themeControl.setAttribute("aria-expanded", "false");
+  languageControl.setAttribute("aria-expanded", "false");
+};
+
+const toggleDropdown = (dropdown, control) => {
+  const isOpen = dropdown.classList.contains("is-open");
+
+  closeDropdowns();
+
+  if (!isOpen) {
+    dropdown.classList.add("is-open");
+    control.setAttribute("aria-expanded", "true");
+  }
+};
+
+themeControl.addEventListener("click", (event) => {
+  event.stopPropagation();
+  toggleDropdown(themeDropdown, themeControl);
 });
 
-languageSelect.addEventListener("change", () => {
-  setLanguage(languageSelect.value);
+languageControl.addEventListener("click", (event) => {
+  event.stopPropagation();
+  toggleDropdown(languageDropdown, languageControl);
+});
+
+document.querySelectorAll("[data-theme-option]").forEach((button) => {
+  button.addEventListener("click", () => {
+    setTheme(button.getAttribute("data-theme-option"));
+    closeDropdowns();
+  });
+});
+
+document.querySelectorAll("[data-language-option]").forEach((button) => {
+  button.addEventListener("click", () => {
+    setLanguage(button.getAttribute("data-language-option"));
+    closeDropdowns();
+  });
+});
+
+document.addEventListener("click", closeDropdowns);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeDropdowns();
+  }
 });
 
 missionInput.addEventListener("input", syncInputState);
