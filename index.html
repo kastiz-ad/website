@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Kastiz ONE completes real-life missions with intelligent preparation, trusted providers, and user-approved execution." />
-  <meta name="theme-color" content="#f7f5f0" />
+  <meta name="description" content="Kastiz ONE completes real-life missions with intelligent preparation, trusted providers, and user-approved execution." data-i18n-meta="description" />
+  <meta name="theme-color" content="#ffffff" />
   <title>Kastiz ONE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,29 +14,31 @@
 
 <body>
   <div class="app-shell">
-    <header class="site-header" aria-label="Kastiz ONE navigation">
+    <header class="site-header" aria-label="Kastiz ONE navigation" data-i18n-aria="siteNavigation">
       <div class="header-left">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle midnight mode" aria-pressed="false">
-          <span class="theme-toggle-track">
-            <span class="theme-toggle-thumb">
-              <span class="theme-icon theme-icon-sun" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M12 4.25a.85.85 0 0 0 .85-.85V2.1a.85.85 0 1 0-1.7 0v1.3c0 .47.38.85.85.85Zm0 17.65a.85.85 0 0 0 .85-.85v-1.3a.85.85 0 1 0-1.7 0v1.3c0 .47.38.85.85.85Zm9.05-9.05h1.3a.85.85 0 1 0 0-1.7h-1.3a.85.85 0 1 0 0 1.7Zm-19.4 0h1.3a.85.85 0 1 0 0-1.7h-1.3a.85.85 0 1 0 0 1.7Zm16.15-5.45a.85.85 0 0 0 .6-.25l.92-.92a.85.85 0 0 0-1.2-1.2l-.92.92a.85.85 0 0 0 .6 1.45ZM4.68 19.32a.85.85 0 0 0 .6-.25l.92-.92A.85.85 0 0 0 5 16.95l-.92.92a.85.85 0 0 0 .6 1.45Zm13.44-.25a.85.85 0 1 0 1.2-1.2l-.92-.92a.85.85 0 1 0-1.2 1.2l.92.92ZM5.6 7.4a.85.85 0 0 0 .6-1.45L5.28 5.03a.85.85 0 0 0-1.2 1.2L5 7.15c.17.17.38.25.6.25ZM12 17.15A5.15 5.15 0 1 0 12 6.85a5.15 5.15 0 0 0 0 10.3Z" />
-                </svg>
-              </span>
-              <span class="theme-icon theme-icon-moon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M20.72 15.16a.9.9 0 0 0-1.02-.22 7.35 7.35 0 0 1-3.26.75 7.55 7.55 0 0 1-7.55-7.55c0-1.16.27-2.28.78-3.3a.9.9 0 0 0-1.05-1.25A9.08 9.08 0 1 0 20.95 16.1a.9.9 0 0 0-.23-.94Z" />
-                </svg>
-              </span>
-            </span>
-          </span>
-        </button>
+        <div class="control-group" aria-label="Preferences" data-i18n-aria="preferences">
+          <div class="select-control theme-control">
+            <label class="sr-only" for="themeSelect" data-i18n="themeLabel">Theme</label>
+            <select id="themeSelect" aria-label="Theme" data-i18n-aria="themeLabel">
+              <option value="light" data-icon="☀️">Light</option>
+              <option value="gray" data-icon="🌤️">Gray</option>
+              <option value="midnight" data-icon="🌙">Midnight</option>
+            </select>
+          </div>
+
+          <div class="select-control language-control">
+            <label class="sr-only" for="languageSelect" data-i18n="languageLabel">Language</label>
+            <select id="languageSelect" aria-label="Language" data-i18n-aria="languageLabel">
+              <option value="en">English</option>
+              <option value="ko">한국어</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <nav class="header-actions" aria-label="Account">
-        <a href="#" class="header-link">Upgrade</a>
-        <a href="#" class="header-link">Login</a>
+      <nav class="header-actions" aria-label="Account" data-i18n-aria="account">
+        <a href="#" class="header-link" data-i18n="upgrade">Upgrade</a>
+        <a href="#" class="header-link" data-i18n="login">Login</a>
       </nav>
     </header>
 
@@ -44,44 +46,48 @@
       <section class="hero-content">
         <div class="brand-lockup" aria-label="Kastiz ONE">
           <div class="one-logo" id="oneLogo" aria-hidden="true">
-            <span class="one-logo-text" data-state="one">ONE</span>
+            <span class="one-logo-text"></span>
           </div>
           <h1 class="sr-only" id="mainTitle">Kastiz ONE</h1>
-          <p class="hero-line">Complete the mission.</p>
         </div>
 
         <form class="mission-search" id="missionForm" autocomplete="off">
-          <label class="sr-only" for="missionInput">Enter your mission</label>
+          <label class="sr-only" for="missionInput" data-i18n="searchLabel">Enter your mission</label>
 
           <div class="search-box">
-            <input
-              id="missionInput"
-              name="mission"
-              type="text"
-              inputmode="text"
-              enterkeyhint="go"
-              spellcheck="true"
-              placeholder="What mission should ONE complete?"
-              aria-label="What mission should ONE complete?"
-              required
-            />
+            <div class="input-wrap">
+              <input
+                id="missionInput"
+                name="mission"
+                type="text"
+                inputmode="text"
+                enterkeyhint="go"
+                spellcheck="true"
+                aria-label="What mission should ONE complete?"
+                data-i18n-aria="searchDefault"
+                required
+              />
+              <div class="mission-rotator" id="missionRotator" aria-hidden="true">
+                <span id="missionRotatorText">What mission should ONE complete?</span>
+              </div>
+            </div>
 
-            <div class="search-tools" aria-label="Mission tools">
-              <button class="icon-button" type="button" aria-label="Use microphone">
+            <div class="search-tools" aria-label="Mission tools" data-i18n-aria="missionTools">
+              <button class="icon-button" type="button" aria-label="Use microphone" data-i18n-aria="microphone">
                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                   <path d="M12 15.5a3.55 3.55 0 0 0 3.55-3.55v-5.4a3.55 3.55 0 1 0-7.1 0v5.4A3.55 3.55 0 0 0 12 15.5Zm-1.75-8.95a1.75 1.75 0 1 1 3.5 0v5.4a1.75 1.75 0 1 1-3.5 0v-5.4Zm8.05 4.7a.9.9 0 0 0-1.8 0v.7a4.5 4.5 0 1 1-9 0v-.7a.9.9 0 1 0-1.8 0v.7a6.31 6.31 0 0 0 5.4 6.24v2.16H8.75a.9.9 0 0 0 0 1.8h6.5a.9.9 0 1 0 0-1.8H12.9v-2.16a6.31 6.31 0 0 0 5.4-6.24v-.7Z" />
                 </svg>
               </button>
 
-              <button class="icon-button" type="button" aria-label="Upload image">
+              <button class="icon-button" type="button" aria-label="Upload image" data-i18n-aria="uploadImage">
                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                   <path d="M18.6 4.2H5.4a3.2 3.2 0 0 0-3.2 3.2v9.2a3.2 3.2 0 0 0 3.2 3.2h13.2a3.2 3.2 0 0 0 3.2-3.2V7.4a3.2 3.2 0 0 0-3.2-3.2ZM5.4 6h13.2A1.4 1.4 0 0 1 20 7.4v7.26l-3.18-3.18a2.05 2.05 0 0 0-2.9 0l-2.26 2.26-.96-.96a2.05 2.05 0 0 0-2.9 0L4 16.58V7.4A1.4 1.4 0 0 1 5.4 6Zm13.2 12H5.41l3.66-3.95a.25.25 0 0 1 .36-.01l1.6 1.6a.9.9 0 0 0 1.27 0l2.89-2.89a.25.25 0 0 1 .36 0L20 17.2a1.4 1.4 0 0 1-1.4.8ZM8.4 10.5a1.45 1.45 0 1 0 0-2.9 1.45 1.45 0 0 0 0 2.9Z" />
                 </svg>
               </button>
 
-              <span class="ai-pill" aria-label="AI powered">AI</span>
+              <span class="ai-pill" aria-label="AI powered" data-i18n-aria="aiPowered">AI</span>
 
-              <button class="submit-button" type="submit" aria-label="Start mission">
+              <button class="submit-button" type="submit" aria-label="Start mission" data-i18n-aria="startMission">
                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                   <path d="M12.64 5.36a.9.9 0 0 0-1.28 1.28l4.46 4.46H5.5a.9.9 0 1 0 0 1.8h10.32l-4.46 4.46a.9.9 0 1 0 1.28 1.28l6-6a.9.9 0 0 0 0-1.28l-6-6Z" />
                 </svg>
@@ -89,36 +95,25 @@
             </div>
           </div>
         </form>
-
-        <section class="mission-prompts" aria-label="Popular missions">
-          <button type="button" class="prompt-chip">Plan my Japan trip</button>
-          <button type="button" class="prompt-chip">Find my first home</button>
-          <button type="button" class="prompt-chip">Buy the best laptop</button>
-          <button type="button" class="prompt-chip">Start a business</button>
-          <button type="button" class="prompt-chip">Find the cheapest flight</button>
-          <button type="button" class="prompt-chip">Move to Canada</button>
-          <button type="button" class="prompt-chip">Build my dream PC</button>
-          <button type="button" class="prompt-chip">Save me money</button>
-        </section>
       </section>
     </main>
 
-    <footer class="site-footer" aria-label="Footer">
+    <footer class="site-footer" aria-label="Footer" data-i18n-aria="footer">
       <div class="footer-left">
-        <span>South Korea</span>
-        <a href="#">Partners</a>
-        <a href="#">Business</a>
-        <a href="#">Developers</a>
+        <span id="locationText">South Korea</span>
+        <a href="#" data-i18n="partners">Partners</a>
+        <a href="#" data-i18n="business">Business</a>
+        <a href="#" data-i18n="developers">Developers</a>
       </div>
 
       <div class="footer-center">
-        <span>Powered by Kastiz</span>
+        <span data-i18n="poweredBy">Powered by Kastiz</span>
       </div>
 
       <div class="footer-right">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Settings</a>
+        <a href="#" data-i18n="privacy">Privacy</a>
+        <a href="#" data-i18n="terms">Terms</a>
+        <a href="settings.html" data-i18n="settings">Settings</a>
       </div>
     </footer>
   </div>
