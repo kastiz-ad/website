@@ -8,13 +8,11 @@
   --border-strong: rgba(17, 17, 17, 0.18);
   --surface: rgba(255, 255, 255, 0.86);
   --surface-strong: rgba(255, 255, 255, 0.98);
-  --shadow-soft: 0 18px 70px rgba(0, 0, 0, 0.06);
   --shadow-search: 0 12px 44px rgba(0, 0, 0, 0.08);
   --accent: #111111;
   --accent-text: #ffffff;
   --chip-bg: rgba(17, 17, 17, 0.04);
-  --chip-hover: rgba(17, 17, 17, 0.07);
-  --control-bg: rgba(255, 255, 255, 0.72);
+  --control-bg: transparent;
   --focus: rgba(17, 17, 17, 0.18);
   --footer-bg: rgba(255, 255, 255, 0.76);
   --gradient-a: rgba(255, 255, 255, 1);
@@ -25,7 +23,6 @@
 
 html[data-theme="gray"] {
   --bg: #f4f2ed;
-  --bg-soft: #fbfaf7;
   --text: #171717;
   --text-muted: #6f6a62;
   --text-soft: #9b948a;
@@ -33,14 +30,10 @@ html[data-theme="gray"] {
   --border-strong: rgba(23, 23, 23, 0.18);
   --surface: rgba(255, 255, 255, 0.78);
   --surface-strong: rgba(255, 255, 255, 0.94);
-  --shadow-soft: 0 18px 70px rgba(34, 28, 20, 0.08);
   --shadow-search: 0 16px 50px rgba(33, 27, 19, 0.1);
   --accent: #171717;
   --accent-text: #ffffff;
   --chip-bg: rgba(255, 255, 255, 0.68);
-  --chip-hover: rgba(255, 255, 255, 0.92);
-  --control-bg: rgba(255, 255, 255, 0.62);
-  --focus: rgba(23, 23, 23, 0.2);
   --footer-bg: rgba(244, 242, 237, 0.76);
   --gradient-a: rgba(255, 255, 255, 0.86);
   --gradient-b: rgba(232, 226, 216, 0.6);
@@ -50,7 +43,6 @@ html[data-theme="gray"] {
 
 html[data-theme="midnight"] {
   --bg: #121315;
-  --bg-soft: #1a1c1f;
   --text: #f4f1ea;
   --text-muted: #b4b0a8;
   --text-soft: #7e807f;
@@ -58,14 +50,10 @@ html[data-theme="midnight"] {
   --border-strong: rgba(244, 241, 234, 0.2);
   --surface: rgba(26, 28, 31, 0.82);
   --surface-strong: rgba(32, 34, 38, 0.96);
-  --shadow-soft: 0 24px 90px rgba(0, 0, 0, 0.26);
   --shadow-search: 0 22px 70px rgba(0, 0, 0, 0.34);
   --accent: #f4f1ea;
   --accent-text: #121315;
   --chip-bg: rgba(244, 241, 234, 0.07);
-  --chip-hover: rgba(244, 241, 234, 0.12);
-  --control-bg: rgba(32, 34, 38, 0.74);
-  --focus: rgba(244, 241, 234, 0.23);
   --footer-bg: rgba(18, 19, 21, 0.72);
   --gradient-a: rgba(32, 34, 38, 0.5);
   --gradient-b: rgba(18, 19, 21, 0.92);
@@ -106,13 +94,11 @@ body.is-transitioning .site-header {
 
 button,
 input,
-a,
-select {
+a {
   font: inherit;
 }
 
-button,
-select {
+button {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -144,7 +130,7 @@ a {
 
 .header-left,
 .header-actions,
-.control-group {
+.text-controls {
   display: flex;
   align-items: center;
 }
@@ -158,79 +144,98 @@ a {
   gap: 22px;
 }
 
-.control-group {
-  gap: 9px;
+.text-controls {
+  gap: 18px;
 }
 
-.header-link {
+.header-link,
+.text-control {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--text-muted);
+  cursor: pointer;
   font-size: 14px;
   font-weight: 520;
   letter-spacing: -0.01em;
-  color: var(--text-muted);
   transition: color 180ms ease, opacity 180ms ease;
 }
 
-.header-link:hover {
+.header-link:hover,
+.text-control:hover {
+  color: var(--text);
+}
+
+.text-dropdown {
+  position: relative;
+}
+
+.text-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chevron {
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.72;
+  transform: translateY(-1px);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 26px;
+  left: 0;
+  min-width: 142px;
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-strong);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.11);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.text-dropdown.is-open .dropdown-menu {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.dropdown-menu button {
+  width: 100%;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: left;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 560;
+  letter-spacing: -0.015em;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.dropdown-menu button:hover,
+.dropdown-menu button.is-active {
+  background: var(--chip-bg);
   color: var(--text);
 }
 
 .header-link:focus-visible,
+.text-control:focus-visible,
+.dropdown-menu button:focus-visible,
 .icon-button:focus-visible,
-.submit-button:focus-visible,
-.select-control select:focus-visible {
+.submit-button:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 4px;
-}
-
-.select-control {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 36px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--control-bg);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.035);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  transition: border-color 180ms ease, background-color 220ms ease, transform 180ms ease;
-}
-
-.select-control:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-1px);
-}
-
-.select-control::after {
-  content: "⌄";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  color: var(--text-muted);
-  font-size: 14px;
-  line-height: 1;
-  pointer-events: none;
-  transform: translateY(-55%);
-}
-
-.select-control select {
-  height: 34px;
-  min-width: 118px;
-  padding: 0 30px 0 14px;
-  border: 0;
-  outline: 0;
-  border-radius: 999px;
-  appearance: none;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 650;
-  letter-spacing: -0.018em;
-}
-
-.language-control select {
-  min-width: 104px;
 }
 
 .hero {
@@ -561,31 +566,25 @@ html[data-theme="midnight"] .search-box:focus-within {
 
   .header-actions {
     gap: 15px;
-    padding-top: 8px;
+    padding-top: 3px;
   }
 
   .header-link {
     font-size: 13px;
   }
 
-  .control-group {
+  .text-controls {
     flex-direction: column;
     align-items: flex-start;
     gap: 7px;
   }
 
-  .select-control {
-    height: 32px;
+  .text-control {
+    font-size: 13px;
   }
 
-  .select-control select {
-    height: 30px;
-    min-width: 110px;
-    font-size: 12px;
-  }
-
-  .language-control select {
-    min-width: 94px;
+  .dropdown-menu {
+    top: 24px;
   }
 
   .hero {
