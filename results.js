@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
   language: "kastiz-one-language",
   mission: "kastiz-one-current-mission",
+  travelMission: "kastiz-one-travel-mission",
   results: "kastiz-one-results"
 };
 
@@ -32,7 +33,7 @@ const translations = {
     withOne: "with ONE",
     missionApproved: "Mission Approved",
     oneIsWorking: "ONE is making it happen.",
-    finalMessage: "Turning your dream into reality.",
+    finalMessage: "Your future is now in motion.",
     returnHomeNow: "Return Home Now",
     returningHome: "Returning to Home in {seconds} seconds...",
     partners: "Partners",
@@ -44,18 +45,41 @@ const translations = {
     settings: "Settings",
     unknownLocation: "Unknown Location",
     recommended: "Recommended:",
+    reason: "Reason:",
+    otherOptions: "Other options:",
     modify: "Modify",
     editing: "Editing",
-    approvalSteps: [
-      "Booking flights...",
-      "Reserving hotel...",
-      "Preparing travel insurance...",
-      "Checking visa...",
-      "Building itinerary...",
-      "Reserving restaurants...",
-      "Preparing airport transfer..."
+    remove: "Remove",
+    restore: "Restore",
+    changeAirline: "Change airline",
+    changeHotelType: "Change hotel type",
+    removeRestaurants: "Remove restaurants",
+    reduceBudget: "Reduce budget",
+    upgradeQuality: "Upgrade quality",
+    verifyVisa: "Verify before execution",
+    budgetFlights: "Flights",
+    budgetHotel: "Hotel",
+    budgetFood: "Food",
+    budgetTransport: "Transport",
+    budgetActivities: "Activities",
+    estimatedTotal: "Estimated total",
+    weather: "Weather",
+    exchangeRate: "Exchange Rate",
+    visa: "Visa",
+    apiPlaceholder: "Prepared as API-ready placeholder",
+    approvalProtectionTitle: "Approval Protection",
+    approvalProtection:
+      "Nothing will be booked, purchased, reserved, signed, or legally committed until you explicitly approve.",
+    executionSteps: [
+      "Preparing flight booking...",
+      "Preparing hotel reservation...",
+      "Preparing travel checklist...",
+      "Preparing restaurant options...",
+      "Preparing airport transfer...",
+      "Finalizing your mission..."
     ],
-    fallbackMission: "Plan my Japan trip"
+    fallbackMission: "Plan my Japan trip",
+    fallbackTitle: "Japan Trip"
   },
   ko: {
     upgrade: "업그레이드",
@@ -67,7 +91,7 @@ const translations = {
     withOne: "with ONE",
     missionApproved: "미션 승인 완료",
     oneIsWorking: "ONE이 실행하고 있습니다.",
-    finalMessage: "당신의 꿈이 현실이 되고 있습니다.",
+    finalMessage: "당신의 미래가 움직이기 시작했습니다.",
     returnHomeNow: "지금 홈으로 돌아가기",
     returningHome: "{seconds}초 후 홈으로 돌아갑니다...",
     partners: "파트너",
@@ -79,18 +103,41 @@ const translations = {
     settings: "설정",
     unknownLocation: "알 수 없는 위치",
     recommended: "추천:",
+    reason: "추천 이유:",
+    otherOptions: "다른 옵션:",
     modify: "수정",
     editing: "수정 중",
-    approvalSteps: [
+    remove: "제거",
+    restore: "복구",
+    changeAirline: "항공사 변경",
+    changeHotelType: "호텔 유형 변경",
+    removeRestaurants: "레스토랑 제외",
+    reduceBudget: "예산 줄이기",
+    upgradeQuality: "품질 업그레이드",
+    verifyVisa: "실행 전 확인",
+    budgetFlights: "항공권",
+    budgetHotel: "호텔",
+    budgetFood: "식비",
+    budgetTransport: "교통",
+    budgetActivities: "활동",
+    estimatedTotal: "예상 총액",
+    weather: "날씨",
+    exchangeRate: "환율",
+    visa: "비자",
+    apiPlaceholder: "API 연결 준비용 placeholder",
+    approvalProtectionTitle: "승인 보호",
+    approvalProtection:
+      "사용자가 명확히 승인하기 전까지 예약, 구매, 결제, 서명, 법적 약속은 절대 진행되지 않습니다.",
+    executionSteps: [
       "항공권 예약 준비 중...",
       "호텔 예약 준비 중...",
-      "여행자 보험 준비 중...",
-      "비자 확인 중...",
-      "여행 일정 구성 중...",
-      "레스토랑 예약 준비 중...",
-      "공항 이동 준비 중..."
+      "여행 체크리스트 준비 중...",
+      "레스토랑 옵션 준비 중...",
+      "공항 이동 준비 중...",
+      "미션을 최종 준비 중..."
     ],
-    fallbackMission: "일본 여행 계획해줘"
+    fallbackMission: "일본 여행 계획해줘",
+    fallbackTitle: "일본 여행"
   }
 };
 
@@ -121,213 +168,7 @@ const countryNamesByRegion = {
 let activeLanguage = "en";
 let returnTimer = null;
 let remainingSeconds = 60;
-
-const missionDataByType = {
-  japan: [
-    {
-      title: { en: "Flights", ko: "항공권" },
-      label: { en: "Recommended", ko: "추천" },
-      value: { en: "Korean Air", ko: "대한항공" },
-      reason: {
-        en: "Best quality, direct routes, strong schedule reliability, and premium service for Korea to Japan travel.",
-        ko: "한국에서 일본으로 이동할 때 직항, 일정 안정성, 서비스 품질의 균형이 가장 좋습니다."
-      },
-      options: [
-        [{ en: "Best quality", ko: "최고 품질" }, { en: "Korean Air", ko: "대한항공" }],
-        [{ en: "Cheapest", ko: "최저가" }, { en: "Jeju Air", ko: "제주항공" }],
-        [{ en: "Best direct flight", ko: "최적 직항" }, { en: "Korean Air", ko: "대한항공" }]
-      ]
-    },
-    {
-      title: { en: "Hotels", ko: "호텔" },
-      label: { en: "Recommended", ko: "추천" },
-      value: { en: "Hilton Tokyo", ko: "힐튼 도쿄" },
-      reason: {
-        en: "Strong location, reliable service, airport access, and business-grade comfort.",
-        ko: "위치, 서비스 안정성, 공항 접근성, 프리미엄 숙박 경험의 균형이 좋습니다."
-      },
-      options: [
-        [{ en: "Best comfort", ko: "최고 편안함" }, { en: "Hilton Tokyo", ko: "힐튼 도쿄" }],
-        [{ en: "Best value", ko: "가성비" }, { en: "JR Kyushu Hotel Blossom", ko: "JR 큐슈 호텔 블라썸" }],
-        [{ en: "Best luxury", ko: "럭셔리" }, { en: "Aman Tokyo", ko: "아만 도쿄" }]
-      ]
-    },
-    {
-      title: { en: "Insurance", ko: "보험" },
-      label: { en: "Protected", ko: "보호" },
-      value: { en: "Travel medical + cancellation", ko: "여행자 의료 + 취소 보장" },
-      reason: {
-        en: "Covers medical emergencies, delays, baggage, and cancellation risks before execution.",
-        ko: "의료 응급상황, 지연, 수하물, 취소 리스크를 실행 전에 대비합니다."
-      },
-      options: [
-        [{ en: "Medical", ko: "의료" }, { en: "Included", ko: "포함" }],
-        [{ en: "Baggage", ko: "수하물" }, { en: "Included", ko: "포함" }],
-        [{ en: "Cancellation", ko: "취소" }, { en: "Recommended", ko: "추천" }]
-      ]
-    },
-    {
-      title: { en: "JR Pass", ko: "JR 패스" },
-      label: { en: "Review", ko: "검토" },
-      value: { en: "Route-based decision", ko: "동선 기준 결정" },
-      reason: {
-        en: "ONE checks your exact cities first because JR Pass only makes sense when long-distance rail exceeds pass cost.",
-        ko: "JR 패스는 장거리 이동 비용이 패스 가격보다 높을 때만 의미가 있어 정확한 도시 동선을 먼저 확인합니다."
-      },
-      options: [
-        [{ en: "Tokyo only", ko: "도쿄만" }, { en: "Skip", ko: "불필요" }],
-        [{ en: "Tokyo + Kyoto", ko: "도쿄 + 교토" }, { en: "Compare", ko: "비교" }],
-        [{ en: "Multi-city", ko: "다도시" }, { en: "Likely useful", ko: "유용 가능" }]
-      ]
-    },
-    {
-      title: { en: "Restaurants", ko: "레스토랑" },
-      label: { en: "Curated", ko: "큐레이션" },
-      value: { en: "Local + premium mix", ko: "로컬 + 프리미엄 조합" },
-      reason: {
-        en: "Balanced between famous reservations, local hidden spots, and convenient meals near your route.",
-        ko: "유명 예약 식당, 현지 맛집, 동선에 맞는 편리한 식사를 균형 있게 준비합니다."
-      },
-      options: [
-        [{ en: "Sushi", ko: "스시" }, { en: "Reservation-ready", ko: "예약 준비" }],
-        [{ en: "Ramen", ko: "라멘" }, { en: "Local shortlist", ko: "현지 후보" }],
-        [{ en: "Cafe", ko: "카페" }, { en: "Route matched", ko: "동선 맞춤" }]
-      ]
-    },
-    {
-      title: { en: "Airport Transfer", ko: "공항 이동" },
-      label: { en: "Recommended", ko: "추천" },
-      value: { en: "Airport limousine", ko: "공항 리무진" },
-      reason: {
-        en: "Best balance of comfort, luggage handling, cost, and direct access to major hotel zones.",
-        ko: "편안함, 수하물 이동, 비용, 주요 호텔 지역 접근성의 균형이 좋습니다."
-      },
-      options: [
-        [{ en: "Best comfort", ko: "최고 편안함" }, { en: "Private car", ko: "프라이빗 차량" }],
-        [{ en: "Best value", ko: "가성비" }, { en: "Limousine bus", ko: "리무진 버스" }],
-        [{ en: "Fastest", ko: "가장 빠름" }, { en: "Train", ko: "전철" }]
-      ]
-    },
-    {
-      title: { en: "Budget", ko: "예산" },
-      label: { en: "Estimated", ko: "예상" },
-      value: { en: "₩1.8M – ₩3.2M", ko: "180만 원 – 320만 원" },
-      reason: {
-        en: "Estimated for flights, hotel, meals, transport, insurance, and flexible activity spending.",
-        ko: "항공권, 호텔, 식사, 교통, 보험, 활동 비용을 포함한 예상 범위입니다."
-      },
-      options: [
-        [{ en: "Economy", ko: "이코노미" }, { en: "₩1.2M – ₩1.8M", ko: "120만 원 – 180만 원" }],
-        [{ en: "Balanced", ko: "균형형" }, { en: "₩1.8M – ₩3.2M", ko: "180만 원 – 320만 원" }],
-        [{ en: "Premium", ko: "프리미엄" }, { en: "₩3.2M+", ko: "320만 원 이상" }]
-      ],
-      wide: true
-    },
-    {
-      title: { en: "Timeline", ko: "일정" },
-      label: { en: "Ready", ko: "준비 완료" },
-      value: { en: "5-day mission plan", ko: "5일 미션 플랜" },
-      reason: {
-        en: "Arrival, hotel check-in, restaurants, transport, shopping, and return route are structured into one editable plan.",
-        ko: "도착, 호텔 체크인, 식당, 교통, 쇼핑, 귀국 동선을 하나의 수정 가능한 플랜으로 구성합니다."
-      },
-      options: [
-        [{ en: "Day 1", ko: "1일차" }, { en: "Arrival + hotel + dinner", ko: "도착 + 호텔 + 저녁" }],
-        [{ en: "Day 2–4", ko: "2–4일차" }, { en: "Core itinerary", ko: "핵심 일정" }],
-        [{ en: "Day 5", ko: "5일차" }, { en: "Return + airport transfer", ko: "귀국 + 공항 이동" }]
-      ],
-      wide: true
-    }
-  ],
-  default: [
-    {
-      title: { en: "Mission Plan", ko: "미션 플랜" },
-      label: { en: "Recommended", ko: "추천" },
-      value: { en: "Prepared execution path", ko: "실행 경로 준비" },
-      reason: {
-        en: "ONE breaks the mission into clear decisions, provider options, risks, budget, and next actions.",
-        ko: "ONE이 미션을 결정 사항, 제공업체 옵션, 리스크, 예산, 다음 행동으로 나누어 준비합니다."
-      },
-      options: [
-        [{ en: "Approach", ko: "방향" }, { en: "Best quality", ko: "최고 품질" }],
-        [{ en: "Backup", ko: "대안" }, { en: "Lower cost", ko: "비용 절감" }],
-        [{ en: "Execution", ko: "실행" }, { en: "User-approved", ko: "사용자 승인 기반" }]
-      ]
-    },
-    {
-      title: { en: "Trusted Providers", ko: "신뢰 가능한 제공업체" },
-      label: { en: "Shortlist", ko: "후보" },
-      value: { en: "Best-fit providers", ko: "최적 제공업체" },
-      reason: {
-        en: "ONE compares quality, price, reliability, location, service level, and approval requirements.",
-        ko: "품질, 가격, 신뢰도, 위치, 서비스 수준, 승인 조건을 비교합니다."
-      },
-      options: [
-        [{ en: "Premium", ko: "프리미엄" }, { en: "Best service", ko: "최고 서비스" }],
-        [{ en: "Value", ko: "가성비" }, { en: "Best price", ko: "최적 가격" }],
-        [{ en: "Fastest", ko: "최단 시간" }, { en: "Quickest start", ko: "빠른 시작" }]
-      ]
-    },
-    {
-      title: { en: "Budget", ko: "예산" },
-      label: { en: "Estimated", ko: "예상" },
-      value: { en: "Editable range", ko: "수정 가능한 범위" },
-      reason: {
-        en: "ONE prepares budget ranges before any spending so every decision stays under user control.",
-        ko: "어떤 지출도 하기 전 예산 범위를 준비해 모든 결정권이 사용자에게 남아 있게 합니다."
-      },
-      options: [
-        [{ en: "Low", ko: "낮음" }, { en: "Cost-saving", ko: "비용 절감" }],
-        [{ en: "Balanced", ko: "균형형" }, { en: "Recommended", ko: "추천" }],
-        [{ en: "Premium", ko: "프리미엄" }, { en: "Best quality", ko: "최고 품질" }]
-      ]
-    },
-    {
-      title: { en: "Timeline", ko: "일정" },
-      label: { en: "Ready", ko: "준비 완료" },
-      value: { en: "Step-by-step execution", ko: "단계별 실행" },
-      reason: {
-        en: "ONE sequences the mission so the user can approve, customize, and execute without mental overload.",
-        ko: "사용자가 부담 없이 승인, 수정, 실행할 수 있도록 미션을 순서대로 구성합니다."
-      },
-      options: [
-        [{ en: "Prepare", ko: "준비" }, { en: "Now", ko: "지금" }],
-        [{ en: "Approve", ko: "승인" }, { en: "Before spending", ko: "지출 전" }],
-        [{ en: "Execute", ko: "실행" }, { en: "After approval", ko: "승인 후" }]
-      ]
-    },
-    {
-      title: { en: "Risk Check", ko: "리스크 확인" },
-      label: { en: "Protected", ko: "보호" },
-      value: { en: "Approval-first execution", ko: "승인 우선 실행" },
-      reason: {
-        en: "ONE never commits, books, purchases, signs, or spends money until the user explicitly approves.",
-        ko: "사용자가 명확히 승인하기 전에는 예약, 구매, 서명, 지출을 절대 진행하지 않습니다."
-      },
-      options: [
-        [{ en: "Money", ko: "돈" }, { en: "Protected", ko: "보호됨" }],
-        [{ en: "Contracts", ko: "계약" }, { en: "Approval needed", ko: "승인 필요" }],
-        [{ en: "Changes", ko: "변경" }, { en: "Editable", ko: "수정 가능" }]
-      ],
-      wide: true
-    },
-    {
-      title: { en: "Next Actions", ko: "다음 행동" },
-      label: { en: "Mission Ready", ko: "미션 준비 완료" },
-      value: { en: "Customize or approve", ko: "수정 또는 승인" },
-      reason: {
-        en: "Use Customize to edit every card or Make It Reality to begin the approved execution sequence.",
-        ko: "수정하기로 각 카드를 조정하거나 현실로 만들기를 눌러 승인된 실행 흐름을 시작합니다."
-      },
-      options: [
-        [{ en: "Edit", ko: "수정" }, { en: "Customize", ko: "수정하기" }],
-        [{ en: "Approve", ko: "승인" }, { en: "Make It Reality", ko: "현실로 만들기" }],
-        [{ en: "Control", ko: "통제권" }, { en: "Always yours", ko: "항상 사용자에게" }]
-      ],
-      wide: true
-    }
-  ]
-};
+let currentResult = null;
 
 const getLanguage = () => {
   const saved = localStorage.getItem(STORAGE_KEYS.language);
@@ -346,6 +187,24 @@ const t = (key) => {
 const localize = (value) => {
   if (typeof value === "string") return value;
   return value?.[activeLanguage] ?? value?.en ?? "";
+};
+
+const formatKRW = (value) => {
+  if (typeof value !== "number") return value;
+
+  return activeLanguage === "ko"
+    ? `${Math.round(value / 10000).toLocaleString("ko-KR")}만 원`
+    : `₩${value.toLocaleString("en-US")}`;
+};
+
+const formatRange = (range) => {
+  if (!range) return "";
+
+  if (typeof range.min === "number" && typeof range.max === "number") {
+    return `${formatKRW(range.min)} – ${formatKRW(range.max)}`;
+  }
+
+  return "";
 };
 
 const setTheme = () => {
@@ -377,101 +236,748 @@ const updateLocation = () => {
   locationText.textContent = countryNamesByRegion[region] || t("unknownLocation");
 };
 
-const getMission = () => {
+const getStoredResult = () => {
   try {
     const resultsRaw = sessionStorage.getItem(STORAGE_KEYS.results);
+    const travelRaw = sessionStorage.getItem(STORAGE_KEYS.travelMission);
     const missionRaw = sessionStorage.getItem(STORAGE_KEYS.mission);
-    const parsed = JSON.parse(resultsRaw || missionRaw);
+    const parsed = JSON.parse(resultsRaw || travelRaw || missionRaw);
 
-    if (parsed?.mission) return parsed;
+    if (parsed?.type) return parsed;
   } catch {}
 
+  return null;
+};
+
+const createFallbackTravelResult = () => {
   return {
+    id: `fallback-travel-${Date.now()}`,
+    resultId: `fallback-result-${Date.now()}`,
+    type: "travel",
+    status: "mission-ready",
     mission: t("fallbackMission"),
-    slug: "plan-my-japan-trip",
-    createdAt: new Date().toISOString()
+    originalMission: t("fallbackMission"),
+    language: activeLanguage,
+    approvalRequired: true,
+    display: {
+      missionReady: t("missionReady"),
+      title: t("fallbackTitle"),
+      destination: activeLanguage === "ko" ? "일본" : "Japan",
+      city: activeLanguage === "ko" ? "도쿄" : "Tokyo",
+      approvalProtection: t("approvalProtection")
+    },
+    destination: {
+      country: "Japan",
+      countryKo: "일본",
+      city: "Tokyo",
+      cityKo: "도쿄"
+    },
+    durationDays: 7,
+    departureCountry: {
+      code: "KR",
+      name: "South Korea"
+    },
+    flights: [
+      {
+        id: "flight-korean-air",
+        provider: "Korean Air",
+        providerKo: "대한항공",
+        category: "recommended",
+        reason: "Best balance of comfort, direct routes, and service quality.",
+        reasonKo: "편안함, 직항 노선, 서비스 품질의 균형이 가장 좋습니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 420000,
+          max: 760000
+        },
+        editable: true
+      },
+      {
+        id: "flight-asiana",
+        provider: "Asiana Airlines",
+        providerKo: "아시아나항공",
+        category: "quality",
+        reason: "Strong service quality and convenient Korea to Japan schedules.",
+        reasonKo: "서비스 품질이 좋고 한국-일본 노선 일정이 편리합니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 390000,
+          max: 720000
+        },
+        editable: true
+      },
+      {
+        id: "flight-jeju-air",
+        provider: "Jeju Air",
+        providerKo: "제주항공",
+        category: "budget",
+        reason: "Lower-cost option for flexible travelers.",
+        reasonKo: "일정이 유연한 여행자에게 적합한 저가 옵션입니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 180000,
+          max: 390000
+        },
+        editable: true
+      },
+      {
+        id: "flight-jal",
+        provider: "Japan Airlines",
+        providerKo: "일본항공",
+        category: "premium",
+        reason: "Premium Japan-based carrier with excellent reliability.",
+        reasonKo: "안정성이 뛰어난 일본 기반 프리미엄 항공사입니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 460000,
+          max: 820000
+        },
+        editable: true
+      },
+      {
+        id: "flight-united",
+        provider: "United Airlines",
+        providerKo: "유나이티드항공",
+        category: "alternative",
+        reason: "Useful alternative depending on route availability.",
+        reasonKo: "노선 가능 여부에 따라 선택할 수 있는 대안입니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 430000,
+          max: 850000
+        },
+        editable: true
+      }
+    ],
+    hotels: [
+      {
+        id: "hotel-metropolitan",
+        name: "Hotel Metropolitan Tokyo Marunouchi",
+        nameKo: "호텔 메트로폴리탄 도쿄 마루노우치",
+        category: "recommended",
+        reason: "Central location, strong reviews, easy access to transport.",
+        reasonKo: "중심 위치, 좋은 리뷰, 편리한 교통 접근성을 갖췄습니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 240000,
+          max: 420000
+        },
+        editable: true
+      },
+      {
+        id: "hotel-hilton-tokyo",
+        name: "Hilton Tokyo",
+        nameKo: "힐튼 도쿄",
+        category: "premium",
+        reason: "Premium comfort and reliable international service.",
+        reasonKo: "프리미엄 숙박 경험과 안정적인 글로벌 서비스를 제공합니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 320000,
+          max: 620000
+        },
+        editable: true
+      },
+      {
+        id: "hotel-tokyu-stay",
+        name: "Tokyu Stay Shinjuku",
+        nameKo: "도큐 스테이 신주쿠",
+        category: "value",
+        reason: "Practical location and strong value for longer stays.",
+        reasonKo: "실용적인 위치와 장기 숙박에 좋은 가성비를 제공합니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 160000,
+          max: 290000
+        },
+        editable: true
+      },
+      {
+        id: "hotel-apa",
+        name: "APA Hotel",
+        nameKo: "APA 호텔",
+        category: "budget",
+        reason: "Budget-friendly and widely available across Tokyo.",
+        reasonKo: "도쿄 전역에서 찾기 쉽고 예산을 아끼기 좋은 옵션입니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 95000,
+          max: 180000
+        },
+        editable: true
+      }
+    ],
+    airportTransfer: {
+      recommended: {
+        en: "Narita Express or Airport Limousine Bus",
+        ko: "나리타 익스프레스 또는 공항 리무진 버스"
+      },
+      reason: {
+        en: "Best balance of reliability, luggage convenience, and access to central Tokyo.",
+        ko: "정시성, 수하물 편의성, 도쿄 중심 접근성의 균형이 좋습니다."
+      },
+      options: [
+        {
+          en: "Narita Express",
+          ko: "나리타 익스프레스"
+        },
+        {
+          en: "Airport Limousine Bus",
+          ko: "공항 리무진 버스"
+        },
+        {
+          en: "Private airport transfer",
+          ko: "프라이빗 공항 픽업"
+        }
+      ],
+      editable: true
+    },
+    weather: {
+      status: "placeholder",
+      message: {
+        en: "Weather will be checked with a live weather API before execution.",
+        ko: "실행 전 실시간 날씨 API로 날씨를 확인합니다."
+      }
+    },
+    exchangeRate: {
+      status: "placeholder",
+      from: "KRW",
+      to: "JPY",
+      message: {
+        en: "Exchange rate will be checked with a live currency API before execution.",
+        ko: "실행 전 실시간 환율 API로 환율을 확인합니다."
+      }
+    },
+    visa: {
+      status: "requires-verification",
+      message: {
+        en: "For many travelers visa-free entry may apply, but ONE must verify before execution.",
+        ko: "많은 여행자에게 무비자 입국이 가능할 수 있지만, 실행 전 ONE이 반드시 확인해야 합니다."
+      }
+    },
+    checklist: [
+      {
+        id: "passport",
+        en: "Passport",
+        ko: "여권",
+        required: true,
+        editable: true
+      },
+      {
+        id: "travel-insurance",
+        en: "Travel insurance",
+        ko: "여행자 보험",
+        required: true,
+        editable: true
+      },
+      {
+        id: "sim-esim",
+        en: "SIM / eSIM",
+        ko: "SIM / eSIM",
+        required: false,
+        editable: true
+      },
+      {
+        id: "currency",
+        en: "Currency",
+        ko: "환전",
+        required: true,
+        editable: true
+      },
+      {
+        id: "transit-card",
+        en: "Transit card",
+        ko: "교통카드",
+        required: false,
+        editable: true
+      },
+      {
+        id: "hotel-confirmation",
+        en: "Hotel confirmation",
+        ko: "호텔 예약 확인서",
+        required: true,
+        editable: true
+      },
+      {
+        id: "emergency-contacts",
+        en: "Emergency contacts",
+        ko: "비상 연락처",
+        required: true,
+        editable: true
+      }
+    ],
+    restaurants: [
+      {
+        id: "sushi",
+        type: "Sushi",
+        typeKo: "스시",
+        recommendation: "Reservation-ready sushi options near your route.",
+        recommendationKo: "동선 근처 예약 가능한 스시 옵션을 준비합니다.",
+        editable: true
+      },
+      {
+        id: "ramen",
+        type: "Ramen",
+        typeKo: "라멘",
+        recommendation: "Local ramen shortlist based on location and wait time.",
+        recommendationKo: "위치와 대기 시간을 기준으로 현지 라멘 후보를 준비합니다.",
+        editable: true
+      },
+      {
+        id: "wagyu",
+        type: "Wagyu",
+        typeKo: "와규",
+        recommendation: "Premium wagyu options for one special meal.",
+        recommendationKo: "특별한 식사를 위한 프리미엄 와규 옵션을 준비합니다.",
+        editable: true
+      },
+      {
+        id: "izakaya",
+        type: "Izakaya",
+        typeKo: "이자카야",
+        recommendation: "Casual evening options near hotel or station.",
+        recommendationKo: "호텔이나 역 근처의 캐주얼한 저녁 옵션을 준비합니다.",
+        editable: true
+      },
+      {
+        id: "cafe",
+        type: "Cafe",
+        typeKo: "카페",
+        recommendation: "Premium cafes and quiet stops along the itinerary.",
+        recommendationKo: "일정 중 들르기 좋은 프리미엄 카페와 조용한 장소를 준비합니다.",
+        editable: true
+      }
+    ],
+    budget: {
+      currency: "KRW",
+      flights: {
+        min: 420000,
+        max: 760000
+      },
+      hotel: {
+        min: 1680000,
+        max: 2940000
+      },
+      food: {
+        min: 420000,
+        max: 980000
+      },
+      transport: {
+        min: 120000,
+        max: 280000
+      },
+      activities: {
+        min: 250000,
+        max: 700000
+      },
+      estimatedTotal: {
+        min: 2890000,
+        max: 5660000
+      },
+      editable: true
+    },
+    recommendedOption: {
+      level: "balanced",
+      en: "Balanced quality plan",
+      ko: "균형형 품질 플랜",
+      reason: {
+        en: "Best overall mix of comfort, price control, transport access, and reliable providers.",
+        ko: "편안함, 가격 통제, 교통 접근성, 신뢰 가능한 제공업체의 균형이 가장 좋습니다."
+      }
+    },
+    modifyOptions: [
+      {
+        id: "change-airline",
+        en: "Change airline",
+        ko: "항공사 변경"
+      },
+      {
+        id: "change-hotel-type",
+        en: "Change hotel type",
+        ko: "호텔 유형 변경"
+      },
+      {
+        id: "remove-restaurants",
+        en: "Remove restaurants",
+        ko: "레스토랑 제외"
+      },
+      {
+        id: "reduce-budget",
+        en: "Reduce budget",
+        ko: "예산 줄이기"
+      },
+      {
+        id: "upgrade-quality",
+        en: "Upgrade quality",
+        ko: "품질 업그레이드"
+      }
+    ],
+    executionSequence: {
+      en: translations.en.executionSteps,
+      ko: translations.ko.executionSteps
+    },
+    finalMessage: {
+      en: translations.en.finalMessage,
+      ko: translations.ko.finalMessage
+    },
+    approvalProtection: {
+      en: translations.en.approvalProtection,
+      ko: translations.ko.approvalProtection
+    }
   };
 };
 
-const getMissionType = (mission) => {
-  const text = mission.toLowerCase();
+const normalizeStoredResult = (stored) => {
+  if (!stored) return createFallbackTravelResult();
 
-  if (
-    text.includes("japan") ||
-    text.includes("tokyo") ||
-    text.includes("kyoto") ||
-    text.includes("trip") ||
-    text.includes("travel") ||
-    text.includes("일본") ||
-    text.includes("여행")
-  ) {
-    return "japan";
+  if (stored.type === "travel") {
+    const result = {
+      ...stored,
+      display: {
+        missionReady: stored.display?.missionReady || t("missionReady"),
+        title:
+          stored.display?.title ||
+          (activeLanguage === "ko"
+            ? `${stored.destination?.countryKo || "일본"} 여행`
+            : `${stored.destination?.country || "Japan"} Trip`),
+        destination:
+          stored.display?.destination ||
+          (activeLanguage === "ko"
+            ? stored.destination?.countryKo || "일본"
+            : stored.destination?.country || "Japan"),
+        city:
+          stored.display?.city ||
+          (activeLanguage === "ko"
+            ? stored.destination?.cityKo || "도쿄"
+            : stored.destination?.city || "Tokyo"),
+        approvalProtection:
+          stored.display?.approvalProtection ||
+          localize(stored.approvalProtection) ||
+          t("approvalProtection")
+      }
+    };
+
+    result.executionSequence = result.executionSequence || {
+      en: translations.en.executionSteps,
+      ko: translations.ko.executionSteps
+    };
+
+    result.finalMessage = result.finalMessage || {
+      en: translations.en.finalMessage,
+      ko: translations.ko.finalMessage
+    };
+
+    return result;
   }
 
-  return "default";
+  return createFallbackTravelResult();
 };
 
-const createCard = (item, index) => {
+const makeOptionRow = (key, value) => {
+  return `
+    <div class="option-row">
+      <span class="option-key">${key}</span>
+      <span class="option-value">${value}</span>
+    </div>
+  `;
+};
+
+const makeOptionList = (options) => {
+  if (!Array.isArray(options) || options.length === 0) return "";
+
+  return `
+    <p class="recommendation-label">${t("otherOptions")}</p>
+    <div class="option-list">
+      ${options.join("")}
+    </div>
+  `;
+};
+
+const getFlightName = (flight) => {
+  return activeLanguage === "ko" ? flight.providerKo || flight.provider : flight.provider;
+};
+
+const getHotelName = (hotel) => {
+  return activeLanguage === "ko" ? hotel.nameKo || hotel.name : hotel.name;
+};
+
+const getRestaurantName = (restaurant) => {
+  return activeLanguage === "ko" ? restaurant.typeKo || restaurant.type : restaurant.type;
+};
+
+const getRestaurantRecommendation = (restaurant) => {
+  return activeLanguage === "ko"
+    ? restaurant.recommendationKo || restaurant.recommendation
+    : restaurant.recommendation;
+};
+
+const createMissionCard = ({ id, title, label, value, reason, options, wide = false, editable = true }) => {
   const article = document.createElement("article");
   article.className = "mission-card";
+  article.dataset.cardId = id;
 
-  if (item.wide) {
+  if (wide) {
     article.classList.add("is-wide");
   }
 
-  article.style.animationDelay = `${index * 55}ms`;
-
-  const options = item.options
-    .map(([key, value]) => {
-      return `
-        <div class="option-row">
-          <span class="option-key">${localize(key)}</span>
-          <span class="option-value">${localize(value)}</span>
-        </div>
-      `;
-    })
-    .join("");
-
   article.innerHTML = `
     <div class="card-top">
-      <h2 class="card-title">${localize(item.title)}</h2>
-      <span class="card-label">${localize(item.label)}</span>
+      <h2 class="card-title">${title}</h2>
+      <span class="card-label">${label}</span>
     </div>
 
     <div class="recommendation">
       <p class="recommendation-label">${t("recommended")}</p>
-      <p class="recommendation-value">${localize(item.value)}</p>
+      <p class="recommendation-value">${value}</p>
     </div>
 
-    <p class="reason">${localize(item.reason)}</p>
+    <p class="recommendation-label">${t("reason")}</p>
+    <p class="reason">${reason}</p>
+
+    ${makeOptionList(options)}
+
+    ${
+      editable
+        ? `
+          <div class="card-actions">
+            <button class="modify-button" type="button" data-card-action="${id}">${t("modify")}</button>
+          </div>
+        `
+        : ""
+    }
+  `;
+
+  return article;
+};
+
+const createListCard = ({ id, title, label, items, wide = false, editable = true }) => {
+  const article = document.createElement("article");
+  article.className = "mission-card";
+  article.dataset.cardId = id;
+
+  if (wide) {
+    article.classList.add("is-wide");
+  }
+
+  article.innerHTML = `
+    <div class="card-top">
+      <h2 class="card-title">${title}</h2>
+      <span class="card-label">${label}</span>
+    </div>
 
     <div class="option-list">
-      ${options}
+      ${items.map((item) => makeOptionRow("✓", item)).join("")}
+    </div>
+
+    ${
+      editable
+        ? `
+          <div class="card-actions">
+            <button class="modify-button" type="button" data-card-action="${id}">${t("modify")}</button>
+          </div>
+        `
+        : ""
+    }
+  `;
+
+  return article;
+};
+
+const createBudgetCard = (budget) => {
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide";
+  article.dataset.cardId = "budget";
+
+  const rows = [
+    makeOptionRow(t("budgetFlights"), formatRange(budget?.flights)),
+    makeOptionRow(t("budgetHotel"), formatRange(budget?.hotel)),
+    makeOptionRow(t("budgetFood"), formatRange(budget?.food)),
+    makeOptionRow(t("budgetTransport"), formatRange(budget?.transport)),
+    makeOptionRow(t("budgetActivities"), formatRange(budget?.activities)),
+    makeOptionRow(t("estimatedTotal"), formatRange(budget?.estimatedTotal))
+  ].join("");
+
+  article.innerHTML = `
+    <div class="card-top">
+      <h2 class="card-title">${activeLanguage === "ko" ? "예산" : "Budget"}</h2>
+      <span class="card-label">${activeLanguage === "ko" ? "예상" : "Estimated"}</span>
+    </div>
+
+    <div class="option-list">
+      ${rows}
     </div>
 
     <div class="card-actions">
-      <button class="modify-button" type="button">${t("modify")}</button>
+      <button class="modify-button" type="button" data-card-action="budget">${t("modify")}</button>
     </div>
   `;
 
   return article;
 };
 
-const renderMission = () => {
-  const mission = getMission();
-  const type = getMissionType(mission.mission);
-  const cards = missionDataByType[type] || missionDataByType.default;
-
-  missionTitle.textContent = mission.mission;
-  missionGrid.innerHTML = "";
-
-  cards.forEach((item, index) => {
-    missionGrid.appendChild(createCard(item, index));
+const createPlaceholderCard = ({ id, title, message }) => {
+  return createMissionCard({
+    id,
+    title,
+    label: t("apiPlaceholder"),
+    value: localize(message),
+    reason: localize(message),
+    options: [],
+    wide: false,
+    editable: false
   });
 };
 
+const createApprovalCard = (result) => {
+  return createMissionCard({
+    id: "approval-protection",
+    title: t("approvalProtectionTitle"),
+    label: activeLanguage === "ko" ? "필수" : "Required",
+    value: activeLanguage === "ko" ? "승인 전 실행 금지" : "Approval-first execution",
+    reason: result.display?.approvalProtection || localize(result.approvalProtection) || t("approvalProtection"),
+    options: [],
+    wide: true,
+    editable: false
+  });
+};
+
+const renderTravelMission = (result) => {
+  const recommendedFlight = result.flights?.[0];
+  const recommendedHotel = result.hotels?.[0];
+  const transfer = result.airportTransfer;
+  const checklist = result.checklist || [];
+  const restaurants = result.restaurants || [];
+
+  missionTitle.textContent = result.display?.title || t("fallbackTitle");
+  missionGrid.innerHTML = "";
+
+  const flightOptions = (result.flights || [])
+    .slice(1)
+    .map((flight) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice)));
+
+  missionGrid.appendChild(
+    createMissionCard({
+      id: "flights",
+      title: activeLanguage === "ko" ? "항공권" : "Flights",
+      label: activeLanguage === "ko" ? "추천" : "Recommended",
+      value: getFlightName(recommendedFlight),
+      reason:
+        activeLanguage === "ko"
+          ? recommendedFlight?.reasonKo || recommendedFlight?.reason || ""
+          : recommendedFlight?.reason || "",
+      options: flightOptions,
+      editable: true
+    })
+  );
+
+  const hotelOptions = (result.hotels || [])
+    .slice(1)
+    .map((hotel) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice)));
+
+  missionGrid.appendChild(
+    createMissionCard({
+      id: "hotel",
+      title: activeLanguage === "ko" ? "호텔" : "Hotel",
+      label: activeLanguage === "ko" ? "추천" : "Recommended",
+      value: getHotelName(recommendedHotel),
+      reason:
+        activeLanguage === "ko"
+          ? recommendedHotel?.reasonKo || recommendedHotel?.reason || ""
+          : recommendedHotel?.reason || "",
+      options: hotelOptions,
+      editable: true
+    })
+  );
+
+  missionGrid.appendChild(
+    createMissionCard({
+      id: "airport-transfer",
+      title: activeLanguage === "ko" ? "공항 이동" : "Airport Transfer",
+      label: activeLanguage === "ko" ? "추천" : "Recommended",
+      value: localize(transfer?.recommended),
+      reason: localize(transfer?.reason),
+      options: (transfer?.options || []).map((option) => makeOptionRow("•", localize(option))),
+      editable: true
+    })
+  );
+
+  missionGrid.appendChild(
+    createListCard({
+      id: "checklist",
+      title: activeLanguage === "ko" ? "여행 체크리스트" : "Travel Checklist",
+      label: activeLanguage === "ko" ? "준비" : "Prepared",
+      items: checklist.map((item) => localize(item)),
+      wide: true,
+      editable: true
+    })
+  );
+
+  missionGrid.appendChild(
+    createMissionCard({
+      id: "visa",
+      title: t("visa"),
+      label: t("verifyVisa"),
+      value: activeLanguage === "ko" ? "실행 전 확인 필요" : "Verification required",
+      reason: localize(result.visa?.message),
+      options: [],
+      editable: true
+    })
+  );
+
+  missionGrid.appendChild(
+    createListCard({
+      id: "restaurants",
+      title: activeLanguage === "ko" ? "레스토랑" : "Restaurants",
+      label: activeLanguage === "ko" ? "큐레이션" : "Curated",
+      items: restaurants.map((restaurant) => {
+        return `${getRestaurantName(restaurant)} — ${getRestaurantRecommendation(restaurant)}`;
+      }),
+      wide: true,
+      editable: true
+    })
+  );
+
+  missionGrid.appendChild(createBudgetCard(result.budget));
+
+  missionGrid.appendChild(
+    createPlaceholderCard({
+      id: "weather",
+      title: t("weather"),
+      message: result.weather?.message
+    })
+  );
+
+  missionGrid.appendChild(
+    createPlaceholderCard({
+      id: "exchange-rate",
+      title: t("exchangeRate"),
+      message: result.exchangeRate?.message
+    })
+  );
+
+  missionGrid.appendChild(createApprovalCard(result));
+};
+
+const renderGeneralMission = () => {
+  const fallback = createFallbackTravelResult();
+  renderTravelMission(fallback);
+};
+
+const renderMission = () => {
+  currentResult = normalizeStoredResult(getStoredResult());
+
+  if (currentResult.type === "travel") {
+    renderTravelMission(currentResult);
+    return;
+  }
+
+  renderGeneralMission();
+};
+
 const renderApprovalList = () => {
-  approvalList.innerHTML = t("approvalSteps")
+  const steps = currentResult?.executionSequence?.[activeLanguage] || t("executionSteps");
+
+  approvalList.innerHTML = steps
     .map((step) => {
       return `
         <div class="approval-item">
@@ -522,12 +1028,103 @@ const runApprovalSequence = () => {
 
       if (index === items.length - 1) {
         window.setTimeout(() => {
+          const finalTitle = completionMessage.querySelector("h3");
+
+          if (finalTitle) {
+            finalTitle.textContent = localize(currentResult?.finalMessage) || t("finalMessage");
+          }
+
           completionMessage.hidden = false;
           startReturnCountdown();
         }, 650);
       }
     }, index * 760);
   });
+};
+
+const applySimulatedModification = (cardId, card, button) => {
+  const cardTitle = card.querySelector(".card-title")?.textContent || "";
+  const value = card.querySelector(".recommendation-value");
+  const reason = card.querySelector(".reason");
+
+  card.classList.toggle("is-editing");
+
+  if (!card.classList.contains("is-editing")) {
+    button.textContent = t("modify");
+    return;
+  }
+
+  button.textContent = t("editing");
+
+  if (cardId === "flights" && value) {
+    value.textContent = activeLanguage === "ko" ? "제주항공" : "Jeju Air";
+
+    if (reason) {
+      reason.textContent =
+        activeLanguage === "ko"
+          ? "예산을 줄이기 위해 저가 항공 옵션으로 변경했습니다. 실제 예약은 승인 전까지 진행되지 않습니다."
+          : "Changed to a lower-cost airline option to reduce budget. No booking will happen without approval.";
+    }
+  }
+
+  if (cardId === "hotel" && value) {
+    value.textContent = activeLanguage === "ko" ? "도큐 스테이 신주쿠" : "Tokyu Stay Shinjuku";
+
+    if (reason) {
+      reason.textContent =
+        activeLanguage === "ko"
+          ? "교통 접근성과 예산 균형을 위해 실용적인 호텔 옵션으로 변경했습니다."
+          : "Changed to a practical hotel option for stronger balance between location and budget.";
+    }
+  }
+
+  if (cardId === "restaurants") {
+    const rows = card.querySelectorAll(".option-row");
+
+    if (rows.length > 0) {
+      rows[rows.length - 1].remove();
+    }
+  }
+
+  if (cardId === "budget") {
+    const values = card.querySelectorAll(".option-value");
+
+    values.forEach((item) => {
+      item.textContent =
+        activeLanguage === "ko"
+          ? "예산 절감 옵션 적용됨"
+          : "Budget-saving option applied";
+    });
+  }
+
+  if (cardId === "airport-transfer" && value) {
+    value.textContent = activeLanguage === "ko" ? "공항 리무진 버스" : "Airport Limousine Bus";
+
+    if (reason) {
+      reason.textContent =
+        activeLanguage === "ko"
+          ? "수하물 이동과 비용 균형을 기준으로 공항 리무진 옵션을 우선 적용했습니다."
+          : "Prioritized airport limousine service for better luggage convenience and cost balance.";
+    }
+  }
+
+  if (cardId === "checklist") {
+    const list = card.querySelector(".option-list");
+
+    if (list) {
+      list.insertAdjacentHTML(
+        "beforeend",
+        makeOptionRow("✓", activeLanguage === "ko" ? "로밍 / eSIM 가격 비교" : "Roaming / eSIM price comparison")
+      );
+    }
+  }
+
+  if (cardId === "visa" && reason) {
+    reason.textContent =
+      activeLanguage === "ko"
+        ? "비자 확인 요청이 추가되었습니다. 실행 전 정부/대사관 데이터 기준으로 확인합니다."
+        : "Visa verification request added. ONE will verify using government or embassy data before execution.";
+  }
 };
 
 const enableCustomization = () => {
@@ -537,8 +1134,11 @@ const enableCustomization = () => {
     if (!button) return;
 
     const card = button.closest(".mission-card");
-    card.classList.toggle("is-editing");
-    button.textContent = card.classList.contains("is-editing") ? t("editing") : t("modify");
+    const cardId = button.getAttribute("data-card-action") || card?.dataset.cardId;
+
+    if (!card || !cardId) return;
+
+    applySimulatedModification(cardId, card, button);
   });
 
   customizeButton.addEventListener("click", () => {
