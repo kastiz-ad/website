@@ -567,45 +567,41 @@ html[data-theme="midnight"] .search-box:focus-within {
 }
 
 @keyframes oneTextCycle {
+
   0%,
-  7.6% {
+  8.33% {
     content: "O";
   }
 
-  7.7%,
-  15.3% {
+  8.34%,
+  16.66% {
     content: "ON";
   }
 
-  15.4%,
+  16.67%,
   100% {
     content: "ONE";
   }
+
 }
 
 @keyframes oneTextFade {
+
   0%,
-  6.8%,
-  8.4%,
-  14.5%,
+  7.8%,
+  8.8%,
   16.1%,
+  17.1%,
   100% {
     opacity: 1;
   }
 
-  7.6%,
-  15.3% {
+  8.3%,
+  16.6% {
     opacity: 0;
   }
-}
 
-@media (max-width: 900px) {
-  .site-footer {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 8px;
-    padding: 14px 20px;
-  }
+}
 
   .footer-left,
   .footer-right {
