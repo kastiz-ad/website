@@ -312,12 +312,17 @@ a {
   color: var(--text);
   text-rendering: geometricPrecision;
   opacity: 1;
-  animation: oneTextFade 4.8s ease-in-out infinite;
+  min-width: 3.1ch;
+  text-align: center;
+  animation: oneTextFade 36s ease-in-out infinite;
 }
 
 .one-logo-text::before {
   content: "ONE";
-  animation: oneTextCycle 4.8s step-end infinite;
+  display: inline-block;
+  min-width: 3.1ch;
+  text-align: center;
+  animation: oneTextCycle 36s step-end infinite;
 }
 
 .mission-search {
