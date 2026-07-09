@@ -27,7 +27,7 @@ const STORAGE_KEYS = {
 const supportedLanguages = ["en", "ko"];
 const supportedThemes = ["light", "gray", "midnight"];
 
-const missionTypes = {
+const MISSION_TYPES = {
   travel: "travel",
   shopping: "shopping",
   housing: "housing",
@@ -41,7 +41,7 @@ const missionTypes = {
   general: "general_mission"
 };
 
-const approvalMessages = {
+const APPROVAL_PROTECTION = {
   en: "Nothing will be booked, purchased, reserved, signed, submitted, paid for, or legally committed until you approve.",
   ko: "사용자가 승인하기 전에는 예약, 결제, 구매, 서명, 제출 또는 법적 약속이 진행되지 않습니다."
 };
@@ -180,16 +180,6 @@ const countryNamesByRegion = {
 };
 
 const countryProfiles = {
-  JP: {
-    code: "JP",
-    name: "Japan",
-    nameKo: "일본",
-    currency: "JPY",
-    capital: "Tokyo",
-    capitalKo: "도쿄",
-    latitude: 35.6762,
-    longitude: 139.6503
-  },
   KR: {
     code: "KR",
     name: "South Korea",
@@ -199,6 +189,16 @@ const countryProfiles = {
     capitalKo: "서울",
     latitude: 37.5665,
     longitude: 126.978
+  },
+  JP: {
+    code: "JP",
+    name: "Japan",
+    nameKo: "일본",
+    currency: "JPY",
+    capital: "Tokyo",
+    capitalKo: "도쿄",
+    latitude: 35.6762,
+    longitude: 139.6503
   },
   CA: {
     code: "CA",
@@ -219,125 +219,198 @@ const countryProfiles = {
     capitalKo: "워싱턴 D.C.",
     latitude: 38.9072,
     longitude: -77.0369
+  },
+  CN: {
+    code: "CN",
+    name: "China",
+    nameKo: "중국",
+    currency: "CNY",
+    capital: "Beijing",
+    capitalKo: "베이징",
+    latitude: 39.9042,
+    longitude: 116.4074
+  },
+  GB: {
+    code: "GB",
+    name: "United Kingdom",
+    nameKo: "영국",
+    currency: "GBP",
+    capital: "London",
+    capitalKo: "런던",
+    latitude: 51.5072,
+    longitude: -0.1276
+  },
+  AU: {
+    code: "AU",
+    name: "Australia",
+    nameKo: "호주",
+    currency: "AUD",
+    capital: "Canberra",
+    capitalKo: "캔버라",
+    latitude: -35.2809,
+    longitude: 149.13
   }
 };
 
-const classifierKeywords = {
+const missionClassifier = {
   travel: {
+    subtype: "trip_planning",
     en: ["travel", "trip", "vacation", "honeymoon", "flight", "hotel", "japan", "tokyo", "osaka", "kyoto", "airport"],
-    ko: ["여행", "일본", "도쿄", "오사카", "교토", "항공권", "호텔", "신혼여행", "공항"],
-    subtype: "trip_planning"
+    ko: ["여행", "일본", "도쿄", "오사카", "교토", "항공권", "호텔", "신혼여행", "공항"]
   },
   shopping: {
+    subtype: "product_research",
     en: ["buy", "laptop", "phone", "iphone", "macbook", "product", "compare", "cheapest", "best deal"],
-    ko: ["구매", "노트북", "핸드폰", "아이폰", "맥북", "제품", "비교", "최저가", "추천"],
-    subtype: "product_research"
+    ko: ["구매", "노트북", "핸드폰", "아이폰", "맥북", "제품", "비교", "최저가", "추천"]
   },
   housing: {
+    subtype: "housing_search",
     en: ["home", "house", "apartment", "rent", "mortgage", "real estate", "property"],
-    ko: ["집", "아파트", "전세", "월세", "부동산", "주택담보대출"],
-    subtype: "housing_search"
+    ko: ["집", "아파트", "전세", "월세", "부동산", "주택담보대출"]
   },
   legal: {
+    subtype: "legal_service_preparation",
     en: ["lawyer", "legal", "attorney", "divorce", "contract", "lawsuit", "trademark"],
-    ko: ["변호사", "법률", "이혼", "계약서", "소송", "상표"],
-    subtype: "legal_service_preparation"
+    ko: ["변호사", "법률", "이혼", "계약서", "소송", "상표"]
   },
   moving: {
+    subtype: "relocation_preparation",
     en: ["move", "immigration", "visa", "overseas", "canada", "america", "relocation"],
-    ko: ["이주", "이민", "비자", "해외", "캐나다", "미국"],
-    subtype: "relocation_preparation"
+    ko: ["이주", "이민", "비자", "해외", "캐나다", "미국"]
   },
   business: {
+    subtype: "business_setup",
     en: ["business", "company", "startup", "register", "tax", "accountant", "supplier"],
-    ko: ["사업", "창업", "회사", "법인", "세금", "회계사", "공급업체"],
-    subtype: "business_setup"
+    ko: ["사업", "창업", "회사", "법인", "세금", "회계사", "공급업체"]
   },
   healthcare: {
+    subtype: "healthcare_search",
     en: ["doctor", "dentist", "hospital", "clinic", "checkup", "appointment"],
-    ko: ["병원", "의사", "치과", "건강검진", "예약"],
-    subtype: "healthcare_search"
+    ko: ["병원", "의사", "치과", "건강검진", "예약"]
   },
   finance: {
+    subtype: "financial_comparison",
     en: ["loan", "mortgage", "savings", "credit card", "investment", "insurance"],
-    ko: ["대출", "적금", "신용카드", "투자", "보험"],
-    subtype: "financial_comparison"
+    ko: ["대출", "적금", "신용카드", "투자", "보험"]
   },
   career: {
+    subtype: "career_search",
     en: ["job", "resume", "career", "interview", "salary", "recruiter"],
-    ko: ["취업", "이직", "이력서", "면접", "연봉"],
-    subtype: "career_search"
+    ko: ["취업", "이직", "이력서", "면접", "연봉"]
   },
   lifestyle: {
+    subtype: "lifestyle_planning",
     en: ["wedding", "restaurant", "event", "birthday", "party", "gym", "trainer"],
-    ko: ["결혼식", "식당", "이벤트", "생일", "파티", "헬스장", "트레이너"],
-    subtype: "lifestyle_planning"
+    ko: ["결혼식", "식당", "이벤트", "생일", "파티", "헬스장", "트레이너"]
   }
 };
+
+const destinationPatterns = [
+  {
+    code: "JP",
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Tokyo",
+    cityKo: "도쿄",
+    aliases: ["japan", "tokyo", "일본", "도쿄"]
+  },
+  {
+    code: "JP",
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Osaka",
+    cityKo: "오사카",
+    aliases: ["osaka", "오사카"]
+  },
+  {
+    code: "JP",
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Kyoto",
+    cityKo: "교토",
+    aliases: ["kyoto", "교토"]
+  },
+  {
+    code: "CA",
+    destination: "Canada",
+    destinationKo: "캐나다",
+    city: "Toronto",
+    cityKo: "토론토",
+    aliases: ["canada", "toronto", "vancouver", "캐나다", "토론토", "밴쿠버"]
+  },
+  {
+    code: "US",
+    destination: "United States",
+    destinationKo: "미국",
+    city: "New York",
+    cityKo: "뉴욕",
+    aliases: ["america", "usa", "united states", "new york", "미국", "뉴욕"]
+  }
+];
 
 const providerCatalog = {
   travel: [
-    provider("Open-Meteo", "weather", "free_live_api", true, false, false),
-    provider("Frankfurter", "currency", "free_live_api", true, false, false),
-    provider("REST Countries", "country", "free_live_api", true, false, false),
-    provider("OpenStreetMap Nominatim", "maps", "free_live_api", true, false, false),
-    provider("Wikipedia", "destination_info", "free_live_api", true, false, false),
-    provider("Flight Provider Interface", "flights", "prototype_adapter", false, false, true),
-    provider("Hotel Provider Interface", "hotels", "prototype_adapter", false, false, true),
-    provider("Restaurant Provider Interface", "restaurants", "prototype_adapter", false, false, true)
+    createProvider("Open-Meteo", "weather", "free_live_api", true, false, false),
+    createProvider("Frankfurter", "currency", "free_live_api", true, false, false),
+    createProvider("REST Countries", "country", "free_live_api", true, false, false),
+    createProvider("OpenStreetMap Nominatim", "maps", "free_live_api", true, false, false),
+    createProvider("Wikipedia", "destination_info", "free_live_api", true, false, false),
+    createProvider("Flight Provider Interface", "flights", "prototype_adapter", false, false, true),
+    createProvider("Hotel Provider Interface", "hotels", "prototype_adapter", false, false, true),
+    createProvider("Restaurant Provider Interface", "restaurants", "prototype_adapter", false, false, true)
   ],
   shopping: [
-    provider("Product Search Interface", "products", "prototype_adapter", false, false, true),
-    provider("Review Provider Interface", "reviews", "prototype_adapter", false, false, true),
-    provider("Price Comparison Interface", "price_comparison", "prototype_adapter", false, false, true),
-    provider("Retail Availability Interface", "availability", "prototype_adapter", false, false, true)
+    createProvider("Product Search Interface", "products", "prototype_adapter", false, false, true),
+    createProvider("Review Provider Interface", "reviews", "prototype_adapter", false, false, true),
+    createProvider("Price Comparison Interface", "price_comparison", "prototype_adapter", false, false, true),
+    createProvider("Retail Availability Interface", "availability", "prototype_adapter", false, false, true)
   ],
   housing: [
-    provider("Housing Search Interface", "housing", "prototype_adapter", false, false, true),
-    provider("OpenStreetMap Nominatim", "maps", "free_live_api", true, false, false),
-    provider("Mortgage Comparison Interface", "mortgage", "prototype_adapter", false, false, true)
+    createProvider("Housing Search Interface", "housing", "prototype_adapter", false, false, true),
+    createProvider("OpenStreetMap Nominatim", "maps", "free_live_api", true, false, false),
+    createProvider("Mortgage Comparison Interface", "mortgage", "prototype_adapter", false, false, true)
   ],
   legal: [
-    provider("Legal Service Interface", "lawyer_search", "prototype_adapter", false, false, true),
-    provider("Government Resources Interface", "documents", "prototype_adapter", false, false, false)
+    createProvider("Legal Service Interface", "lawyer_search", "prototype_adapter", false, false, true),
+    createProvider("Government Resources Interface", "documents", "prototype_adapter", false, false, false)
   ],
   moving: [
-    provider("REST Countries", "country", "free_live_api", true, false, false),
-    provider("Immigration Resource Interface", "visa", "prototype_adapter", false, false, true),
-    provider("Housing Search Interface", "housing", "prototype_adapter", false, false, true),
-    provider("Shipping Provider Interface", "shipping", "prototype_adapter", false, false, true)
+    createProvider("REST Countries", "country", "free_live_api", true, false, false),
+    createProvider("Immigration Resource Interface", "visa", "prototype_adapter", false, false, true),
+    createProvider("Housing Search Interface", "housing", "prototype_adapter", false, false, true),
+    createProvider("Shipping Provider Interface", "shipping", "prototype_adapter", false, false, true)
   ],
   business: [
-    provider("Business Registration Interface", "registration", "prototype_adapter", false, false, false),
-    provider("Tax / Accounting Interface", "tax", "prototype_adapter", false, false, true),
-    provider("Supplier Search Interface", "suppliers", "prototype_adapter", false, false, true),
-    provider("Domain / Brand Interface", "brand", "prototype_adapter", false, false, true)
+    createProvider("Business Registration Interface", "registration", "prototype_adapter", false, false, false),
+    createProvider("Tax / Accounting Interface", "tax", "prototype_adapter", false, false, true),
+    createProvider("Supplier Search Interface", "suppliers", "prototype_adapter", false, false, true),
+    createProvider("Domain / Brand Interface", "brand", "prototype_adapter", false, false, true)
   ],
   healthcare: [
-    provider("Clinic Search Interface", "clinic", "prototype_adapter", false, false, true),
-    provider("Hospital Search Interface", "hospital", "prototype_adapter", false, false, true),
-    provider("Appointment Interface", "appointment", "prototype_adapter", false, false, true),
-    provider("OpenStreetMap Nominatim", "maps", "free_live_api", true, false, false)
+    createProvider("Clinic Search Interface", "clinic", "prototype_adapter", false, false, true),
+    createProvider("Hospital Search Interface", "hospital", "prototype_adapter", false, false, true),
+    createProvider("Appointment Interface", "appointment", "prototype_adapter", false, false, true),
+    createProvider("OpenStreetMap Nominatim", "maps", "free_live_api", true, false, false)
   ],
   finance: [
-    provider("Loan Comparison Interface", "loans", "prototype_adapter", false, false, true),
-    provider("Rate Provider Interface", "rates", "prototype_adapter", false, false, true),
-    provider("Document Checklist Engine", "documents", "prototype_adapter", false, false, false)
+    createProvider("Loan Comparison Interface", "loans", "prototype_adapter", false, false, true),
+    createProvider("Rate Provider Interface", "rates", "prototype_adapter", false, false, true),
+    createProvider("Document Checklist Engine", "documents", "prototype_adapter", false, false, false)
   ],
   career: [
-    provider("Job Search Interface", "jobs", "prototype_adapter", false, false, true),
-    provider("Resume Engine", "resume", "prototype_adapter", false, false, false),
-    provider("Recruiter Interface", "recruiters", "prototype_adapter", false, false, true)
+    createProvider("Job Search Interface", "jobs", "prototype_adapter", false, false, true),
+    createProvider("Resume Engine", "resume", "prototype_adapter", false, false, false),
+    createProvider("Recruiter Interface", "recruiters", "prototype_adapter", false, false, true)
   ],
   lifestyle: [
-    provider("Vendor Search Interface", "vendors", "prototype_adapter", false, false, true),
-    provider("Timeline Engine", "timeline", "prototype_adapter", false, false, false),
-    provider("Budget Engine", "budget", "prototype_adapter", false, false, false),
-    provider("Reservation Interface", "reservations", "prototype_adapter", false, false, true)
+    createProvider("Vendor Search Interface", "vendors", "prototype_adapter", false, false, true),
+    createProvider("Timeline Engine", "timeline", "prototype_adapter", false, false, false),
+    createProvider("Budget Engine", "budget", "prototype_adapter", false, false, false),
+    createProvider("Reservation Interface", "reservations", "prototype_adapter", false, false, true)
   ],
   general_mission: [
-    provider("Mission Planning Engine", "planning", "prototype_adapter", false, false, false),
-    provider("Checklist Engine", "checklist", "prototype_adapter", false, false, false)
+    createProvider("Mission Planning Engine", "planning", "prototype_adapter", false, false, false),
+    createProvider("Checklist Engine", "checklist", "prototype_adapter", false, false, false)
   ]
 };
 
@@ -346,7 +419,7 @@ let activeMissionIndex = -1;
 let rotatorInterval = null;
 let firstRotationTimeout = null;
 
-function provider(providerName, category, sourceStatus, liveData, requiresKey, requiresPartnerAccess) {
+function createProvider(providerName, category, sourceStatus, liveData, requiresKey, requiresPartnerAccess) {
   return {
     provider: providerName,
     category,
@@ -518,7 +591,6 @@ const setLanguage = (language) => {
   activeLanguage = supportedLanguages.includes(language) ? language : "en";
 
   root.setAttribute("lang", activeLanguage);
-  root.setAttribute("data-language", activeLanguage);
   document.documentElement.lang = activeLanguage;
   localStorage.setItem(STORAGE_KEYS.language, activeLanguage);
 
@@ -533,10 +605,6 @@ const normalizeMission = (value) => {
   return String(value || "").replace(/\s+/g, " ").trim();
 };
 
-const normalizeForDetection = (value) => {
-  return normalizeMission(value).toLowerCase();
-};
-
 const createMissionSlug = (mission) => {
   return mission
     .toLowerCase()
@@ -545,6 +613,10 @@ const createMissionSlug = (mission) => {
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "")
     .slice(0, 80);
+};
+
+const normalizeForDetection = (value) => {
+  return normalizeMission(value).toLowerCase();
 };
 
 const createMissionId = (type) => {
@@ -558,7 +630,7 @@ const detectInputLanguage = (mission) => {
 const detectMissionType = (mission) => {
   const text = normalizeForDetection(mission);
 
-  const scores = Object.entries(classifierKeywords).map(([type, config]) => {
+  const scores = Object.entries(missionClassifier).map(([type, config]) => {
     const keywords = [...config.en, ...config.ko];
     const score = keywords.reduce((total, keyword) => {
       return text.includes(keyword.toLowerCase()) ? total + keyword.length : total;
@@ -572,11 +644,32 @@ const detectMissionType = (mission) => {
 
   scores.sort((a, b) => b.score - a.score);
 
-  return scores[0] && scores[0].score > 0 ? scores[0].type : missionTypes.general;
+  return scores[0] && scores[0].score > 0 ? scores[0].type : MISSION_TYPES.general;
 };
 
 const detectSubtype = (type) => {
-  return classifierKeywords[type]?.subtype || "general_preparation";
+  return missionClassifier[type]?.subtype || "general_preparation";
+};
+
+const detectDestination = (mission) => {
+  const text = normalizeForDetection(mission);
+
+  const matched = destinationPatterns.find((destination) => {
+    return destination.aliases.some((alias) => text.includes(alias.toLowerCase()));
+  });
+
+  if (matched) {
+    return matched;
+  }
+
+  return {
+    code: "JP",
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Tokyo",
+    cityKo: "도쿄",
+    aliases: ["japan", "tokyo", "일본", "도쿄"]
+  };
 };
 
 const detectCountry = (mission, type) => {
@@ -598,6 +691,18 @@ const detectCountry = (mission, type) => {
     {
       code: "US",
       keywords: ["america", "usa", "united states", "new york", "미국", "뉴욕"]
+    },
+    {
+      code: "CN",
+      keywords: ["china", "beijing", "shanghai", "중국", "베이징", "상하이"]
+    },
+    {
+      code: "GB",
+      keywords: ["uk", "united kingdom", "london", "영국", "런던"]
+    },
+    {
+      code: "AU",
+      keywords: ["australia", "sydney", "melbourne", "호주", "시드니", "멜버른"]
     }
   ];
 
@@ -609,159 +714,183 @@ const detectCountry = (mission, type) => {
     return matched.code;
   }
 
-  if (type === missionTypes.travel) {
+  if (type === MISSION_TYPES.travel) {
     return "JP";
   }
 
   return null;
 };
 
-const detectIntent = (mission, type) => {
-  const ko = activeLanguage === "ko";
+const detectDurationDays = (mission) => {
+  const englishMatch = mission.match(/(\d+)\s*(day|days)/i);
+  const koreanMatch = mission.match(/(\d+)\s*(일|박)/);
 
+  if (englishMatch) {
+    return Number(englishMatch[1]);
+  }
+
+  if (koreanMatch) {
+    return Number(koreanMatch[1]);
+  }
+
+  return 7;
+};
+
+const detectDepartureCountry = () => {
+  const locale = navigator.language || "en";
+  const region = locale.includes("-") ? locale.split("-").pop().toUpperCase() : "";
+
+  return {
+    code: region || "UNKNOWN",
+    name: countryNamesByRegion[region] || getTranslation("unknownLocation")
+  };
+};
+
+const getMissionText = (en, ko) => {
+  return activeLanguage === "ko" ? ko : en;
+};
+
+const buildIntent = (type) => {
   const intentMap = {
-    travel: ko ? "여행 계획을 준비하고 비교 옵션을 제안합니다." : "Prepare a trip plan and compare practical options.",
-    shopping: ko ? "제품 후보, 가격, 구매 전 체크리스트를 준비합니다." : "Prepare product options, price comparison, and a buying checklist.",
-    housing: ko ? "주거 후보, 예산, 계약 전 체크리스트를 준비합니다." : "Prepare housing options, budget assumptions, and a pre-contract checklist.",
-    legal: ko ? "법률 서비스 유형, 필요 서류, 질문 리스트를 준비합니다." : "Prepare legal service types, required documents, and questions to ask.",
-    moving: ko ? "이주 준비 단계, 비자, 주거, 배송 체크리스트를 준비합니다." : "Prepare relocation steps, visa, housing, and shipping checklist.",
-    business: ko ? "사업 시작 단계, 등록, 세금, 공급업체 준비를 구조화합니다." : "Structure business setup, registration, tax, and supplier preparation.",
-    healthcare: ko ? "의료기관 후보, 예약 준비, 필요 서류를 준비합니다." : "Prepare clinic options, appointment preparation, and required documents.",
-    finance: ko ? "금융 옵션, 필요 서류, 리스크를 비교합니다." : "Compare financial options, documents, and risks.",
-    career: ko ? "채용 목표, 이력서, 면접 준비를 구조화합니다." : "Structure job targets, resume, and interview preparation.",
-    lifestyle: ko ? "이벤트, 일정, 예산, 예약 준비를 구조화합니다." : "Structure event planning, timeline, budget, and reservation preparation.",
-    general_mission: ko ? "요청을 분석하고 실행 가능한 미션 계획으로 정리합니다." : "Analyze the request and structure it into an executable mission plan."
+    travel: getMissionText("Prepare a trip plan and compare practical options.", "여행 계획을 준비하고 실용적인 선택지를 비교합니다."),
+    shopping: getMissionText("Prepare product options, prices, reviews, and a buying checklist.", "제품 후보, 가격, 리뷰, 구매 전 체크리스트를 준비합니다."),
+    housing: getMissionText("Prepare housing options, budget assumptions, and a pre-contract checklist.", "주거 후보, 예산 가정, 계약 전 체크리스트를 준비합니다."),
+    legal: getMissionText("Prepare legal service types, required documents, and questions to ask.", "법률 서비스 유형, 필요 서류, 상담 질문을 준비합니다."),
+    moving: getMissionText("Prepare relocation steps, visa, housing, and shipping checklist.", "이주 단계, 비자, 주거, 배송 체크리스트를 준비합니다."),
+    business: getMissionText("Prepare business setup, registration, tax, suppliers, and launch steps.", "사업 시작, 등록, 세금, 공급업체, 런칭 단계를 준비합니다."),
+    healthcare: getMissionText("Prepare clinic options, appointment preparation, documents, and costs.", "병원 후보, 예약 준비, 필요 서류, 예상 비용을 준비합니다."),
+    finance: getMissionText("Compare financial options, rates, documents, and risks.", "금융 옵션, 금리, 필요 서류, 리스크를 비교합니다."),
+    career: getMissionText("Prepare job targets, resume, interview, and recruiter steps.", "채용 목표, 이력서, 면접, 리크루터 단계를 준비합니다."),
+    lifestyle: getMissionText("Prepare vendors, timeline, budget, reservations, and checklist.", "업체, 일정, 예산, 예약, 체크리스트를 준비합니다."),
+    general_mission: getMissionText("Turn the request into a structured mission plan.", "요청을 구조화된 미션 계획으로 정리합니다.")
   };
 
   return intentMap[type] || intentMap.general_mission;
 };
 
 const buildAssumptions = (type, country) => {
-  const ko = activeLanguage === "ko";
-
-  const common = [
-    ko ? "ONE은 준비와 비교만 수행하며 명시적 승인 전에는 실제 실행하지 않습니다." : "ONE prepares and compares only; real-world execution requires explicit approval.",
-    ko ? "세부 조건이 없는 경우 균형형 추천을 기본값으로 사용합니다." : "When details are missing, balanced recommendations are used as the default."
+  const assumptions = [
+    getMissionText(
+      "ONE prepares and compares only; real-world execution requires explicit approval.",
+      "ONE은 준비와 비교만 수행하며 실제 실행은 명시적 승인 후에만 가능합니다."
+    ),
+    getMissionText(
+      "When details are missing, ONE uses balanced recommendations by default.",
+      "세부 조건이 부족하면 균형형 추천을 기본값으로 사용합니다."
+    )
   ];
 
-  if (type === missionTypes.travel) {
-    common.push(ko ? "정확한 출발일이 없으면 7일 일정으로 가정합니다." : "If dates are missing, ONE assumes a 7-day trip.");
-    common.push(ko ? "목적지가 불명확하면 일본 도쿄를 기본 예시로 사용합니다." : "If destination is unclear, Tokyo, Japan is used as the default example.");
+  if (type === MISSION_TYPES.travel) {
+    assumptions.push(getMissionText("If dates are missing, ONE assumes a 7-day trip.", "날짜가 없으면 7일 여행으로 가정합니다."));
   }
 
-  if (type === missionTypes.shopping) {
-    common.push(ko ? "예산이 없으면 가성비와 품질의 균형을 우선합니다." : "If budget is missing, ONE prioritizes balanced value and quality.");
-  }
-
-  if (type === missionTypes.housing || type === missionTypes.finance) {
-    common.push(ko ? "실제 금리와 계약 조건은 최종 단계에서 다시 확인해야 합니다." : "Actual rates and contract terms must be verified before final action.");
+  if (type === MISSION_TYPES.shopping) {
+    assumptions.push(getMissionText("If budget is missing, ONE prioritizes balanced value.", "예산이 없으면 균형형 가성비를 우선합니다."));
   }
 
   if (country && countryProfiles[country]) {
-    common.push(
-      ko
+    assumptions.push(
+      activeLanguage === "ko"
         ? `국가 기준은 ${countryProfiles[country].nameKo}로 설정되었습니다.`
         : `Country context is set to ${countryProfiles[country].name}.`
     );
   }
 
-  return common;
+  return assumptions;
 };
 
 const buildSteps = (type) => {
-  const ko = activeLanguage === "ko";
-
   const steps = {
     travel: [
-      ["flights", ko ? "항공권 옵션 준비" : "Prepare flight options"],
-      ["hotels", ko ? "숙소 옵션 준비" : "Prepare hotel options"],
-      ["weather", ko ? "날씨 확인" : "Check weather"],
-      ["currency", ko ? "환율 확인" : "Check exchange rates"],
-      ["visa", ko ? "비자 / 입국 요건 확인" : "Check visa / entry requirements"],
-      ["restaurants", ko ? "식당 옵션 준비" : "Prepare restaurant options"],
-      ["airport_transfer", ko ? "공항 이동 준비" : "Prepare airport transfer"],
-      ["checklist", ko ? "여행 체크리스트 준비" : "Prepare travel checklist"]
+      ["flights", "Prepare flight options", "항공권 옵션 준비"],
+      ["hotels", "Prepare hotel options", "숙소 옵션 준비"],
+      ["weather", "Check weather", "날씨 확인"],
+      ["currency", "Check exchange rates", "환율 확인"],
+      ["visa", "Check visa / entry requirements", "비자 / 입국 요건 확인"],
+      ["restaurants", "Prepare restaurant options", "식당 옵션 준비"],
+      ["airport_transfer", "Prepare airport transfer", "공항 이동 준비"],
+      ["checklist", "Prepare travel checklist", "여행 체크리스트 준비"]
     ],
     shopping: [
-      ["recommended_product", ko ? "추천 제품 선정" : "Select recommended product"],
-      ["alternatives", ko ? "대안 제품 비교" : "Compare alternative products"],
-      ["price_comparison", ko ? "가격 비교" : "Compare prices"],
-      ["where_to_buy", ko ? "구매처 준비" : "Prepare where to buy"],
-      ["warranty", ko ? "보증 확인" : "Check warranty"],
-      ["delivery", ko ? "배송 옵션 준비" : "Prepare delivery options"],
-      ["checklist", ko ? "구매 전 체크리스트" : "Pre-purchase checklist"]
+      ["recommended_product", "Select recommended product", "추천 제품 선정"],
+      ["alternatives", "Compare alternative products", "대안 제품 비교"],
+      ["price_comparison", "Compare prices", "가격 비교"],
+      ["where_to_buy", "Prepare where to buy", "구매처 준비"],
+      ["warranty", "Check warranty", "보증 확인"],
+      ["delivery", "Prepare delivery options", "배송 옵션 준비"],
+      ["checklist", "Pre-purchase checklist", "구매 전 체크리스트"]
     ],
     housing: [
-      ["requirements", ko ? "주거 조건 정리" : "Define housing requirements"],
-      ["areas", ko ? "지역 후보 비교" : "Compare areas"],
-      ["budget", ko ? "예산 범위 준비" : "Prepare budget range"],
-      ["documents", ko ? "계약 서류 체크리스트" : "Contract document checklist"],
-      ["risks", ko ? "계약 리스크 확인" : "Check contract risks"]
+      ["housing_options", "Prepare housing options", "주거 옵션 준비"],
+      ["area_comparison", "Compare areas", "지역 비교"],
+      ["budget", "Prepare budget range", "예산 범위 준비"],
+      ["documents", "Prepare document checklist", "서류 체크리스트 준비"],
+      ["risks", "Check contract risks", "계약 리스크 확인"]
     ],
     legal: [
-      ["lawyer_type", ko ? "필요한 변호사 유형 정리" : "Define lawyer type"],
-      ["documents", ko ? "필요 서류 준비" : "Prepare documents needed"],
-      ["process", ko ? "예상 절차 정리" : "Outline estimated process"],
-      ["risks", ko ? "리스크 정리" : "Identify risks"],
-      ["questions", ko ? "상담 질문 준비" : "Prepare questions to ask"],
-      ["checklist", ko ? "법률 체크리스트" : "Legal checklist"]
+      ["lawyer_type", "Define lawyer type", "필요한 변호사 유형 정리"],
+      ["documents", "Prepare documents needed", "필요 서류 준비"],
+      ["process", "Outline estimated process", "예상 절차 정리"],
+      ["risks", "Identify risks", "리스크 정리"],
+      ["questions", "Prepare questions to ask", "상담 질문 준비"],
+      ["checklist", "Legal checklist", "법률 체크리스트"]
     ],
     moving: [
-      ["visa", ko ? "비자 준비" : "Prepare visa"],
-      ["housing", ko ? "주거 옵션 준비" : "Prepare housing"],
-      ["shipping", ko ? "배송 옵션 준비" : "Prepare shipping"],
-      ["banking", ko ? "은행 준비" : "Prepare banking"],
-      ["insurance", ko ? "보험 준비" : "Prepare insurance"],
-      ["schools", ko ? "학교 정보 준비" : "Prepare schools"],
-      ["checklist", ko ? "이주 체크리스트" : "Moving checklist"]
+      ["visa", "Prepare visa", "비자 준비"],
+      ["housing", "Prepare housing", "주거 준비"],
+      ["shipping", "Prepare shipping", "배송 준비"],
+      ["banking", "Prepare banking", "은행 준비"],
+      ["insurance", "Prepare insurance", "보험 준비"],
+      ["schools", "Prepare schools", "학교 정보 준비"],
+      ["checklist", "Moving checklist", "이주 체크리스트"]
     ],
     business: [
-      ["registration", ko ? "사업자 / 법인 등록 준비" : "Prepare business registration"],
-      ["tax", ko ? "세금 / 회계 준비" : "Prepare tax / accounting"],
-      ["brand", ko ? "브랜드 / 도메인 준비" : "Prepare brand / domain"],
-      ["suppliers", ko ? "공급업체 후보 준비" : "Prepare suppliers"],
-      ["budget", ko ? "사업 예산 준비" : "Prepare business budget"],
-      ["checklist", ko ? "사업 시작 체크리스트" : "Business checklist"]
+      ["registration", "Prepare business registration", "사업자 / 법인 등록 준비"],
+      ["tax", "Prepare tax / accounting", "세금 / 회계 준비"],
+      ["brand", "Prepare brand / domain", "브랜드 / 도메인 준비"],
+      ["suppliers", "Prepare suppliers", "공급업체 준비"],
+      ["budget", "Prepare business budget", "사업 예산 준비"],
+      ["checklist", "Business checklist", "사업 시작 체크리스트"]
     ],
     healthcare: [
-      ["clinic", ko ? "병원 / 클리닉 후보 준비" : "Prepare clinic / hospital options"],
-      ["appointment", ko ? "예약 준비" : "Prepare appointment"],
-      ["documents", ko ? "필요 서류 준비" : "Prepare documents"],
-      ["cost", ko ? "예상 비용 준비" : "Prepare cost estimate"],
-      ["checklist", ko ? "진료 체크리스트" : "Healthcare checklist"]
+      ["clinic", "Prepare clinic / hospital options", "병원 / 클리닉 후보 준비"],
+      ["appointment", "Prepare appointment", "예약 준비"],
+      ["documents", "Prepare documents", "필요 서류 준비"],
+      ["cost", "Prepare cost estimate", "예상 비용 준비"],
+      ["checklist", "Healthcare checklist", "진료 체크리스트"]
     ],
     finance: [
-      ["loan_options", ko ? "대출 옵션 준비" : "Prepare loan options"],
-      ["rates", ko ? "금리 비교" : "Compare rates"],
-      ["documents", ko ? "필요 서류 준비" : "Prepare documents"],
-      ["risks", ko ? "리스크 정리" : "Identify risks"],
-      ["checklist", ko ? "금융 체크리스트" : "Finance checklist"]
+      ["loan_options", "Prepare loan options", "대출 옵션 준비"],
+      ["rates", "Compare rates", "금리 비교"],
+      ["documents", "Prepare documents", "필요 서류 준비"],
+      ["risks", "Identify risks", "리스크 정리"],
+      ["checklist", "Finance checklist", "금융 체크리스트"]
     ],
     career: [
-      ["targets", ko ? "채용 목표 정리" : "Prepare job targets"],
-      ["resume", ko ? "이력서 준비" : "Prepare resume"],
-      ["interview", ko ? "면접 준비" : "Prepare interview"],
-      ["recruiters", ko ? "리크루터 후보 준비" : "Prepare recruiters"],
-      ["checklist", ko ? "커리어 체크리스트" : "Career checklist"]
+      ["targets", "Prepare job targets", "채용 목표 정리"],
+      ["resume", "Prepare resume", "이력서 준비"],
+      ["interview", "Prepare interview", "면접 준비"],
+      ["recruiters", "Prepare recruiters", "리크루터 후보 준비"],
+      ["checklist", "Career checklist", "커리어 체크리스트"]
     ],
     lifestyle: [
-      ["vendors", ko ? "업체 후보 준비" : "Prepare vendors"],
-      ["timeline", ko ? "일정 준비" : "Prepare timeline"],
-      ["budget", ko ? "예산 준비" : "Prepare budget"],
-      ["reservations", ko ? "예약 준비" : "Prepare reservations"],
-      ["checklist", ko ? "체크리스트 준비" : "Prepare checklist"]
+      ["vendors", "Prepare vendors", "업체 후보 준비"],
+      ["timeline", "Prepare timeline", "일정 준비"],
+      ["budget", "Prepare budget", "예산 준비"],
+      ["reservations", "Prepare reservations", "예약 준비"],
+      ["checklist", "Prepare checklist", "체크리스트 준비"]
     ],
     general_mission: [
-      ["understand", ko ? "요청 분석" : "Understand request"],
-      ["options", ko ? "선택지 준비" : "Prepare options"],
-      ["plan", ko ? "실행 계획 준비" : "Prepare action plan"],
-      ["checklist", ko ? "체크리스트 준비" : "Prepare checklist"]
+      ["understand", "Understand request", "요청 분석"],
+      ["options", "Prepare options", "선택지 준비"],
+      ["plan", "Prepare action plan", "실행 계획 준비"],
+      ["checklist", "Prepare checklist", "체크리스트 준비"]
     ]
   };
 
-  return (steps[type] || steps.general_mission).map(([id, title], index) => ({
+  return (steps[type] || steps.general_mission).map(([id, en, ko], index) => ({
     id,
-    title,
+    title: activeLanguage === "ko" ? ko : en,
     order: index + 1,
     status: "pending",
     editable: true,
@@ -772,27 +901,58 @@ const buildSteps = (type) => {
 };
 
 const buildRecommendations = (type) => {
-  const ko = activeLanguage === "ko";
-
-  const recommendationMap = {
-    travel: ko ? "균형형 일정, 직항 중심 항공, 교통 편리한 숙소를 우선 추천합니다." : "Prioritize a balanced itinerary, direct flights, and hotels with strong transport access.",
-    shopping: ko ? "최저가만 보지 말고 성능, 보증, 배송, 리뷰 균형을 기준으로 추천합니다." : "Recommend based on performance, warranty, delivery, reviews, and price balance.",
-    housing: ko ? "위치, 월 비용, 계약 리스크, 교통 접근성을 함께 비교합니다." : "Compare location, monthly cost, contract risk, and transport access together.",
-    legal: ko ? "전문 분야가 맞는 변호사 유형과 상담 전 질문 리스트를 먼저 준비합니다." : "Prepare the right lawyer type and consultation questions first.",
-    moving: ko ? "비자, 주거, 은행, 보험, 배송 순서로 준비하는 것이 안전합니다." : "Prepare visa, housing, banking, insurance, and shipping in order.",
-    business: ko ? "등록, 세금, 브랜드, 공급업체, 초기 예산 순서로 준비합니다." : "Prepare registration, tax, brand, suppliers, and starting budget in order.",
-    healthcare: ko ? "위치, 전문 분야, 비용, 예약 가능성을 기준으로 병원을 비교합니다." : "Compare clinics by location, specialty, cost, and appointment availability.",
-    finance: ko ? "금리뿐 아니라 총 비용, 리스크, 필요 서류를 함께 비교합니다." : "Compare total cost, risk, and required documents, not only rates.",
-    career: ko ? "목표 직무, 이력서, 면접 준비, 리크루터 접근 순서로 준비합니다." : "Prepare target roles, resume, interview, and recruiter outreach in order.",
-    lifestyle: ko ? "예산, 일정, 업체, 예약 리스크를 먼저 정리합니다." : "Start with budget, timeline, vendors, and reservation risks.",
-    general_mission: ko ? "요청을 실행 가능한 단계로 나누고 승인 전까지 준비만 진행합니다." : "Break the request into executable steps and prepare only before approval."
+  const map = {
+    travel: getMissionText(
+      "Prioritize a balanced itinerary, direct flights, and hotels with strong transport access.",
+      "균형형 일정, 직항 중심 항공, 교통 편리한 숙소를 우선 추천합니다."
+    ),
+    shopping: getMissionText(
+      "Recommend based on quality, warranty, delivery, reviews, and price balance.",
+      "품질, 보증, 배송, 리뷰, 가격 균형을 기준으로 추천합니다."
+    ),
+    housing: getMissionText(
+      "Compare location, monthly cost, contract risk, and transport access.",
+      "위치, 월 비용, 계약 리스크, 교통 접근성을 비교합니다."
+    ),
+    legal: getMissionText(
+      "Prepare the right lawyer type, documents, and consultation questions first.",
+      "전문 분야가 맞는 변호사 유형, 서류, 상담 질문을 먼저 준비합니다."
+    ),
+    moving: getMissionText(
+      "Prepare visa, housing, banking, insurance, and shipping in order.",
+      "비자, 주거, 은행, 보험, 배송 순서로 준비합니다."
+    ),
+    business: getMissionText(
+      "Prepare registration, tax, brand, suppliers, and starting budget.",
+      "등록, 세금, 브랜드, 공급업체, 초기 예산을 준비합니다."
+    ),
+    healthcare: getMissionText(
+      "Compare clinics by location, specialty, cost, and appointment availability.",
+      "위치, 전문 분야, 비용, 예약 가능성을 기준으로 병원을 비교합니다."
+    ),
+    finance: getMissionText(
+      "Compare total cost, risk, documents, and rates together.",
+      "총 비용, 리스크, 필요 서류, 금리를 함께 비교합니다."
+    ),
+    career: getMissionText(
+      "Prepare target roles, resume, interview, and recruiter outreach.",
+      "목표 직무, 이력서, 면접, 리크루터 접근을 준비합니다."
+    ),
+    lifestyle: getMissionText(
+      "Start with budget, timeline, vendors, and reservation risks.",
+      "예산, 일정, 업체, 예약 리스크를 먼저 정리합니다."
+    ),
+    general_mission: getMissionText(
+      "Break the request into executable steps and prepare only before approval.",
+      "요청을 실행 가능한 단계로 나누고 승인 전까지 준비만 진행합니다."
+    )
   };
 
   return [
     {
-      id: "primary-recommendation",
-      title: ko ? "추천 플랜" : "Recommended plan",
-      summary: recommendationMap[type] || recommendationMap.general_mission,
+      id: "recommended-plan",
+      title: getMissionText("Recommended plan", "추천 플랜"),
+      summary: map[type] || map.general_mission,
       priority: "Balanced",
       editable: true,
       removable: false
@@ -819,102 +979,131 @@ const buildBudget = (type) => {
 };
 
 const buildRisks = (type) => {
-  const ko = activeLanguage === "ko";
-
-  const common = [
-    ko ? "실제 가격과 가능 여부는 최종 실행 전 다시 확인해야 합니다." : "Actual price and availability must be verified before real-world execution.",
-    ko ? "승인 전에는 어떤 계약이나 결제도 진행되지 않습니다." : "No contract or payment happens before approval."
+  const risks = [
+    getMissionText(
+      "Actual price and availability must be verified before real-world execution.",
+      "실제 가격과 가능 여부는 최종 실행 전 다시 확인해야 합니다."
+    ),
+    getMissionText(
+      "No contract, booking, submission, or payment happens before approval.",
+      "승인 전에는 계약, 예약, 제출, 결제가 진행되지 않습니다."
+    )
   ];
 
-  const riskMap = {
-    travel: ko ? "항공권과 숙소 가격은 빠르게 변동될 수 있습니다." : "Flight and hotel prices can change quickly.",
-    shopping: ko ? "최저가 제품은 배송, 보증, 정품 여부를 확인해야 합니다." : "Lowest-price products require delivery, warranty, and authenticity checks.",
-    housing: ko ? "계약 조건, 보증금, 관리비, 등기 사항 확인이 필요합니다." : "Contract terms, deposit, fees, and registration details must be checked.",
-    legal: ko ? "법률 정보는 일반 준비용이며 최종 판단은 전문가 확인이 필요합니다." : "Legal information is for preparation only and requires professional review.",
-    moving: ko ? "비자와 이민 요건은 국가별로 바뀔 수 있습니다." : "Visa and immigration requirements can change by country.",
-    business: ko ? "사업 등록, 세금, 허가 요건은 지역별로 다를 수 있습니다." : "Business registration, taxes, and permits may differ by location.",
-    healthcare: ko ? "응급 상황에서는 ONE이 아니라 현지 응급 서비스를 이용해야 합니다." : "For emergencies, use local emergency services, not ONE.",
-    finance: ko ? "금융 상품은 손실, 이자, 수수료 리스크가 있습니다." : "Financial products can involve loss, interest, and fee risks.",
-    career: ko ? "지원서 제출 전 회사와 조건을 직접 확인해야 합니다." : "Company and role conditions must be checked before applying.",
-    lifestyle: ko ? "예약 가능 여부와 취소 규정을 확인해야 합니다." : "Availability and cancellation rules must be checked."
+  const typeRisk = {
+    travel: getMissionText("Flight and hotel prices can change quickly.", "항공권과 숙소 가격은 빠르게 변동될 수 있습니다."),
+    shopping: getMissionText("Lowest-price products require delivery, warranty, and authenticity checks.", "최저가 제품은 배송, 보증, 정품 여부를 확인해야 합니다."),
+    housing: getMissionText("Contract terms, deposit, fees, and registration details must be checked.", "계약 조건, 보증금, 관리비, 등기 사항 확인이 필요합니다."),
+    legal: getMissionText("Legal information is for preparation only and requires professional review.", "법률 정보는 일반 준비용이며 최종 판단은 전문가 확인이 필요합니다."),
+    moving: getMissionText("Visa and immigration requirements can change by country.", "비자와 이민 요건은 국가별로 바뀔 수 있습니다."),
+    business: getMissionText("Business registration, taxes, and permits may differ by location.", "사업 등록, 세금, 허가 요건은 지역별로 다를 수 있습니다."),
+    healthcare: getMissionText("For emergencies, use local emergency services, not ONE.", "응급 상황에서는 ONE이 아니라 현지 응급 서비스를 이용해야 합니다."),
+    finance: getMissionText("Financial products can involve loss, interest, and fee risks.", "금융 상품은 손실, 이자, 수수료 리스크가 있습니다."),
+    career: getMissionText("Company and role conditions must be checked before applying.", "지원서 제출 전 회사와 조건을 직접 확인해야 합니다."),
+    lifestyle: getMissionText("Availability and cancellation rules must be checked.", "예약 가능 여부와 취소 규정을 확인해야 합니다.")
   };
 
-  if (riskMap[type]) {
-    common.unshift(riskMap[type]);
+  if (typeRisk[type]) {
+    risks.unshift(typeRisk[type]);
   }
 
-  return common;
+  return risks;
 };
 
-const buildMissionCards = (type) => {
-  const ko = activeLanguage === "ko";
-
-  const cards = {
-    travel: ["Flights", "Hotels", "Weather", "Currency", "Visa", "Restaurants", "Airport Transfer", "Checklist"],
-    shopping: ["Recommended Product", "Alternative Products", "Price Comparison", "Where to Buy", "Warranty", "Delivery", "Checklist"],
-    housing: ["Housing Options", "Area Comparison", "Budget", "Documents", "Risks", "Checklist"],
-    legal: ["Recommended Lawyer Type", "Documents Needed", "Estimated Process", "Risks", "Questions to Ask", "Checklist"],
-    business: ["Business Registration", "Tax / Accounting", "Brand / Domain", "Suppliers", "Budget", "Checklist"],
-    moving: ["Visa", "Housing", "Shipping", "Banking", "Insurance", "Schools", "Checklist"],
-    healthcare: ["Clinic / Hospital", "Appointment Prep", "Documents", "Cost Estimate", "Checklist"],
-    finance: ["Loan Options", "Rates", "Documents", "Risks", "Checklist"],
-    career: ["Job Targets", "Resume", "Interview Prep", "Recruiters", "Checklist"],
-    lifestyle: ["Vendors", "Timeline", "Budget", "Reservations", "Checklist"],
-    general_mission: ["Mission Plan", "Options", "Budget", "Risks", "Checklist"]
+const buildCards = (type) => {
+  const cardMap = {
+    travel: [
+      ["flights", "Flights", "항공권"],
+      ["hotels", "Hotels", "숙소"],
+      ["weather", "Weather", "날씨"],
+      ["currency", "Currency", "환율"],
+      ["visa", "Visa", "비자"],
+      ["restaurants", "Restaurants", "식당"],
+      ["airport_transfer", "Airport Transfer", "공항 이동"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    shopping: [
+      ["recommended_product", "Recommended Product", "추천 제품"],
+      ["alternative_products", "Alternative Products", "대안 제품"],
+      ["price_comparison", "Price Comparison", "가격 비교"],
+      ["where_to_buy", "Where to Buy", "구매처"],
+      ["warranty", "Warranty", "보증"],
+      ["delivery", "Delivery", "배송"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    housing: [
+      ["housing_options", "Housing Options", "주거 옵션"],
+      ["area_comparison", "Area Comparison", "지역 비교"],
+      ["budget", "Budget", "예산"],
+      ["documents", "Documents", "서류"],
+      ["risks", "Risks", "리스크"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    legal: [
+      ["lawyer_type", "Recommended Lawyer Type", "추천 변호사 유형"],
+      ["documents", "Documents Needed", "필요 서류"],
+      ["process", "Estimated Process", "예상 절차"],
+      ["risks", "Risks", "리스크"],
+      ["questions", "Questions to Ask", "질문 리스트"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    moving: [
+      ["visa", "Visa", "비자"],
+      ["housing", "Housing", "주거"],
+      ["shipping", "Shipping", "배송"],
+      ["banking", "Banking", "은행"],
+      ["insurance", "Insurance", "보험"],
+      ["schools", "Schools", "학교"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    business: [
+      ["registration", "Business Registration", "사업자 / 법인 등록"],
+      ["tax", "Tax / Accounting", "세금 / 회계"],
+      ["brand", "Brand / Domain", "브랜드 / 도메인"],
+      ["suppliers", "Suppliers", "공급업체"],
+      ["budget", "Budget", "예산"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    healthcare: [
+      ["clinic", "Clinic / Hospital", "병원 / 클리닉"],
+      ["appointment", "Appointment Prep", "예약 준비"],
+      ["documents", "Documents", "서류"],
+      ["cost", "Cost Estimate", "예상 비용"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    finance: [
+      ["loan_options", "Loan Options", "대출 옵션"],
+      ["rates", "Rates", "금리"],
+      ["documents", "Documents", "서류"],
+      ["risks", "Risks", "리스크"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    career: [
+      ["targets", "Job Targets", "채용 목표"],
+      ["resume", "Resume", "이력서"],
+      ["interview", "Interview Prep", "면접 준비"],
+      ["recruiters", "Recruiters", "리크루터"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    lifestyle: [
+      ["vendors", "Vendors", "업체"],
+      ["timeline", "Timeline", "일정"],
+      ["budget", "Budget", "예산"],
+      ["reservations", "Reservations", "예약"],
+      ["checklist", "Checklist", "체크리스트"]
+    ],
+    general_mission: [
+      ["mission_plan", "Mission Plan", "미션 플랜"],
+      ["options", "Options", "선택지"],
+      ["budget", "Budget", "예산"],
+      ["risks", "Risks", "리스크"],
+      ["checklist", "Checklist", "체크리스트"]
+    ]
   };
 
-  const koreanTitles = {
-    "Flights": "항공권",
-    "Hotels": "숙소",
-    "Weather": "날씨",
-    "Currency": "환율",
-    "Visa": "비자",
-    "Restaurants": "식당",
-    "Airport Transfer": "공항 이동",
-    "Checklist": "체크리스트",
-    "Recommended Product": "추천 제품",
-    "Alternative Products": "대안 제품",
-    "Price Comparison": "가격 비교",
-    "Where to Buy": "구매처",
-    "Warranty": "보증",
-    "Delivery": "배송",
-    "Housing Options": "주거 옵션",
-    "Area Comparison": "지역 비교",
-    "Budget": "예산",
-    "Documents": "서류",
-    "Risks": "리스크",
-    "Recommended Lawyer Type": "추천 변호사 유형",
-    "Documents Needed": "필요 서류",
-    "Estimated Process": "예상 절차",
-    "Questions to Ask": "질문 리스트",
-    "Business Registration": "사업자 / 법인 등록",
-    "Tax / Accounting": "세금 / 회계",
-    "Brand / Domain": "브랜드 / 도메인",
-    "Suppliers": "공급업체",
-    "Shipping": "배송",
-    "Banking": "은행",
-    "Insurance": "보험",
-    "Schools": "학교",
-    "Clinic / Hospital": "병원 / 클리닉",
-    "Appointment Prep": "예약 준비",
-    "Cost Estimate": "예상 비용",
-    "Loan Options": "대출 옵션",
-    "Rates": "금리",
-    "Job Targets": "채용 목표",
-    "Resume": "이력서",
-    "Interview Prep": "면접 준비",
-    "Recruiters": "리크루터",
-    "Vendors": "업체",
-    "Timeline": "일정",
-    "Reservations": "예약",
-    "Mission Plan": "미션 플랜",
-    "Options": "선택지"
-  };
-
-  return (cards[type] || cards.general_mission).map((title, index) => ({
-    id: createMissionSlug(title) || `card-${index + 1}`,
-    title: ko ? koreanTitles[title] || title : title,
-    originalTitle: title,
+  return (cardMap[type] || cardMap.general_mission).map(([id, en, ko]) => ({
+    id,
+    title: activeLanguage === "ko" ? ko : en,
     status: "prepared",
     priority: "Balanced",
     removed: false,
@@ -927,49 +1116,68 @@ const buildMissionCards = (type) => {
   }));
 };
 
-const buildMissionObject = (rawInput) => {
-  const cleanMission = normalizeMission(rawInput);
-  const language = detectInputLanguage(cleanMission);
+const buildProviderResults = (providers) => {
+  return providers.map((provider) => ({
+    provider: provider.provider,
+    category: provider.category,
+    sourceStatus: provider.sourceStatus,
+    liveData: provider.liveData,
+    requiresKey: provider.requiresKey,
+    requiresPartnerAccess: provider.requiresPartnerAccess,
+    items: [],
+    error: null
+  }));
+};
 
-  if (language !== activeLanguage) {
-    activeLanguage = language;
+const buildMissionObject = (mission) => {
+  const cleanMission = normalizeMission(mission);
+  const detectedLanguage = detectInputLanguage(cleanMission);
+
+  if (supportedLanguages.includes(detectedLanguage)) {
+    activeLanguage = detectedLanguage;
     localStorage.setItem(STORAGE_KEYS.language, activeLanguage);
   }
 
   const type = detectMissionType(cleanMission);
+  const subtype = detectSubtype(type);
   const country = detectCountry(cleanMission, type);
   const theme = root.getAttribute("data-theme") || "light";
+  const providers = providerCatalog[type] || providerCatalog.general_mission;
 
   return {
     id: createMissionId(type),
     version: KASTIZ_ONE_VERSION,
     rawInput: cleanMission,
+    originalMission: cleanMission,
+    mission: cleanMission,
+    slug: createMissionSlug(cleanMission),
     type,
-    subtype: detectSubtype(type),
-    language,
+    subtype,
+    language: activeLanguage,
     theme,
     country,
     countryProfile: country ? countryProfiles[country] || null : null,
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     status: "mission_created",
     approvalRequired: true,
-    intent: detectIntent(cleanMission, type),
+    intent: buildIntent(type),
     assumptions: buildAssumptions(type, country),
-    providers: providerCatalog[type] || providerCatalog.general_mission,
-    providerResults: [],
+    providers,
+    providerResults: buildProviderResults(providers),
     steps: buildSteps(type),
     recommendations: buildRecommendations(type),
     budget: buildBudget(type),
     risks: buildRisks(type),
-    cards: buildMissionCards(type),
+    cards: buildCards(type),
     priority: "Balanced",
     approvalProtection: {
       required: true,
-      message: language === "ko" ? approvalMessages.ko : approvalMessages.en
+      message: activeLanguage === "ko" ? APPROVAL_PROTECTION.ko : APPROVAL_PROTECTION.en
     },
     executionSimulation: {
       status: "not_started",
-      messages: language === "ko"
+      messages: activeLanguage === "ko"
         ? [
             "선택한 단계를 준비하고 있어요...",
             "최종 요구사항을 확인하고 있어요...",
@@ -983,17 +1191,359 @@ const buildMissionObject = (rawInput) => {
             "Preparing provider actions...",
             "Creating approval summary...",
             "Ready for real-world execution."
-          ]
+          ],
+      finalMessage: activeLanguage === "ko"
+        ? "Your future is now in motion.\n— ONE —"
+        : "Your future is now in motion.\n— ONE —"
     }
   };
 };
 
+const buildTravelMission = (mission) => {
+  const baseMission = buildMissionObject(mission);
+  const destination = detectDestination(mission);
+  const durationDays = detectDurationDays(mission);
+  const departureCountry = detectDepartureCountry();
+
+  return {
+    ...baseMission,
+    type: "travel",
+    subtype: "trip_planning",
+    country: destination.code,
+    countryProfile: countryProfiles[destination.code] || null,
+    destination: {
+      country: destination.destination,
+      countryKo: destination.destinationKo,
+      city: destination.city,
+      cityKo: destination.cityKo,
+      code: destination.code
+    },
+    durationDays,
+    departureCountry,
+    apiReadiness: {
+      flights: {
+        providers: ["Amadeus API", "Skyscanner API", "Google Flights alternatives"],
+        status: "prototype_adapter",
+        requiresPartnerAccess: true
+      },
+      hotels: {
+        providers: ["Booking.com Partner API", "Expedia Rapid API", "Agoda Partner API"],
+        status: "prototype_adapter",
+        requiresPartnerAccess: true
+      },
+      restaurants: {
+        providers: ["Google Places API", "Naver Places", "Tabelog", "OpenTable"],
+        status: "prototype_adapter",
+        requiresPartnerAccess: true
+      },
+      weather: {
+        providers: ["Open-Meteo API"],
+        status: "free_live_api",
+        requiresPartnerAccess: false
+      },
+      currency: {
+        providers: ["Frankfurter API"],
+        status: "free_live_api",
+        requiresPartnerAccess: false
+      },
+      maps: {
+        providers: ["OpenStreetMap Nominatim"],
+        status: "free_live_api",
+        requiresPartnerAccess: false
+      },
+      visa: {
+        providers: ["REST Countries", "Government embassy data", "Timatic-style API"],
+        status: "mixed_provider_layer",
+        requiresPartnerAccess: false
+      }
+    },
+    flights: [
+      {
+        id: "flight-korean-air",
+        provider: "Korean Air",
+        providerKo: "대한항공",
+        category: "recommended",
+        reason: "Best balance of comfort, direct routes, and service quality.",
+        reasonKo: "편안함, 직항 노선, 서비스 품질의 균형이 가장 좋습니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 420000,
+          max: 760000
+        },
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      },
+      {
+        id: "flight-asiana",
+        provider: "Asiana Airlines",
+        providerKo: "아시아나항공",
+        category: "quality",
+        reason: "Strong service quality and convenient Korea to Japan schedules.",
+        reasonKo: "서비스 품질이 좋고 한국-일본 노선 일정이 편리합니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 390000,
+          max: 720000
+        },
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      },
+      {
+        id: "flight-jeju-air",
+        provider: "Jeju Air",
+        providerKo: "제주항공",
+        category: "budget",
+        reason: "Lower-cost option for flexible travelers.",
+        reasonKo: "일정이 유연한 여행자에게 적합한 저가 옵션입니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 180000,
+          max: 390000
+        },
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      }
+    ],
+    hotels: [
+      {
+        id: "hotel-metropolitan",
+        name: "Hotel Metropolitan Tokyo Marunouchi",
+        nameKo: "호텔 메트로폴리탄 도쿄 마루노우치",
+        category: "recommended",
+        reason: "Central location, strong reviews, easy access to transport.",
+        reasonKo: "중심 위치, 좋은 리뷰, 편리한 교통 접근성을 갖췄습니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 240000,
+          max: 420000
+        },
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      },
+      {
+        id: "hotel-hilton-tokyo",
+        name: "Hilton Tokyo",
+        nameKo: "힐튼 도쿄",
+        category: "premium",
+        reason: "Premium comfort and reliable international service.",
+        reasonKo: "프리미엄 숙박 경험과 안정적인 글로벌 서비스를 제공합니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 320000,
+          max: 620000
+        },
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      },
+      {
+        id: "hotel-tokyu-stay",
+        name: "Tokyu Stay Shinjuku",
+        nameKo: "도큐 스테이 신주쿠",
+        category: "value",
+        reason: "Practical location and strong value for longer stays.",
+        reasonKo: "실용적인 위치와 장기 숙박에 좋은 가성비를 제공합니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 160000,
+          max: 290000
+        },
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      }
+    ],
+    airportTransfer: {
+      recommended: {
+        en: "Narita Express or Airport Limousine Bus",
+        ko: "나리타 익스프레스 또는 공항 리무진 버스"
+      },
+      reason: {
+        en: "Best balance of reliability, luggage convenience, and access to central Tokyo.",
+        ko: "정시성, 수하물 편의성, 도쿄 중심 접근성의 균형이 좋습니다."
+      },
+      options: [
+        {
+          en: "Narita Express",
+          ko: "나리타 익스프레스"
+        },
+        {
+          en: "Airport Limousine Bus",
+          ko: "공항 리무진 버스"
+        },
+        {
+          en: "Private airport transfer",
+          ko: "프라이빗 공항 픽업"
+        }
+      ],
+      editable: true
+    },
+    weather: {
+      status: "provider_ready",
+      message: {
+        en: "Weather can be checked through Open-Meteo with no API key.",
+        ko: "Open-Meteo를 통해 API 키 없이 날씨를 확인할 수 있습니다."
+      },
+      providerCandidates: ["Open-Meteo API"]
+    },
+    exchangeRate: {
+      status: "provider_ready",
+      from: "KRW",
+      to: countryProfiles[destination.code]?.currency || "JPY",
+      message: {
+        en: "Exchange rate can be checked through Frankfurter API.",
+        ko: "Frankfurter API를 통해 환율을 확인할 수 있습니다."
+      },
+      providerCandidates: ["Frankfurter API"]
+    },
+    visa: {
+      status: "requires-verification",
+      message: {
+        en: "Entry rules must be verified before execution.",
+        ko: "입국 요건은 실행 전 반드시 확인해야 합니다."
+      },
+      providerCandidates: ["REST Countries", "Government embassy data", "Timatic-style API"]
+    },
+    checklist: [
+      {
+        id: "passport",
+        en: "Passport",
+        ko: "여권",
+        required: true,
+        editable: true
+      },
+      {
+        id: "travel-insurance",
+        en: "Travel insurance",
+        ko: "여행자 보험",
+        required: true,
+        editable: true
+      },
+      {
+        id: "sim-esim",
+        en: "SIM / eSIM",
+        ko: "SIM / eSIM",
+        required: false,
+        editable: true
+      },
+      {
+        id: "currency",
+        en: "Currency",
+        ko: "환전",
+        required: true,
+        editable: true
+      },
+      {
+        id: "transit-card",
+        en: "Transit card",
+        ko: "교통카드",
+        required: false,
+        editable: true
+      },
+      {
+        id: "hotel-confirmation",
+        en: "Hotel confirmation",
+        ko: "호텔 예약 확인서",
+        required: true,
+        editable: true
+      },
+      {
+        id: "emergency-contacts",
+        en: "Emergency contacts",
+        ko: "비상 연락처",
+        required: true,
+        editable: true
+      }
+    ],
+    restaurants: [
+      {
+        id: "sushi",
+        type: "Sushi",
+        typeKo: "스시",
+        recommendation: "Reservation-ready sushi options near your route.",
+        recommendationKo: "동선 근처 예약 가능한 스시 옵션을 준비합니다.",
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      },
+      {
+        id: "ramen",
+        type: "Ramen",
+        typeKo: "라멘",
+        recommendation: "Local ramen shortlist based on location and wait time.",
+        recommendationKo: "위치와 대기 시간을 기준으로 현지 라멘 후보를 준비합니다.",
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      },
+      {
+        id: "cafe",
+        type: "Cafe",
+        typeKo: "카페",
+        recommendation: "Premium cafes and quiet stops along the itinerary.",
+        recommendationKo: "일정 중 들르기 좋은 프리미엄 카페와 조용한 장소를 준비합니다.",
+        sourceStatus: "prototype_adapter",
+        requiresPartnerAccess: true,
+        editable: true
+      }
+    ],
+    recommendedOption: {
+      level: "balanced",
+      en: "Balanced quality plan",
+      ko: "균형형 품질 플랜",
+      reason: {
+        en: "Best overall mix of comfort, price control, transport access, and reliable providers.",
+        ko: "편안함, 가격 통제, 교통 접근성, 신뢰 가능한 제공업체의 균형이 가장 좋습니다."
+      }
+    },
+    modifyOptions: [
+      {
+        id: "change-airline",
+        en: "Change airline",
+        ko: "항공사 변경"
+      },
+      {
+        id: "change-hotel-type",
+        en: "Change hotel type",
+        ko: "호텔 유형 변경"
+      },
+      {
+        id: "remove-restaurants",
+        en: "Remove restaurants",
+        ko: "레스토랑 제외"
+      },
+      {
+        id: "reduce-budget",
+        en: "Reduce budget",
+        ko: "예산 줄이기"
+      },
+      {
+        id: "upgrade-quality",
+        en: "Upgrade quality",
+        ko: "품질 업그레이드"
+      }
+    ]
+  };
+};
+
+const buildGeneralMission = (mission) => {
+  return buildMissionObject(mission);
+};
+
 const saveMission = (mission) => {
-  const payload = buildMissionObject(mission);
+  const cleanMission = normalizeMission(mission);
+  const missionType = detectMissionType(cleanMission);
+  const payload = missionType === MISSION_TYPES.travel
+    ? buildTravelMission(cleanMission)
+    : buildGeneralMission(cleanMission);
 
   sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(payload));
 
-  if (payload.type === missionTypes.travel) {
+  if (payload.type === MISSION_TYPES.travel) {
     sessionStorage.setItem(STORAGE_KEYS.travelMission, JSON.stringify(payload));
   } else {
     sessionStorage.removeItem(STORAGE_KEYS.travelMission);
@@ -1041,10 +1591,21 @@ const syncInputState = () => {
 };
 
 const closeDropdowns = () => {
-  themeDropdown?.classList.remove("is-open");
-  languageDropdown?.classList.remove("is-open");
-  themeControl?.setAttribute("aria-expanded", "false");
-  languageControl?.setAttribute("aria-expanded", "false");
+  if (themeDropdown) {
+    themeDropdown.classList.remove("is-open");
+  }
+
+  if (languageDropdown) {
+    languageDropdown.classList.remove("is-open");
+  }
+
+  if (themeControl) {
+    themeControl.setAttribute("aria-expanded", "false");
+  }
+
+  if (languageControl) {
+    languageControl.setAttribute("aria-expanded", "false");
+  }
 };
 
 const toggleDropdown = (dropdown, control) => {
@@ -1110,11 +1671,14 @@ window.addEventListener("pageshow", () => {
 window.KastizONE = {
   version: KASTIZ_ONE_VERSION,
   storageKeys: STORAGE_KEYS,
-  missionTypes,
-  classifierKeywords,
+  missionTypes: MISSION_TYPES,
+  classifier: missionClassifier,
   providerCatalog,
-  buildMissionObject,
+  approvalProtection: APPROVAL_PROTECTION,
   detectMissionType,
+  buildMissionObject,
+  buildTravelMission,
+  buildGeneralMission,
   saveMission,
   setTheme,
   setLanguage
