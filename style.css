@@ -352,7 +352,7 @@ a {
   opacity: 1;
   min-width: 3.1ch;
   text-align: center;
-animation: oneTextFade 24s ease-in-out infinite;
+animation: oneTextFade 18s ease-in-out infinite;
 }
 
 .one-logo-text::before {
@@ -360,7 +360,7 @@ animation: oneTextFade 24s ease-in-out infinite;
   display: inline-block;
   min-width: 3.1ch;
   text-align: center;
-animation: oneTextCycle 24s step-end infinite;
+animation: oneTextCycle 18s step-end infinite;
 }
 
 .mission-search {
