@@ -322,7 +322,7 @@ a {
   display: inline-block;
   min-width: 3.1ch;
   text-align: center;
-  animation: oneTextCycle 36s step-end infinite;
+  animation: oneTextCycle 39s step-end infinite;
 }
 
 .mission-search {
