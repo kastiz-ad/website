@@ -407,7 +407,10 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-missionInput.addEventListener("input", syncInputState);
+missionInput.addEventListener("input", () => {
+  syncInputState();
+  missionInput.classList.toggle("has-text", missionInput.value.trim().length > 0);
+});
 
 missionForm.addEventListener("submit", (event) => {
   event.preventDefault();
