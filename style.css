@@ -891,3 +891,23 @@ html[data-theme="midnight"] body {
     radial-gradient(circle at 18% 78%, rgba(60,64,72,.18) 0%, transparent 32%),
     linear-gradient(135deg, #0f1114, #15171a) !important;
 }
+/* KASTIZ ONE FIX — footer edges */
+.site-footer {
+  grid-template-columns: minmax(260px, 1fr) auto minmax(260px, 1fr) !important;
+  padding-left: 28px !important;
+  padding-right: 28px !important;
+}
+
+.footer-left {
+  justify-content: flex-start !important;
+  justify-self: start !important;
+}
+
+.footer-center {
+  justify-self: center !important;
+}
+
+.footer-right {
+  justify-content: flex-end !important;
+  justify-self: end !important;
+}
