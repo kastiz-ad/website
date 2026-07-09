@@ -546,6 +546,37 @@ html[data-theme="midnight"] .search-box:focus-within {
 
 @keyframes oneTextCycle {
   0%,
+  8% {
+    content: "O";
+  }
+
+  9%,
+  16% {
+    content: "ON";
+  }
+
+  17%,
+  100% {
+    content: "ONE";
+  }
+}
+
+@keyframes oneTextFade {
+  0%,
+  7%,
+  10%,
+  15%,
+  18%,
+  100% {
+    opacity: 1;
+  }
+
+  8%,
+  16% {
+    opacity: 0;
+  }
+}
+  0%,
   32% {
     content: "O";
   }
