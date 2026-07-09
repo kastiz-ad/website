@@ -21,251 +21,50 @@ const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || "light";
 root.setAttribute("data-theme", savedTheme);
 root.setAttribute("lang", fallbackLanguage);
 
-const loadingMessages = {
-  en: {
-    general: [
-      "Understanding your mission...",
-      "Finding trusted options...",
-      "Checking live data...",
-      "Preparing recommendations...",
-      "Turning your idea into reality..."
-    ],
-    travel: [
-      "Understanding your travel mission...",
-      "Checking weather...",
-      "Checking exchange rates...",
-      "Preparing flight options...",
-      "Preparing hotel options...",
-      "Preparing your travel checklist..."
-    ],
-    shopping: [
-      "Understanding your shopping mission...",
-      "Comparing products...",
-      "Checking price options...",
-      "Preparing best-value choices...",
-      "Preparing your buying checklist..."
-    ],
-    housing: [
-      "Understanding your housing mission...",
-      "Preparing area options...",
-      "Checking budget assumptions...",
-      "Preparing contract checklist...",
-      "Preparing housing recommendations..."
-    ],
-    legal: [
-      "Understanding your legal mission...",
-      "Preparing legal service options...",
-      "Checking required documents...",
-      "Preparing questions to ask...",
-      "Preparing legal checklist..."
-    ],
-    moving: [
-      "Understanding your moving mission...",
-      "Checking country information...",
-      "Preparing visa steps...",
-      "Preparing housing and shipping options...",
-      "Preparing relocation checklist..."
-    ],
-    business: [
-      "Understanding your business mission...",
-      "Preparing business setup steps...",
-      "Checking registration requirements...",
-      "Preparing tax and supplier options...",
-      "Preparing business checklist..."
-    ],
-    healthcare: [
-      "Understanding your healthcare mission...",
-      "Preparing clinic and hospital options...",
-      "Preparing appointment steps...",
-      "Checking document needs...",
-      "Preparing healthcare checklist..."
-    ],
-    finance: [
-      "Understanding your finance mission...",
-      "Preparing loan and rate options...",
-      "Checking required documents...",
-      "Preparing risk notes...",
-      "Preparing finance checklist..."
-    ],
-    career: [
-      "Understanding your career mission...",
-      "Preparing job targets...",
-      "Preparing resume steps...",
-      "Preparing interview plan...",
-      "Preparing career checklist..."
-    ],
-    lifestyle: [
-      "Understanding your lifestyle mission...",
-      "Preparing vendors...",
-      "Preparing timeline...",
-      "Preparing budget options...",
-      "Preparing reservation checklist..."
-    ]
-  },
-  ko: {
-    general: [
-      "미션을 이해하고 있어요...",
-      "신뢰할 수 있는 선택지를 찾고 있어요...",
-      "실시간 데이터를 확인하고 있어요...",
-      "추천 결과를 준비하고 있어요...",
-      "당신의 아이디어를 현실로 만들고 있어요..."
-    ],
-    travel: [
-      "여행 미션을 이해하고 있어요...",
-      "날씨를 확인하고 있어요...",
-      "환율을 확인하고 있어요...",
-      "항공권 옵션을 준비하고 있어요...",
-      "숙소 옵션을 준비하고 있어요...",
-      "여행 체크리스트를 준비하고 있어요..."
-    ],
-    shopping: [
-      "쇼핑 미션을 이해하고 있어요...",
-      "제품을 비교하고 있어요...",
-      "가격 옵션을 확인하고 있어요...",
-      "가성비 좋은 선택지를 준비하고 있어요...",
-      "구매 체크리스트를 준비하고 있어요..."
-    ],
-    housing: [
-      "주거 미션을 이해하고 있어요...",
-      "지역 후보를 준비하고 있어요...",
-      "예산 가정을 확인하고 있어요...",
-      "계약 체크리스트를 준비하고 있어요...",
-      "주거 추천 결과를 준비하고 있어요..."
-    ],
-    legal: [
-      "법률 미션을 이해하고 있어요...",
-      "법률 서비스 옵션을 준비하고 있어요...",
-      "필요 서류를 확인하고 있어요...",
-      "상담 질문을 준비하고 있어요...",
-      "법률 체크리스트를 준비하고 있어요..."
-    ],
-    moving: [
-      "이주 미션을 이해하고 있어요...",
-      "국가 정보를 확인하고 있어요...",
-      "비자 단계를 준비하고 있어요...",
-      "주거와 배송 옵션을 준비하고 있어요...",
-      "이주 체크리스트를 준비하고 있어요..."
-    ],
-    business: [
-      "사업 미션을 이해하고 있어요...",
-      "사업 시작 단계를 준비하고 있어요...",
-      "등록 요건을 확인하고 있어요...",
-      "세금과 공급업체 옵션을 준비하고 있어요...",
-      "사업 체크리스트를 준비하고 있어요..."
-    ],
-    healthcare: [
-      "의료 미션을 이해하고 있어요...",
-      "병원과 클리닉 옵션을 준비하고 있어요...",
-      "예약 단계를 준비하고 있어요...",
-      "필요 서류를 확인하고 있어요...",
-      "의료 체크리스트를 준비하고 있어요..."
-    ],
-    finance: [
-      "금융 미션을 이해하고 있어요...",
-      "대출과 금리 옵션을 준비하고 있어요...",
-      "필요 서류를 확인하고 있어요...",
-      "리스크를 정리하고 있어요...",
-      "금융 체크리스트를 준비하고 있어요..."
-    ],
-    career: [
-      "커리어 미션을 이해하고 있어요...",
-      "채용 목표를 준비하고 있어요...",
-      "이력서 단계를 준비하고 있어요...",
-      "면접 계획을 준비하고 있어요...",
-      "커리어 체크리스트를 준비하고 있어요..."
-    ],
-    lifestyle: [
-      "라이프스타일 미션을 이해하고 있어요...",
-      "업체 후보를 준비하고 있어요...",
-      "일정을 준비하고 있어요...",
-      "예산 옵션을 준비하고 있어요...",
-      "예약 체크리스트를 준비하고 있어요..."
-    ]
-  }
-};
-
 const approvalMessages = {
   en: "Nothing will be booked, purchased, reserved, signed, submitted, paid for, or legally committed until you approve.",
   ko: "사용자가 승인하기 전에는 예약, 결제, 구매, 서명, 제출 또는 법적 약속이 진행되지 않습니다."
 };
 
-const providerFallbacks = {
-  weather: {
-    provider: "Open-Meteo",
-    category: "weather",
-    sourceStatus: "fallback_data",
-    liveData: false,
-    requiresKey: false,
-    requiresPartnerAccess: false,
-    items: [
-      {
-        label: "Weather",
-        value: "Weather provider is ready. Live data may be checked again before final execution."
-      }
-    ],
-    error: null
+const loadingMessages = {
+  en: {
+    general_mission: ["Understanding your mission...", "Finding trusted options...", "Checking live data...", "Preparing recommendations...", "Turning your idea into reality..."],
+    travel: ["Understanding your travel mission...", "Checking weather...", "Checking exchange rates...", "Preparing flight options...", "Preparing hotel options...", "Preparing your travel checklist..."],
+    shopping: ["Understanding your shopping mission...", "Comparing products...", "Checking price options...", "Preparing best-value choices...", "Preparing your buying checklist..."],
+    housing: ["Understanding your housing mission...", "Preparing area options...", "Checking budget assumptions...", "Preparing contract checklist...", "Preparing housing recommendations..."],
+    legal: ["Understanding your legal mission...", "Preparing legal service options...", "Checking required documents...", "Preparing questions to ask...", "Preparing legal checklist..."],
+    moving: ["Understanding your moving mission...", "Checking country information...", "Preparing visa steps...", "Preparing housing and shipping options...", "Preparing relocation checklist..."],
+    business: ["Understanding your business mission...", "Preparing business setup steps...", "Checking registration requirements...", "Preparing tax and supplier options...", "Preparing business checklist..."],
+    healthcare: ["Understanding your healthcare mission...", "Preparing clinic and hospital options...", "Preparing appointment steps...", "Checking document needs...", "Preparing healthcare checklist..."],
+    finance: ["Understanding your finance mission...", "Preparing loan and rate options...", "Checking required documents...", "Preparing risk notes...", "Preparing finance checklist..."],
+    career: ["Understanding your career mission...", "Preparing job targets...", "Preparing resume steps...", "Preparing interview plan...", "Preparing career checklist..."],
+    lifestyle: ["Understanding your lifestyle mission...", "Preparing vendors...", "Preparing timeline...", "Preparing budget options...", "Preparing reservation checklist..."]
   },
-  currency: {
-    provider: "Frankfurter",
-    category: "currency",
-    sourceStatus: "fallback_data",
-    liveData: false,
-    requiresKey: false,
-    requiresPartnerAccess: false,
-    items: [
-      {
-        label: "Currency",
-        value: "Currency provider is ready. Live rates may be checked again before final execution."
-      }
-    ],
-    error: null
-  },
-  country: {
-    provider: "REST Countries",
-    category: "country",
-    sourceStatus: "fallback_data",
-    liveData: false,
-    requiresKey: false,
-    requiresPartnerAccess: false,
-    items: [
-      {
-        label: "Country",
-        value: "Country profile adapter is ready."
-      }
-    ],
-    error: null
-  },
-  maps: {
-    provider: "OpenStreetMap Nominatim",
-    category: "maps",
-    sourceStatus: "fallback_data",
-    liveData: false,
-    requiresKey: false,
-    requiresPartnerAccess: false,
-    items: [
-      {
-        label: "Maps",
-        value: "Map provider interface is ready."
-      }
-    ],
-    error: null
-  },
-  wikipedia: {
-    provider: "Wikipedia",
-    category: "destination_info",
-    sourceStatus: "fallback_data",
-    liveData: false,
-    requiresKey: false,
-    requiresPartnerAccess: false,
-    items: [
-      {
-        label: "Info",
-        value: "Public knowledge adapter is ready."
-      }
-    ],
-    error: null
+  ko: {
+    general_mission: ["미션을 이해하고 있어요...", "신뢰할 수 있는 선택지를 찾고 있어요...", "실시간 데이터를 확인하고 있어요...", "추천 결과를 준비하고 있어요...", "당신의 아이디어를 현실로 만들고 있어요..."],
+    travel: ["여행 미션을 이해하고 있어요...", "날씨를 확인하고 있어요...", "환율을 확인하고 있어요...", "항공권 옵션을 준비하고 있어요...", "숙소 옵션을 준비하고 있어요...", "여행 체크리스트를 준비하고 있어요..."],
+    shopping: ["쇼핑 미션을 이해하고 있어요...", "제품을 비교하고 있어요...", "가격 옵션을 확인하고 있어요...", "가성비 좋은 선택지를 준비하고 있어요...", "구매 체크리스트를 준비하고 있어요..."],
+    housing: ["주거 미션을 이해하고 있어요...", "지역 후보를 준비하고 있어요...", "예산 가정을 확인하고 있어요...", "계약 체크리스트를 준비하고 있어요...", "주거 추천 결과를 준비하고 있어요..."],
+    legal: ["법률 미션을 이해하고 있어요...", "법률 서비스 옵션을 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "상담 질문을 준비하고 있어요...", "법률 체크리스트를 준비하고 있어요..."],
+    moving: ["이주 미션을 이해하고 있어요...", "국가 정보를 확인하고 있어요...", "비자 단계를 준비하고 있어요...", "주거와 배송 옵션을 준비하고 있어요...", "이주 체크리스트를 준비하고 있어요..."],
+    business: ["사업 미션을 이해하고 있어요...", "사업 시작 단계를 준비하고 있어요...", "등록 요건을 확인하고 있어요...", "세금과 공급업체 옵션을 준비하고 있어요...", "사업 체크리스트를 준비하고 있어요..."],
+    healthcare: ["의료 미션을 이해하고 있어요...", "병원과 클리닉 옵션을 준비하고 있어요...", "예약 단계를 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "의료 체크리스트를 준비하고 있어요..."],
+    finance: ["금융 미션을 이해하고 있어요...", "대출과 금리 옵션을 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "리스크를 정리하고 있어요...", "금융 체크리스트를 준비하고 있어요..."],
+    career: ["커리어 미션을 이해하고 있어요...", "채용 목표를 준비하고 있어요...", "이력서 단계를 준비하고 있어요...", "면접 계획을 준비하고 있어요...", "커리어 체크리스트를 준비하고 있어요..."],
+    lifestyle: ["라이프스타일 미션을 이해하고 있어요...", "업체 후보를 준비하고 있어요...", "일정을 준비하고 있어요...", "예산 옵션을 준비하고 있어요...", "예약 체크리스트를 준비하고 있어요..."]
   }
 };
+
+const fallbackProvider = (provider, category, message, error = null) => ({
+  provider,
+  category,
+  sourceStatus: "fallback_data",
+  liveData: false,
+  requiresKey: false,
+  requiresPartnerAccess: false,
+  items: [{ label: category, value: message }],
+  error
+});
 
 const getStoredMission = () => {
   try {
@@ -285,78 +84,36 @@ const saveMission = (mission) => {
   }
 };
 
-const getMissionMessages = (mission) => {
-  const language = mission?.language === "ko" ? "ko" : "en";
-  const type = mission?.type || "general";
-  const messageGroup = loadingMessages[language][type] || loadingMessages[language].general;
-
-  return messageGroup;
-};
-
 const updateLoadingMessage = (message, subtext, progress) => {
-  if (loadingText) {
-    loadingText.textContent = message;
-  }
-
-  if (loadingSubtext) {
-    loadingSubtext.textContent = subtext;
-  }
-
-  if (loadingProgress) {
-    loadingProgress.style.width = `${progress}%`;
-  }
+  if (loadingText) loadingText.textContent = message;
+  if (loadingSubtext) loadingSubtext.textContent = subtext;
+  if (loadingProgress) loadingProgress.style.width = `${progress}%`;
 };
 
-const wait = (ms) => {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, ms);
-  });
-};
-
-const getCoordinates = (mission) => {
-  if (mission?.countryProfile?.latitude && mission?.countryProfile?.longitude) {
-    return {
-      latitude: mission.countryProfile.latitude,
-      longitude: mission.countryProfile.longitude
-    };
-  }
-
-  if (mission?.destination?.city === "Tokyo") {
-    return {
-      latitude: 35.6762,
-      longitude: 139.6503
-    };
-  }
-
-  return {
-    latitude: 37.5665,
-    longitude: 126.978
-  };
-};
+const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 const fetchWithTimeout = async (url, timeout = 4500) => {
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), timeout);
 
   try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        Accept: "application/json"
-      }
-    });
-
+    const response = await fetch(url, { signal: controller.signal, headers: { Accept: "application/json" } });
     window.clearTimeout(timer);
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return await response.json();
   } catch (error) {
     window.clearTimeout(timer);
     throw error;
   }
+};
+
+const getCoordinates = (mission) => {
+  if (mission?.countryProfile?.latitude && mission?.countryProfile?.longitude) {
+    return { latitude: mission.countryProfile.latitude, longitude: mission.countryProfile.longitude };
+  }
+
+  if (mission?.destination?.city === "Tokyo") return { latitude: 35.6762, longitude: 139.6503 };
+  return { latitude: 37.5665, longitude: 126.978 };
 };
 
 const fetchWeather = async (mission) => {
@@ -365,28 +122,15 @@ const fetchWeather = async (mission) => {
 
   try {
     const data = await fetchWithTimeout(url);
-
     const items = data?.daily?.time?.slice(0, 5).map((date, index) => ({
       label: date,
       value: `${Math.round(data.daily.temperature_2m_min[index])}°C - ${Math.round(data.daily.temperature_2m_max[index])}°C`,
       precipitation: `${data.daily.precipitation_probability_max[index] ?? 0}%`
     })) || [];
 
-    return {
-      provider: "Open-Meteo",
-      category: "weather",
-      sourceStatus: "free_live_api",
-      liveData: true,
-      requiresKey: false,
-      requiresPartnerAccess: false,
-      items,
-      error: null
-    };
+    return { provider: "Open-Meteo", category: "weather", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items, error: null };
   } catch (error) {
-    return {
-      ...providerFallbacks.weather,
-      error: error.message || "Weather request failed"
-    };
+    return fallbackProvider("Open-Meteo", "weather", "Weather provider is ready. Live data may be checked again before final execution.", error.message);
   }
 };
 
@@ -395,63 +139,26 @@ const fetchCurrency = async (mission) => {
   const to = mission?.countryProfile?.currency || mission?.exchangeRate?.to || "JPY";
 
   if (from === to) {
-    return {
-      provider: "Frankfurter",
-      category: "currency",
-      sourceStatus: "free_live_api",
-      liveData: true,
-      requiresKey: false,
-      requiresPartnerAccess: false,
-      items: [
-        {
-          label: `${from} → ${to}`,
-          value: "Same currency"
-        }
-      ],
-      error: null
-    };
+    return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} → ${to}`, value: "Same currency" }], error: null };
   }
 
-  const url = `https://api.frankfurter.app/latest?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
-
   try {
-    const data = await fetchWithTimeout(url);
+    const data = await fetchWithTimeout(`https://api.frankfurter.app/latest?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
     const rate = data?.rates?.[to];
 
-    return {
-      provider: "Frankfurter",
-      category: "currency",
-      sourceStatus: "free_live_api",
-      liveData: Boolean(rate),
-      requiresKey: false,
-      requiresPartnerAccess: false,
-      items: [
-        {
-          label: `${from} → ${to}`,
-          value: rate ? String(rate) : "Rate unavailable"
-        }
-      ],
-      error: null
-    };
+    return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: Boolean(rate), requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} → ${to}`, value: rate ? String(rate) : "Rate unavailable" }], error: null };
   } catch (error) {
-    return {
-      ...providerFallbacks.currency,
-      error: error.message || "Currency request failed"
-    };
+    return fallbackProvider("Frankfurter", "currency", "Currency provider is ready. Live rates may be checked again before final execution.", error.message);
   }
 };
 
 const fetchCountryInfo = async (mission) => {
   const countryCode = mission?.country || mission?.destination?.code;
 
-  if (!countryCode) {
-    return providerFallbacks.country;
-  }
-
-  const url = `https://restcountries.com/v3.1/alpha/${encodeURIComponent(countryCode)}`;
+  if (!countryCode) return fallbackProvider("REST Countries", "country", "Country profile adapter is ready.");
 
   try {
-    const data = await fetchWithTimeout(url);
+    const data = await fetchWithTimeout(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(countryCode)}`);
     const country = Array.isArray(data) ? data[0] : null;
 
     return {
@@ -461,52 +168,26 @@ const fetchCountryInfo = async (mission) => {
       liveData: Boolean(country),
       requiresKey: false,
       requiresPartnerAccess: false,
-      items: country
-        ? [
-            {
-              label: "Country",
-              value: country.name?.common || countryCode
-            },
-            {
-              label: "Capital",
-              value: Array.isArray(country.capital) ? country.capital.join(", ") : "Unknown"
-            },
-            {
-              label: "Region",
-              value: country.region || "Unknown"
-            },
-            {
-              label: "Currency",
-              value: country.currencies ? Object.keys(country.currencies).join(", ") : "Unknown"
-            }
-          ]
-        : [],
+      items: country ? [
+        { label: "Country", value: country.name?.common || countryCode },
+        { label: "Capital", value: Array.isArray(country.capital) ? country.capital.join(", ") : "Unknown" },
+        { label: "Region", value: country.region || "Unknown" },
+        { label: "Currency", value: country.currencies ? Object.keys(country.currencies).join(", ") : "Unknown" }
+      ] : [],
       error: null
     };
   } catch (error) {
-    return {
-      ...providerFallbacks.country,
-      error: error.message || "Country request failed"
-    };
+    return fallbackProvider("REST Countries", "country", "Country profile adapter is ready.", error.message);
   }
 };
 
 const fetchMapInfo = async (mission) => {
-  const query =
-    mission?.destination?.city ||
-    mission?.countryProfile?.capital ||
-    mission?.countryProfile?.name ||
-    mission?.rawInput ||
-    "";
+  const query = mission?.destination?.city || mission?.countryProfile?.capital || mission?.countryProfile?.name || mission?.rawInput || "";
 
-  if (!query) {
-    return providerFallbacks.maps;
-  }
-
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=3`;
+  if (!query) return fallbackProvider("OpenStreetMap Nominatim", "maps", "Map provider interface is ready.");
 
   try {
-    const data = await fetchWithTimeout(url);
+    const data = await fetchWithTimeout(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=3`);
 
     return {
       provider: "OpenStreetMap Nominatim",
@@ -515,38 +196,24 @@ const fetchMapInfo = async (mission) => {
       liveData: Array.isArray(data) && data.length > 0,
       requiresKey: false,
       requiresPartnerAccess: false,
-      items: Array.isArray(data)
-        ? data.slice(0, 3).map((item) => ({
-            label: item.display_name?.split(",").slice(0, 2).join(",") || query,
-            value: `${item.lat}, ${item.lon}`
-          }))
-        : [],
+      items: Array.isArray(data) ? data.slice(0, 3).map((item) => ({
+        label: item.display_name?.split(",").slice(0, 2).join(",") || query,
+        value: `${item.lat}, ${item.lon}`
+      })) : [],
       error: null
     };
   } catch (error) {
-    return {
-      ...providerFallbacks.maps,
-      error: error.message || "Map request failed"
-    };
+    return fallbackProvider("OpenStreetMap Nominatim", "maps", "Map provider interface is ready.", error.message);
   }
 };
 
 const fetchWikipediaInfo = async (mission) => {
-  const topic =
-    mission?.destination?.city ||
-    mission?.countryProfile?.capital ||
-    mission?.countryProfile?.name ||
-    mission?.rawInput ||
-    "";
+  const topic = mission?.destination?.city || mission?.countryProfile?.capital || mission?.countryProfile?.name || mission?.rawInput || "";
 
-  if (!topic) {
-    return providerFallbacks.wikipedia;
-  }
-
-  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+  if (!topic) return fallbackProvider("Wikipedia", "destination_info", "Public knowledge adapter is ready.");
 
   try {
-    const data = await fetchWithTimeout(url);
+    const data = await fetchWithTimeout(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
 
     return {
       provider: "Wikipedia",
@@ -555,19 +222,11 @@ const fetchWikipediaInfo = async (mission) => {
       liveData: Boolean(data?.extract),
       requiresKey: false,
       requiresPartnerAccess: false,
-      items: [
-        {
-          label: data?.title || topic,
-          value: data?.extract || "Public information unavailable"
-        }
-      ],
+      items: [{ label: data?.title || topic, value: data?.extract || "Public information unavailable" }],
       error: null
     };
   } catch (error) {
-    return {
-      ...providerFallbacks.wikipedia,
-      error: error.message || "Wikipedia request failed"
-    };
+    return fallbackProvider("Wikipedia", "destination_info", "Public knowledge adapter is ready.", error.message);
   }
 };
 
@@ -583,14 +242,12 @@ const buildPrototypeProviderResults = (mission) => {
       liveData: false,
       requiresKey: provider.requiresKey,
       requiresPartnerAccess: provider.requiresPartnerAccess,
-      items: [
-        {
-          label: provider.category,
-          value: mission.language === "ko"
-            ? "파트너 접근 권한이 필요한 프로토타입 어댑터입니다. 실제 실행은 하지 않습니다."
-            : "Prototype adapter requiring partner access. No real execution is performed."
-        }
-      ],
+      items: [{
+        label: provider.category,
+        value: mission.language === "ko"
+          ? "파트너 접근 권한이 필요한 프로토타입 어댑터입니다. 실제 실행은 하지 않습니다."
+          : "Prototype adapter requiring partner access. No real execution is performed."
+      }],
       error: null
     }));
 };
@@ -618,7 +275,7 @@ const enrichMission = async (mission) => {
 
   providerResults.push(...buildPrototypeProviderResults(mission));
 
-  const enrichedMission = {
+  return {
     ...mission,
     status: "mission_ready",
     providerResults,
@@ -636,8 +293,6 @@ const enrichMission = async (mission) => {
     },
     updatedAt: new Date().toISOString()
   };
-
-  return enrichedMission;
 };
 
 const runLoadingSequence = async () => {
@@ -649,7 +304,7 @@ const runLoadingSequence = async () => {
   }
 
   const language = mission.language === "ko" ? "ko" : "en";
-  const messages = getMissionMessages(mission);
+  const messages = loadingMessages[language][mission.type] || loadingMessages[language].general_mission;
   const subtext = language === "ko" ? approvalMessages.ko : approvalMessages.en;
 
   for (let index = 0; index < messages.length; index += 1) {
@@ -660,12 +315,7 @@ const runLoadingSequence = async () => {
 
   const enrichedMission = await enrichMission(mission);
 
-  updateLoadingMessage(
-    language === "ko" ? "미션 준비가 완료되었습니다..." : "Mission ready...",
-    subtext,
-    100
-  );
-
+  updateLoadingMessage(language === "ko" ? "미션 준비가 완료되었습니다..." : "Mission ready...", subtext, 100);
   saveMission(enrichedMission);
 
   await wait(620);
