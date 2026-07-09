@@ -574,25 +574,6 @@ html[data-theme="midnight"] .search-box:focus-within {
   clip-path: inset(50%);
 }
 
-@keyframes oneTextCycle {
-
-  0%,
-  8.33% {
-    content: "O";
-  }
-
-  8.34%,
-  16.66% {
-    content: "ON";
-  }
-
-  16.67%,
-  100% {
-    content: "ONE";
-  }
-
-}
-
 @keyframes oneTextFade {
 
   0%,
@@ -902,4 +883,59 @@ html[data-theme="midnight"] body {
 .footer-right {
   justify-content: flex-end !important;
   justify-self: end !important;
+}
+/* KASTIZ ONE FIX — smooth letter logo */
+.one-logo-text::before {
+  content: none !important;
+  display: none !important;
+}
+
+.one-logo-text {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0 !important;
+  min-width: 3.1ch !important;
+  text-align: center !important;
+  animation: none !important;
+}
+
+.one-letter {
+  opacity: 0;
+  display: inline-block;
+  animation-name: oneLetterFade;
+  animation-duration: 24s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.one-letter-o {
+  animation-delay: 0s;
+}
+
+.one-letter-n {
+  animation-delay: 1.8s;
+}
+
+.one-letter-e {
+  animation-delay: 3.6s;
+}
+
+@keyframes oneLetterFade {
+  0% {
+    opacity: 0;
+  }
+
+  6% {
+    opacity: 1;
+  }
+
+  91% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
