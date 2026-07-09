@@ -1,1500 +1,959 @@
-"use strict";
+const root = document.documentElement;
+const body = document.body;
+const themeDropdown = document.getElementById("themeDropdown");
+const languageDropdown = document.getElementById("languageDropdown");
+const themeControl = document.getElementById("themeControl");
+const languageControl = document.getElementById("languageControl");
+const themeControlText = document.getElementById("themeControlText");
+const languageControlText = document.getElementById("languageControlText");
+const missionForm = document.getElementById("missionForm");
+const missionInput = document.getElementById("missionInput");
+const missionRotator = document.getElementById("missionRotator");
+const missionRotatorText = document.getElementById("missionRotatorText");
+const locationText = document.getElementById("locationText");
 
-const KASTIZ_ONE_VERSION = "V9_MASTER_ARCHITECTURE";
+const STORAGE_KEYS = {
+  theme: "kastiz-one-theme",
+  language: "kastiz-one-language",
+  mission: "kastiz-one-current-mission",
+  travelMission: "kastiz-one-travel-mission",
+  results: "kastiz-one-results"
+};
 
-const STORAGE_KEYS = Object.freeze({
-  THEME: "kastiz.theme",
-  LANGUAGE: "kastiz.language",
-  ACTIVE_MISSION: "kastiz.activeMission",
-  MISSION_HISTORY: "kastiz.missionHistory",
-  EXECUTION_STATE: "kastiz.executionState"
-});
+const supportedLanguages = ["en", "ko"];
+const supportedThemes = ["light", "gray", "midnight"];
 
-const SUPPORTED_LANGUAGES = Object.freeze({
+const translations = {
   en: {
-    code: "en",
-    label: "English",
-    locale: "en-US"
-  },
-  ko: {
-    code: "ko",
-    label: "한국어",
-    locale: "ko-KR"
-  }
-});
-
-const SUPPORTED_THEMES = Object.freeze(["light", "gray", "midnight"]);
-
-const MISSION_TYPES = Object.freeze({
-  TRAVEL: "travel",
-  SHOPPING: "shopping",
-  LEGAL: "legal",
-  HEALTHCARE: "healthcare",
-  EDUCATION: "education",
-  FINANCE: "finance",
-  CAREER: "career",
-  MOVING: "moving",
-  BUSINESS: "business",
-  GOVERNMENT: "government",
-  LIFESTYLE: "lifestyle",
-  GENERAL: "general"
-});
-
-const APPROVAL_ACTIONS = Object.freeze([
-  "book",
-  "purchase",
-  "reserve",
-  "sign",
-  "pay",
-  "submit",
-  "apply",
-  "commit",
-  "confirm"
-]);
-
-const I18N = Object.freeze({
-  en: {
-    appName: "ONE",
-    heroEyebrow: "Kastiz ONE",
-    heroTitle: "Tell ONE what you need.",
-    heroSubtitle: "ONE prepares the mission, compares options, explains the plan, and waits for your approval before taking action.",
-    inputPlaceholder: "Plan my Japan trip",
-    submitLabel: "Start",
-    loadingLabel: "Preparing",
-    customizeLabel: "Customize",
-    makeRealityLabel: "Make It Reality",
-    approvalRequired: "Approval required",
-    missionReady: "Mission ready",
-    languageLabel: "Language",
+    description: "Kastiz ONE completes real-life missions.",
+    siteNavigation: "Kastiz ONE navigation",
+    preferences: "Preferences",
     themeLabel: "Theme",
-    lightTheme: "Light",
-    grayTheme: "Gray",
-    midnightTheme: "Midnight",
-    examples: [
-      "Plan my Japan trip",
-      "Find a better apartment near work",
-      "Compare laptops for design work",
-      "Prepare a business launch checklist",
-      "Find English courses for my student",
-      "Prepare documents for a visa question"
-    ],
-    safety: {
-      approval: "ONE will prepare everything, but will not book, purchase, reserve, sign, pay, or submit anything without your explicit approval."
-    }
+    languageLabel: "Language",
+    account: "Account",
+    upgrade: "Upgrade",
+    login: "Login",
+    searchLabel: "Enter your mission",
+    searchDefault: "What mission should ONE complete?",
+    missionTools: "Mission tools",
+    microphone: "Use microphone",
+    uploadImage: "Upload image",
+    aiPowered: "AI powered",
+    startMission: "Start mission",
+    footer: "Footer",
+    partners: "Partners",
+    business: "Business",
+    developers: "Developers",
+    poweredBy: "Powered by Kastiz",
+    privacy: "Privacy",
+    terms: "Terms",
+    settings: "Settings",
+    unknownLocation: "Unknown Location",
+    themes: {
+      light: "Light",
+      gray: "Gray",
+      midnight: "Midnight"
+    },
+    languages: {
+      en: "English",
+      ko: "한국어"
+    },
+    missions: [
+      "Plan my Japan trip.",
+      "Find my first home.",
+      "Start a business.",
+      "Move to Canada.",
+      "Buy the best laptop.",
+      "Find childcare.",
+      "Register my trademark.",
+      "Plan my honeymoon.",
+      "Save me money.",
+      "Find the best divorce lawyer.",
+      "Import products from China.",
+      "Build my dream PC.",
+      "Move overseas.",
+      "Compare mortgages.",
+      "Plan my retirement.",
+      "Book my dream vacation."
+    ]
   },
   ko: {
-    appName: "ONE",
-    heroEyebrow: "Kastiz ONE",
-    heroTitle: "필요한 일을 ONE에게 말하세요.",
-    heroSubtitle: "ONE이 미션을 준비하고, 선택지를 비교하고, 계획을 설명한 뒤 승인 전까지 실행하지 않습니다.",
-    inputPlaceholder: "일본 여행 계획해줘",
-    submitLabel: "시작",
-    loadingLabel: "준비 중",
-    customizeLabel: "맞춤 설정",
-    makeRealityLabel: "현실로 만들기",
-    approvalRequired: "승인 필요",
-    missionReady: "미션 준비 완료",
-    languageLabel: "언어",
+    description: "Kastiz ONE은 현실의 미션을 완성합니다.",
+    siteNavigation: "Kastiz ONE 내비게이션",
+    preferences: "설정",
     themeLabel: "테마",
-    lightTheme: "라이트",
-    grayTheme: "그레이",
-    midnightTheme: "미드나잇",
-    examples: [
+    languageLabel: "언어",
+    account: "계정",
+    upgrade: "업그레이드",
+    login: "로그인",
+    searchLabel: "미션 입력",
+    searchDefault: "ONE이 어떤 미션을 완성할까요?",
+    missionTools: "미션 도구",
+    microphone: "마이크 사용",
+    uploadImage: "이미지 업로드",
+    aiPowered: "AI 기반",
+    startMission: "미션 시작",
+    footer: "푸터",
+    partners: "파트너",
+    business: "비즈니스",
+    developers: "개발자",
+    poweredBy: "Kastiz 제공",
+    privacy: "개인정보",
+    terms: "약관",
+    settings: "설정",
+    unknownLocation: "알 수 없는 위치",
+    themes: {
+      light: "라이트",
+      gray: "그레이",
+      midnight: "미드나이트"
+    },
+    languages: {
+      en: "English",
+      ko: "한국어"
+    },
+    missions: [
       "일본 여행 계획해줘",
-      "회사 근처 좋은 집 찾아줘",
-      "디자인 작업용 노트북 비교해줘",
-      "사업 시작 체크리스트 준비해줘",
-      "학생에게 맞는 영어 코스 찾아줘",
-      "비자 관련 서류 준비 도와줘"
-    ],
-    safety: {
-      approval: "ONE은 모든 것을 준비하지만, 명시적 승인 없이 예약, 구매, 서명, 결제, 제출을 하지 않습니다."
-    }
-  }
-});
-
-const ProviderRegistry = (() => {
-  const providers = new Map();
-
-  function register(provider) {
-    if (!provider || !provider.id || !provider.category || typeof provider.prepare !== "function") {
-      throw new Error("Invalid provider adapter.");
-    }
-
-    providers.set(provider.id, Object.freeze(provider));
-  }
-
-  function byCategory(category) {
-    return Array.from(providers.values()).filter((provider) => provider.category === category);
-  }
-
-  function byMissionType(type) {
-    return Array.from(providers.values()).filter((provider) => provider.missionTypes.includes(type));
-  }
-
-  function all() {
-    return Array.from(providers.values());
-  }
-
-  return {
-    register,
-    byCategory,
-    byMissionType,
-    all
-  };
-})();
-
-class ProviderAdapter {
-  constructor(config) {
-    this.id = config.id;
-    this.name = config.name;
-    this.category = config.category;
-    this.missionTypes = config.missionTypes || [];
-    this.requiresApiKey = Boolean(config.requiresApiKey);
-    this.requiresCommercialApproval = Boolean(config.requiresCommercialApproval);
-    this.capabilities = config.capabilities || [];
-    this.prepare = config.prepare;
-  }
-}
-
-function createDemoResult({ providerId, providerName, category, title, summary, items = [], executionBlocked = false }) {
-  return {
-    id: cryptoSafeId("provider_result"),
-    providerId,
-    providerName,
-    category,
-    title,
-    summary,
-    items,
-    executionBlocked,
-    status: executionBlocked ? "interface_ready_demo_data" : "ready",
-    generatedAt: new Date().toISOString()
-  };
-}
-
-function registerProviders() {
-  const adapters = [
-    new ProviderAdapter({
-      id: "openweather",
-      name: "OpenWeather",
-      category: "weather",
-      missionTypes: [MISSION_TYPES.TRAVEL, MISSION_TYPES.MOVING, MISSION_TYPES.LIFESTYLE],
-      requiresApiKey: true,
-      capabilities: ["forecast", "current_weather", "travel_weather"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "openweather",
-          providerName: "OpenWeather",
-          category: "weather",
-          title: t("weatherPrepared", mission.language, "Weather check prepared"),
-          summary: mission.language === "ko" ? "API 키 연결 시 목적지 날씨와 여행 시기별 기온을 확인합니다." : "Connect an API key to check destination weather and seasonal conditions.",
-          items: [
-            { label: "Interface", value: "WeatherProvider.getForecast()" },
-            { label: "Approval", value: "No booking or payment" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "exchangerate",
-      name: "ExchangeRate Provider",
-      category: "currency",
-      missionTypes: [MISSION_TYPES.TRAVEL, MISSION_TYPES.FINANCE, MISSION_TYPES.BUSINESS],
-      requiresApiKey: false,
-      capabilities: ["currency_conversion", "budget_estimation"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "exchangerate",
-          providerName: "ExchangeRate Provider",
-          category: "currency",
-          title: mission.language === "ko" ? "환율 준비" : "Currency prepared",
-          summary: mission.language === "ko" ? "예산 계산과 통화 변환을 위한 환율 모듈이 준비되었습니다." : "Currency conversion is prepared for budget and cost comparison.",
-          items: [
-            { label: "Base", value: inferCurrencyBase(mission) },
-            { label: "Mode", value: "Read-only estimate" }
-          ]
-        })
-    }),
-    new ProviderAdapter({
-      id: "restcountries",
-      name: "REST Countries",
-      category: "country",
-      missionTypes: [MISSION_TYPES.TRAVEL, MISSION_TYPES.MOVING, MISSION_TYPES.GOVERNMENT, MISSION_TYPES.BUSINESS],
-      requiresApiKey: false,
-      capabilities: ["country_profile", "capital", "currency", "region"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "restcountries",
-          providerName: "REST Countries",
-          category: "country",
-          title: mission.language === "ko" ? "국가 정보 준비" : "Country profile prepared",
-          summary: mission.language === "ko" ? "국가, 통화, 지역, 기본 정보를 구조화할 수 있습니다." : "Country, currency, region, and basic profile data can be structured.",
-          items: [
-            { label: "Country", value: mission.country || "Auto-detect" },
-            { label: "Usage", value: "Mission context" }
-          ]
-        })
-    }),
-    new ProviderAdapter({
-      id: "nominatim",
-      name: "OpenStreetMap Nominatim",
-      category: "maps",
-      missionTypes: [MISSION_TYPES.TRAVEL, MISSION_TYPES.MOVING, MISSION_TYPES.HEALTHCARE, MISSION_TYPES.EDUCATION, MISSION_TYPES.BUSINESS, MISSION_TYPES.LIFESTYLE],
-      requiresApiKey: false,
-      capabilities: ["geocoding", "place_search", "area_context"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "nominatim",
-          providerName: "OpenStreetMap Nominatim",
-          category: "maps",
-          title: mission.language === "ko" ? "지도 검색 준비" : "Map search prepared",
-          summary: mission.language === "ko" ? "장소 검색, 지역 분석, 거리 계산을 위한 지도 어댑터가 준비되었습니다." : "Map adapter is ready for place search, area context, and location matching.",
-          items: [
-            { label: "Search", value: "Provider interface only from UI" },
-            { label: "Execution", value: "Read-only" }
-          ]
-        })
-    }),
-    new ProviderAdapter({
-      id: "wikipedia",
-      name: "Wikipedia",
-      category: "knowledge",
-      missionTypes: [MISSION_TYPES.TRAVEL, MISSION_TYPES.EDUCATION, MISSION_TYPES.BUSINESS, MISSION_TYPES.GOVERNMENT, MISSION_TYPES.LIFESTYLE],
-      requiresApiKey: false,
-      capabilities: ["background_research", "destination_context", "education_context"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "wikipedia",
-          providerName: "Wikipedia",
-          category: "knowledge",
-          title: mission.language === "ko" ? "배경 정보 준비" : "Background research prepared",
-          summary: mission.language === "ko" ? "목적지, 기관, 주제에 대한 기본 배경 정보를 준비합니다." : "Prepares background context for destinations, institutions, and topics.",
-          items: [
-            { label: "Mission", value: mission.type },
-            { label: "Mode", value: "Research only" }
-          ]
-        })
-    }),
-    new ProviderAdapter({
-      id: "google_maps_interface",
-      name: "Google Maps Interface",
-      category: "maps",
-      missionTypes: [MISSION_TYPES.TRAVEL, MISSION_TYPES.MOVING, MISSION_TYPES.HEALTHCARE, MISSION_TYPES.EDUCATION, MISSION_TYPES.BUSINESS, MISSION_TYPES.LIFESTYLE],
-      requiresApiKey: true,
-      capabilities: ["premium_places", "distance_matrix", "routing"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "google_maps_interface",
-          providerName: "Google Maps Interface",
-          category: "maps",
-          title: mission.language === "ko" ? "Google Maps 인터페이스 준비" : "Google Maps interface prepared",
-          summary: mission.language === "ko" ? "API 키 연결 전까지 실제 Google Maps 호출은 하지 않습니다." : "No Google Maps request is made until an API key is connected.",
-          items: [
-            { label: "API key", value: "Required" },
-            { label: "Status", value: "Adapter ready" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "flights_interface",
-      name: "Flight Provider Interface",
-      category: "flights",
-      missionTypes: [MISSION_TYPES.TRAVEL],
-      requiresCommercialApproval: true,
-      capabilities: ["flight_search", "fare_compare", "booking_handoff"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "flights_interface",
-          providerName: "Flight Provider Interface",
-          category: "flights",
-          title: mission.language === "ko" ? "항공권 준비" : "Flights prepared",
-          summary: mission.language === "ko" ? "항공권 검색 구조는 준비되었지만 실제 예약은 승인 전까지 실행하지 않습니다." : "Flight search architecture is ready, but no booking is executed without approval.",
-          items: [
-            { label: "Provider", value: "Commercial adapter required" },
-            { label: "Action", value: "Prepare only" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "hotels_interface",
-      name: "Hotel Provider Interface",
-      category: "hotels",
-      missionTypes: [MISSION_TYPES.TRAVEL, MISSION_TYPES.MOVING],
-      requiresCommercialApproval: true,
-      capabilities: ["hotel_search", "availability", "reservation_handoff"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "hotels_interface",
-          providerName: "Hotel Provider Interface",
-          category: "hotels",
-          title: mission.language === "ko" ? "숙소 준비" : "Hotels prepared",
-          summary: mission.language === "ko" ? "숙소 비교 구조는 준비되었지만 실제 예약은 승인 전까지 실행하지 않습니다." : "Hotel comparison is prepared, but no reservation is made without approval.",
-          items: [
-            { label: "Booking", value: "Blocked until approval" },
-            { label: "Data", value: "Structured demo until provider approval" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "products_interface",
-      name: "Product Provider Interface",
-      category: "products",
-      missionTypes: [MISSION_TYPES.SHOPPING],
-      requiresCommercialApproval: true,
-      capabilities: ["product_search", "reviews", "price_compare", "availability"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "products_interface",
-          providerName: "Product Provider Interface",
-          category: "products",
-          title: mission.language === "ko" ? "제품 비교 준비" : "Product comparison prepared",
-          summary: mission.language === "ko" ? "제품, 리뷰, 가격 비교 구조가 준비되었습니다. 구매는 승인 전까지 차단됩니다." : "Products, reviews, and price comparison are prepared. Purchase is blocked until approval.",
-          items: [
-            { label: "Purchase", value: "Requires explicit approval" },
-            { label: "Status", value: "Provider interface ready" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "legal_resources_interface",
-      name: "Legal Resource Interface",
-      category: "legal",
-      missionTypes: [MISSION_TYPES.LEGAL, MISSION_TYPES.GOVERNMENT, MISSION_TYPES.BUSINESS],
-      requiresCommercialApproval: false,
-      capabilities: ["lawyer_search", "government_resources", "document_checklist"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "legal_resources_interface",
-          providerName: "Legal Resource Interface",
-          category: "legal",
-          title: mission.language === "ko" ? "법률 리소스 준비" : "Legal resources prepared",
-          summary: mission.language === "ko" ? "법률 정보와 체크리스트를 준비합니다. 법률 문서 제출이나 서명은 승인 전까지 하지 않습니다." : "Legal resources and checklists are prepared. No legal submission or signature occurs without approval.",
-          items: [
-            { label: "Submission", value: "Blocked" },
-            { label: "Role", value: "Information and preparation" }
-          ]
-        })
-    }),
-    new ProviderAdapter({
-      id: "healthcare_interface",
-      name: "Healthcare Provider Interface",
-      category: "healthcare",
-      missionTypes: [MISSION_TYPES.HEALTHCARE],
-      requiresCommercialApproval: true,
-      capabilities: ["hospital_search", "clinic_search", "appointment_handoff"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "healthcare_interface",
-          providerName: "Healthcare Provider Interface",
-          category: "healthcare",
-          title: mission.language === "ko" ? "의료 검색 준비" : "Healthcare search prepared",
-          summary: mission.language === "ko" ? "병원과 진료 옵션을 준비합니다. 예약은 승인 전까지 실행하지 않습니다." : "Hospital and care options are prepared. Appointments are not made without approval.",
-          items: [
-            { label: "Appointment", value: "Requires approval" },
-            { label: "Emergency", value: "Use local emergency services" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "jobs_interface",
-      name: "Career Provider Interface",
-      category: "career",
-      missionTypes: [MISSION_TYPES.CAREER],
-      requiresCommercialApproval: true,
-      capabilities: ["job_search", "resume_review", "application_handoff"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "jobs_interface",
-          providerName: "Career Provider Interface",
-          category: "career",
-          title: mission.language === "ko" ? "커리어 준비" : "Career mission prepared",
-          summary: mission.language === "ko" ? "채용 공고, 이력서, 지원 준비 구조가 준비되었습니다. 지원서 제출은 승인 전까지 하지 않습니다." : "Jobs, resume, and application preparation are ready. No application is submitted without approval.",
-          items: [
-            { label: "Apply", value: "Approval required" },
-            { label: "Resume", value: "Editable card" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "education_interface",
-      name: "Education Provider Interface",
-      category: "education",
-      missionTypes: [MISSION_TYPES.EDUCATION],
-      requiresCommercialApproval: false,
-      capabilities: ["school_search", "course_search", "learning_plan"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "education_interface",
-          providerName: "Education Provider Interface",
-          category: "education",
-          title: mission.language === "ko" ? "교육 미션 준비" : "Education mission prepared",
-          summary: mission.language === "ko" ? "학교, 코스, 학습 계획을 구조화합니다." : "Schools, courses, and learning plans are structured.",
-          items: [
-            { label: "Plan", value: "Editable" },
-            { label: "Enrollment", value: "Approval required" }
-          ]
-        })
-    }),
-    new ProviderAdapter({
-      id: "finance_interface",
-      name: "Finance Provider Interface",
-      category: "finance",
-      missionTypes: [MISSION_TYPES.FINANCE],
-      requiresCommercialApproval: true,
-      capabilities: ["bank_compare", "loan_compare", "budget_plan"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "finance_interface",
-          providerName: "Finance Provider Interface",
-          category: "finance",
-          title: mission.language === "ko" ? "금융 미션 준비" : "Finance mission prepared",
-          summary: mission.language === "ko" ? "은행, 대출, 예산 비교 구조를 준비합니다. 신청이나 결제는 승인 전까지 하지 않습니다." : "Banking, loan, and budget comparison are prepared. No application or payment is submitted without approval.",
-          items: [
-            { label: "Financial action", value: "Blocked until approval" },
-            { label: "Mode", value: "Preparation only" }
-          ],
-          executionBlocked: true
-        })
-    }),
-    new ProviderAdapter({
-      id: "business_interface",
-      name: "Business Provider Interface",
-      category: "business",
-      missionTypes: [MISSION_TYPES.BUSINESS],
-      requiresCommercialApproval: false,
-      capabilities: ["company_registration_checklist", "tax_checklist", "launch_plan"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "business_interface",
-          providerName: "Business Provider Interface",
-          category: "business",
-          title: mission.language === "ko" ? "비즈니스 미션 준비" : "Business mission prepared",
-          summary: mission.language === "ko" ? "회사 설립, 세금, 런칭 체크리스트를 준비합니다. 제출은 승인 전까지 차단됩니다." : "Company registration, tax, and launch checklists are prepared. Submission is blocked until approval.",
-          items: [
-            { label: "Submit forms", value: "Approval required" },
-            { label: "Checklist", value: "Ready" }
-          ]
-        })
-    }),
-    new ProviderAdapter({
-      id: "moving_interface",
-      name: "Moving Provider Interface",
-      category: "moving",
-      missionTypes: [MISSION_TYPES.MOVING],
-      requiresCommercialApproval: true,
-      capabilities: ["immigration_checklist", "shipping_compare", "housing_search"],
-      prepare: async (mission) =>
-        createDemoResult({
-          providerId: "moving_interface",
-          providerName: "Moving Provider Interface",
-          category: "moving",
-          title: mission.language === "ko" ? "이사 미션 준비" : "Moving mission prepared",
-          summary: mission.language === "ko" ? "이민, 배송, 주거 검색 구조를 준비합니다. 계약과 결제는 승인 전까지 하지 않습니다." : "Immigration, shipping, and housing search are prepared. Contracts and payment are blocked until approval.",
-          items: [
-            { label: "Contract", value: "Blocked" },
-            { label: "Housing", value: "Compare only" }
-          ],
-          executionBlocked: true
-        })
-    })
-  ];
-
-  adapters.forEach((adapter) => ProviderRegistry.register(adapter));
-}
-
-const MissionClassifier = (() => {
-  const patterns = [
-    {
-      type: MISSION_TYPES.TRAVEL,
-      subtype: "trip_planning",
-      keywords: [
-        "trip",
-        "travel",
-        "flight",
-        "hotel",
-        "itinerary",
-        "visa",
-        "restaurant",
-        "vacation",
-        "tour",
-        "japan",
-        "korea",
-        "hong kong",
-        "macao",
-        "여행",
-        "항공",
-        "호텔",
-        "숙소",
-        "일정",
-        "비자",
-        "맛집",
-        "일본",
-        "한국"
-      ]
-    },
-    {
-      type: MISSION_TYPES.SHOPPING,
-      subtype: "product_research",
-      keywords: [
-        "buy",
-        "shop",
-        "product",
-        "laptop",
-        "phone",
-        "compare price",
-        "review",
-        "availability",
-        "구매",
-        "쇼핑",
-        "제품",
-        "노트북",
-        "핸드폰",
-        "가격",
-        "리뷰",
-        "비교"
-      ]
-    },
-    {
-      type: MISSION_TYPES.LEGAL,
-      subtype: "legal_preparation",
-      keywords: [
-        "legal",
-        "lawyer",
-        "contract",
-        "lawsuit",
-        "rights",
-        "agreement",
-        "terms",
-        "법률",
-        "변호사",
-        "계약",
-        "소송",
-        "권리",
-        "합의서"
-      ]
-    },
-    {
-      type: MISSION_TYPES.HEALTHCARE,
-      subtype: "healthcare_search",
-      keywords: [
-        "doctor",
-        "hospital",
-        "clinic",
-        "dentist",
-        "appointment",
-        "medicine",
-        "health",
-        "병원",
-        "의사",
-        "치과",
-        "진료",
-        "예약",
-        "건강",
-        "약"
-      ]
-    },
-    {
-      type: MISSION_TYPES.EDUCATION,
-      subtype: "learning_plan",
-      keywords: [
-        "school",
-        "course",
-        "lesson",
-        "student",
-        "study",
-        "class",
-        "worksheet",
-        "test",
-        "education",
-        "학교",
-        "코스",
-        "수업",
-        "학생",
-        "공부",
-        "학습",
-        "시험",
-        "교육"
-      ]
-    },
-    {
-      type: MISSION_TYPES.FINANCE,
-      subtype: "financial_preparation",
-      keywords: [
-        "bank",
-        "loan",
-        "investment",
-        "stock",
-        "budget",
-        "insurance",
-        "finance",
-        "tax",
-        "은행",
-        "대출",
-        "투자",
-        "주식",
-        "예산",
-        "보험",
-        "금융",
-        "세금"
-      ]
-    },
-    {
-      type: MISSION_TYPES.CAREER,
-      subtype: "career_growth",
-      keywords: [
-        "job",
-        "career",
-        "resume",
-        "cv",
-        "interview",
-        "apply",
-        "hire",
-        "work",
-        "직업",
-        "커리어",
-        "이력서",
-        "면접",
-        "지원",
-        "취업",
-        "채용"
-      ]
-    },
-    {
-      type: MISSION_TYPES.MOVING,
-      subtype: "relocation",
-      keywords: [
-        "move",
-        "moving",
-        "relocate",
-        "apartment",
-        "housing",
-        "shipping",
-        "immigration",
-        "이사",
-        "이민",
-        "집",
-        "아파트",
-        "배송",
-        "주거",
-        "거주"
-      ]
-    },
-    {
-      type: MISSION_TYPES.BUSINESS,
-      subtype: "business_operations",
-      keywords: [
-        "business",
-        "company",
-        "startup",
-        "register company",
-        "taxes",
-        "launch",
-        "market",
-        "사업",
-        "회사",
-        "창업",
-        "법인",
-        "등록",
-        "런칭",
-        "시장"
-      ]
-    },
-    {
-      type: MISSION_TYPES.GOVERNMENT,
-      subtype: "government_services",
-      keywords: [
-        "government",
-        "permit",
-        "license",
-        "form",
-        "document",
-        "embassy",
-        "immigration office",
-        "정부",
-        "허가",
-        "면허",
-        "서류",
-        "문서",
-        "대사관",
-        "출입국"
-      ]
-    },
-    {
-      type: MISSION_TYPES.LIFESTYLE,
-      subtype: "life_planning",
-      keywords: [
-        "routine",
-        "gym",
-        "fitness",
-        "restaurant",
-        "cafe",
-        "date",
-        "hobby",
-        "plan my day",
-        "루틴",
-        "헬스",
-        "운동",
-        "카페",
-        "데이트",
-        "취미",
-        "하루 계획"
-      ]
-    }
-  ];
-
-  function classify(input, language) {
-    const normalized = normalizeText(input);
-    const scored = patterns.map((pattern) => {
-      const score = pattern.keywords.reduce((total, keyword) => {
-        return normalized.includes(normalizeText(keyword)) ? total + keyword.length : total;
-      }, 0);
-
-      return {
-        type: pattern.type,
-        subtype: pattern.subtype,
-        score
-      };
-    });
-
-    scored.sort((a, b) => b.score - a.score);
-
-    const best = scored[0];
-
-    if (!best || best.score === 0) {
-      return {
-        type: MISSION_TYPES.GENERAL,
-        subtype: "general_preparation",
-        confidence: 0.35,
-        language
-      };
-    }
-
-    return {
-      type: best.type,
-      subtype: best.subtype,
-      confidence: Math.min(0.96, 0.5 + best.score / 80),
-      language
-    };
-  }
-
-  return {
-    classify
-  };
-})();
-
-const MissionSchema = (() => {
-  function create({ input, language }) {
-    const classification = MissionClassifier.classify(input, language);
-    const country = inferCountry(input);
-    const type = classification.type;
-    const providers = ProviderRegistry.byMissionType(type).map((provider) => ({
-      id: provider.id,
-      name: provider.name,
-      category: provider.category,
-      requiresApiKey: provider.requiresApiKey,
-      requiresCommercialApproval: provider.requiresCommercialApproval,
-      capabilities: provider.capabilities
-    }));
-
-    const steps = createMissionSteps(type, language);
-    const executionPlan = createExecutionPlan(type, language, steps);
-
-    return {
-      id: cryptoSafeId("mission"),
-      version: KASTIZ_ONE_VERSION,
-      originalInput: input,
-      type,
-      subtype: classification.subtype,
-      language,
-      country,
-      approvalRequired: true,
-      approval: {
-        status: "awaiting_review",
-        requiredBefore: APPROVAL_ACTIONS,
-        explicitApprovalOnly: true,
-        approvedAt: null
-      },
-      classifier: {
-        confidence: classification.confidence,
-        engine: "kastiz-one-universal-classifier"
-      },
-      steps,
-      providers,
-      recommendations: [],
-      executionPlan,
-      status: "created",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-  }
-
-  function validate(mission) {
-    return Boolean(
-      mission &&
-        mission.id &&
-        mission.type &&
-        mission.language &&
-        Array.isArray(mission.steps) &&
-        Array.isArray(mission.providers) &&
-        Array.isArray(mission.recommendations) &&
-        mission.executionPlan &&
-        mission.approvalRequired === true
-    );
-  }
-
-  return {
-    create,
-    validate
-  };
-})();
-
-const MissionEngine = (() => {
-  async function createMission(input, options = {}) {
-    const language = options.language || getCurrentLanguage();
-    const cleanInput = String(input || "").trim();
-
-    if (!cleanInput) {
-      throw new Error("Mission input is required.");
-    }
-
-    const mission = MissionSchema.create({
-      input: cleanInput,
-      language
-    });
-
-    mission.status = "preparing";
-    mission.updatedAt = new Date().toISOString();
-
-    const providerResults = await prepareProviders(mission);
-
-    mission.recommendations = createRecommendations(mission, providerResults);
-    mission.executionPlan.providerResults = providerResults;
-    mission.status = "ready_for_review";
-    mission.updatedAt = new Date().toISOString();
-
-    persistMission(mission);
-
-    return mission;
-  }
-
-  async function prepareProviders(mission) {
-    const providers = ProviderRegistry.byMissionType(mission.type);
-
-    const results = [];
-
-    for (const provider of providers) {
-      try {
-        const result = await provider.prepare(mission);
-        results.push(result);
-      } catch (error) {
-        results.push({
-          id: cryptoSafeId("provider_error"),
-          providerId: provider.id,
-          providerName: provider.name,
-          category: provider.category,
-          title: "Provider unavailable",
-          summary: error.message || "Provider failed safely.",
-          items: [],
-          executionBlocked: true,
-          status: "error",
-          generatedAt: new Date().toISOString()
-        });
-      }
-    }
-
-    return results;
-  }
-
-  function customizeMission(mission, updates = {}) {
-    const nextMission = {
-      ...mission,
-      ...updates,
-      updatedAt: new Date().toISOString(),
-      status: "customized"
-    };
-
-    persistMission(nextMission);
-    return nextMission;
-  }
-
-  function approveMission(mission) {
-    const nextMission = {
-      ...mission,
-      approval: {
-        ...mission.approval,
-        status: "approved_for_preparation",
-        approvedAt: new Date().toISOString()
-      },
-      status: "approved_for_execution",
-      updatedAt: new Date().toISOString()
-    };
-
-    persistMission(nextMission);
-    return nextMission;
-  }
-
-  return {
-    createMission,
-    customizeMission,
-    approveMission
-  };
-})();
-
-const ApprovalEngine = (() => {
-  function requiresApproval(action) {
-    const normalized = normalizeText(action);
-    return APPROVAL_ACTIONS.some((blockedAction) => normalized.includes(blockedAction));
-  }
-
-  function canExecute(action, mission) {
-    if (!requiresApproval(action)) {
-      return true;
-    }
-
-    return Boolean(mission && mission.approval && mission.approval.status === "approved_for_preparation");
-  }
-
-  function guard(action, mission) {
-    if (!canExecute(action, mission)) {
-      return {
-        allowed: false,
-        reason:
-          mission.language === "ko"
-            ? "명시적 승인 전에는 예약, 구매, 서명, 결제, 제출을 실행할 수 없습니다."
-            : "Explicit approval is required before booking, purchasing, signing, paying, reserving, or submitting."
-      };
-    }
-
-    return {
-      allowed: true,
-      reason: "Approved"
-    };
-  }
-
-  return {
-    requiresApproval,
-    canExecute,
-    guard
-  };
-})();
-
-const ExecutionPipeline = (() => {
-  function createTimeline(mission) {
-    const baseSteps = mission.executionPlan.steps.map((step) => ({
-      id: step.id,
-      label: step.label,
-      status: "pending",
-      protectedAction: Boolean(step.protectedAction),
-      approvalRequired: Boolean(step.approvalRequired)
-    }));
-
-    return {
-      id: cryptoSafeId("execution"),
-      missionId: mission.id,
-      status: "ready",
-      steps: baseSteps,
-      startedAt: null,
-      completedAt: null
-    };
-  }
-
-  function start(mission) {
-    const timeline = createTimeline(mission);
-    timeline.status = "running";
-    timeline.startedAt = new Date().toISOString();
-
-    sessionStorage.setItem(STORAGE_KEYS.EXECUTION_STATE, JSON.stringify(timeline));
-
-    return timeline;
-  }
-
-  function markStep(timeline, stepId, status) {
-    const nextTimeline = {
-      ...timeline,
-      steps: timeline.steps.map((step) => (step.id === stepId ? { ...step, status } : step))
-    };
-
-    if (nextTimeline.steps.every((step) => step.status === "complete" || step.status === "blocked")) {
-      nextTimeline.status = "awaiting_final_approval";
-      nextTimeline.completedAt = new Date().toISOString();
-    }
-
-    sessionStorage.setItem(STORAGE_KEYS.EXECUTION_STATE, JSON.stringify(nextTimeline));
-
-    return nextTimeline;
-  }
-
-  return {
-    createTimeline,
-    start,
-    markStep
-  };
-})();
-
-function createMissionSteps(type, language) {
-  const ko = language === "ko";
-
-  const commonFinal = [
-    {
-      id: cryptoSafeId("step"),
-      key: "final_review",
-      label: ko ? "최종 검토 준비" : "Prepare final review",
-      status: "pending",
-      approvalRequired: false,
-      protectedAction: false
-    },
-    {
-      id: cryptoSafeId("step"),
-      key: "await_approval",
-      label: ko ? "사용자 승인 대기" : "Await user approval",
-      status: "pending",
-      approvalRequired: true,
-      protectedAction: true
-    }
-  ];
-
-  const stepsByType = {
-    [MISSION_TYPES.TRAVEL]: [
-      { key: "prepare_flights", label: ko ? "항공권 옵션 준비" : "Prepare flight options" },
-      { key: "prepare_hotels", label: ko ? "숙소 옵션 준비" : "Prepare hotel options" },
-      { key: "prepare_weather", label: ko ? "날씨 확인 준비" : "Prepare weather check" },
-      { key: "prepare_restaurants", label: ko ? "식당 옵션 준비" : "Prepare restaurant options" },
-      { key: "prepare_visa", label: ko ? "비자 체크리스트 준비" : "Prepare visa checklist" },
-      { key: "prepare_itinerary", label: ko ? "일정표 준비" : "Prepare itinerary" }
-    ],
-    [MISSION_TYPES.SHOPPING]: [
-      { key: "prepare_products", label: ko ? "제품 옵션 준비" : "Prepare product options" },
-      { key: "compare_reviews", label: ko ? "리뷰 비교" : "Compare reviews" },
-      { key: "compare_prices", label: ko ? "가격 비교" : "Compare prices" },
-      { key: "check_availability", label: ko ? "재고 확인 준비" : "Prepare availability check" }
-    ],
-    [MISSION_TYPES.LEGAL]: [
-      { key: "identify_issue", label: ko ? "법률 이슈 정리" : "Identify legal issue" },
-      { key: "prepare_resources", label: ko ? "공공 리소스 준비" : "Prepare public resources" },
-      { key: "prepare_checklist", label: ko ? "서류 체크리스트 준비" : "Prepare document checklist" },
-      { key: "lawyer_search", label: ko ? "변호사 검색 준비" : "Prepare lawyer search" }
-    ],
-    [MISSION_TYPES.HEALTHCARE]: [
-      { key: "clarify_need", label: ko ? "의료 니즈 정리" : "Clarify healthcare need" },
-      { key: "hospital_search", label: ko ? "병원 검색 준비" : "Prepare hospital search" },
-      { key: "appointment_options", label: ko ? "예약 옵션 준비" : "Prepare appointment options" }
-    ],
-    [MISSION_TYPES.EDUCATION]: [
-      { key: "define_goal", label: ko ? "학습 목표 정리" : "Define learning goal" },
-      { key: "course_search", label: ko ? "코스 검색 준비" : "Prepare course search" },
-      { key: "learning_plan", label: ko ? "학습 계획 준비" : "Prepare learning plan" }
-    ],
-    [MISSION_TYPES.FINANCE]: [
-      { key: "define_budget", label: ko ? "예산 기준 정리" : "Define budget criteria" },
-      { key: "compare_options", label: ko ? "금융 옵션 비교" : "Compare finance options" },
-      { key: "risk_checklist", label: ko ? "리스크 체크리스트 준비" : "Prepare risk checklist" }
-    ],
-    [MISSION_TYPES.CAREER]: [
-      { key: "career_goal", label: ko ? "커리어 목표 정리" : "Define career goal" },
-      { key: "job_search", label: ko ? "채용 검색 준비" : "Prepare job search" },
-      { key: "resume_prepare", label: ko ? "이력서 준비" : "Prepare resume" },
-      { key: "application_review", label: ko ? "지원 검토 준비" : "Prepare application review" }
-    ],
-    [MISSION_TYPES.MOVING]: [
-      { key: "moving_scope", label: ko ? "이사 범위 정리" : "Define moving scope" },
-      { key: "housing_search", label: ko ? "주거 검색 준비" : "Prepare housing search" },
-      { key: "shipping_compare", label: ko ? "배송 비교 준비" : "Prepare shipping comparison" },
-      { key: "immigration_checklist", label: ko ? "이민 체크리스트 준비" : "Prepare immigration checklist" }
-    ],
-    [MISSION_TYPES.BUSINESS]: [
-      { key: "business_goal", label: ko ? "사업 목표 정리" : "Define business goal" },
-      { key: "registration_checklist", label: ko ? "회사 등록 체크리스트 준비" : "Prepare registration checklist" },
-      { key: "tax_checklist", label: ko ? "세금 체크리스트 준비" : "Prepare tax checklist" },
-      { key: "launch_plan", label: ko ? "런칭 계획 준비" : "Prepare launch plan" }
-    ],
-    [MISSION_TYPES.GOVERNMENT]: [
-      { key: "identify_form", label: ko ? "필요 서류 확인" : "Identify required forms" },
-      { key: "prepare_documents", label: ko ? "문서 준비" : "Prepare documents" },
-      { key: "submission_review", label: ko ? "제출 전 검토 준비" : "Prepare submission review" }
-    ],
-    [MISSION_TYPES.LIFESTYLE]: [
-      { key: "define_preference", label: ko ? "선호도 정리" : "Define preferences" },
-      { key: "compare_options", label: ko ? "옵션 비교" : "Compare options" },
-      { key: "prepare_plan", label: ko ? "실행 계획 준비" : "Prepare plan" }
-    ],
-    [MISSION_TYPES.GENERAL]: [
-      { key: "understand_request", label: ko ? "요청 분석" : "Understand request" },
-      { key: "prepare_options", label: ko ? "옵션 준비" : "Prepare options" },
-      { key: "prepare_plan", label: ko ? "계획 준비" : "Prepare plan" }
+      "내 첫 집 찾아줘",
+      "사업 시작 도와줘",
+      "캐나다 이주 준비해줘",
+      "최고의 노트북 찾아줘",
+      "아이 돌봄 서비스 찾아줘",
+      "상표 등록 도와줘",
+      "신혼여행 계획해줘",
+      "돈을 절약할 방법 찾아줘",
+      "최고의 이혼 전문 변호사 찾아줘",
+      "중국에서 상품 수입 도와줘",
+      "꿈의 PC 조립해줘",
+      "해외 이주 준비해줘",
+      "주택담보대출 비교해줘",
+      "은퇴 계획 세워줘",
+      "꿈의 휴가 예약 준비해줘"
     ]
-  };
-
-  const selected = stepsByType[type] || stepsByType[MISSION_TYPES.GENERAL];
-
-  return [
-    ...selected.map((step) => ({
-      id: cryptoSafeId("step"),
-      key: step.key,
-      label: step.label,
-      status: "pending",
-      approvalRequired: false,
-      protectedAction: false
-    })),
-    ...commonFinal
-  ];
-}
-
-function createExecutionPlan(type, language, steps) {
-  return {
-    id: cryptoSafeId("plan"),
-    type,
-    language,
-    mode: "prepare_only_until_approval",
-    canExecuteWithoutApproval: ["search", "compare", "prepare", "explain", "draft"],
-    blockedWithoutApproval: APPROVAL_ACTIONS,
-    steps,
-    providerResults: [],
-    finalStatus: "awaiting_approval"
-  };
-}
-
-function createRecommendations(mission, providerResults) {
-  const ko = mission.language === "ko";
-
-  const primary = {
-    id: cryptoSafeId("recommendation"),
-    title: ko ? "ONE 추천 실행 방향" : "ONE recommended direction",
-    category: "strategy",
-    summary: ko
-      ? "먼저 안전하게 비교와 준비를 끝낸 뒤, 최종 검토 화면에서 승인 여부를 결정하는 방식이 가장 안전합니다."
-      : "The safest path is to complete preparation and comparison first, then decide approval from the final review screen.",
-    confidence: mission.classifier.confidence,
-    editable: true,
-    removable: false,
-    approvable: true,
-    sourceProviderIds: providerResults.map((result) => result.providerId)
-  };
-
-  const safety = {
-    id: cryptoSafeId("recommendation"),
-    title: ko ? "승인 보호 규칙" : "Approval protection rule",
-    category: "approval",
-    summary: ko
-      ? "ONE은 예약, 구매, 결제, 서명, 제출을 명시적 승인 없이 실행하지 않습니다."
-      : "ONE will not book, purchase, pay, sign, reserve, or submit anything without explicit approval.",
-    confidence: 1,
-    editable: false,
-    removable: false,
-    approvable: false,
-    sourceProviderIds: []
-  };
-
-  return [primary, safety];
-}
-
-function persistMission(mission) {
-  sessionStorage.setItem(STORAGE_KEYS.ACTIVE_MISSION, JSON.stringify(mission));
-
-  const history = safeJsonParse(sessionStorage.getItem(STORAGE_KEYS.MISSION_HISTORY), []);
-  const nextHistory = [mission, ...history.filter((item) => item.id !== mission.id)].slice(0, 12);
-  sessionStorage.setItem(STORAGE_KEYS.MISSION_HISTORY, JSON.stringify(nextHistory));
-}
-
-function getActiveMission() {
-  return safeJsonParse(sessionStorage.getItem(STORAGE_KEYS.ACTIVE_MISSION), null);
-}
-
-function normalizeText(value) {
-  return String(value || "")
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function inferLanguageFromInput(input) {
-  return /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(String(input || "")) ? "ko" : getCurrentLanguage();
-}
-
-function inferCountry(input) {
-  const normalized = normalizeText(input);
-
-  const countries = [
-    { match: ["japan", "tokyo", "osaka", "kyoto", "일본", "도쿄", "오사카", "교토"], value: "JP" },
-    { match: ["korea", "seoul", "busan", "incheon", "한국", "서울", "부산", "인천"], value: "KR" },
-    { match: ["usa", "america", "new york", "los angeles", "미국", "뉴욕"], value: "US" },
-    { match: ["china", "beijing", "shanghai", "중국", "베이징", "상하이"], value: "CN" },
-    { match: ["hong kong", "홍콩"], value: "HK" },
-    { match: ["macao", "macau", "마카오"], value: "MO" },
-    { match: ["canada", "toronto", "vancouver", "캐나다"], value: "CA" },
-    { match: ["mexico", "멕시코"], value: "MX" },
-    { match: ["guatemala", "과테말라"], value: "GT" },
-    { match: ["philippines", "필리핀"], value: "PH" }
-  ];
-
-  const found = countries.find((country) => country.match.some((keyword) => normalized.includes(normalizeText(keyword))));
-
-  return found ? found.value : null;
-}
-
-function inferCurrencyBase(mission) {
-  if (mission.country === "KR") return "KRW";
-  if (mission.country === "JP") return "JPY";
-  if (mission.country === "US") return "USD";
-  if (mission.country === "HK") return "HKD";
-  if (mission.country === "MO") return "MOP";
-  return "KRW";
-}
-
-function cryptoSafeId(prefix) {
-  const random =
-    typeof crypto !== "undefined" && crypto.randomUUID
-      ? crypto.randomUUID()
-      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-
-  return `${prefix}_${random}`;
-}
-
-function safeJsonParse(value, fallback) {
-  try {
-    return value ? JSON.parse(value) : fallback;
-  } catch {
-    return fallback;
   }
-}
+};
 
-function getCurrentLanguage() {
-  const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
-  if (stored && SUPPORTED_LANGUAGES[stored]) return stored;
+const countryNamesByRegion = {
+  KR: "South Korea",
+  US: "United States",
+  ES: "Spain",
+  FR: "France",
+  JP: "Japan",
+  BR: "Brazil",
+  DE: "Germany",
+  CN: "China",
+  IT: "Italy",
+  PT: "Portugal",
+  CA: "Canada",
+  GB: "United Kingdom",
+  AU: "Australia",
+  NZ: "New Zealand",
+  MX: "Mexico",
+  SG: "Singapore",
+  TH: "Thailand",
+  VN: "Vietnam",
+  PH: "Philippines",
+  ID: "Indonesia",
+  IN: "India"
+};
 
-  const htmlLanguage = document.documentElement.dataset.language;
-  if (htmlLanguage && SUPPORTED_LANGUAGES[htmlLanguage]) return htmlLanguage;
+const travelKeywordMap = {
+  en: [
+    "travel",
+    "trip",
+    "vacation",
+    "honeymoon",
+    "flight",
+    "hotel",
+    "japan",
+    "tokyo",
+    "osaka",
+    "kyoto"
+  ],
+  ko: [
+    "여행",
+    "일본",
+    "도쿄",
+    "오사카",
+    "교토",
+    "항공권",
+    "호텔",
+    "신혼여행"
+  ]
+};
 
-  return "en";
-}
-
-function setLanguage(language) {
-  const nextLanguage = SUPPORTED_LANGUAGES[language] ? language : "en";
-  localStorage.setItem(STORAGE_KEYS.LANGUAGE, nextLanguage);
-  document.documentElement.lang = nextLanguage === "ko" ? "ko" : "en";
-  document.documentElement.dataset.language = nextLanguage;
-  applyTranslations(nextLanguage);
-  updateMissionRotator(nextLanguage);
-}
-
-function getCurrentTheme() {
-  const stored = localStorage.getItem(STORAGE_KEYS.THEME);
-  return SUPPORTED_THEMES.includes(stored) ? stored : "light";
-}
-
-function setTheme(theme) {
-  const nextTheme = SUPPORTED_THEMES.includes(theme) ? theme : "light";
-  localStorage.setItem(STORAGE_KEYS.THEME, nextTheme);
-  document.documentElement.dataset.theme = nextTheme;
-}
-
-function t(key, language = getCurrentLanguage(), fallback = "") {
-  const keys = key.split(".");
-  let current = I18N[language] || I18N.en;
-
-  for (const part of keys) {
-    if (!current || typeof current !== "object" || !(part in current)) {
-      return fallback || key;
-    }
-
-    current = current[part];
+const destinationPatterns = [
+  {
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Tokyo",
+    cityKo: "도쿄",
+    aliases: ["japan", "tokyo", "일본", "도쿄"]
+  },
+  {
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Osaka",
+    cityKo: "오사카",
+    aliases: ["osaka", "오사카"]
+  },
+  {
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Kyoto",
+    cityKo: "교토",
+    aliases: ["kyoto", "교토"]
   }
+];
 
-  return typeof current === "string" ? current : fallback || key;
-}
+let activeLanguage = "en";
+let activeMissionIndex = -1;
+let rotatorInterval = null;
+let firstRotationTimeout = null;
 
-function applyTranslations(language = getCurrentLanguage()) {
-  document.querySelectorAll("[data-i18n]").forEach((element) => {
-    const value = t(element.dataset.i18n, language);
-    if (value) element.textContent = value;
+const getBrowserLanguage = () => {
+  const browserLanguage = navigator.language || navigator.userLanguage || "en";
+  return browserLanguage.toLowerCase().startsWith("ko") ? "ko" : "en";
+};
+
+const getSavedLanguage = () => {
+  const saved = localStorage.getItem(STORAGE_KEYS.language);
+  return supportedLanguages.includes(saved) ? saved : null;
+};
+
+const getSavedTheme = () => {
+  const saved = localStorage.getItem(STORAGE_KEYS.theme);
+  return supportedThemes.includes(saved) ? saved : null;
+};
+
+const getSystemTheme = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "midnight" : "light";
+};
+
+const getInitialTheme = () => {
+  return getSavedTheme() || getSystemTheme();
+};
+
+const getInitialLanguage = () => {
+  return getSavedLanguage() || getBrowserLanguage();
+};
+
+const getTranslation = (key) => {
+  return translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
+};
+
+const setMetaThemeColor = (theme) => {
+  const colors = {
+    light: "#ffffff",
+    gray: "#f4f2ed",
+    midnight: "#121315"
+  };
+
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", colors[theme] || colors.light);
+};
+
+const updateThemeControls = () => {
+  const themeLabels = getTranslation("themes");
+  const currentTheme = root.getAttribute("data-theme") || "light";
+
+  themeControlText.textContent = themeLabels[currentTheme] || themeLabels.light;
+
+  document.querySelectorAll("[data-theme-option]").forEach((button) => {
+    const value = button.getAttribute("data-theme-option");
+    button.textContent = themeLabels[value] || value;
+    button.classList.toggle("is-active", value === currentTheme);
+    button.setAttribute("aria-selected", String(value === currentTheme));
   });
+};
 
-  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
-    const value = t(element.dataset.i18nPlaceholder, language);
-    if (value) element.setAttribute("placeholder", value);
+const updateLanguageControls = () => {
+  const languageLabels = getTranslation("languages");
+
+  languageControlText.textContent = languageLabels[activeLanguage] || "English";
+
+  document.querySelectorAll("[data-language-option]").forEach((button) => {
+    const value = button.getAttribute("data-language-option");
+    button.textContent = languageLabels[value] || value;
+    button.classList.toggle("is-active", value === activeLanguage);
+    button.setAttribute("aria-selected", String(value === activeLanguage));
+  });
+};
+
+const setTheme = (theme) => {
+  const nextTheme = supportedThemes.includes(theme) ? theme : "light";
+
+  root.setAttribute("data-theme", nextTheme);
+  localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
+  setMetaThemeColor(nextTheme);
+  updateThemeControls();
+};
+
+const updateLocation = () => {
+  const locale = navigator.language || "en";
+  const region = locale.includes("-") ? locale.split("-").pop().toUpperCase() : "";
+
+  locationText.textContent = countryNamesByRegion[region] || getTranslation("unknownLocation");
+};
+
+const updateTextContent = () => {
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    const key = element.getAttribute("data-i18n");
+    element.textContent = getTranslation(key);
   });
 
   document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
-    const value = t(element.dataset.i18nAria, language);
-    if (value) element.setAttribute("aria-label", value);
+    const key = element.getAttribute("data-i18n-aria");
+    element.setAttribute("aria-label", getTranslation(key));
   });
-}
 
-function updateMissionRotator(language = getCurrentLanguage()) {
-  const rotator = document.querySelector("[data-mission-rotator]");
-  if (!rotator) return;
-
-  const examples = I18N[language]?.examples || I18N.en.examples;
-  let index = Number(rotator.dataset.index || 0);
-
-  rotator.textContent = examples[index % examples.length];
-  rotator.dataset.index = String((index + 1) % examples.length);
-}
-
-function bindThemeControls() {
-  const controls = document.querySelectorAll("[data-theme-option], [data-theme-select]");
-
-  controls.forEach((control) => {
-    if (control.matches("select")) {
-      control.value = getCurrentTheme();
-      control.addEventListener("change", () => setTheme(control.value));
-      return;
-    }
-
-    control.addEventListener("click", () => {
-      const theme = control.dataset.themeOption;
-      setTheme(theme);
-    });
+  document.querySelectorAll("[data-i18n-meta]").forEach((element) => {
+    const key = element.getAttribute("data-i18n-meta");
+    element.setAttribute("content", getTranslation(key));
   });
-}
+};
 
-function bindLanguageControls() {
-  const controls = document.querySelectorAll("[data-language-option], [data-language-select]");
+const fadeRotatorTo = (text) => {
+  missionRotator.classList.add("is-fading");
 
-  controls.forEach((control) => {
-    if (control.matches("select")) {
-      control.value = getCurrentLanguage();
-      control.addEventListener("change", () => setLanguage(control.value));
-      return;
-    }
+  window.setTimeout(() => {
+    missionRotatorText.textContent = text;
+    missionRotator.classList.remove("is-fading");
+  }, 260);
+};
 
-    control.addEventListener("click", () => {
-      const language = control.dataset.languageOption;
-      setLanguage(language);
-    });
+const resetMissionRotator = () => {
+  window.clearInterval(rotatorInterval);
+  window.clearTimeout(firstRotationTimeout);
+
+  activeMissionIndex = -1;
+  missionRotatorText.textContent = getTranslation("searchDefault");
+
+  firstRotationTimeout = window.setTimeout(() => {
+    rotateMission();
+
+    rotatorInterval = window.setInterval(() => {
+      rotateMission();
+    }, 5000);
+  }, 10000);
+};
+
+const rotateMission = () => {
+  const missions = getTranslation("missions");
+
+  activeMissionIndex = (activeMissionIndex + 1) % missions.length;
+  fadeRotatorTo(missions[activeMissionIndex]);
+};
+
+const setLanguage = (language) => {
+  activeLanguage = supportedLanguages.includes(language) ? language : "en";
+
+  root.setAttribute("lang", activeLanguage);
+  document.documentElement.lang = activeLanguage;
+  localStorage.setItem(STORAGE_KEYS.language, activeLanguage);
+
+  updateTextContent();
+  updateThemeControls();
+  updateLanguageControls();
+  updateLocation();
+  resetMissionRotator();
+};
+
+const normalizeMission = (value) => {
+  return value.replace(/\s+/g, " ").trim();
+};
+
+const createMissionSlug = (mission) => {
+  return mission
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+};
+
+const detectMissionType = (mission) => {
+  const text = mission.toLowerCase();
+
+  const isTravel = [...travelKeywordMap.en, ...travelKeywordMap.ko].some((keyword) => {
+    return text.includes(keyword.toLowerCase());
   });
-}
 
-function bindMissionForm() {
-  const forms = document.querySelectorAll("[data-mission-form]");
+  return isTravel ? "travel" : "general";
+};
 
-  forms.forEach((form) => {
-    const input = form.querySelector("[data-mission-input]");
-    const button = form.querySelector("[data-mission-submit]");
+const detectDestination = (mission) => {
+  const text = mission.toLowerCase();
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
+  const matched = destinationPatterns.find((destination) => {
+    return destination.aliases.some((alias) => text.includes(alias.toLowerCase()));
+  });
 
-      const value = input ? input.value.trim() : "";
-      if (!value) {
-        input?.focus();
-        return;
+  if (matched) {
+    return matched;
+  }
+
+  return {
+    destination: "Japan",
+    destinationKo: "일본",
+    city: "Tokyo",
+    cityKo: "도쿄",
+    aliases: ["japan", "tokyo", "일본", "도쿄"]
+  };
+};
+
+const detectDurationDays = (mission) => {
+  const englishMatch = mission.match(/(\d+)\s*(day|days)/i);
+  const koreanMatch = mission.match(/(\d+)\s*(일|박)/);
+
+  if (englishMatch) {
+    return Number(englishMatch[1]);
+  }
+
+  if (koreanMatch) {
+    return Number(koreanMatch[1]);
+  }
+
+  return 7;
+};
+
+const detectDepartureCountry = () => {
+  const locale = navigator.language || "en";
+  const region = locale.includes("-") ? locale.split("-").pop().toUpperCase() : "";
+
+  return {
+    code: region || "UNKNOWN",
+    name: countryNamesByRegion[region] || getTranslation("unknownLocation")
+  };
+};
+
+const buildTravelMission = (mission) => {
+  const destination = detectDestination(mission);
+  const durationDays = detectDurationDays(mission);
+  const departureCountry = detectDepartureCountry();
+  const language = activeLanguage;
+  const theme = root.getAttribute("data-theme") || "light";
+
+  return {
+    id: `travel-${Date.now()}`,
+    type: "travel",
+    status: "prepared",
+    originalMission: mission,
+    mission,
+    slug: createMissionSlug(mission),
+    language,
+    theme,
+    createdAt: new Date().toISOString(),
+    approvalRequired: true,
+    approvalProtection: {
+      en: "Nothing will be booked, purchased, reserved, signed, or legally committed until you explicitly approve.",
+      ko: "사용자가 명확히 승인하기 전까지 예약, 구매, 결제, 서명, 법적 약속은 절대 진행되지 않습니다."
+    },
+    destination: {
+      country: destination.destination,
+      countryKo: destination.destinationKo,
+      city: destination.city,
+      cityKo: destination.cityKo
+    },
+    durationDays,
+    departureCountry,
+    apiReadiness: {
+      flights: {
+        providers: ["Amadeus API", "Skyscanner API", "Google Flights alternatives"],
+        status: "mock-ready"
+      },
+      hotels: {
+        providers: ["Booking.com Partner API", "Expedia Rapid API", "Agoda Partner API"],
+        status: "mock-ready"
+      },
+      restaurants: {
+        providers: ["Google Places API", "Naver Places", "Tabelog", "OpenTable"],
+        status: "mock-ready"
+      },
+      weather: {
+        providers: ["OpenWeather API", "WeatherAPI"],
+        status: "placeholder"
+      },
+      currency: {
+        providers: ["ExchangeRate API"],
+        status: "placeholder"
+      },
+      maps: {
+        providers: ["Google Maps", "Naver Maps"],
+        status: "placeholder"
+      },
+      visa: {
+        providers: ["Government embassy data", "Timatic-style API"],
+        status: "placeholder"
       }
-
-      const detectedLanguage = inferLanguageFromInput(value);
-      setLanguage(detectedLanguage);
-
-      if (button) {
-        button.disabled = true;
-        button.dataset.originalText = button.textContent || "";
-        button.textContent = t("loadingLabel", detectedLanguage, "Preparing");
+    },
+    flights: [
+      {
+        id: "flight-korean-air",
+        provider: "Korean Air",
+        providerKo: "대한항공",
+        category: "recommended",
+        reason: "Best balance of comfort, direct routes, and service quality.",
+        reasonKo: "편안함, 직항 노선, 서비스 품질의 균형이 가장 좋습니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 420000,
+          max: 760000
+        },
+        editable: true
+      },
+      {
+        id: "flight-asiana",
+        provider: "Asiana Airlines",
+        providerKo: "아시아나항공",
+        category: "quality",
+        reason: "Strong service quality and convenient Korea to Japan schedules.",
+        reasonKo: "서비스 품질이 좋고 한국-일본 노선 일정이 편리합니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 390000,
+          max: 720000
+        },
+        editable: true
+      },
+      {
+        id: "flight-jeju-air",
+        provider: "Jeju Air",
+        providerKo: "제주항공",
+        category: "budget",
+        reason: "Lower-cost option for flexible travelers.",
+        reasonKo: "일정이 유연한 여행자에게 적합한 저가 옵션입니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 180000,
+          max: 390000
+        },
+        editable: true
+      },
+      {
+        id: "flight-jal",
+        provider: "Japan Airlines",
+        providerKo: "일본항공",
+        category: "premium",
+        reason: "Premium Japan-based carrier with excellent reliability.",
+        reasonKo: "안정성이 뛰어난 일본 기반 프리미엄 항공사입니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 460000,
+          max: 820000
+        },
+        editable: true
+      },
+      {
+        id: "flight-united",
+        provider: "United Airlines",
+        providerKo: "유나이티드항공",
+        category: "alternative",
+        reason: "Useful alternative depending on route availability.",
+        reasonKo: "노선 가능 여부에 따라 선택할 수 있는 대안입니다.",
+        estimatedPrice: {
+          currency: "KRW",
+          min: 430000,
+          max: 850000
+        },
+        editable: true
       }
-
-      try {
-        const mission = await MissionEngine.createMission(value, {
-          language: detectedLanguage
-        });
-
-        sessionStorage.setItem(STORAGE_KEYS.ACTIVE_MISSION, JSON.stringify(mission));
-        document.body.classList.add("is-leaving");
-
-        window.setTimeout(() => {
-          window.location.href = "loading.html";
-        }, 260);
-      } catch (error) {
-        console.error(error);
-        if (button) {
-          button.disabled = false;
-          button.textContent = button.dataset.originalText || t("submitLabel", detectedLanguage, "Start");
+    ],
+    hotels: [
+      {
+        id: "hotel-metropolitan",
+        name: "Hotel Metropolitan Tokyo Marunouchi",
+        nameKo: "호텔 메트로폴리탄 도쿄 마루노우치",
+        category: "recommended",
+        reason: "Central location, strong reviews, easy access to transport.",
+        reasonKo: "중심 위치, 좋은 리뷰, 편리한 교통 접근성을 갖췄습니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 240000,
+          max: 420000
+        },
+        editable: true
+      },
+      {
+        id: "hotel-hilton-tokyo",
+        name: "Hilton Tokyo",
+        nameKo: "힐튼 도쿄",
+        category: "premium",
+        reason: "Premium comfort and reliable international service.",
+        reasonKo: "프리미엄 숙박 경험과 안정적인 글로벌 서비스를 제공합니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 320000,
+          max: 620000
+        },
+        editable: true
+      },
+      {
+        id: "hotel-tokyu-stay",
+        name: "Tokyu Stay Shinjuku",
+        nameKo: "도큐 스테이 신주쿠",
+        category: "value",
+        reason: "Practical location and strong value for longer stays.",
+        reasonKo: "실용적인 위치와 장기 숙박에 좋은 가성비를 제공합니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 160000,
+          max: 290000
+        },
+        editable: true
+      },
+      {
+        id: "hotel-apa",
+        name: "APA Hotel",
+        nameKo: "APA 호텔",
+        category: "budget",
+        reason: "Budget-friendly and widely available across Tokyo.",
+        reasonKo: "도쿄 전역에서 찾기 쉽고 예산을 아끼기 좋은 옵션입니다.",
+        estimatedNightlyPrice: {
+          currency: "KRW",
+          min: 95000,
+          max: 180000
+        },
+        editable: true
+      }
+    ],
+    airportTransfer: {
+      recommended: {
+        en: "Narita Express or Airport Limousine Bus",
+        ko: "나리타 익스프레스 또는 공항 리무진 버스"
+      },
+      reason: {
+        en: "Best balance of reliability, luggage convenience, and access to central Tokyo.",
+        ko: "정시성, 수하물 편의성, 도쿄 중심 접근성의 균형이 좋습니다."
+      },
+      options: [
+        {
+          en: "Narita Express",
+          ko: "나리타 익스프레스"
+        },
+        {
+          en: "Airport Limousine Bus",
+          ko: "공항 리무진 버스"
+        },
+        {
+          en: "Private airport transfer",
+          ko: "프라이빗 공항 픽업"
         }
+      ],
+      editable: true
+    },
+    weather: {
+      status: "placeholder",
+      message: {
+        en: "Weather will be checked with a live weather API before execution.",
+        ko: "실행 전 실시간 날씨 API로 날씨를 확인합니다."
+      },
+      providerCandidates: ["OpenWeather API", "WeatherAPI"]
+    },
+    exchangeRate: {
+      status: "placeholder",
+      from: "KRW",
+      to: "JPY",
+      message: {
+        en: "Exchange rate will be checked with a live currency API before execution.",
+        ko: "실행 전 실시간 환율 API로 환율을 확인합니다."
+      },
+      providerCandidates: ["ExchangeRate API"]
+    },
+    visa: {
+      status: "requires-verification",
+      message: {
+        en: "For many travelers visa-free entry may apply, but ONE must verify before execution.",
+        ko: "많은 여행자에게 무비자 입국이 가능할 수 있지만, 실행 전 ONE이 반드시 확인해야 합니다."
+      },
+      providerCandidates: ["Government embassy data", "Timatic-style API"]
+    },
+    checklist: [
+      {
+        id: "passport",
+        en: "Passport",
+        ko: "여권",
+        required: true,
+        editable: true
+      },
+      {
+        id: "travel-insurance",
+        en: "Travel insurance",
+        ko: "여행자 보험",
+        required: true,
+        editable: true
+      },
+      {
+        id: "sim-esim",
+        en: "SIM / eSIM",
+        ko: "SIM / eSIM",
+        required: false,
+        editable: true
+      },
+      {
+        id: "currency",
+        en: "Currency",
+        ko: "환전",
+        required: true,
+        editable: true
+      },
+      {
+        id: "transit-card",
+        en: "Transit card",
+        ko: "교통카드",
+        required: false,
+        editable: true
+      },
+      {
+        id: "hotel-confirmation",
+        en: "Hotel confirmation",
+        ko: "호텔 예약 확인서",
+        required: true,
+        editable: true
+      },
+      {
+        id: "emergency-contacts",
+        en: "Emergency contacts",
+        ko: "비상 연락처",
+        required: true,
+        editable: true
       }
-    });
-  });
-}
-
-function bindExampleMissions() {
-  document.querySelectorAll("[data-example-mission]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const input = document.querySelector("[data-mission-input]");
-      const value = button.dataset.exampleMission || button.textContent.trim();
-
-      if (input) {
-        input.value = value;
-        input.focus();
+    ],
+    restaurants: [
+      {
+        id: "sushi",
+        type: "Sushi",
+        typeKo: "스시",
+        recommendation: "Reservation-ready sushi options near your route.",
+        recommendationKo: "동선 근처 예약 가능한 스시 옵션을 준비합니다.",
+        editable: true
+      },
+      {
+        id: "ramen",
+        type: "Ramen",
+        typeKo: "라멘",
+        recommendation: "Local ramen shortlist based on location and wait time.",
+        recommendationKo: "위치와 대기 시간을 기준으로 현지 라멘 후보를 준비합니다.",
+        editable: true
+      },
+      {
+        id: "wagyu",
+        type: "Wagyu",
+        typeKo: "와규",
+        recommendation: "Premium wagyu options for one special meal.",
+        recommendationKo: "특별한 식사를 위한 프리미엄 와규 옵션을 준비합니다.",
+        editable: true
+      },
+      {
+        id: "izakaya",
+        type: "Izakaya",
+        typeKo: "이자카야",
+        recommendation: "Casual evening options near hotel or station.",
+        recommendationKo: "호텔이나 역 근처의 캐주얼한 저녁 옵션을 준비합니다.",
+        editable: true
+      },
+      {
+        id: "cafe",
+        type: "Cafe",
+        typeKo: "카페",
+        recommendation: "Premium cafes and quiet stops along the itinerary.",
+        recommendationKo: "일정 중 들르기 좋은 프리미엄 카페와 조용한 장소를 준비합니다.",
+        editable: true
       }
-    });
-  });
-}
+    ],
+    budget: {
+      currency: "KRW",
+      flights: {
+        min: 420000,
+        max: 760000
+      },
+      hotel: {
+        min: 1680000,
+        max: 2940000
+      },
+      food: {
+        min: 420000,
+        max: 980000
+      },
+      transport: {
+        min: 120000,
+        max: 280000
+      },
+      activities: {
+        min: 250000,
+        max: 700000
+      },
+      estimatedTotal: {
+        min: 2890000,
+        max: 5660000
+      },
+      editable: true
+    },
+    recommendedOption: {
+      level: "balanced",
+      en: "Balanced quality plan",
+      ko: "균형형 품질 플랜",
+      reason: {
+        en: "Best overall mix of comfort, price control, transport access, and reliable providers.",
+        ko: "편안함, 가격 통제, 교통 접근성, 신뢰 가능한 제공업체의 균형이 가장 좋습니다."
+      }
+    },
+    modifyOptions: [
+      {
+        id: "change-airline",
+        en: "Change airline",
+        ko: "항공사 변경"
+      },
+      {
+        id: "change-hotel-type",
+        en: "Change hotel type",
+        ko: "호텔 유형 변경"
+      },
+      {
+        id: "remove-restaurants",
+        en: "Remove restaurants",
+        ko: "레스토랑 제외"
+      },
+      {
+        id: "reduce-budget",
+        en: "Reduce budget",
+        ko: "예산 줄이기"
+      },
+      {
+        id: "upgrade-quality",
+        en: "Upgrade quality",
+        ko: "품질 업그레이드"
+      }
+    ]
+  };
+};
 
-function bindNavigationTransitions() {
-  document.querySelectorAll("a[href]").forEach((link) => {
-    const href = link.getAttribute("href");
-
-    if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
-      return;
+const buildGeneralMission = (mission) => {
+  return {
+    id: `mission-${Date.now()}`,
+    type: "general",
+    status: "prepared",
+    mission,
+    slug: createMissionSlug(mission),
+    language: activeLanguage,
+    theme: root.getAttribute("data-theme") || "light",
+    createdAt: new Date().toISOString(),
+    approvalRequired: true,
+    approvalProtection: {
+      en: "Nothing will be booked, purchased, reserved, signed, or legally committed until you explicitly approve.",
+      ko: "사용자가 명확히 승인하기 전까지 예약, 구매, 결제, 서명, 법적 약속은 절대 진행되지 않습니다."
     }
+  };
+};
 
-    link.addEventListener("click", (event) => {
-      const target = link.getAttribute("target");
-      if (target === "_blank") return;
+const saveMission = (mission) => {
+  const cleanMission = normalizeMission(mission);
+  const missionType = detectMissionType(cleanMission);
+  const payload = missionType === "travel"
+    ? buildTravelMission(cleanMission)
+    : buildGeneralMission(cleanMission);
 
-      event.preventDefault();
-      document.body.classList.add("is-leaving");
+  sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(payload));
 
-      window.setTimeout(() => {
-        window.location.href = href;
-      }, 220);
-    });
+  if (payload.type === "travel") {
+    sessionStorage.setItem(STORAGE_KEYS.travelMission, JSON.stringify(payload));
+  } else {
+    sessionStorage.removeItem(STORAGE_KEYS.travelMission);
+  }
+
+  sessionStorage.removeItem(STORAGE_KEYS.results);
+};
+
+const startMission = (mission) => {
+  const cleanMission = normalizeMission(mission);
+
+  if (!cleanMission) {
+    missionInput.focus();
+    return;
+  }
+
+  saveMission(cleanMission);
+  body.classList.add("is-transitioning");
+
+  window.setTimeout(() => {
+    window.location.href = "loading.html";
+  }, 360);
+};
+
+const syncInputState = () => {
+  missionForm.querySelector(".search-box").classList.toggle("has-value", missionInput.value.trim().length > 0);
+
+  if (missionInput.value.trim().length > 0) {
+    missionInput.classList.add("has-text");
+  } else {
+    missionInput.classList.remove("has-text");
+  }
+};
+
+const closeDropdowns = () => {
+  themeDropdown.classList.remove("is-open");
+  languageDropdown.classList.remove("is-open");
+  themeControl.setAttribute("aria-expanded", "false");
+  languageControl.setAttribute("aria-expanded", "false");
+};
+
+const toggleDropdown = (dropdown, control) => {
+  const isOpen = dropdown.classList.contains("is-open");
+
+  closeDropdowns();
+
+  if (!isOpen) {
+    dropdown.classList.add("is-open");
+    control.setAttribute("aria-expanded", "true");
+  }
+};
+
+themeControl.addEventListener("click", (event) => {
+  event.stopPropagation();
+  toggleDropdown(themeDropdown, themeControl);
+});
+
+languageControl.addEventListener("click", (event) => {
+  event.stopPropagation();
+  toggleDropdown(languageDropdown, languageControl);
+});
+
+document.querySelectorAll("[data-theme-option]").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setTheme(button.getAttribute("data-theme-option"));
+    closeDropdowns();
   });
-}
+});
 
-function exposeArchitecture() {
-  window.KastizONE = Object.freeze({
-    version: KASTIZ_ONE_VERSION,
-    MissionEngine,
-    MissionClassifier,
-    MissionSchema,
-    ProviderRegistry,
-    ApprovalEngine,
-    ExecutionPipeline,
-    storageKeys: STORAGE_KEYS,
-    missionTypes: MISSION_TYPES,
-    getActiveMission,
-    setTheme,
-    setLanguage
+document.querySelectorAll("[data-language-option]").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setLanguage(button.getAttribute("data-language-option"));
+    closeDropdowns();
   });
-}
+});
 
-function initializeApp() {
-  registerProviders();
+document.addEventListener("click", closeDropdowns);
 
-  setTheme(getCurrentTheme());
-  setLanguage(getCurrentLanguage());
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeDropdowns();
+  }
+});
 
-  bindThemeControls();
-  bindLanguageControls();
-  bindMissionForm();
-  bindExampleMissions();
-  bindNavigationTransitions();
-  exposeArchitecture();
+missionInput.addEventListener("input", syncInputState);
 
-  updateMissionRotator(getCurrentLanguage());
+missionForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  startMission(missionInput.value);
+});
 
-  window.setInterval(() => {
-    updateMissionRotator(getCurrentLanguage());
-  }, 2800);
+window.addEventListener("pageshow", () => {
+  body.classList.remove("is-transitioning");
+});
 
-  document.body.classList.remove("is-leaving");
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initializeApp);
-} else {
-  initializeApp();
-}
+setTheme(getInitialTheme());
+setLanguage(getInitialLanguage());
+syncInputState();
