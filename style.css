@@ -1033,16 +1033,6 @@ html[data-theme="midnight"] body {
     overflow: hidden;
   }
 
-  #missionInput:focus + .mission-rotator {
-    opacity: 0 !important;
-    visibility: hidden !important;
-  }
-
-  .search-box.is-input-focused .mission-rotator {
-    opacity: 0 !important;
-    visibility: hidden !important;
-  }
-
   #missionInput {
     margin: 0 !important;
     padding: 0 !important;
@@ -1050,6 +1040,18 @@ html[data-theme="midnight"] body {
     -webkit-appearance: none !important;
     appearance: none !important;
   }
+}
+
+#missionInput {
+  margin: 0 !important;
+  padding: 0 !important;
+  text-indent: 0 !important;
+}
+
+.search-box.is-input-focused:not(.has-value) .mission-rotator {
+  left: 8px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 @media (max-width: 430px) {

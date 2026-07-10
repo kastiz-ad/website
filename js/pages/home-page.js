@@ -1413,11 +1413,23 @@ document.addEventListener("keydown", (event) => {
 });
 
 missionInput.addEventListener("input", syncInputState);
+const moveEmptyCaretToStart = () => {
+  if (!missionInput.value && typeof missionInput.setSelectionRange === "function") {
+    missionInput.setSelectionRange(0, 0);
+  }
+};
+
 missionInput.addEventListener("focus", () => {
   missionForm.querySelector(".search-box").classList.add("is-input-focused");
+  window.requestAnimationFrame(moveEmptyCaretToStart);
 });
 missionInput.addEventListener("blur", () => {
   missionForm.querySelector(".search-box").classList.remove("is-input-focused");
+});
+missionInput.addEventListener("click", () => {
+  if (!missionInput.value) {
+    window.requestAnimationFrame(moveEmptyCaretToStart);
+  }
 });
 
 aiModeButton?.addEventListener("click", () => {
