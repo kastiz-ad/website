@@ -1342,22 +1342,47 @@ const announceMissionTool = (english, korean) => {
   }
 };
 
-const speakWelcomeMessage = () => {
+const getCurrentLanguage = () => {
+  const documentLanguage = document.documentElement.lang?.toLowerCase();
+  const savedLanguage = localStorage.getItem(STORAGE_KEYS.language)?.toLowerCase();
+
+  if (documentLanguage?.startsWith("ko") || savedLanguage?.startsWith("ko")) return "ko";
+  return "en";
+};
+
+const getPreferredVoice = (language) => {
+  const languagePrefix = language === "ko" ? "ko" : "en";
+  return window.speechSynthesis
+    .getVoices()
+    .find((voice) => voice.lang.toLowerCase().startsWith(languagePrefix));
+};
+
+const speakWelcomeMessage = async () => {
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
     announceMissionTool("Voice is not supported in this browser.", "이 브라우저에서는 음성을 지원하지 않습니다.");
     return;
   }
 
   window.speechSynthesis.cancel();
-  const isKorean = activeLanguage === "ko";
+  const currentLanguage = getCurrentLanguage();
+  const isKorean = currentLanguage === "ko";
   const message = new SpeechSynthesisUtterance(
     isKorean ? "\uC624\uB298 \uC5B4\uB5BB\uAC8C \uB3C4\uC640\uB4DC\uB9B4\uAE4C\uC694?" : "How can I make your day?"
   );
   message.lang = isKorean ? "ko-KR" : "en-US";
 
-  const preferredVoice = window.speechSynthesis
-    .getVoices()
-    .find((voice) => voice.lang.toLowerCase().startsWith(isKorean ? "ko" : "en"));
+  let preferredVoice = getPreferredVoice(currentLanguage);
+
+  if (!preferredVoice && window.speechSynthesis.getVoices().length === 0) {
+    await new Promise((resolve) => {
+      const timer = window.setTimeout(resolve, 800);
+      window.speechSynthesis.addEventListener("voiceschanged", () => {
+        window.clearTimeout(timer);
+        resolve();
+      }, { once: true });
+    });
+    preferredVoice = getPreferredVoice(currentLanguage);
+  }
 
   if (preferredVoice) {
     message.voice = preferredVoice;
