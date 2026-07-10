@@ -663,6 +663,14 @@ html[data-theme="midnight"] .search-box:focus-within {
     font-size: 15px;
   }
 
+  #missionInput {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-indent: 0 !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
   .search-tools {
     gap: 3px;
   }
