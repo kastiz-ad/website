@@ -1,3 +1,11 @@
+export const FREE_API_PROVIDERS = Object.freeze({
+  weather: { name: "Open-Meteo", requiresKey: false },
+  currency: { name: "Frankfurter", requiresKey: false },
+  country: { name: "REST Countries", requiresKey: false },
+  maps: { name: "OpenStreetMap Nominatim", requiresKey: false },
+  knowledge: { name: "Wikipedia", requiresKey: false }
+});
+
 export function createProviderResult(provider, category, overrides = {}) {
   return {
     provider,
@@ -25,6 +33,10 @@ export async function fetchJson(url, { timeout = 4500, fetchImpl = fetch } = {})
   } finally {
     clearTimeout(timer);
   }
+}
+
+export function getFreeProviderNames() {
+  return Object.values(FREE_API_PROVIDERS).map(({ name }) => name);
 }
 
 

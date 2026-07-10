@@ -249,6 +249,30 @@ const getStoredResult = () => {
   return null;
 };
 
+const findLiveProvider = (result, category) => {
+  return (result?.providerResults || []).find((provider) => provider.category === category && provider.liveData);
+};
+
+const makeLiveWeatherMessage = (provider) => {
+  const summary = (provider?.items || []).slice(0, 3).map((item) => {
+    return `${item.label}: ${item.value}${item.precipitation ? ` (${item.precipitation})` : ""}`;
+  }).join(" · ");
+
+  return {
+    en: `Live weather from ${provider.provider}: ${summary}`,
+    ko: `${provider.provider} 실시간 날씨: ${summary}`
+  };
+};
+
+const makeLiveCurrencyMessage = (provider) => {
+  const item = provider?.items?.[0];
+  const summary = item ? `${item.label}: ${item.value}` : "Rate unavailable";
+  return {
+    en: `Live exchange rate from ${provider.provider}: ${summary}`,
+    ko: `${provider.provider} 실시간 환율: ${summary}`
+  };
+};
+
 const createFallbackTravelResult = () => {
   return {
     id: `fallback-travel-${Date.now()}`,
@@ -657,6 +681,17 @@ const normalizeStoredResult = (stored) => {
       }
     };
 
+    const weatherProvider = findLiveProvider(stored, "weather");
+    const currencyProvider = findLiveProvider(stored, "currency");
+
+    if (weatherProvider) {
+      result.weather = { ...result.weather, status: "live", message: makeLiveWeatherMessage(weatherProvider) };
+    }
+
+    if (currencyProvider) {
+      result.exchangeRate = { ...result.exchangeRate, status: "live", message: makeLiveCurrencyMessage(currencyProvider) };
+    }
+
     result.executionSequence = result.executionSequence || {
       en: translations.en.executionSteps,
       ko: translations.ko.executionSteps
@@ -815,11 +850,11 @@ const createBudgetCard = (budget) => {
   return article;
 };
 
-const createPlaceholderCard = ({ id, title, message }) => {
+const createPlaceholderCard = ({ id, title, message, status }) => {
   return createMissionCard({
     id,
     title,
-    label: t("apiPlaceholder"),
+    label: status === "live" ? (activeLanguage === "ko" ? "실시간 데이터" : "Live data") : t("apiPlaceholder"),
     value: localize(message),
     reason: localize(message),
     options: [],
@@ -943,7 +978,8 @@ const renderTravelMission = (result) => {
     createPlaceholderCard({
       id: "weather",
       title: t("weather"),
-      message: result.weather?.message
+      message: result.weather?.message,
+      status: result.weather?.status
     })
   );
 
@@ -951,7 +987,8 @@ const renderTravelMission = (result) => {
     createPlaceholderCard({
       id: "exchange-rate",
       title: t("exchangeRate"),
-      message: result.exchangeRate?.message
+      message: result.exchangeRate?.message,
+      status: result.exchangeRate?.status
     })
   );
 

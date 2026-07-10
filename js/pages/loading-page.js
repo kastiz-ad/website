@@ -1,3 +1,5 @@
+import { fetchJson } from "../engine/providers.js?v=20260711-1";
+
 const root = document.documentElement;
 const body = document.body;
 
@@ -92,21 +94,6 @@ const updateLoadingMessage = (message, subtext, progress) => {
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-const fetchWithTimeout = async (url, timeout = 4500) => {
-  const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(url, { signal: controller.signal, headers: { Accept: "application/json" } });
-    window.clearTimeout(timer);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (error) {
-    window.clearTimeout(timer);
-    throw error;
-  }
-};
-
 const getCoordinates = (mission) => {
   if (mission?.countryProfile?.latitude && mission?.countryProfile?.longitude) {
     return { latitude: mission.countryProfile.latitude, longitude: mission.countryProfile.longitude };
@@ -121,7 +108,7 @@ const fetchWeather = async (mission) => {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
 
   try {
-    const data = await fetchWithTimeout(url);
+    const data = await fetchJson(url);
     const items = data?.daily?.time?.slice(0, 5).map((date, index) => ({
       label: date,
       value: `${Math.round(data.daily.temperature_2m_min[index])}°C - ${Math.round(data.daily.temperature_2m_max[index])}°C`,
@@ -143,7 +130,7 @@ const fetchCurrency = async (mission) => {
   }
 
   try {
-    const data = await fetchWithTimeout(`https://api.frankfurter.app/latest?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    const data = await fetchJson(`https://api.frankfurter.app/latest?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
     const rate = data?.rates?.[to];
 
     return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: Boolean(rate), requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} → ${to}`, value: rate ? String(rate) : "Rate unavailable" }], error: null };
@@ -158,7 +145,7 @@ const fetchCountryInfo = async (mission) => {
   if (!countryCode) return fallbackProvider("REST Countries", "country", "Country profile adapter is ready.");
 
   try {
-    const data = await fetchWithTimeout(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(countryCode)}`);
+    const data = await fetchJson(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(countryCode)}`);
     const country = Array.isArray(data) ? data[0] : null;
 
     return {
@@ -187,7 +174,7 @@ const fetchMapInfo = async (mission) => {
   if (!query) return fallbackProvider("OpenStreetMap Nominatim", "maps", "Map provider interface is ready.");
 
   try {
-    const data = await fetchWithTimeout(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=3`);
+    const data = await fetchJson(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=3`);
 
     return {
       provider: "OpenStreetMap Nominatim",
@@ -213,7 +200,7 @@ const fetchWikipediaInfo = async (mission) => {
   if (!topic) return fallbackProvider("Wikipedia", "destination_info", "Public knowledge adapter is ready.");
 
   try {
-    const data = await fetchWithTimeout(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
+    const data = await fetchJson(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
 
     return {
       provider: "Wikipedia",
@@ -253,25 +240,34 @@ const buildPrototypeProviderResults = (mission) => {
 };
 
 const enrichMission = async (mission) => {
-  const providerResults = [];
   const type = mission.type || "general_mission";
+  const providerRequests = [];
 
   if (type === "travel") {
-    providerResults.push(await fetchWeather(mission));
-    providerResults.push(await fetchCurrency(mission));
-    providerResults.push(await fetchCountryInfo(mission));
-    providerResults.push(await fetchMapInfo(mission));
-    providerResults.push(await fetchWikipediaInfo(mission));
+    providerRequests.push(
+      () => fetchWeather(mission),
+      () => fetchCurrency(mission),
+      () => fetchCountryInfo(mission),
+      () => fetchMapInfo(mission)
+    );
   }
 
   if (type === "moving") {
-    providerResults.push(await fetchCountryInfo(mission));
-    providerResults.push(await fetchMapInfo(mission));
+    providerRequests.push(() => fetchCountryInfo(mission), () => fetchMapInfo(mission));
   }
 
   if (type === "housing" || type === "healthcare" || type === "lifestyle") {
-    providerResults.push(await fetchMapInfo(mission));
+    providerRequests.push(() => fetchMapInfo(mission));
   }
+
+  if (type === "finance") {
+    providerRequests.push(() => fetchCurrency(mission));
+  }
+
+  // Every mission can benefit from free public background knowledge.
+  providerRequests.push(() => fetchWikipediaInfo(mission));
+
+  const providerResults = await Promise.all(providerRequests.map((request) => request()));
 
   providerResults.push(...buildPrototypeProviderResults(mission));
 
