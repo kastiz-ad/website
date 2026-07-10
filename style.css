@@ -959,8 +959,10 @@ html[data-theme="midnight"] body {
   }
 
   .app-shell {
-    height: 100vh;
-    height: 100svh;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: auto;
     min-height: 0;
     grid-template-rows: 0 minmax(0, 1fr) auto;
     overflow: hidden;
@@ -1018,6 +1020,11 @@ html[data-theme="midnight"] body {
   }
 
   #missionInput:focus + .mission-rotator {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  .search-box.is-input-focused .mission-rotator {
     opacity: 0 !important;
     visibility: hidden !important;
   }

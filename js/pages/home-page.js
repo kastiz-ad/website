@@ -1374,6 +1374,12 @@ document.addEventListener("keydown", (event) => {
 });
 
 missionInput.addEventListener("input", syncInputState);
+missionInput.addEventListener("focus", () => {
+  missionForm.querySelector(".search-box").classList.add("is-input-focused");
+});
+missionInput.addEventListener("blur", () => {
+  missionForm.querySelector(".search-box").classList.remove("is-input-focused");
+});
 
 missionForm.addEventListener("submit", (event) => {
   event.preventDefault();
