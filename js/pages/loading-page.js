@@ -13,9 +13,10 @@ const STORAGE_KEYS = {
   executionState: "kastiz-one-execution-state"
 };
 
-const loadingText = document.getElementById("loadingText");
-const loadingSubtext = document.getElementById("loadingSubtext");
-const loadingProgress = document.getElementById("loadingProgress");
+const missionName = document.getElementById("missionName");
+const loadingMessage = document.getElementById("loadingMessage");
+const progressBar = document.getElementById("progressBar");
+const loadingSteps = Array.from(document.querySelectorAll(".loading-step"));
 
 const fallbackLanguage = localStorage.getItem(STORAGE_KEYS.language) || "en";
 const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || "light";
@@ -86,10 +87,14 @@ const saveMission = (mission) => {
   }
 };
 
-const updateLoadingMessage = (message, subtext, progress) => {
-  if (loadingText) loadingText.textContent = message;
-  if (loadingSubtext) loadingSubtext.textContent = subtext;
-  if (loadingProgress) loadingProgress.style.width = `${progress}%`;
+const updateLoadingMessage = (message, progress, activeStepIndex) => {
+  if (loadingMessage) loadingMessage.textContent = message;
+  if (progressBar) progressBar.style.width = `${progress}%`;
+
+  loadingSteps.forEach((step, index) => {
+    step.classList.toggle("is-active", index === activeStepIndex);
+    step.classList.toggle("is-complete", index < activeStepIndex);
+  });
 };
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -310,15 +315,20 @@ const runLoadingSequence = async () => {
   const messages = loadingMessages[language][mission.type] || loadingMessages[language].general_mission;
   const subtext = language === "ko" ? approvalMessages.ko : approvalMessages.en;
 
+  if (missionName) {
+    missionName.textContent = mission.rawInput || mission.title || mission.mission || subtext;
+  }
+
   for (let index = 0; index < messages.length; index += 1) {
     const progress = Math.round(((index + 1) / (messages.length + 1)) * 82);
-    updateLoadingMessage(messages[index], subtext, progress);
+    const activeStepIndex = Math.min(index, loadingSteps.length - 1);
+    updateLoadingMessage(messages[index], progress, activeStepIndex);
     await wait(index === 0 ? 720 : 620);
   }
 
   const enrichedMission = await enrichMission(mission);
 
-  updateLoadingMessage(language === "ko" ? "미션 준비가 완료되었습니다..." : "Mission ready...", subtext, 100);
+  updateLoadingMessage(language === "ko" ? "미션 준비가 완료되었습니다..." : "Mission ready...", 100, loadingSteps.length);
   saveMission(enrichedMission);
 
   await wait(620);
