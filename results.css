@@ -126,11 +126,27 @@ a {
 }
 
 .brand {
-  font-size: 26px;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.095em;
-  color: var(--text);
+  width: 50px;
+  height: 50px;
+  flex: 0 0 50px;
+  display: block;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.brand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+html[data-theme="light"] .brand img {
+  filter: invert(1);
+}
+
+.brand:hover {
+  opacity: 0.72;
+  transform: scale(1.04);
 }
 
 .header-actions {
@@ -646,6 +662,12 @@ a {
   .results-header {
     height: 68px;
     padding: 18px;
+  }
+
+  .brand {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
   }
 
   .header-actions {
