@@ -11,6 +11,11 @@ const missionInput = document.getElementById("missionInput");
 const missionRotator = document.getElementById("missionRotator");
 const missionRotatorText = document.getElementById("missionRotatorText");
 const locationText = document.getElementById("locationText");
+const microphoneButton = document.getElementById("microphoneButton");
+const imageUploadButton = document.getElementById("imageUploadButton");
+const imageUploadInput = document.getElementById("imageUploadInput");
+const aiModeButton = document.getElementById("aiModeButton");
+const missionToolStatus = document.getElementById("missionToolStatus");
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -371,6 +376,8 @@ let activeLanguage = "en";
 let activeMissionIndex = -1;
 let rotatorInterval = null;
 let firstRotationTimeout = null;
+let aiModeEnabled = false;
+let selectedImageFiles = [];
 
 const getBrowserLanguage = () => {
   const browserLanguage = navigator.language || navigator.userLanguage || "en";
@@ -1280,6 +1287,14 @@ const saveMission = (mission) => {
     ? buildTravelMission(cleanMission)
     : buildGeneralMission(cleanMission);
 
+  payload.aiMode = aiModeEnabled;
+  payload.attachments = selectedImageFiles.map((file) => ({
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    lastModified: file.lastModified
+  }));
+
   sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(payload));
 
   if (payload.type === "travel") {
@@ -1319,6 +1334,30 @@ const syncInputState = () => {
   } else {
     missionInput.classList.remove("has-text");
   }
+};
+
+const announceMissionTool = (english, korean) => {
+  if (missionToolStatus) {
+    missionToolStatus.textContent = activeLanguage === "ko" ? korean : english;
+  }
+};
+
+const speakWelcomeMessage = () => {
+  if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+    announceMissionTool("Voice is not supported in this browser.", "이 브라우저에서는 음성을 지원하지 않습니다.");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+  const message = new SpeechSynthesisUtterance("How can I make your day?");
+  message.lang = "en-US";
+  message.rate = 0.96;
+  message.pitch = 1;
+  message.onstart = () => microphoneButton?.classList.add("is-active");
+  message.onend = () => microphoneButton?.classList.remove("is-active");
+  message.onerror = () => microphoneButton?.classList.remove("is-active");
+  window.speechSynthesis.speak(message);
+  announceMissionTool("ONE is speaking.", "ONE이 음성으로 안내합니다.");
 };
 
 const closeDropdowns = () => {
@@ -1379,6 +1418,28 @@ missionInput.addEventListener("focus", () => {
 });
 missionInput.addEventListener("blur", () => {
   missionForm.querySelector(".search-box").classList.remove("is-input-focused");
+});
+
+aiModeButton?.addEventListener("click", () => {
+  aiModeEnabled = !aiModeEnabled;
+  aiModeButton.setAttribute("aria-pressed", String(aiModeEnabled));
+  announceMissionTool(
+    aiModeEnabled ? "AI assistant mode is on." : "AI assistant mode is off.",
+    aiModeEnabled ? "AI 어시스턴트 모드가 켜졌습니다." : "AI 어시스턴트 모드가 꺼졌습니다."
+  );
+  missionInput.focus();
+});
+
+microphoneButton?.addEventListener("click", speakWelcomeMessage);
+
+imageUploadButton?.addEventListener("click", () => imageUploadInput?.click());
+imageUploadInput?.addEventListener("change", () => {
+  selectedImageFiles = [...(imageUploadInput.files || [])];
+  imageUploadButton.classList.toggle("is-active", selectedImageFiles.length > 0);
+  announceMissionTool(
+    selectedImageFiles.length === 1 ? "1 image attached." : `${selectedImageFiles.length} images attached.`,
+    `이미지 ${selectedImageFiles.length}개가 첨부되었습니다.`
+  );
 });
 
 missionForm.addEventListener("submit", (event) => {
