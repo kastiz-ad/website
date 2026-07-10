@@ -1043,6 +1043,21 @@ const renderGeneralMission = (result) => {
     wide: true
   }));
 
+  missionGrid.appendChild(createListCard({
+    id: "information-sources",
+    title: activeLanguage === "ko" ? "정보 출처" : "Information Sources",
+    label: activeLanguage === "ko" ? "프로토타입" : "Prototype",
+    items: (result.providerResults || result.providers || []).map((provider) => {
+      const name = provider.provider || provider.name || provider.category;
+      const status = provider.liveData
+        ? (activeLanguage === "ko" ? "실시간 공개 데이터" : "Live public data")
+        : (activeLanguage === "ko" ? "데모용 준비 데이터" : "Demo-ready data");
+      return `${name} — ${status}`;
+    }),
+    wide: true,
+    editable: false
+  }));
+
   missionGrid.appendChild(createApprovalCard(result));
 };
 
