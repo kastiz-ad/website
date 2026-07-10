@@ -97,6 +97,17 @@ const updateLoadingMessage = (message, progress, activeStepIndex) => {
   });
 };
 
+const loadingUi = {
+  en: {
+    title: "Mission in progress",
+    steps: ["Understanding your dream", "Exploring every possibility", "Finding trusted providers", "Preparing everything", "Turning your idea into reality"]
+  },
+  ko: {
+    title: "미션 진행 중",
+    steps: ["요청 이해하기", "가능성 탐색하기", "신뢰할 수 있는 제공자 찾기", "필요한 내용 준비하기", "아이디어를 현실로 만들기"]
+  }
+};
+
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 const getCoordinates = (mission) => {
@@ -314,6 +325,14 @@ const runLoadingSequence = async () => {
   const language = mission.language === "ko" ? "ko" : "en";
   const messages = loadingMessages[language][mission.type] || loadingMessages[language].general_mission;
   const subtext = language === "ko" ? approvalMessages.ko : approvalMessages.en;
+
+  const loadingTitle = document.getElementById("loadingTitle");
+  if (loadingTitle) loadingTitle.textContent = loadingUi[language].title;
+  document.title = language === "ko" ? "Kastiz ONE — 미션 준비 중" : "Kastiz ONE — Preparing Mission";
+  loadingSteps.forEach((step, index) => {
+    const label = step.querySelector("strong");
+    if (label) label.textContent = loadingUi[language].steps[index] || "";
+  });
 
   if (missionName) {
     missionName.textContent = mission.rawInput || mission.title || mission.mission || subtext;

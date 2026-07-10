@@ -588,9 +588,7 @@ const detectCountry = (mission, type) => {
 
   const found = matches.find((item) => item.keywords.some((keyword) => text.includes(keyword.toLowerCase())));
 
-  if (found) return found.code;
-  if (type === "travel") return "JP";
-  return null;
+  return found?.code || null;
 };
 
 const missionText = (en, ko) => {
@@ -827,7 +825,7 @@ const buildMissionObject = (mission) => {
   };
 };
 
-const detectDestination = (mission) => {
+const detectDestination = (mission, countryProfile = null) => {
   const text = mission.toLowerCase();
 
   const matched = destinationPatterns.find((destination) => {
@@ -838,12 +836,22 @@ const detectDestination = (mission) => {
     return matched;
   }
 
+  if (countryProfile) {
+    return {
+      destination: countryProfile.name,
+      destinationKo: countryProfile.nameKo,
+      city: countryProfile.capital,
+      cityKo: countryProfile.capitalKo,
+      aliases: []
+    };
+  }
+
   return {
-    destination: "Japan",
-    destinationKo: "일본",
-    city: "Tokyo",
-    cityKo: "도쿄",
-    aliases: ["japan", "tokyo", "일본", "도쿄"]
+    destination: "Destination to confirm",
+    destinationKo: "확인이 필요한 목적지",
+    city: "City to confirm",
+    cityKo: "확인이 필요한 도시",
+    aliases: []
   };
 };
 
@@ -874,7 +882,7 @@ const detectDepartureCountry = () => {
 
 const buildTravelMission = (mission) => {
   const baseMission = buildMissionObject(mission);
-  const destination = detectDestination(mission);
+  const destination = detectDestination(mission, baseMission.countryProfile);
   const durationDays = detectDurationDays(mission);
   const departureCountry = detectDepartureCountry();
   const language = activeLanguage;

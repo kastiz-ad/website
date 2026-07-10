@@ -88,7 +88,7 @@ const translations = {
     preparedByOne: "ONE이 준비했습니다",
     customize: "수정하기",
     makeItReality: "현실로 만들기",
-    withOne: "with ONE",
+    withOne: "ONE과 함께",
     missionApproved: "미션 승인 완료",
     oneIsWorking: "ONE이 실행하고 있습니다.",
     finalMessage: "당신의 미래가 움직이기 시작했습니다.",
@@ -233,7 +233,9 @@ const updateLocation = () => {
   const locale = navigator.language || "en";
   const region = locale.includes("-") ? locale.split("-").pop().toUpperCase() : "";
 
-  locationText.textContent = countryNamesByRegion[region] || t("unknownLocation");
+  locationText.textContent = activeLanguage === "ko"
+    ? countryNamesKoByRegion[region] || t("unknownLocation")
+    : countryNamesByRegion[region] || t("unknownLocation");
 };
 
 const getStoredResult = () => {
@@ -247,6 +249,13 @@ const getStoredResult = () => {
   } catch {}
 
   return null;
+};
+
+const countryNamesKoByRegion = {
+  KR: "대한민국", US: "미국", ES: "스페인", FR: "프랑스", JP: "일본",
+  BR: "브라질", DE: "독일", CN: "중국", IT: "이탈리아", PT: "포르투갈",
+  CA: "캐나다", GB: "영국", AU: "호주", NZ: "뉴질랜드", MX: "멕시코",
+  SG: "싱가포르", TH: "태국", VN: "베트남", PH: "필리핀", ID: "인도네시아", IN: "인도"
 };
 
 const findLiveProvider = (result, category) => {
@@ -705,7 +714,18 @@ const normalizeStoredResult = (stored) => {
     return result;
   }
 
-  return createFallbackTravelResult();
+  return {
+    ...stored,
+    display: {
+      ...stored.display,
+      title: stored.display?.title || stored.rawInput || stored.mission || (activeLanguage === "ko" ? "미션 계획" : "Mission Plan"),
+      approvalProtection: stored.display?.approvalProtection || localize(stored.approvalProtection?.message || stored.approvalProtection) || t("approvalProtection")
+    },
+    executionSequence: stored.executionSequence || {
+      en: stored.executionSimulation?.messages || translations.en.executionSteps,
+      ko: stored.executionSimulation?.messages || translations.ko.executionSteps
+    }
+  };
 };
 
 const makeOptionRow = (key, value) => {
@@ -995,9 +1015,35 @@ const renderTravelMission = (result) => {
   missionGrid.appendChild(createApprovalCard(result));
 };
 
-const renderGeneralMission = () => {
-  const fallback = createFallbackTravelResult();
-  renderTravelMission(fallback);
+const renderGeneralMission = (result) => {
+  missionTitle.textContent = result.display?.title || result.rawInput || (activeLanguage === "ko" ? "미션 계획" : "Mission Plan");
+  missionGrid.innerHTML = "";
+
+  missionGrid.appendChild(createListCard({
+    id: "mission-steps",
+    title: activeLanguage === "ko" ? "미션 단계" : "Mission Steps",
+    label: activeLanguage === "ko" ? "준비됨" : "Prepared",
+    items: (result.steps || []).map((step) => step.title || step.label || step.id),
+    wide: true
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "assumptions",
+    title: activeLanguage === "ko" ? "계획 기준" : "Planning Assumptions",
+    label: activeLanguage === "ko" ? "확인" : "Review",
+    items: result.assumptions || [],
+    wide: true
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "risks",
+    title: activeLanguage === "ko" ? "확인 사항" : "Things to Check",
+    label: activeLanguage === "ko" ? "중요" : "Important",
+    items: result.risks || [],
+    wide: true
+  }));
+
+  missionGrid.appendChild(createApprovalCard(result));
 };
 
 const renderMission = () => {
@@ -1008,7 +1054,7 @@ const renderMission = () => {
     return;
   }
 
-  renderGeneralMission();
+  renderGeneralMission(currentResult);
 };
 
 const renderApprovalList = () => {
@@ -1192,6 +1238,7 @@ makeRealityButton.addEventListener("click", runApprovalSequence);
 activeLanguage = getLanguage();
 
 document.documentElement.lang = activeLanguage;
+document.title = activeLanguage === "ko" ? "Kastiz ONE — 미션 준비 완료" : "Kastiz ONE — Mission Ready";
 
 setTheme();
 updateTextContent();
