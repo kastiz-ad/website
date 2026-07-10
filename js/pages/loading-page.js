@@ -130,10 +130,17 @@ const fetchCurrency = async (mission) => {
   }
 
   try {
-    const data = await fetchJson(`https://api.frankfurter.app/latest?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
-    const rate = data?.rates?.[to];
+    const data = await fetchJson(
+      `https://api.frankfurter.dev/v2/rate/${encodeURIComponent(from)}/${encodeURIComponent(to)}`,
+      { timeout: 7000 }
+    );
+    const rate = Number(data?.rate);
 
-    return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: Boolean(rate), requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} → ${to}`, value: rate ? String(rate) : "Rate unavailable" }], error: null };
+    if (!Number.isFinite(rate) || rate <= 0) {
+      throw new Error("Rate unavailable");
+    }
+
+    return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} → ${to}`, value: String(rate) }], error: null };
   } catch (error) {
     return fallbackProvider("Frankfurter", "currency", "Currency provider is ready. Live rates may be checked again before final execution.", error.message);
   }
