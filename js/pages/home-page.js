@@ -1349,8 +1349,19 @@ const speakWelcomeMessage = () => {
   }
 
   window.speechSynthesis.cancel();
-  const message = new SpeechSynthesisUtterance("How can I make your day?");
-  message.lang = "en-US";
+  const isKorean = activeLanguage === "ko";
+  const message = new SpeechSynthesisUtterance(
+    isKorean ? "\uC624\uB298 \uC5B4\uB5BB\uAC8C \uB3C4\uC640\uB4DC\uB9B4\uAE4C\uC694?" : "How can I make your day?"
+  );
+  message.lang = isKorean ? "ko-KR" : "en-US";
+
+  const preferredVoice = window.speechSynthesis
+    .getVoices()
+    .find((voice) => voice.lang.toLowerCase().startsWith(isKorean ? "ko" : "en"));
+
+  if (preferredVoice) {
+    message.voice = preferredVoice;
+  }
   message.rate = 0.96;
   message.pitch = 1;
   message.onstart = () => microphoneButton?.classList.add("is-active");
