@@ -1289,3 +1289,18 @@ html[data-theme="light"] .one-symbol {
     animation: none !important;
   }
 }
+
+/* Korean desktop footer needs the same visual breathing room as English. */
+@media (min-width: 901px) {
+  html[lang="ko"] .footer-left,
+  html[lang="ko"] .footer-right {
+    gap: 26px !important;
+  }
+}
+
+/* Keep the compact phone controls visually separated. */
+@media (max-width: 640px) {
+  .ai-pill {
+    margin-right: 5px;
+  }
+}
