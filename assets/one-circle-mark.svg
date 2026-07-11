@@ -1,50 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <g stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Same-scale loops alternate inside and outside one another instead of spiraling inward. -->
-    <path
-      d="M112 42
-         C130 37 148 39 168 45
+  <defs>
+    <filter id="outer-a" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.014" numOctaves="2" seed="3" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="15" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="outer-b" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.009" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="B" yChannelSelector="R"/>
+    </filter>
+    <filter id="outer-c" x="-15%" y="-15%" width="130%" height="130%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="21" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="G" yChannelSelector="B"/>
+    </filter>
+    <filter id="inner-a" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.030" numOctaves="2" seed="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="inner-b" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.028 0.020" numOctaves="2" seed="14" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="B" yChannelSelector="R"/>
+    </filter>
+    <filter id="inner-c" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.020 0.027" numOctaves="2" seed="27" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="G" yChannelSelector="B"/>
+    </filter>
+  </defs>
 
-         C260 2 392 40 456 128
-         C497 185 490 300 445 371
-         C380 472 244 494 140 435
-         C52 385 18 279 48 184
-         C68 121 112 72 168 45
-
-         C275 15 403 57 466 146
-         C512 210 481 331 419 401
-         C344 486 208 478 112 411
-         C28 350 20 238 64 152
-         C91 98 126 61 168 45
-
-         C250 -5 380 26 441 111
-         C490 167 500 275 458 351
-         C400 459 274 512 160 459
-         C63 412 31 314 55 199
-         C67 130 107 79 168 45"
-      stroke-width="5.5"
-    />
-
-    <!-- Inner counter repeats the intertwined in/out crossings at one consistent scale. -->
-    <path
-      d="M218 181
-         C239 168 263 165 284 173
-
-         C330 190 354 235 345 281
-         C336 328 291 354 246 343
-         C201 332 169 292 177 247
-         C184 209 197 194 218 181
-
-         C252 157 307 171 334 207
-         C366 249 348 308 307 335
-         C266 362 207 339 182 297
-         C157 255 179 203 218 181
-
-         C257 166 309 184 331 223
-         C354 264 330 319 286 338
-         C242 357 187 327 172 282
-         C157 237 181 198 218 181"
-      stroke-width="5"
-    />
+  <g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round">
+    <circle cx="256" cy="256" r="214" filter="url(#outer-a)"/>
+    <circle cx="256" cy="256" r="214" filter="url(#outer-b)"/>
+    <circle cx="256" cy="256" r="214" filter="url(#outer-c)"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="4.8" stroke-linecap="round">
+    <circle cx="256" cy="256" r="73" filter="url(#inner-a)"/>
+    <circle cx="256" cy="256" r="73" filter="url(#inner-b)"/>
+    <circle cx="256" cy="256" r="73" filter="url(#inner-c)"/>
   </g>
 </svg>
