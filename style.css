@@ -1157,7 +1157,7 @@ html[data-theme="midnight"] body {
   flex: 0 0 1.5em;
   display: block;
   object-fit: contain;
-  margin-right: 0.08em;
+  margin-right: 0.04em;
 }
 
 html[data-theme="light"] .one-symbol {
@@ -1165,7 +1165,8 @@ html[data-theme="light"] .one-symbol {
 }
 
 .one-letter {
-  animation-duration: 68s;
+  font-size: 1.06em;
+  animation-duration: 36s;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
   animation-timing-function: ease-in-out;
@@ -1183,15 +1184,15 @@ html[data-theme="light"] .one-symbol {
 
 @keyframes oneLetterNSequence {
   0% { opacity: 0; }
-  2.95% { opacity: 1; }
-  94.1% { opacity: 1; }
+  4.17% { opacity: 1; }
+  91.67% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @keyframes oneLetterESequence {
-  0%, 2.95% { opacity: 0; }
-  5.9% { opacity: 1; }
-  94.1% { opacity: 1; }
+  0%, 4.17% { opacity: 0; }
+  8.33% { opacity: 1; }
+  91.67% { opacity: 1; }
   100% { opacity: 0; }
 }
 
@@ -1273,12 +1274,12 @@ html[data-theme="light"] .one-symbol {
 
   html[lang="ko"] .site-footer {
     font-size: clamp(9px, 2.55vw, 12px) !important;
-    column-gap: 9px !important;
+    column-gap: 12px !important;
   }
 
   html[lang="ko"] .footer-left,
   html[lang="ko"] .footer-right {
-    gap: 9px !important;
+    gap: 12px !important;
   }
 }
 
