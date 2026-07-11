@@ -462,7 +462,9 @@ const updateLocation = () => {
   const locale = navigator.language || "en";
   const region = locale.includes("-") ? locale.split("-").pop().toUpperCase() : "";
 
-  locationText.textContent = countryNamesByRegion[region] || getTranslation("unknownLocation");
+  locationText.textContent = window.matchMedia("(max-width: 640px)").matches
+    ? "대한민국"
+    : countryNamesByRegion[region] || getTranslation("unknownLocation");
 };
 
 const updateTextContent = () => {

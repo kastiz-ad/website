@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260711-5" />
+  <link rel="stylesheet" href="style.css?v=20260712-1" />
 </head>
 
 <body>
@@ -33,17 +33,6 @@
           </ul>
         </div>
 
-        <div class="nav-dropdown" id="languageDropdown">
-          <button class="nav-text-trigger" id="languageControl" type="button" aria-haspopup="true" aria-expanded="false">
-            <span id="languageControlText">English</span>
-            <span class="nav-arrow">▾</span>
-          </button>
-
-          <ul class="nav-dropdown-menu" role="menu" aria-label="Language" data-i18n-aria="languageLabel">
-            <li><button type="button" role="menuitem" data-language-option="en">English</button></li>
-            <li><button type="button" role="menuitem" data-language-option="ko">한국어</button></li>
-          </ul>
-        </div>
       </nav>
 
       <nav class="header-actions" aria-label="Account" data-i18n-aria="account">
@@ -57,7 +46,7 @@
         <div class="brand-lockup" aria-label="Kastiz ONE">
           <div class="one-logo" id="oneLogo" aria-hidden="true">
 <span class="one-logo-text" aria-hidden="true">
-  <span class="one-letter one-letter-o">O</span>
+  <img class="one-symbol" src="assets/one-circle-mark.png?v=20260712-1" alt="" />
   <span class="one-letter one-letter-n">N</span>
   <span class="one-letter one-letter-e">E</span>
 </span>
@@ -112,6 +101,18 @@
             <span class="sr-only" id="missionToolStatus" aria-live="polite"></span>
           </div>
         </form>
+
+        <div class="search-language nav-dropdown" id="languageDropdown">
+          <button class="nav-text-trigger" id="languageControl" type="button" aria-haspopup="true" aria-expanded="false">
+            <span id="languageControlText">English</span>
+            <span class="nav-arrow">▾</span>
+          </button>
+
+          <ul class="nav-dropdown-menu" role="menu" aria-label="Language" data-i18n-aria="languageLabel">
+            <li><button type="button" role="menuitem" data-language-option="en">English</button></li>
+            <li><button type="button" role="menuitem" data-language-option="ko">한국어</button></li>
+          </ul>
+        </div>
       </section>
     </main>
 
@@ -135,6 +136,6 @@
     </footer>
   </div>
 
-  <script type="module" src="script.js?v=20260711-5"></script>
+  <script type="module" src="script.js?v=20260712-1"></script>
 </body>
 </html>

@@ -1136,3 +1136,144 @@ html[data-theme="midnight"] body {
     height: 36px;
   }
 }
+
+/* Official ONE lockup: permanent symbol with a slow N/E reveal cycle. */
+.one-logo {
+  width: auto;
+  min-width: 0;
+  height: clamp(138px, 18vw, 202px);
+}
+
+.one-logo-text {
+  min-width: 0 !important;
+  overflow: visible;
+  letter-spacing: -0.09em;
+}
+
+.one-symbol {
+  width: 1.5em;
+  height: 1.5em;
+  flex: 0 0 1.5em;
+  display: block;
+  object-fit: contain;
+  margin-right: -0.13em;
+}
+
+html[data-theme="light"] .one-symbol {
+  filter: invert(1);
+}
+
+.one-letter {
+  animation-duration: 68s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+  animation-timing-function: ease-in-out;
+}
+
+.one-letter-n {
+  animation-name: oneLetterNSequence;
+  animation-delay: 0s;
+}
+
+.one-letter-e {
+  animation-name: oneLetterESequence;
+  animation-delay: 0s;
+}
+
+@keyframes oneLetterNSequence {
+  0% { opacity: 0; }
+  2.95% { opacity: 1; }
+  94.1% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes oneLetterESequence {
+  0%, 2.95% { opacity: 0; }
+  5.9% { opacity: 1; }
+  94.1% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.search-language {
+  margin-top: 17px;
+  align-self: center;
+}
+
+.search-language .nav-dropdown-menu {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.header-brand-mark {
+  width: 38px;
+  height: 38px;
+  flex-basis: 38px;
+}
+
+@media (max-width: 640px) {
+  .header-brand-mark {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .one-logo {
+    height: 122px;
+  }
+
+  .one-logo-text {
+    font-size: 72px !important;
+  }
+
+  .search-language {
+    margin-top: 13px;
+  }
+}
+
+/* Compact two-row footer only on phones; desktop and tablet layout is untouched. */
+@media (max-width: 640px) {
+  .site-footer {
+    display: grid !important;
+    grid-template-columns: max-content max-content !important;
+    grid-template-areas: "powered powered" "footer-left footer-right" !important;
+    justify-content: center !important;
+    align-content: center !important;
+    column-gap: 7px !important;
+    row-gap: 9px !important;
+    padding: 11px 8px calc(11px + env(safe-area-inset-bottom)) !important;
+    font-size: clamp(8px, 2.25vw, 11px) !important;
+  }
+
+  .footer-center {
+    grid-area: powered !important;
+    width: 100% !important;
+    justify-self: stretch !important;
+    justify-content: flex-end !important;
+    text-align: right !important;
+  }
+
+  .footer-left {
+    grid-area: footer-left !important;
+  }
+
+  .footer-right {
+    grid-area: footer-right !important;
+  }
+
+  .footer-left,
+  .footer-right {
+    width: auto !important;
+    justify-self: auto !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 7px !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .one-letter {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
