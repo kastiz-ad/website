@@ -1157,7 +1157,7 @@ html[data-theme="midnight"] body {
   flex: 0 0 1.5em;
   display: block;
   object-fit: contain;
-  margin-right: 0.04em;
+  margin-right: -0.02em;
 }
 
 html[data-theme="light"] .one-symbol {
@@ -1184,15 +1184,15 @@ html[data-theme="light"] .one-symbol {
 
 @keyframes oneLetterNSequence {
   0% { opacity: 0; }
-  4.17% { opacity: 1; }
-  91.67% { opacity: 1; }
+  5.56% { opacity: 1; }
+  94.44% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @keyframes oneLetterESequence {
-  0%, 4.17% { opacity: 0; }
-  8.33% { opacity: 1; }
-  91.67% { opacity: 1; }
+  0%, 5.56% { opacity: 0; }
+  11.11% { opacity: 1; }
+  94.44% { opacity: 1; }
   100% { opacity: 0; }
 }
 
