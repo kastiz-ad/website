@@ -1,39 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <defs>
-    <filter id="outer-a" x="-15%" y="-15%" width="130%" height="130%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.014" numOctaves="2" seed="3" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-    <filter id="outer-b" x="-15%" y="-15%" width="130%" height="130%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.009" numOctaves="2" seed="11" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="B" yChannelSelector="R"/>
-    </filter>
-    <filter id="outer-c" x="-15%" y="-15%" width="130%" height="130%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="21" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="G" yChannelSelector="B"/>
-    </filter>
-    <filter id="inner-a" x="-25%" y="-25%" width="150%" height="150%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.030" numOctaves="2" seed="5" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-    <filter id="inner-b" x="-25%" y="-25%" width="150%" height="150%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.028 0.020" numOctaves="2" seed="14" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="B" yChannelSelector="R"/>
-    </filter>
-    <filter id="inner-c" x="-25%" y="-25%" width="150%" height="150%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.020 0.027" numOctaves="2" seed="27" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="G" yChannelSelector="B"/>
-    </filter>
-  </defs>
-
-  <g fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round">
-    <circle cx="256" cy="256" r="198" filter="url(#outer-a)"/>
-    <circle cx="256" cy="256" r="214" filter="url(#outer-b)"/>
-    <circle cx="256" cy="256" r="230" filter="url(#outer-c)"/>
-  </g>
-  <g fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round">
-    <circle cx="256" cy="256" r="64" filter="url(#inner-a)"/>
-    <circle cx="256" cy="256" r="73" filter="url(#inner-b)"/>
-    <circle cx="256" cy="256" r="82" filter="url(#inner-c)"/>
+  <g stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="254" cy="255" rx="205" ry="211" transform="rotate(-7 254 255)"/>
+    <ellipse cx="258" cy="252" rx="214" ry="200" transform="rotate(8 258 252)"/>
+    <ellipse cx="250" cy="259" rx="197" ry="216" transform="rotate(2 250 259)"/>
   </g>
 </svg>
