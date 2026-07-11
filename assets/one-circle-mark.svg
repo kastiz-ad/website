@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <g stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
-    <ellipse cx="256" cy="256" rx="220" ry="216" stroke-width="4.8" transform="rotate(-1.1 256 256)"/>
-    <ellipse cx="255" cy="255" rx="225" ry="220" stroke-width="3.6" transform="rotate(1.3 255 255)"/>
-    <ellipse cx="258" cy="257" rx="218" ry="223" stroke-width="3" transform="rotate(-2 258 257)"/>
-    <ellipse cx="256" cy="256" rx="72" ry="70" stroke-width="5.2" transform="rotate(-1.5 256 256)"/>
-    <ellipse cx="255" cy="255" rx="76" ry="73" stroke-width="3.6" transform="rotate(1.8 255 255)"/>
-    <ellipse cx="258" cy="257" rx="70" ry="76" stroke-width="3" transform="rotate(-2.4 258 257)"/>
+    <path d="M263 24 C386 25 484 126 486 247 C489 371 389 472 267 484 C144 492 35 400 27 278 C18 153 111 42 235 27 C244 26 253 25 263 24" stroke-width="6"/>
+    <path d="M270 38 C381 42 468 132 470 247 C472 360 383 454 269 468 C154 480 51 392 43 278 C34 164 120 61 232 43 C245 41 257 39 270 38" stroke-width="7"/>
+    <path d="M276 53 C377 59 451 140 454 247 C457 350 375 438 271 451 C166 463 68 383 59 279 C49 176 128 80 230 59 C246 56 261 54 276 53" stroke-width="5.5"/>
+    <path d="M260 169 C307 168 347 204 349 251 C352 299 314 339 267 345 C219 350 177 314 171 267 C165 220 199 178 246 171 C251 170 256 169 260 169" stroke-width="6"/>
+    <path d="M263 181 C304 182 336 214 338 254 C340 294 309 328 269 333 C228 338 191 307 186 267 C181 227 210 191 250 183 C254 182 259 182 263 181" stroke-width="7"/>
+    <path d="M266 194 C299 196 324 222 326 256 C328 289 303 316 270 321 C237 325 207 300 202 267 C198 234 222 204 255 196 C259 195 262 195 266 194" stroke-width="5.5"/>
   </g>
 </svg>

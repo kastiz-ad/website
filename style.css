@@ -1157,7 +1157,7 @@ html[data-theme="midnight"] body {
   flex: 0 0 1.5em;
   display: block;
   object-fit: contain;
-  margin-right: -0.02em;
+  margin-right: -0.12em;
 }
 
 html[data-theme="light"] .one-symbol {
