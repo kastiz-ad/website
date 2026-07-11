@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <g stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-    <ellipse cx="254" cy="255" rx="205" ry="211" transform="rotate(-7 254 255)"/>
-    <ellipse cx="258" cy="252" rx="214" ry="200" transform="rotate(8 258 252)"/>
-    <ellipse cx="250" cy="259" rx="197" ry="216" transform="rotate(2 250 259)"/>
-  </g>
-</svg>
