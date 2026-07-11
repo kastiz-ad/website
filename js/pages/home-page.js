@@ -463,7 +463,7 @@ const updateLocation = () => {
   const region = locale.includes("-") ? locale.split("-").pop().toUpperCase() : "";
 
   locationText.textContent = window.matchMedia("(max-width: 640px)").matches
-    ? "대한민국"
+    ? (activeLanguage === "ko" ? "대한민국" : "South Korea")
     : countryNamesByRegion[region] || getTranslation("unknownLocation");
 };
 

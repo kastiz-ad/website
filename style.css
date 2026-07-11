@@ -1148,6 +1148,7 @@ html[data-theme="midnight"] body {
   min-width: 0 !important;
   overflow: visible;
   letter-spacing: -0.09em;
+  align-items: flex-end !important;
 }
 
 .one-symbol {
@@ -1156,7 +1157,7 @@ html[data-theme="midnight"] body {
   flex: 0 0 1.5em;
   display: block;
   object-fit: contain;
-  margin-right: -0.13em;
+  margin-right: 0.08em;
 }
 
 html[data-theme="light"] .one-symbol {
@@ -1195,7 +1196,7 @@ html[data-theme="light"] .one-symbol {
 }
 
 .search-language {
-  margin-top: 17px;
+  margin-top: 30px;
   align-self: center;
 }
 
@@ -1226,7 +1227,7 @@ html[data-theme="light"] .one-symbol {
   }
 
   .search-language {
-    margin-top: 13px;
+    margin-top: 26px;
   }
 }
 
@@ -1248,8 +1249,8 @@ html[data-theme="light"] .one-symbol {
     grid-area: powered !important;
     width: 100% !important;
     justify-self: stretch !important;
-    justify-content: flex-end !important;
-    text-align: right !important;
+    justify-content: center !important;
+    text-align: center !important;
   }
 
   .footer-left {
@@ -1268,6 +1269,16 @@ html[data-theme="light"] .one-symbol {
     flex-wrap: nowrap !important;
     gap: 7px !important;
     white-space: nowrap !important;
+  }
+
+  html[lang="ko"] .site-footer {
+    font-size: clamp(9px, 2.55vw, 12px) !important;
+    column-gap: 9px !important;
+  }
+
+  html[lang="ko"] .footer-left,
+  html[lang="ko"] .footer-right {
+    gap: 9px !important;
   }
 }
 
