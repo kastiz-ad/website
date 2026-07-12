@@ -1444,7 +1444,7 @@ const buildExecutionSummary = () => {
   const flightRows = isRoundTrip
     ? [
         [ko ? "출국 항공편" : "Outbound flight", `${airlineName} · ${flightNumber}`, `${schedule.startDate || dateRange} · ${selectedTime} · ${formatRange(flight?.estimatedPrice)} (${ko ? "왕복 총액" : "round-trip total"})`],
-        [ko ? "귀국 항공편" : "Return flight", `${airlineName} · ${returnFlightNumber}`, `${schedule.endDate || dateRange} · ${ko ? "귀국 시간 최종 확인 필요" : "Return time requires final confirmation"} · ${ko ? "왕복 요금에 포함" : "included in round-trip price"}`]
+        [ko ? "귀국 항공편" : "Return flight", `${airlineName} · ${returnFlightNumber}`, `${schedule.endDate || dateRange} · ${ko ? "귀국 시간 최종 확인 필요" : "Return time requires final confirmation"} · (${ko ? "왕복 총액" : "round-trip total"})`]
       ]
     : [[ko ? "편도 항공편" : "One-way flight", `${airlineName} · ${flightNumber}`, `${schedule.startDate || dateRange} · ${selectedTime} · ${formatRange(flight?.estimatedPrice)}`]];
   const reference = `ONE-DEMO-${String(currentResult.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
@@ -1457,14 +1457,20 @@ const buildExecutionSummary = () => {
       ])
     : [[ko ? "레스토랑" : "Restaurants", ko ? "선택 없음" : "None selected", ko ? "선택된 레스토랑이 없습니다" : "No restaurants selected", "is-restaurant"]];
   const rows = [
+    [ko ? "여행 일정" : "Schedule", "", selectedTime, "is-wide is-schedule", { start: schedule.startDate, end: schedule.endDate }],
     ...flightRows,
     [ko ? "호텔" : "Hotel", hotel ? getHotelName(hotel) : "—", `${dateRange} · ${formatRange(hotel?.estimatedNightlyPrice)} / ${ko ? "1박" : "night"}`],
     [ko ? "공항 이동" : "Airport transfer", localize(transfer), ko ? "선택한 이동 옵션 준비 완료" : "Selected transfer option prepared"],
-    [ko ? "여행 일정" : "Schedule", dateRange, timeLabels[schedule.timePreference] || timeLabels.any, isRoundTrip ? "is-wide" : ""],
     ...restaurantRows,
     [ko ? "프로토타입 참조 번호" : "Prototype reference", reference, ko ? "실제 예약 번호가 아닙니다" : "This is not a real booking number", "is-wide is-reference"]
   ];
-  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(([label, value, detail, className = ""]) => `<div class="execution-summary-item ${className}"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span><span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`).join("")}</div><div class="all-in-slogan"><span>ALL in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-circle-mark-graffiti.png?v=20260713-17" alt=""><strong>NE</strong></span></div>`;
+  const renderSummaryRow = ([label, value, detail, className = "", metadata = null]) => {
+    const valueMarkup = className.includes("is-schedule")
+      ? `<span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(metadata?.start || "—")}</strong><i aria-hidden="true">→</i><strong>${escapeSummaryText(metadata?.end || "—")}</strong></span>`
+      : `<span class="execution-summary-value">${escapeSummaryText(value)}</span>`;
+    return `<div class="execution-summary-item ${className}"><span class="execution-summary-label">${escapeSummaryText(label)}</span>${valueMarkup}<span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`;
+  };
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(renderSummaryRow).join("")}</div><div class="all-in-slogan"><span>ALL in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-circle-mark-graffiti.png?v=20260713-17" alt=""><strong>NE</strong></span></div>`;
 };
 
 const runApprovalSequence = () => {
@@ -1491,7 +1497,7 @@ const runApprovalSequence = () => {
           buildExecutionSummary();
           completionMessage.hidden = false;
           window.requestAnimationFrame(() => {
-            executionSummary?.scrollIntoView({ behavior: "smooth", block: "start" });
+            completionMessage?.scrollIntoView({ behavior: "smooth", block: "start" });
           });
         }, 650);
       }
