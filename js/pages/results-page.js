@@ -785,6 +785,26 @@ const getRestaurantRecommendation = (restaurant) => {
     : restaurant.recommendation;
 };
 
+const restaurantVenueProfiles = {
+  JP: [
+    { en: "Sushi Dai", ko: "스시다이", rating: 4.7 }, { en: "Ichiran Ramen", ko: "이치란 라멘", rating: 4.5 },
+    { en: "Gyukatsu Motomura", ko: "규카츠 모토무라", rating: 4.6 }, { en: "Gonpachi", ko: "곤파치", rating: 4.3 },
+    { en: "Blue Bottle Coffee", ko: "블루보틀 커피", rating: 4.4 }
+  ],
+  US: [
+    { en: "The Modern", ko: "더 모던", rating: 4.6 }, { en: "Keens Steakhouse", ko: "킨스 스테이크하우스", rating: 4.5 },
+    { en: "Rubirosa", ko: "루비로사", rating: 4.6 }, { en: "Joe's Shanghai", ko: "조스 상하이", rating: 4.3 }
+  ],
+  ES: [
+    { en: "Sobrino de Botín", ko: "소브리노 데 보틴", rating: 4.4 }, { en: "Casa Lucio", ko: "카사 루시오", rating: 4.3 },
+    { en: "Sala de Despiece", ko: "살라 데 데스피에세", rating: 4.5 }, { en: "Chocolatería San Ginés", ko: "산 히네스", rating: 4.4 }
+  ],
+  CO: [
+    { en: "Leo", ko: "레오", rating: 4.6 }, { en: "El Chato", ko: "엘 차토", rating: 4.6 },
+    { en: "Andrés Carne de Res", ko: "안드레스 카르네 데 레스", rating: 4.5 }, { en: "Mesa Franca", ko: "메사 프랑카", rating: 4.6 }
+  ]
+};
+
 const createMissionCard = ({ id, title, label, value, reason, options, wide = false, editable = true }) => {
   const article = document.createElement("article");
   article.className = "mission-card";
@@ -1212,7 +1232,7 @@ const renderTravelMission = (result) => {
       id: "restaurants",
       title: activeLanguage === "ko" ? "레스토랑" : "Restaurants",
       label: activeLanguage === "ko" ? "프로토타입 가격" : "Prototype prices",
-      items: restaurants.map((restaurant) => {
+      items: restaurants.map((restaurant, index) => {
         const restaurantPrices = [
           { currency: "KRW", min: 25000, max: 65000 },
           { currency: "KRW", min: 12000, max: 25000 },
@@ -1220,8 +1240,12 @@ const renderTravelMission = (result) => {
           { currency: "KRW", min: 25000, max: 60000 },
           { currency: "KRW", min: 8000, max: 22000 }
         ];
-        const price = formatRange(restaurant.estimatedPrice || restaurantPrices[restaurants.indexOf(restaurant)] || restaurantPrices[0]);
-        return `<strong>${getRestaurantName(restaurant)}</strong> — ${getRestaurantRecommendation(restaurant)} <small class="restaurant-price">${activeLanguage === "ko" ? "프로토타입 1인 예상 가격" : "Prototype estimate per person"}: ${price}</small>`;
+        const price = formatRange(restaurant.estimatedPrice || restaurantPrices[index] || restaurantPrices[0]);
+        const countryCode = result.country || result.countryProfile?.code || "JP";
+        const venue = restaurantVenueProfiles[countryCode]?.[index];
+        const venueName = venue ? (activeLanguage === "ko" ? venue.ko : venue.en) : getRestaurantName(restaurant);
+        const rating = venue?.rating || (4.2 + ((index * 2) % 6) / 10).toFixed(1);
+        return `<strong>${venueName}</strong><small class="restaurant-meta">★ ${rating} · ${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}</small>`;
       }),
       wide: true,
       editable: true
