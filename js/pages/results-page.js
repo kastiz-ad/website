@@ -952,6 +952,12 @@ const createVisaVerificationCard = (result) => {
     option.classList.add("is-excluded");
     option.querySelector(".option-key").textContent = "+";
   });
+  const recommendedDetail = article.querySelector(".option-list .selectable-option");
+  if (recommendedDetail) {
+    recommendedDetail.setAttribute("aria-pressed", "true");
+    recommendedDetail.classList.remove("is-excluded");
+    recommendedDetail.querySelector(".option-key").textContent = "✓";
+  }
 
   return article;
 };
@@ -1003,7 +1009,6 @@ const renderTravelMission = (result) => {
   missionGrid.innerHTML = "";
 
   const flightOptions = (result.flights || [])
-    .slice(1)
     .map((flight) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice)));
 
   missionGrid.appendChild(
@@ -1011,7 +1016,7 @@ const renderTravelMission = (result) => {
       id: "flights",
       title: activeLanguage === "ko" ? "항공권" : "Flights",
       label: activeLanguage === "ko" ? "추천" : "Recommended",
-      value: `<span class="recommended-name">${getFlightName(recommendedFlight)}</span><small class="recommended-price">${formatRange(recommendedFlight?.estimatedPrice)}</small>`,
+      value: getFlightName(recommendedFlight),
       reason:
         activeLanguage === "ko"
           ? recommendedFlight?.reasonKo || recommendedFlight?.reason || ""
@@ -1022,7 +1027,6 @@ const renderTravelMission = (result) => {
   );
 
   const hotelOptions = (result.hotels || [])
-    .slice(1)
     .map((hotel) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice)));
 
   missionGrid.appendChild(
@@ -1030,7 +1034,7 @@ const renderTravelMission = (result) => {
       id: "hotel",
       title: activeLanguage === "ko" ? "호텔" : "Hotel",
       label: activeLanguage === "ko" ? "추천" : "Recommended",
-      value: `<span class="recommended-name">${getHotelName(recommendedHotel)}</span><small class="recommended-price">${formatRange(recommendedHotel?.estimatedNightlyPrice)}${activeLanguage === "ko" ? " / 박" : " / night"}</small>`,
+      value: getHotelName(recommendedHotel),
       reason:
         activeLanguage === "ko"
           ? recommendedHotel?.reasonKo || recommendedHotel?.reason || ""
@@ -1210,6 +1214,13 @@ const initializeOptionSelections = () => {
     option.setAttribute("aria-pressed", "true");
     option.classList.remove("is-excluded");
     option.querySelector(".option-key").textContent = "✓";
+  });
+  missionGrid.querySelectorAll(".exclusive-choice-card").forEach((card) => {
+    const detail = card.querySelector(".option-list .selectable-option");
+    if (!detail) return;
+    detail.setAttribute("aria-pressed", "true");
+    detail.classList.remove("is-excluded");
+    detail.querySelector(".option-key").textContent = "✓";
   });
 };
 
