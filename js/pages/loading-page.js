@@ -371,7 +371,7 @@ const runLoadingSequence = async () => {
   body.classList.add("is-transitioning");
 
   window.setTimeout(() => {
-    window.location.href = "results.html?v=20260713-37";
+    window.location.href = "results.html?v=20260713-38";
   }, 360);
 };
 

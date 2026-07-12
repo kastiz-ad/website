@@ -1497,7 +1497,9 @@ const runApprovalSequence = () => {
           buildExecutionSummary();
           completionMessage.hidden = false;
           window.requestAnimationFrame(() => {
-            completionMessage?.scrollIntoView({ behavior: "smooth", block: "start" });
+            const headerHeight = document.querySelector(".results-header")?.getBoundingClientRect().height || 76;
+            const targetTop = window.scrollY + completionMessage.getBoundingClientRect().top - headerHeight - 28;
+            window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
           });
         }, 650);
       }
