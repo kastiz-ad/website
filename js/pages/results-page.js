@@ -782,6 +782,7 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
   const article = document.createElement("article");
   article.className = "mission-card";
   article.dataset.cardId = id;
+  if (editable) article.classList.add("exclusive-choice-card");
 
   if (wide) {
     article.classList.add("is-wide");
@@ -945,6 +946,12 @@ const createVisaVerificationCard = (result) => {
     <button class="prepare-visa-button" id="prepareVisaButton" type="button" disabled>${ko ? "비자 신청 준비" : "Prepare Visa Application"}</button>
     <p class="visa-protection-note">${ko ? "ONE은 신청서를 준비만 합니다. 최종 승인 전에는 제출, 서명 또는 결제가 진행되지 않습니다." : "ONE prepares the application only. Nothing is submitted, signed, or paid until your final approval."}</p>
   `;
+  article.querySelectorAll(".option-list .selectable-option").forEach((option) => {
+    option.setAttribute("aria-pressed", "false");
+    option.classList.add("is-excluded");
+    option.querySelector(".option-key").textContent = "+";
+  });
+
   return article;
 };
 
@@ -1266,6 +1273,8 @@ const applySimulatedModification = (cardId, card, button) => {
 
   button.textContent = t("editing");
 
+  if (["flights", "hotel", "airport-transfer"].includes(cardId)) return;
+
   if (cardId === "flights" && value) {
     value.textContent = activeLanguage === "ko" ? "제주항공" : "Jeju Air";
 
@@ -1351,6 +1360,17 @@ const enableCustomization = () => {
 
     const selectable = event.target.closest(".selectable-option");
     if (selectable) {
+      const card = selectable.closest(".mission-card");
+      const exclusive = card?.classList.contains("exclusive-choice-card") && !card.classList.contains("is-editing");
+      if (exclusive) {
+        card.querySelectorAll(".selectable-option").forEach((option) => {
+          const selected = option === selectable;
+          option.setAttribute("aria-pressed", String(selected));
+          option.classList.toggle("is-excluded", !selected);
+          option.querySelector(".option-key").textContent = selected ? "✓" : "+";
+        });
+        return;
+      }
       const included = selectable.getAttribute("aria-pressed") !== "true";
       selectable.setAttribute("aria-pressed", String(included));
       selectable.classList.toggle("is-excluded", !included);
@@ -1385,11 +1405,12 @@ const enableCustomization = () => {
 
     const picker = card.querySelector("[data-alternatives-for]");
     if (picker && !picker.children.length) {
+      const airlineOptions = ["Korean Air", "Asiana Airlines", "Delta Air Lines", "American Airlines", "United Airlines", "Japan Airlines"];
       const hotelOptions = ["Four Seasons", "Rosewood", "Atlantis", "Lotte", "Shilla", "Le Méridien", "Sofitel", "Hyatt", "InterContinental", "JW Marriott", "Hilton", "APA Hotel"];
       const generalOptions = activeLanguage === "ko"
         ? ["추천 옵션", "예산 중심", "품질 중심", "가까운 위치", "프리미엄"]
         : ["Recommended", "Budget", "Best quality", "Nearest", "Premium"];
-      const options = cardId === "hotel" ? hotelOptions : generalOptions;
+      const options = cardId === "flights" ? airlineOptions : cardId === "hotel" ? hotelOptions : generalOptions;
       picker.innerHTML = options.map((option) => `<button class="alternative-choice" type="button">${option}</button>`).join("");
     }
     applySimulatedModification(cardId, card, button);
