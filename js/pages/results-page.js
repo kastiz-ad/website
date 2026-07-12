@@ -33,9 +33,9 @@ const translations = {
     customize: "Customize",
     makeItReality: "Approve & Proceed",
     withOne: "with ONE",
-    additionalServices: "Additional Services",
+    additionalServices: "Customize Services",
     optional: "Optional",
-    additionalServicesHelp: "Add another destination, flight, tutor subject, language, or any other service.",
+    additionalServicesHelp: "Add or request a new destination, flight, tutor subject, language, or any other service.",
     additionalServicesPlaceholder: "Example: Add a flight to LAX",
     addService: "Add",
     missionApproved: "Mission Approved",
@@ -96,9 +96,9 @@ const translations = {
     customize: "수정하기",
     makeItReality: "승인 후 실행",
     withOne: "ONE과 함께",
-    additionalServices: "추가 서비스",
+    additionalServices: "서비스 맞춤 설정",
     optional: "선택 사항",
-    additionalServicesHelp: "다른 목적지, 항공편, 튜터 과목, 언어 또는 원하는 서비스를 추가하세요.",
+    additionalServicesHelp: "새 목적지, 항공편, 튜터 과목, 언어 또는 원하는 서비스를 추가하거나 요청하세요.",
     additionalServicesPlaceholder: "예: LAX행 항공편 추가",
     addService: "추가",
     missionApproved: "미션 승인 완료",
@@ -742,10 +742,10 @@ const normalizeStoredResult = (stored) => {
 
 const makeOptionRow = (key, value) => {
   return `
-    <div class="option-row">
-      <span class="option-key">${key}</span>
-      <span class="option-value">${value}</span>
-    </div>
+    <button class="option-row selectable-option" type="button" aria-pressed="true">
+      <span class="option-key">✓</span>
+      <span class="option-value"><strong>${key}</strong><span>${value}</span></span>
+    </button>
   `;
 };
 
@@ -795,7 +795,7 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
 
     <div class="recommendation">
       <p class="recommendation-label">${t("recommended")}</p>
-      <p class="recommendation-value">${value}</p>
+      ${editable ? `<button class="selectable-recommendation selectable-option" type="button" aria-pressed="true"><span class="option-key">✓</span><span class="recommendation-value">${value}</span></button>` : `<p class="recommendation-value">${value}</p>`}
     </div>
 
     <p class="recommendation-label">${t("reason")}</p>
@@ -1112,7 +1112,8 @@ const renderGeneralMission = (result) => {
       title: localize(card.title) || card.title || card.id,
       label: activeLanguage === "ko" ? "준비 완료" : "Prepared",
       items: [preparedText, activeLanguage === "ko" ? "수정 및 비교 가능" : "Ready to customize and compare"],
-      wide: false
+      wide: false,
+      editable: result.type !== "legal" && !["visa", "risks"].includes(card.id)
     }));
   });
 

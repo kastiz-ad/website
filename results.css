@@ -126,19 +126,22 @@ a {
 }
 
 .brand {
-  width: 50px;
+  width: auto;
   height: 50px;
-  flex: 0 0 50px;
-  display: block;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1px;
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .brand img {
   display: block;
-  width: 100%;
+  width: 50px;
   height: 100%;
   object-fit: contain;
 }
+.brand span { font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -0.11em; transform: translateY(2px); }
 
 html[data-theme="light"] .brand img {
   filter: invert(1);
@@ -414,6 +417,13 @@ button.option-row .option-key { width: 24px; height: 24px; display: grid; place-
 button.option-row.is-excluded { opacity: .42; }
 button.option-row.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
 button.option-row.is-excluded .option-value { text-decoration: line-through; }
+.option-value { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.option-value strong { font-size: 13px; }
+.selectable-recommendation { width: 100%; min-height: 48px; display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center; gap: 12px; border: 0; border-radius: 15px; padding: 10px 13px; background: var(--chip); color: var(--text); text-align: left; cursor: pointer; }
+.selectable-recommendation .option-key { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
+.selectable-recommendation.is-excluded { opacity: .42; }
+.selectable-recommendation.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
+.selectable-recommendation.is-excluded .recommendation-value { text-decoration: line-through; }
 
 .alternative-picker { display: none; margin: 16px 0 4px; padding: 16px; border-radius: 18px; background: var(--chip); }
 .mission-card.is-editing .alternative-picker { display: block; }
@@ -757,10 +767,12 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
   }
 
   .brand {
-    width: 44px;
+    width: auto;
     height: 44px;
-    flex-basis: 44px;
+    flex-basis: auto;
   }
+  .brand img { width: 44px; }
+  .brand span { font-size: 29px; }
 
   .header-actions {
     gap: 13px;
