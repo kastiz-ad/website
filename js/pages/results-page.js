@@ -1463,6 +1463,9 @@ const runApprovalSequence = () => {
 
           buildExecutionSummary();
           completionMessage.hidden = false;
+          window.requestAnimationFrame(() => {
+            executionSummary?.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
           startReturnCountdown();
         }, 650);
       }
