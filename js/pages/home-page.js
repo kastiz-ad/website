@@ -285,7 +285,9 @@ const countryProfiles = {
   KR: { code: "KR", name: "South Korea", nameKo: "대한민국", currency: "KRW", capital: "Seoul", capitalKo: "서울", latitude: 37.5665, longitude: 126.978 },
   CA: { code: "CA", name: "Canada", nameKo: "캐나다", currency: "CAD", capital: "Ottawa", capitalKo: "오타와", latitude: 45.4215, longitude: -75.6972 },
   US: { code: "US", name: "United States", nameKo: "미국", currency: "USD", capital: "Washington, D.C.", capitalKo: "워싱턴 D.C.", latitude: 38.9072, longitude: -77.0369 },
-  CN: { code: "CN", name: "China", nameKo: "중국", currency: "CNY", capital: "Beijing", capitalKo: "베이징", latitude: 39.9042, longitude: 116.4074 }
+  CN: { code: "CN", name: "China", nameKo: "중국", currency: "CNY", capital: "Beijing", capitalKo: "베이징", latitude: 39.9042, longitude: 116.4074 },
+  ES: { code: "ES", name: "Spain", nameKo: "스페인", currency: "EUR", capital: "Madrid", capitalKo: "마드리드", latitude: 40.4168, longitude: -3.7038 },
+  CO: { code: "CO", name: "Colombia", nameKo: "콜롬비아", currency: "COP", capital: "Bogotá", capitalKo: "보고타", latitude: 4.711, longitude: -74.0721 }
 };
 
 const createProvider = (providerName, category, sourceStatus, liveData, requiresKey, requiresPartnerAccess) => ({
@@ -392,6 +394,9 @@ const travelKeywordMap = {
 };
 
 const destinationPatterns = [
+  { destination: "United States", destinationKo: "미국", city: "New York", cityKo: "뉴욕", latitude: 40.7128, longitude: -74.006, aliases: ["new york", "nyc", "newyork", "뉴욕"] },
+  { destination: "Spain", destinationKo: "스페인", city: "Madrid", cityKo: "마드리드", latitude: 40.4168, longitude: -3.7038, aliases: ["madrid", "spain", "마드리드", "스페인"] },
+  { destination: "Colombia", destinationKo: "콜롬비아", city: "Bogotá", cityKo: "보고타", latitude: 4.711, longitude: -74.0721, aliases: ["colombia", "bogota", "bogotá", "콜롬비아", "보고타"] },
   {
     destination: "Japan",
     destinationKo: "일본",
@@ -631,8 +636,10 @@ const detectCountry = (mission, type) => {
     { code: "JP", keywords: ["japan", "tokyo", "osaka", "kyoto", "일본", "도쿄", "오사카", "교토"] },
     { code: "KR", keywords: ["korea", "seoul", "busan", "incheon", "한국", "서울", "부산", "인천"] },
     { code: "CA", keywords: ["canada", "toronto", "vancouver", "캐나다", "토론토", "밴쿠버"] },
-    { code: "US", keywords: ["america", "usa", "united states", "new york", "미국", "뉴욕"] },
-    { code: "CN", keywords: ["china", "beijing", "shanghai", "중국", "베이징", "상하이"] }
+    { code: "US", keywords: ["america", "usa", "united states", "new york", "nyc", "미국", "뉴욕"] },
+    { code: "CN", keywords: ["china", "beijing", "shanghai", "중국", "베이징", "상하이"] },
+    { code: "ES", keywords: ["spain", "madrid", "스페인", "마드리드"] },
+    { code: "CO", keywords: ["colombia", "bogota", "bogotá", "콜롬비아", "보고타"] }
   ];
 
   const found = matches.find((item) => item.keywords.some((keyword) => text.includes(keyword.toLowerCase())));
@@ -992,7 +999,9 @@ const buildTravelMission = (mission) => {
       country: destination.destination,
       countryKo: destination.destinationKo,
       city: destination.city,
-      cityKo: destination.cityKo
+      cityKo: destination.cityKo,
+      latitude: destination.latitude ?? baseMission.countryProfile?.latitude,
+      longitude: destination.longitude ?? baseMission.countryProfile?.longitude
     },
     durationDays,
     departureCountry,

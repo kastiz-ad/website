@@ -115,6 +115,10 @@ const loadingUi = {
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 const getCoordinates = (mission) => {
+  if (mission?.destination?.latitude && mission?.destination?.longitude) {
+    return { latitude: mission.destination.latitude, longitude: mission.destination.longitude };
+  }
+
   if (mission?.countryProfile?.latitude && mission?.countryProfile?.longitude) {
     return { latitude: mission.countryProfile.latitude, longitude: mission.countryProfile.longitude };
   }

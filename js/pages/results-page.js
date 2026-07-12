@@ -726,7 +726,7 @@ const normalizeStoredResult = (stored) => {
       ko: translations.ko.finalMessage
     };
 
-    return result;
+    return adaptTravelResultToDestination(result);
   }
 
   return {
@@ -963,6 +963,76 @@ const createVisaVerificationCard = (result) => {
 
   return article;
 };
+
+const destinationPrototypeProfiles = {
+  US: {
+    airlines: ["Korean Air", "Delta Air Lines", "Asiana Airlines", "United Airlines"],
+    hotels: ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square"],
+    transfer: "AirTrain + subway or licensed airport transfer"
+  },
+  ES: {
+    airlines: ["Korean Air", "Iberia", "Lufthansa", "Air France"],
+    hotels: ["Hotel Riu Plaza España", "Hyatt Centric Gran Vía Madrid", "NH Collection Madrid", "Room Mate Macarena"],
+    transfer: "Airport Express bus, Metro, or licensed airport transfer"
+  },
+  CO: {
+    airlines: ["Avianca", "LATAM Airlines", "American Airlines", "United Airlines"],
+    hotels: ["Grand Hyatt Bogotá", "Hilton Bogotá", "Sofitel Bogotá Victoria Regia", "GHL Hotel Capital"],
+    transfer: "Authorized airport taxi or pre-arranged airport transfer"
+  },
+  JP: {
+    airlines: ["Korean Air", "Asiana Airlines", "Jeju Air", "Japan Airlines"],
+    hotels: ["Hotel Metropolitan Tokyo Marunouchi", "Hilton Tokyo", "Tokyu Stay Shinjuku", "APA Hotel"],
+    transfer: "Narita Express or Airport Limousine Bus"
+  }
+};
+
+function adaptTravelResultToDestination(result) {
+  const code = result.country || result.countryProfile?.code || result.destination?.code;
+  const profile = destinationPrototypeProfiles[code];
+  if (!profile) return result;
+
+  const city = result.destination?.city || result.countryProfile?.capital || "the destination";
+  const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
+  const flights = profile.airlines.map((provider, index) => ({
+    ...(result.flights?.[index] || result.flights?.[0] || {}),
+    id: `flight-${code.toLowerCase()}-${index + 1}`,
+    provider,
+    providerKo: provider,
+    category: index === 0 ? "recommended" : "alternative",
+    reason: index === 0 ? `Recommended prototype option for routes to ${city}.` : `Alternative prototype option for routes to ${city}.`,
+    reasonKo: index === 0 ? `${cityKo} 노선의 프로토타입 추천 옵션입니다.` : `${cityKo} 노선의 프로토타입 대안입니다.`
+  }));
+  const hotels = profile.hotels.map((name, index) => ({
+    ...(result.hotels?.[index] || result.hotels?.[0] || {}),
+    id: `hotel-${code.toLowerCase()}-${index + 1}`,
+    name,
+    nameKo: name,
+    category: index === 0 ? "recommended" : index === 1 ? "premium" : index === 2 ? "value" : "budget",
+    reason: `Prototype accommodation option in ${city}; verify live price and availability before approval.`,
+    reasonKo: `${cityKo}의 프로토타입 숙소 옵션이며 승인 전 실제 가격과 예약 가능 여부를 확인합니다.`
+  }));
+
+  return {
+    ...result,
+    flights,
+    hotels,
+    airportTransfer: {
+      ...result.airportTransfer,
+      recommended: { en: profile.transfer, ko: profile.transfer },
+      reason: {
+        en: `Prototype transfer recommendation for arrival in ${city}.`,
+        ko: `${cityKo} 도착 기준 프로토타입 이동 추천입니다.`
+      },
+      options: [
+        { en: profile.transfer, ko: profile.transfer },
+        { en: "Pre-arranged private transfer", ko: "사전 예약 전용 차량" },
+        { en: "Official airport public transport", ko: "공식 공항 대중교통" }
+      ]
+    },
+    exchangeRate: { ...result.exchangeRate, to: result.countryProfile?.currency || result.exchangeRate?.to }
+  };
+}
 
 const createExchangeBudgetCard = (result) => {
   const provider = findLiveProvider(result, "currency");
