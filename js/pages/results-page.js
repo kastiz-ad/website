@@ -74,7 +74,8 @@ const translations = {
     weather: "Weather",
     exchangeRate: "Exchange Rate",
     visa: "Visa",
-    apiPlaceholder: "Prepared as API-ready placeholder",
+    apiPlaceholder: "Prototype estimate",
+    prototypeDisclosure: "Prototype · Live public data + estimated travel options",
     approvalProtectionTitle: "Approval Protection",
     approvalProtection:
       "Nothing will be booked, purchased, reserved, signed, or legally committed until you explicitly approve.",
@@ -137,7 +138,8 @@ const translations = {
     weather: "날씨",
     exchangeRate: "환율",
     visa: "비자",
-    apiPlaceholder: "API 연결 준비용 placeholder",
+    apiPlaceholder: "프로토타입 예상 정보",
+    prototypeDisclosure: "프로토타입 · 공개 실시간 데이터 + 여행 예상 정보",
     approvalProtectionTitle: "승인 보호",
     approvalProtection:
       "사용자가 명확히 승인하기 전까지 예약, 구매, 결제, 서명, 법적 약속은 절대 진행되지 않습니다.",

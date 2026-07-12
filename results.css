@@ -143,6 +143,20 @@ a {
 }
 .brand span { margin-left: -10px; font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -0.11em; transform: translateY(2px); }
 
+.prototype-disclosure {
+  display: inline-flex;
+  align-items: center;
+  margin: 12px 0 0;
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  background: var(--chip);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
 html[data-theme="light"] .brand img {
   filter: invert(1);
 }

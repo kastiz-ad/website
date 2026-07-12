@@ -69,6 +69,10 @@ const fallbackProvider = (provider, category, message, error = null) => ({
   error
 });
 
+const prototypeNotice = (language) => language === "ko"
+  ? "프로토타입 예상 정보입니다. 실제 가격과 이용 가능 여부는 승인 전 다시 확인됩니다."
+  : "Prototype estimate. Price and availability are checked again before approval.";
+
 const getStoredMission = () => {
   try {
     return JSON.parse(sessionStorage.getItem(STORAGE_KEYS.mission));
@@ -264,9 +268,7 @@ const buildPrototypeProviderResults = (mission) => {
       requiresPartnerAccess: provider.requiresPartnerAccess,
       items: [{
         label: provider.category,
-        value: mission.language === "ko"
-          ? "파트너 접근 권한이 필요한 프로토타입 어댑터입니다. 실제 실행은 하지 않습니다."
-          : "Prototype adapter requiring partner access. No real execution is performed."
+        value: prototypeNotice(mission.language)
       }],
       error: null
     }));
