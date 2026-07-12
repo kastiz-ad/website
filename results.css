@@ -228,12 +228,12 @@ html[data-theme="light"] .brand img {
 
 .mission-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
 .mission-card {
-  grid-column: span 4;
+  grid-column: 1 / -1 !important;
   min-height: 218px;
   padding: 24px;
   border: 1px solid var(--border);
@@ -248,7 +248,7 @@ html[data-theme="light"] .brand img {
 }
 
 .mission-card.is-wide {
-  grid-column: span 6;
+  grid-column: 1 / -1;
 }
 
 .mission-card.is-full {
@@ -332,6 +332,19 @@ html[data-theme="light"] .brand img {
   border-radius: 15px;
   background: var(--chip);
 }
+
+button.option-row { width: 100%; border: 0; font: inherit; text-align: left; cursor: pointer; }
+button.option-row .option-key { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); }
+button.option-row.is-excluded { opacity: .42; }
+button.option-row.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
+button.option-row.is-excluded .option-value { text-decoration: line-through; }
+
+.alternative-picker { display: none; margin: 16px 0 4px; padding: 16px; border-radius: 18px; background: var(--chip); }
+.mission-card.is-editing .alternative-picker { display: block; }
+.alternative-picker-title { margin: 0 0 12px; font-size: 13px; font-weight: 750; color: var(--text-muted); }
+.alternative-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.alternative-choice { border: 1px solid var(--border); border-radius: 999px; padding: 9px 12px; background: var(--surface); color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
+.alternative-choice.is-selected { background: var(--accent); color: var(--accent-text); }
 
 .option-key {
   color: var(--text-soft);
@@ -428,6 +441,9 @@ html[data-theme="light"] .brand img {
   opacity: 0.72;
   letter-spacing: -0.01em;
 }
+.primary-action small { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.primary-action small img { width: 17px; height: 17px; object-fit: contain; }
+html[data-theme="light"] .primary-action small img { filter: invert(1); }
 
 .primary-action:hover,
 .secondary-action:hover {

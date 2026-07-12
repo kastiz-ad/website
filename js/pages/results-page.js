@@ -3,7 +3,6 @@ const missionTitle = document.getElementById("missionTitle");
 const missionGrid = document.getElementById("missionGrid");
 const bottomActions = document.getElementById("bottomActions");
 const makeRealityButton = document.getElementById("makeRealityButton");
-const customizeButton = document.getElementById("customizeButton");
 const approvalPanel = document.getElementById("approvalPanel");
 const approvalList = document.getElementById("approvalList");
 const completionMessage = document.getElementById("completionMessage");
@@ -29,7 +28,7 @@ const translations = {
     missionReady: "Mission Ready",
     preparedByOne: "Prepared by ONE",
     customize: "Customize",
-    makeItReality: "Make It Reality",
+    makeItReality: "Approve & Proceed",
     withOne: "with ONE",
     missionApproved: "Mission Approved",
     oneIsWorking: "ONE is making it happen.",
@@ -87,7 +86,7 @@ const translations = {
     missionReady: "미션 준비 완료",
     preparedByOne: "ONE이 준비했습니다",
     customize: "수정하기",
-    makeItReality: "현실로 만들기",
+    makeItReality: "승인 후 실행",
     withOne: "ONE과 함께",
     missionApproved: "미션 승인 완료",
     oneIsWorking: "ONE이 실행하고 있습니다.",
@@ -791,6 +790,13 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
 
     ${makeOptionList(options)}
 
+    ${editable ? `
+      <div class="alternative-picker">
+        <p class="alternative-picker-title">${activeLanguage === "ko" ? "포함할 옵션을 선택하세요" : "Choose options to include"}</p>
+        <div class="alternative-options" data-alternatives-for="${id}"></div>
+      </div>
+    ` : ""}
+
     ${
       editable
         ? `
@@ -821,8 +827,19 @@ const createListCard = ({ id, title, label, items, wide = false, editable = true
     </div>
 
     <div class="option-list">
-      ${items.map((item) => makeOptionRow("✓", item)).join("")}
+      ${items.map((item, index) => `
+        <button class="option-row selectable-option" type="button" data-option-index="${index}" aria-pressed="true">
+          <span class="option-key">✓</span><span class="option-value">${item}</span>
+        </button>
+      `).join("")}
     </div>
+
+    ${editable ? `
+      <div class="alternative-picker">
+        <p class="alternative-picker-title">${activeLanguage === "ko" ? "포함할 옵션을 선택하세요" : "Choose options to include"}</p>
+        <div class="alternative-options" data-alternatives-for="${id}"></div>
+      </div>
+    ` : ""}
 
     ${
       editable
@@ -1156,7 +1173,6 @@ const runApprovalSequence = () => {
   const items = [...approvalList.querySelectorAll(".approval-item")];
 
   makeRealityButton.disabled = true;
-  customizeButton.disabled = true;
   bottomActions.hidden = true;
   approvalPanel.hidden = false;
   approvalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1269,6 +1285,31 @@ const applySimulatedModification = (cardId, card, button) => {
 
 const enableCustomization = () => {
   document.addEventListener("click", (event) => {
+    const selectable = event.target.closest(".selectable-option");
+    if (selectable) {
+      const included = selectable.getAttribute("aria-pressed") !== "true";
+      selectable.setAttribute("aria-pressed", String(included));
+      selectable.classList.toggle("is-excluded", !included);
+      selectable.querySelector(".option-key").textContent = included ? "✓" : "+";
+      return;
+    }
+
+    const alternative = event.target.closest(".alternative-choice");
+    if (alternative) {
+      alternative.classList.toggle("is-selected");
+      const card = alternative.closest(".mission-card");
+      const list = card?.querySelector(".option-list");
+      const optionName = alternative.textContent.trim();
+      const existing = [...(list?.querySelectorAll(".selectable-option") || [])]
+        .find((row) => row.querySelector(".option-value")?.textContent.trim() === optionName);
+      if (alternative.classList.contains("is-selected") && list && !existing) {
+        list.insertAdjacentHTML("beforeend", `<button class="option-row selectable-option" type="button" aria-pressed="true"><span class="option-key">✓</span><span class="option-value">${optionName}</span></button>`);
+      } else if (!alternative.classList.contains("is-selected")) {
+        existing?.remove();
+      }
+      return;
+    }
+
     const button = event.target.closest(".modify-button");
 
     if (!button) return;
@@ -1278,14 +1319,16 @@ const enableCustomization = () => {
 
     if (!card || !cardId) return;
 
+    const picker = card.querySelector("[data-alternatives-for]");
+    if (picker && !picker.children.length) {
+      const hotelOptions = ["Four Seasons", "Rosewood", "Atlantis", "Lotte", "Shilla", "Le Méridien", "Sofitel", "Hyatt", "InterContinental", "JW Marriott", "Hilton", "APA Hotel"];
+      const generalOptions = activeLanguage === "ko"
+        ? ["추천 옵션", "예산 중심", "품질 중심", "가까운 위치", "프리미엄"]
+        : ["Recommended", "Budget", "Best quality", "Nearest", "Premium"];
+      const options = cardId === "hotel" ? hotelOptions : generalOptions;
+      picker.innerHTML = options.map((option) => `<button class="alternative-choice" type="button">${option}</button>`).join("");
+    }
     applySimulatedModification(cardId, card, button);
-  });
-
-  customizeButton.addEventListener("click", () => {
-    document.querySelector(".mission-card")?.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
   });
 };
 
