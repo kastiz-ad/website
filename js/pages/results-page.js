@@ -182,8 +182,6 @@ const countryNamesByRegion = {
 };
 
 let activeLanguage = "en";
-let returnTimer = null;
-let remainingSeconds = 60;
 let currentResult = null;
 
 const getLanguage = () => {
@@ -1412,8 +1410,6 @@ const renderApprovalList = () => {
 };
 
 const startReturnCountdown = () => {
-  window.clearInterval(returnTimer);
-  returnTimer = null;
   returnCountdown.textContent = activeLanguage === "ko"
     ? "이 요약은 페이지를 새로고침하거나 닫을 때까지 유지됩니다."
     : "This summary remains open until you reload or close this page.";
@@ -1456,15 +1452,22 @@ const buildExecutionSummary = () => {
     ? (ko ? `출국 ${schedule.startDate} · 귀국 ${schedule.endDate}` : `Outbound ${schedule.startDate} · Return ${schedule.endDate}`)
     : dateRange;
   const reference = `ONE-DEMO-${String(currentResult.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
+  const restaurantRows = restaurants.length
+    ? restaurants.map((restaurant, index) => [
+        ko ? `레스토랑 ${index + 1}` : `Restaurant ${index + 1}`,
+        restaurant,
+        ko ? "가격 및 예약 가능 여부 최종 확인 필요" : "Final price and availability verification required"
+      ])
+    : [[ko ? "레스토랑" : "Restaurants", ko ? "선택 없음" : "None selected", ko ? "선택된 레스토랑이 없습니다" : "No restaurants selected"]];
   const rows = [
     [ko ? "항공편" : "Flight", `${flight ? getFlightName(flight) : "—"} · ${tripTypeLabel} · ${flightNumbers}`, `${flightDates} · ${timeLabels[schedule.timePreference] || timeLabels.any} · ${formatRange(flight?.estimatedPrice)}`],
     [ko ? "호텔" : "Hotel", hotel ? getHotelName(hotel) : "—", `${dateRange} · ${formatRange(hotel?.estimatedNightlyPrice)} / ${ko ? "1박" : "night"}`],
     [ko ? "공항 이동" : "Airport transfer", localize(transfer), ko ? "선택한 이동 옵션 준비 완료" : "Selected transfer option prepared"],
     [ko ? "여행 일정" : "Schedule", dateRange, timeLabels[schedule.timePreference] || timeLabels.any],
-    [ko ? "레스토랑" : "Restaurants", restaurants.length ? restaurants.join(" · ") : (ko ? "선택 없음" : "None selected"), ko ? "가격 및 예약 가능 여부 최종 확인 필요" : "Final price and availability verification required"],
+    ...restaurantRows,
     [ko ? "프로토타입 참조 번호" : "Prototype reference", reference, ko ? "실제 예약 번호가 아닙니다" : "This is not a real booking number"]
   ];
-  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(([label, value, detail], index) => `<div class="execution-summary-item${index === 4 ? " is-wide" : ""}"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span><span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`).join("")}</div><div class="all-in-slogan"><span>ALL in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-circle-mark-graffiti.png?v=20260713-17" alt=""><strong>NE</strong></span></div>`;
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(([label, value, detail]) => `<div class="execution-summary-item"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span><span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`).join("")}</div><div class="all-in-slogan"><span>ALL in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-circle-mark-graffiti.png?v=20260713-17" alt=""><strong>NE</strong></span></div>`;
 };
 
 const runApprovalSequence = () => {
