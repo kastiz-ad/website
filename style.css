@@ -1255,9 +1255,6 @@ html[data-theme="light"] .one-symbol {
 }
 
 @media (max-width: 640px) {
-  #themeControlText { font-size: 0; }
-  #themeControlText::after { content: "Theme"; font-size: 16px; }
-  html[lang="ko"] #themeControlText::after { content: "테마"; }
   .header-brand-mark {
     width: 34px;
     height: 34px;

@@ -441,7 +441,7 @@ const updateThemeControls = () => {
   const themeLabels = getTranslation("themes");
   const currentTheme = root.getAttribute("data-theme") || "light";
 
-  themeControlText.textContent = themeLabels[currentTheme] || themeLabels.light;
+  themeControlText.textContent = activeLanguage === "ko" ? "테마" : "Theme";
 
   document.querySelectorAll("[data-theme-option]").forEach((button) => {
     const value = button.getAttribute("data-theme-option");
