@@ -1436,13 +1436,6 @@ html[data-theme="light"] .one-symbol {
     touch-action: pan-y !important;
   }
 
-  .app-shell {
-    position: relative !important;
-    inset: auto !important;
-    height: auto !important;
-    min-height: 100dvh !important;
-  }
-
   html,
   body {
     -webkit-text-size-adjust: 100% !important;
