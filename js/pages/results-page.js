@@ -745,8 +745,10 @@ const normalizeStoredResult = (stored) => {
 
 const makeOptionRow = (key, value, details = {}) => {
   const reason = encodeURIComponent(details.reason || "");
+  const label = encodeURIComponent(details.label || key || "");
+  const index = Number.isInteger(details.index) ? details.index : -1;
   return `
-    <button class="option-row selectable-option" type="button" aria-pressed="true" data-option-reason="${reason}">
+    <button class="option-row selectable-option" type="button" aria-pressed="true" data-option-index="${index}" data-option-label="${label}" data-option-reason="${reason}">
       <span class="option-key">✓</span>
       <span class="option-value"><strong>${key}</strong><span>${value}</span></span>
     </button>
@@ -1121,8 +1123,8 @@ const renderTravelMission = (result) => {
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
 
   const flightOptions = (result.flights || [])
-    .map((flight) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice), {
-      reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason
+    .map((flight, index) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice), {
+      index, label: getFlightName(flight), reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason
     }));
 
   missionGrid.appendChild(
@@ -1141,8 +1143,8 @@ const renderTravelMission = (result) => {
   );
 
   const hotelOptions = (result.hotels || [])
-    .map((hotel) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice), {
-      reason: activeLanguage === "ko" ? hotel.reasonKo || hotel.reason : hotel.reason
+    .map((hotel, index) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice), {
+      index, label: getHotelName(hotel), reason: activeLanguage === "ko" ? hotel.reasonKo || hotel.reason : hotel.reason
     }));
 
   missionGrid.appendChild(
@@ -1167,7 +1169,13 @@ const renderTravelMission = (result) => {
       label: activeLanguage === "ko" ? "추천" : "Recommended",
       value: localize(transfer?.recommended),
       reason: localize(transfer?.reason),
-      options: [...(transfer?.options || []), { en: "Keisei Skyliner", ko: "게이세이 스카이라이너" }].map((option) => makeOptionRow("•", localize(option))),
+      options: (transfer?.options || []).map((option, index) => {
+        const reasons = activeLanguage === "ko"
+          ? [localize(transfer?.reason), "수하물 이동과 편안함을 우선하는 가장 편리한 옵션입니다.", "공식 대중교통으로 비용을 줄이려는 여행자에게 적합한 예산형 옵션입니다."]
+          : [localize(transfer?.reason), "Best comfort option when luggage handling and convenience matter most.", "Best budget option for travelers comfortable using official public transport."];
+        const types = activeLanguage === "ko" ? ["균형형", "편의 중심", "예산 중심"] : ["Balanced", "Best comfort", "Best budget"];
+        return makeOptionRow(localize(option), types[index] || types[0], { index, label: localize(option), reason: reasons[index] || reasons[0] });
+      }),
       editable: true
     })
   );
@@ -1202,7 +1210,7 @@ const renderTravelMission = (result) => {
     createListCard({
       id: "restaurants",
       title: activeLanguage === "ko" ? "레스토랑" : "Restaurants",
-      label: activeLanguage === "ko" ? "큐레이션" : "Curated",
+      label: activeLanguage === "ko" ? "프로토타입 가격" : "Prototype prices",
       items: restaurants.map((restaurant) => {
         const restaurantPrices = [
           { currency: "KRW", min: 25000, max: 65000 },
@@ -1212,7 +1220,7 @@ const renderTravelMission = (result) => {
           { currency: "KRW", min: 8000, max: 22000 }
         ];
         const price = formatRange(restaurant.estimatedPrice || restaurantPrices[restaurants.indexOf(restaurant)] || restaurantPrices[0]);
-        return `<strong>${getRestaurantName(restaurant)}</strong> — ${getRestaurantRecommendation(restaurant)} <small class="restaurant-price">${activeLanguage === "ko" ? "1인 예상" : "Approx. per person"}: ${price}</small>`;
+        return `<strong>${getRestaurantName(restaurant)}</strong> — ${getRestaurantRecommendation(restaurant)} <small class="restaurant-price">${activeLanguage === "ko" ? "프로토타입 1인 예상 가격" : "Prototype estimate per person"}: ${price}</small>`;
       }),
       wide: true,
       editable: true
@@ -1543,16 +1551,24 @@ const enableCustomization = () => {
           option.querySelector(".option-key").textContent = selected ? "✓" : "+";
         });
         const chosen = choosingRecommended ? recommendedDetail : selectable;
-        const chosenName = chosen?.querySelector(".option-value strong")?.textContent;
+        const optionIndex = Number(chosen?.dataset.optionIndex || 0);
+        const chosenName = chosen?.dataset.optionLabel ? decodeURIComponent(chosen.dataset.optionLabel) : chosen?.querySelector(".option-value strong")?.textContent;
         const chosenPrice = chosen?.querySelector(".option-value > span")?.textContent;
         const recommendationValue = recommendation?.querySelector(".recommendation-value");
         if (recommendationValue && chosenName) {
           const suffix = card.dataset.cardId === "hotel" && chosenPrice
             ? `${chosenPrice} / ${activeLanguage === "ko" ? "1박" : "night"}`
-            : chosenPrice || "";
+            : card.dataset.cardId === "airport-transfer" ? "" : chosenPrice || "";
           recommendationValue.innerHTML = `<span class="recommended-name">${chosenName}</span><span class="recommended-price">${suffix}</span>`;
         }
-        const selectedReason = chosen?.dataset.optionReason;
+        let selectedReason = chosen?.dataset.optionReason;
+        if (card.dataset.cardId === "flights") {
+          const selected = currentResult?.flights?.[optionIndex];
+          selectedReason = encodeURIComponent(activeLanguage === "ko" ? selected?.reasonKo || selected?.reason || "" : selected?.reason || "");
+        } else if (card.dataset.cardId === "hotel") {
+          const selected = currentResult?.hotels?.[optionIndex];
+          selectedReason = encodeURIComponent(activeLanguage === "ko" ? selected?.reasonKo || selected?.reason || "" : selected?.reason || "");
+        }
         const reasonElement = card.querySelector(".reason");
         if (reasonElement && selectedReason) reasonElement.textContent = decodeURIComponent(selectedReason);
         return;

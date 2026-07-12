@@ -444,7 +444,7 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .selectable-option:not(.is-excluded) .option-value strong { font-size: 17px; font-weight: 800; }
 .selectable-option.is-excluded .option-value strong { font-size: 13px; font-weight: 550; }
 .mission-card[data-card-id="restaurants"] .selectable-option:not(.is-excluded) .option-value { font-size: 17px; font-weight: 700; }
-.restaurant-price { display: block; margin-top: 4px; color: var(--text-muted); font-size: 11px; font-weight: 550; line-height: 1.35; }
+.restaurant-price { display: block; margin-top: 5px; color: var(--text-muted); font-size: 11px; font-weight: 650; line-height: 1.35; }
 .selectable-recommendation { position: relative; width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 15px; padding: 10px 45px; background: var(--chip); color: var(--text); text-align: center; cursor: pointer; }
 .selectable-recommendation .option-key { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
 .selectable-recommendation.is-excluded { opacity: .42; }
