@@ -1186,22 +1186,22 @@ html[data-theme="light"] .one-symbol {
 }
 
 @keyframes oneLetterNSequence {
-  0% { opacity: 0; }
-  6.94% { opacity: 1; }
+  0%, 2.78% { opacity: 0; }
+  9.72% { opacity: 1; }
   94.44% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @keyframes oneLetterESequence {
-  0%, 6.94% { opacity: 0; }
-  11.11% { opacity: 1; }
+  0%, 9.72% { opacity: 0; }
+  13.89% { opacity: 1; }
   94.44% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @keyframes oneLetterEPhoneSequence {
-  0%, 6.94% { opacity: 0; }
-  9.72% { opacity: 1; }
+  0%, 9.72% { opacity: 0; }
+  12.5% { opacity: 1; }
   94.44% { opacity: 1; }
   100% { opacity: 0; }
 }
@@ -1250,6 +1250,10 @@ html[data-theme="light"] .one-symbol {
 /* Compact two-row footer only on phones; desktop and tablet layout is untouched. */
 @media (max-width: 640px) {
   .site-footer {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     display: grid !important;
     grid-template-columns: max-content max-content !important;
     grid-template-areas: "powered powered" "footer-left footer-right" !important;
@@ -1369,6 +1373,11 @@ html[data-theme="light"] .one-symbol {
     font-size: 9px !important;
   }
 
+  html[lang="ko"] .site-footer {
+    column-gap: 12px !important;
+    font-size: 10px !important;
+  }
+
   .footer-center {
     grid-area: powered !important;
     width: 100% !important;
@@ -1392,6 +1401,11 @@ html[data-theme="light"] .one-symbol {
     flex-wrap: nowrap !important;
     gap: 8px !important;
     white-space: nowrap !important;
+  }
+
+  html[lang="ko"] .footer-left,
+  html[lang="ko"] .footer-right {
+    gap: 12px !important;
   }
 }
 
