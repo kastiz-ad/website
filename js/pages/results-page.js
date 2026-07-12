@@ -7,7 +7,6 @@ const approvalPanel = document.getElementById("approvalPanel");
 const executionSummary = document.getElementById("executionSummary");
 const approvalList = document.getElementById("approvalList");
 const completionMessage = document.getElementById("completionMessage");
-const returnCountdown = document.getElementById("returnCountdown");
 const returnHomeButton = document.getElementById("returnHomeButton");
 const locationText = document.getElementById("locationText");
 const additionalServiceInput = document.getElementById("additionalServiceInput");
@@ -1409,12 +1408,6 @@ const renderApprovalList = () => {
     .join("");
 };
 
-const startReturnCountdown = () => {
-  returnCountdown.textContent = activeLanguage === "ko"
-    ? "이 요약은 페이지를 새로고침하거나 닫을 때까지 유지됩니다."
-    : "This summary remains open until you reload or close this page.";
-};
-
 const returnHome = () => {
   document.body.classList.add("is-leaving");
 
@@ -1496,7 +1489,6 @@ const runApprovalSequence = () => {
           window.requestAnimationFrame(() => {
             executionSummary?.scrollIntoView({ behavior: "smooth", block: "start" });
           });
-          startReturnCountdown();
         }, 650);
       }
     }, index * 760);
