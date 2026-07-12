@@ -926,6 +926,28 @@ const createApprovalCard = (result) => {
   });
 };
 
+const createVisaVerificationCard = (result) => {
+  const article = document.createElement("article");
+  article.className = "mission-card is-full visa-verification-card";
+  article.dataset.cardId = "visa";
+  const ko = activeLanguage === "ko";
+  article.innerHTML = `
+    <div class="card-top"><h2 class="card-title">${ko ? "비자 확인" : "Visa Verification"}</h2><span class="card-label">${ko ? "필수 확인" : "Required"}</span></div>
+    <p class="reason">${localize(result.visa?.message)}</p>
+    <div class="visa-upload-grid">
+      <button class="document-upload-button" type="button" data-document-type="passport">${ko ? "여권 이미지 추가" : "Add Passport Image"}</button>
+      <button class="document-upload-button" type="button" data-document-type="visa">${ko ? "비자 이미지 추가" : "Add Visa Image"}</button>
+      <input id="passportUploadInput" type="file" accept="image/*,application/pdf" hidden />
+      <input id="visaUploadInput" type="file" accept="image/*,application/pdf" hidden />
+    </div>
+    <div class="document-status" id="visaDocumentStatus" aria-live="polite"></div>
+    <label class="personal-data-consent"><input id="personalDataConsent" type="checkbox" /><span>${ko ? "비자 신청서 준비를 위해 승인한 개인정보와 업로드한 문서를 ONE이 사용하도록 허용합니다." : "I allow ONE to use the personal details and documents I approve to prepare my visa application."}</span></label>
+    <button class="prepare-visa-button" id="prepareVisaButton" type="button" disabled>${ko ? "비자 신청 준비" : "Prepare Visa Application"}</button>
+    <p class="visa-protection-note">${ko ? "ONE은 신청서를 준비만 합니다. 최종 승인 전에는 제출, 서명 또는 결제가 진행되지 않습니다." : "ONE prepares the application only. Nothing is submitted, signed, or paid until your final approval."}</p>
+  `;
+  return article;
+};
+
 const renderTravelMission = (result) => {
   const recommendedFlight = result.flights?.[0];
   const recommendedHotel = result.hotels?.[0];
@@ -999,7 +1021,7 @@ const renderTravelMission = (result) => {
 
   missionGrid.appendChild(
     createMissionCard({
-      id: "visa",
+      id: "visa-legacy",
       title: t("visa"),
       label: t("verifyVisa"),
       value: activeLanguage === "ko" ? "실행 전 확인 필요" : "Verification required",
@@ -1008,6 +1030,9 @@ const renderTravelMission = (result) => {
       editable: false
     })
   );
+
+  missionGrid.querySelector('[data-card-id="visa-legacy"]')?.remove();
+  missionGrid.appendChild(createVisaVerificationCard(result));
 
   missionGrid.appendChild(
     createListCard({
@@ -1375,6 +1400,39 @@ additionalServiceInput?.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     event.preventDefault();
     addAdditionalService();
+  }
+});
+
+document.addEventListener("click", (event) => {
+  const uploadButton = event.target.closest(".document-upload-button");
+  if (uploadButton) {
+    const type = uploadButton.dataset.documentType;
+    document.getElementById(type === "passport" ? "passportUploadInput" : "visaUploadInput")?.click();
+  }
+
+  if (event.target.closest("#prepareVisaButton")) {
+    const status = document.getElementById("visaDocumentStatus");
+    if (status) status.textContent = activeLanguage === "ko"
+      ? "비자 신청 준비 항목이 최종 승인 목록에 추가되었습니다. 아직 제출되지 않았습니다."
+      : "Visa application preparation was added to final approval. Nothing has been submitted.";
+  }
+});
+
+document.addEventListener("change", (event) => {
+  const input = event.target;
+  if (input.id === "passportUploadInput" || input.id === "visaUploadInput") {
+    const type = input.id === "passportUploadInput" ? "passport" : "visa";
+    const button = document.querySelector(`[data-document-type="${type}"]`);
+    button?.classList.toggle("has-file", Boolean(input.files?.length));
+    const status = document.getElementById("visaDocumentStatus");
+    if (status && input.files?.length) status.textContent = activeLanguage === "ko"
+      ? `${type === "passport" ? "여권" : "비자"} 문서가 이 세션에 추가되었습니다.`
+      : `${type === "passport" ? "Passport" : "Visa"} document added for this session.`;
+  }
+
+  if (input.id === "personalDataConsent") {
+    const prepareButton = document.getElementById("prepareVisaButton");
+    if (prepareButton) prepareButton.disabled = !input.checked;
   }
 });
 

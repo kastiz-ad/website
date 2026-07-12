@@ -343,6 +343,16 @@ html[data-theme="light"] .brand img {
 .additional-service-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 16px; }
 .additional-service-entry input { min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; }
 .additional-service-entry button { padding: 0 20px; border: 0; border-radius: 16px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 750; cursor: pointer; }
+.visa-upload-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.document-upload-button, .prepare-visa-button { min-height: 48px; padding: 10px 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; font-weight: 750; cursor: pointer; }
+.document-upload-button.has-file { border-color: var(--success); }
+.document-status { min-height: 22px; margin: 12px 0; color: var(--text-muted); font-size: 13px; }
+.personal-data-consent { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0; color: var(--text-muted); font-size: 13px; line-height: 1.45; cursor: pointer; }
+.personal-data-consent input { margin-top: 3px; accent-color: var(--accent); }
+.prepare-visa-button { width: 100%; background: var(--accent); color: var(--accent-text); }
+.prepare-visa-button:disabled { opacity: .42; cursor: not-allowed; }
+.visa-protection-note { margin: 12px 0 0; color: var(--text-soft); font-size: 12px; line-height: 1.45; }
+@media (max-width: 560px) { .visa-upload-grid { grid-template-columns: 1fr; } }
 
 button.option-row { width: 100%; border: 0; font: inherit; text-align: left; cursor: pointer; }
 button.option-row .option-key { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); }
