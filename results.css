@@ -993,10 +993,13 @@ html[data-theme="light"] .all-in-one img { filter: invert(1); }
 @media (min-width: 761px) {
   .mission-card .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(var(--option-rows, 1), auto); grid-auto-flow: column; }
   .mission-card.is-locked-card .option-list { grid-template-columns: minmax(0, 1fr); }
-  .mission-card[data-card-id="weather"] .option-list,
+  .mission-card[data-card-id="weather"] .option-list { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
   .mission-card[data-card-id="exchange-rate"] .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mission-card .option-row { min-width: 0; }
 }
+
+.mission-card[data-card-id="weather"] .option-row { width: 100%; }
+.mission-card[data-card-id="weather"] .option-value { padding: 0 34px; line-height: 1.45; text-align: center; }
 
 @media (max-width: 760px) {
   .mission-card .option-list { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
