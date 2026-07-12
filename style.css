@@ -1166,6 +1166,7 @@ html[data-theme="light"] .one-symbol {
 }
 
 .one-letter {
+  opacity: 0;
   font-size: 1.06em;
   transform: translateY(7px);
   animation-duration: 36s;
@@ -1174,12 +1175,12 @@ html[data-theme="light"] .one-symbol {
   animation-timing-function: ease-in-out;
 }
 
-.one-letter-n {
+.one-logo-text.is-animating .one-letter-n {
   animation-name: oneLetterNSequence;
   animation-delay: 0s;
 }
 
-.one-letter-e {
+.one-logo-text.is-animating .one-letter-e {
   animation-name: oneLetterESequence;
   animation-delay: 0s;
 }
@@ -1241,7 +1242,7 @@ html[data-theme="light"] .one-symbol {
     margin-top: 26px;
   }
 
-  .one-letter-e {
+  .one-logo-text.is-animating .one-letter-e {
     animation-name: oneLetterEPhoneSequence;
   }
 }
@@ -1345,8 +1346,14 @@ html[data-theme="light"] .one-symbol {
     margin-top: 9px;
   }
 
-  .one-letter-e {
+  .one-logo-text.is-animating .one-letter-e {
     animation-name: oneLetterEPhoneSequence;
+  }
+
+  .search-language .nav-dropdown-menu {
+    top: 50% !important;
+    left: calc(100% + 12px) !important;
+    transform: translateY(-50%) !important;
   }
 
   .site-footer {
@@ -1400,5 +1407,25 @@ html[data-theme="light"] .one-symbol {
 @media (max-width: 640px) {
   .ai-pill {
     margin-right: 5px;
+  }
+}
+
+/* Preserve native phone pull-to-refresh and vertical touch overscroll. */
+@media (max-width: 950px) {
+  html,
+  body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+    touch-action: pan-y !important;
+  }
+
+  .app-shell {
+    position: relative !important;
+    inset: auto !important;
+    height: auto !important;
+    min-height: 100dvh !important;
   }
 }

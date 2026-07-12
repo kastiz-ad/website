@@ -16,6 +16,7 @@ const imageUploadButton = document.getElementById("imageUploadButton");
 const imageUploadInput = document.getElementById("imageUploadInput");
 const aiModeButton = document.getElementById("aiModeButton");
 const missionToolStatus = document.getElementById("missionToolStatus");
+const oneLogoText = document.querySelector(".one-logo-text");
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -1509,8 +1510,16 @@ missionForm.addEventListener("submit", (event) => {
   startMission(missionInput.value);
 });
 
+const restartOneAnimation = () => {
+  if (!oneLogoText) return;
+  oneLogoText.classList.remove("is-animating");
+  void oneLogoText.offsetWidth;
+  window.requestAnimationFrame(() => oneLogoText.classList.add("is-animating"));
+};
+
 window.addEventListener("pageshow", () => {
   body.classList.remove("is-transitioning");
+  restartOneAnimation();
 });
 
 window.KastizONE = {
