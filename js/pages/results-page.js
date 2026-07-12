@@ -1091,11 +1091,21 @@ const createScheduleCard = (result) => {
   const timeLabels = activeLanguage === "ko"
     ? { any: "시간 무관", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" }
     : { any: "Any time / No preference", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
-  return createListCard({ id: "schedule", title: activeLanguage === "ko" ? "선택 일정" : "Selected Schedule", label: activeLanguage === "ko" ? "확정" : "Confirmed", items: [
-    `${activeLanguage === "ko" ? "시작" : "From"}: ${formatDate(schedule.startDate)}`,
-    `${activeLanguage === "ko" ? "종료" : "To"}: ${formatDate(schedule.endDate)}`,
-    `${activeLanguage === "ko" ? "시간" : "Time"}: ${timeLabels[schedule.timePreference] || timeLabels.any}`
-  ], wide: true, editable: false });
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide is-locked-card schedule-result-card";
+  article.dataset.cardId = "schedule";
+  article.innerHTML = `
+    <div class="card-top">
+      <div class="card-title-group"><h2 class="card-title">${activeLanguage === "ko" ? "선택 일정" : "Selected Schedule"}</h2></div>
+      <span class="card-label">${activeLanguage === "ko" ? "확정" : "Confirmed"}</span>
+    </div>
+    <div class="schedule-result-dates">
+      <div class="schedule-result-value"><strong>${activeLanguage === "ko" ? "시작" : "From"}</strong><span>${formatDate(schedule.startDate)}</span></div>
+      <div class="schedule-result-value"><strong>${activeLanguage === "ko" ? "종료" : "To"}</strong><span>${formatDate(schedule.endDate)}</span></div>
+    </div>
+    <div class="schedule-result-time"><strong>${activeLanguage === "ko" ? "시간" : "Time"}</strong><span>${timeLabels[schedule.timePreference] || timeLabels.any}</span></div>
+  `;
+  return article;
 };
 
 const renderTravelMission = (result) => {

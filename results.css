@@ -890,28 +890,36 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
   }
 }
 
-/* Selected schedule: dates share one row; time remains a smaller row below. */
-.mission-card[data-card-id="schedule"] .option-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  grid-template-rows: auto auto !important;
-  grid-auto-flow: row !important;
+/* Selected schedule has its own layout so generic option-grid flow cannot reorder it. */
+.schedule-result-dates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
-
-.mission-card[data-card-id="schedule"] .option-row:nth-child(3) {
-  grid-column: 1 / -1;
+.schedule-result-value,
+.schedule-result-time {
+  min-width: 0;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 13px;
+  border-radius: 15px;
+  background: var(--chip);
+  text-align: center;
+}
+.schedule-result-value span,
+.schedule-result-time span { min-width: 0; }
+.schedule-result-time {
   width: calc(50% - 5px);
-  min-width: min(260px, 100%);
-  justify-self: center;
+  margin: 10px auto 0;
 }
 
 @media (max-width: 520px) {
-  .mission-card[data-card-id="schedule"] .option-list { gap: 8px; }
-  .mission-card[data-card-id="schedule"] .option-row { padding-inline: 10px; }
-  .mission-card[data-card-id="schedule"] .option-value { font-size: 12px; }
-  .mission-card[data-card-id="schedule"] .option-row:nth-child(3) {
-    width: calc(50% - 4px);
-    min-width: 0;
-  }
+  .schedule-result-dates { gap: 8px; }
+  .schedule-result-value, .schedule-result-time { padding-inline: 8px; font-size: 11px; gap: 4px; }
+  .schedule-result-time { width: calc(50% - 4px); }
 }
 
 /* Final footer parity overrides; kept last so legacy result-page rules cannot win. */
