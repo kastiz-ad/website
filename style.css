@@ -1226,14 +1226,15 @@ html[data-theme="light"] .login-modal-mark img { filter: invert(1); }
 .login-notify-status { min-height: 20px; margin: 12px 0 0; font-size: 13px; font-weight: 650; }
 html[data-theme="gray"] .login-modal { --surface-color: #f4f2ed; }
 html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
-.schedule-modal { width: min(560px, calc(100vw - 28px)); border: 1px solid var(--border-color, rgba(128,128,128,.24)); border-radius: 28px; padding: 38px 32px 30px; color: inherit; background: var(--surface-color, #fff); box-shadow: 0 28px 80px rgba(0,0,0,.3); }
+.schedule-modal { box-sizing: border-box; width: min(560px, calc(100vw - 28px)); width: min(560px, calc(100dvw - 28px)); max-width: calc(100vw - 28px); max-width: calc(100dvw - 28px); margin: auto; border: 1px solid var(--border-color, rgba(128,128,128,.24)); border-radius: 28px; padding: 38px 32px 30px; overflow-x: hidden; color: inherit; background: var(--surface-color, #fff); box-shadow: 0 28px 80px rgba(0,0,0,.3); }
 .schedule-modal::backdrop { background: rgba(0,0,0,.62); backdrop-filter: blur(8px); }
 .schedule-modal-close { position: absolute; top: 13px; right: 16px; border: 0; background: none; color: inherit; font-size: 28px; cursor: pointer; }
 .schedule-modal h2 { margin: 0 0 8px; text-align: center; font-size: clamp(24px,5vw,32px); }
 .schedule-help { margin: 0 0 24px; color: var(--text-muted); text-align: center; }
 .schedule-date-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.schedule-modal form { width: 100%; min-width: 0; overflow: hidden; }
 .schedule-modal label { display: grid; gap: 8px; color: var(--text-muted); font-size: 13px; font-weight: 650; }
-.schedule-modal input, .schedule-modal select { width: 100%; height: 50px; border: 1px solid var(--border); border-radius: 15px; padding: 0 14px; background: var(--surface-strong); color: var(--text); font: inherit; color-scheme: inherit; }
+.schedule-modal input, .schedule-modal select { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; height: 50px; border: 1px solid var(--border); border-radius: 15px; padding: 0 14px; background: var(--surface-strong); color: var(--text); font: inherit; color-scheme: inherit; }
 .schedule-modal select {
   -webkit-appearance: none;
   appearance: none;
@@ -1251,22 +1252,25 @@ html[data-theme="midnight"] .schedule-modal select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23ffffff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 .schedule-time-label { margin-top: 14px; }
-.schedule-summary { margin: 18px 0; padding: 16px; border-radius: 16px; background: var(--chip); color: var(--text); text-align: center; font-weight: 700; line-height: 1.5; }
+.schedule-summary { max-width: 100%; margin: 18px 0; padding: 16px; overflow-wrap: anywhere; border-radius: 16px; background: var(--chip); color: var(--text); text-align: center; font-weight: 700; line-height: 1.5; }
 .schedule-confirm { width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 800; cursor: pointer; }
 html[data-theme="gray"] .schedule-modal { --surface-color: #f4f2ed; }
 html[data-theme="midnight"] .schedule-modal { --surface-color: #17191c; }
 @media (max-width: 520px) {
-  .schedule-modal { padding: 34px 18px 22px; }
+  .schedule-modal { width: calc(100vw - 20px); width: calc(100dvw - 20px); max-width: calc(100vw - 20px); max-width: calc(100dvw - 20px); padding: 30px 12px 18px; border-radius: 22px; }
   .schedule-date-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: 6px;
   }
   .schedule-date-grid label { min-width: 0; }
   .schedule-date-grid input[type="date"] {
     min-width: 0;
-    padding: 0 9px;
-    font-size: 12px;
+    padding: 0 6px;
+    font-size: 11px;
   }
+  .schedule-modal h2 { font-size: 22px; }
+  .schedule-help { margin-bottom: 18px; font-size: 13px; }
+  .schedule-summary { margin: 14px 0; padding: 12px 8px; font-size: 12px; }
 }
 
 html[data-theme="light"] .one-symbol {
