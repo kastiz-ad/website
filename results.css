@@ -131,8 +131,29 @@ a {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0;
   transition: opacity 180ms ease, transform 180ms ease;
+}
+
+/* Miniature central ONE lockup used in the results header. */
+.brand > .header-mini-symbol {
+  width: 50px !important;
+  height: 50px !important;
+  flex: 0 0 50px;
+  object-fit: contain;
+}
+.brand > .header-mini-ne {
+  margin-left: 4px;
+  color: inherit;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.09em;
+  transform: translateY(2px);
+}
+@media (max-width: 640px) {
+  .brand > .header-mini-symbol { width: 44px !important; height: 44px !important; flex-basis: 44px; }
+  .brand > .header-mini-ne { margin-left: 4px; font-size: 29px; }
 }
 
 .brand img {
