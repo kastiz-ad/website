@@ -1250,14 +1250,6 @@ html[data-theme="light"] .one-symbol {
 /* Compact two-row footer only on phones; desktop and tablet layout is untouched. */
 @media (max-width: 640px) {
   .site-footer {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: calc(var(--visual-bottom-offset, 0px) + env(safe-area-inset-bottom)) !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
     display: grid !important;
     grid-template-columns: max-content max-content !important;
     grid-template-areas: "powered powered" "footer-left footer-right" !important;
@@ -1315,6 +1307,25 @@ html[data-theme="light"] .one-symbol {
 
 /* Keep the mission input visible when a phone is rotated sideways. */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
+  html,
+  body {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .app-shell {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    overflow: hidden !important;
+  }
+
   .site-header {
     height: 58px;
     padding-top: 8px;
@@ -1322,7 +1333,10 @@ html[data-theme="light"] .one-symbol {
   }
 
   .hero {
+    min-height: 0 !important;
+    height: 100% !important;
     padding: 58px 16px 52px !important;
+    overflow: hidden !important;
   }
 
   .hero-content {
@@ -1365,6 +1379,14 @@ html[data-theme="light"] .one-symbol {
   }
 
   .site-footer {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
     display: grid !important;
     grid-template-columns: max-content max-content !important;
     grid-template-areas: "powered powered" "footer-left footer-right" !important;
@@ -1428,18 +1450,8 @@ html[data-theme="light"] .one-symbol {
   }
 }
 
-/* Preserve native phone pull-to-refresh and vertical touch overscroll. */
+/* Stabilize mobile text sizing without changing layout positioning. */
 @media (max-width: 950px) {
-  html,
-  body {
-    height: auto !important;
-    min-height: 100% !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior-y: auto !important;
-    touch-action: pan-y !important;
-  }
-
   html,
   body {
     -webkit-text-size-adjust: 100% !important;
