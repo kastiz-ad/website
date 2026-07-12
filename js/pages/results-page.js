@@ -1011,7 +1011,7 @@ const renderTravelMission = (result) => {
       id: "flights",
       title: activeLanguage === "ko" ? "항공권" : "Flights",
       label: activeLanguage === "ko" ? "추천" : "Recommended",
-      value: getFlightName(recommendedFlight),
+      value: `${getFlightName(recommendedFlight)} · ${formatRange(recommendedFlight?.estimatedPrice)}`,
       reason:
         activeLanguage === "ko"
           ? recommendedFlight?.reasonKo || recommendedFlight?.reason || ""
@@ -1030,7 +1030,7 @@ const renderTravelMission = (result) => {
       id: "hotel",
       title: activeLanguage === "ko" ? "호텔" : "Hotel",
       label: activeLanguage === "ko" ? "추천" : "Recommended",
-      value: getHotelName(recommendedHotel),
+      value: `${getHotelName(recommendedHotel)} · ${formatRange(recommendedHotel?.estimatedNightlyPrice)}${activeLanguage === "ko" ? " / 박" : " / night"}`,
       reason:
         activeLanguage === "ko"
           ? recommendedHotel?.reasonKo || recommendedHotel?.reason || ""
