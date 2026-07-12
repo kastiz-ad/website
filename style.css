@@ -1308,7 +1308,7 @@ html[data-theme="light"] .one-symbol {
   flex-basis: auto;
 }
 .header-brand-mark img { width: 38px; }
-.header-brand-mark span { margin-left: -3px; font-size: 26px; }
+.header-brand-mark span { margin-left: 2px; font-size: 26px; }
 
 @media (max-width: 640px) {
   .header-brand-mark {
@@ -1317,7 +1317,7 @@ html[data-theme="light"] .one-symbol {
     flex-basis: auto;
   }
   .header-brand-mark img { width: 34px; }
-  .header-brand-mark span { margin-left: -3px; font-size: 23px; }
+  .header-brand-mark span { margin-left: 2px; font-size: 23px; }
 
   .one-logo {
     height: 122px;
