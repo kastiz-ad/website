@@ -187,7 +187,7 @@ a {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  column-gap: 8px;
+  column-gap: 12px;
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
@@ -1309,7 +1309,7 @@ html[data-theme="light"] .one-symbol {
   flex-basis: auto;
 }
 .header-brand-mark img { width: 38px; }
-.header-brand-mark span { margin-left: 0; font-size: 26px; }
+.header-brand-mark span { margin-left: 0 !important; font-size: 26px; }
 
 @media (max-width: 640px) {
   .header-brand-mark {
@@ -1318,7 +1318,7 @@ html[data-theme="light"] .one-symbol {
     flex-basis: auto;
   }
   .header-brand-mark img { width: 34px; }
-  .header-brand-mark span { margin-left: 0; font-size: 23px; }
+  .header-brand-mark span { margin-left: 0 !important; font-size: 23px; }
 
   .one-logo {
     height: 122px;
