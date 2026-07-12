@@ -743,9 +743,10 @@ const normalizeStoredResult = (stored) => {
   };
 };
 
-const makeOptionRow = (key, value) => {
+const makeOptionRow = (key, value, details = {}) => {
+  const reason = encodeURIComponent(details.reason || "");
   return `
-    <button class="option-row selectable-option" type="button" aria-pressed="true">
+    <button class="option-row selectable-option" type="button" aria-pressed="true" data-option-reason="${reason}">
       <span class="option-key">✓</span>
       <span class="option-value"><strong>${key}</strong><span>${value}</span></span>
     </button>
@@ -994,14 +995,26 @@ function adaptTravelResultToDestination(result) {
 
   const city = result.destination?.city || result.countryProfile?.capital || "the destination";
   const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
+  const flightReasons = [
+    [`Best overall balance of schedule, comfort, service, and estimated price for ${city}.`, `${cityKo} 노선에서 일정, 편안함, 서비스와 예상 가격의 균형이 가장 좋습니다.`],
+    [`Best service-focused alternative with dependable connections to ${city}.`, `${cityKo} 노선에서 서비스 품질과 연결 편의성이 좋은 대안입니다.`],
+    [`Best budget-conscious option when price and flexible timing matter most.`, `가격과 유연한 일정이 가장 중요할 때 적합한 가성비 옵션입니다.`],
+    [`Best quality alternative for travelers prioritizing reliability and onboard experience.`, `안정성과 기내 경험을 우선하는 여행자에게 적합한 고품질 대안입니다.`]
+  ];
+  const hotelReasons = [
+    [`Best overall balance of location, guest experience, and estimated nightly price in ${city}.`, `${cityKo}에서 위치, 숙박 경험과 예상 1박 가격의 균형이 가장 좋습니다.`],
+    [`Best premium-service option for comfort, facilities, and consistent hospitality.`, `편안함, 시설과 안정적인 서비스를 중시할 때 적합한 프리미엄 옵션입니다.`],
+    [`Best value option for balancing location and total stay cost.`, `위치와 전체 숙박비의 균형을 맞추기 좋은 가성비 옵션입니다.`],
+    [`Best budget option for keeping accommodation costs lower while retaining practical access.`, `실용적인 접근성을 유지하면서 숙박비를 낮추기 좋은 예산형 옵션입니다.`]
+  ];
   const flights = profile.airlines.map((provider, index) => ({
     ...(result.flights?.[index] || result.flights?.[0] || {}),
     id: `flight-${code.toLowerCase()}-${index + 1}`,
     provider,
     providerKo: provider,
     category: index === 0 ? "recommended" : "alternative",
-    reason: index === 0 ? `Recommended prototype option for routes to ${city}.` : `Alternative prototype option for routes to ${city}.`,
-    reasonKo: index === 0 ? `${cityKo} 노선의 프로토타입 추천 옵션입니다.` : `${cityKo} 노선의 프로토타입 대안입니다.`
+    reason: flightReasons[index]?.[0] || `Practical prototype flight option for ${city}.`,
+    reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
   }));
   const hotels = profile.hotels.map((name, index) => ({
     ...(result.hotels?.[index] || result.hotels?.[0] || {}),
@@ -1009,8 +1022,8 @@ function adaptTravelResultToDestination(result) {
     name,
     nameKo: name,
     category: index === 0 ? "recommended" : index === 1 ? "premium" : index === 2 ? "value" : "budget",
-    reason: `Prototype accommodation option in ${city}; verify live price and availability before approval.`,
-    reasonKo: `${cityKo}의 프로토타입 숙소 옵션이며 승인 전 실제 가격과 예약 가능 여부를 확인합니다.`
+    reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
+    reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
 
   return {
@@ -1098,14 +1111,16 @@ const renderTravelMission = (result) => {
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
 
   const flightOptions = (result.flights || [])
-    .map((flight) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice)));
+    .map((flight) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice), {
+      reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason
+    }));
 
   missionGrid.appendChild(
     createMissionCard({
       id: "flights",
       title: activeLanguage === "ko" ? "항공권" : "Flights",
       label: activeLanguage === "ko" ? "추천" : "Recommended",
-      value: getFlightName(recommendedFlight),
+      value: `<span class="recommended-name">${getFlightName(recommendedFlight)}</span><span class="recommended-price">${formatRange(recommendedFlight?.estimatedPrice)}</span>`,
       reason:
         activeLanguage === "ko"
           ? recommendedFlight?.reasonKo || recommendedFlight?.reason || ""
@@ -1116,14 +1131,16 @@ const renderTravelMission = (result) => {
   );
 
   const hotelOptions = (result.hotels || [])
-    .map((hotel) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice)));
+    .map((hotel) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice), {
+      reason: activeLanguage === "ko" ? hotel.reasonKo || hotel.reason : hotel.reason
+    }));
 
   missionGrid.appendChild(
     createMissionCard({
       id: "hotel",
       title: activeLanguage === "ko" ? "호텔" : "Hotel",
       label: activeLanguage === "ko" ? "추천" : "Recommended",
-      value: getHotelName(recommendedHotel),
+      value: `<span class="recommended-name">${getHotelName(recommendedHotel)}</span><span class="recommended-price">${formatRange(recommendedHotel?.estimatedNightlyPrice)} / ${activeLanguage === "ko" ? "1박" : "night"}</span>`,
       reason:
         activeLanguage === "ko"
           ? recommendedHotel?.reasonKo || recommendedHotel?.reason || ""
@@ -1177,7 +1194,15 @@ const renderTravelMission = (result) => {
       title: activeLanguage === "ko" ? "레스토랑" : "Restaurants",
       label: activeLanguage === "ko" ? "큐레이션" : "Curated",
       items: restaurants.map((restaurant) => {
-        return `${getRestaurantName(restaurant)} — ${getRestaurantRecommendation(restaurant)}`;
+        const restaurantPrices = [
+          { currency: "KRW", min: 25000, max: 65000 },
+          { currency: "KRW", min: 12000, max: 25000 },
+          { currency: "KRW", min: 70000, max: 180000 },
+          { currency: "KRW", min: 25000, max: 60000 },
+          { currency: "KRW", min: 8000, max: 22000 }
+        ];
+        const price = formatRange(restaurant.estimatedPrice || restaurantPrices[restaurants.indexOf(restaurant)] || restaurantPrices[0]);
+        return `<strong>${getRestaurantName(restaurant)}</strong> — ${getRestaurantRecommendation(restaurant)} <small class="restaurant-price">${activeLanguage === "ko" ? "1인 예상" : "Approx. per person"}: ${price}</small>`;
       }),
       wide: true,
       editable: true
@@ -1507,6 +1532,19 @@ const enableCustomization = () => {
           option.classList.toggle("is-excluded", !selected);
           option.querySelector(".option-key").textContent = selected ? "✓" : "+";
         });
+        const chosen = choosingRecommended ? recommendedDetail : selectable;
+        const chosenName = chosen?.querySelector(".option-value strong")?.textContent;
+        const chosenPrice = chosen?.querySelector(".option-value > span")?.textContent;
+        const recommendationValue = recommendation?.querySelector(".recommendation-value");
+        if (recommendationValue && chosenName) {
+          const suffix = card.dataset.cardId === "hotel" && chosenPrice
+            ? `${chosenPrice} / ${activeLanguage === "ko" ? "1박" : "night"}`
+            : chosenPrice || "";
+          recommendationValue.innerHTML = `<span class="recommended-name">${chosenName}</span><span class="recommended-price">${suffix}</span>`;
+        }
+        const selectedReason = chosen?.dataset.optionReason;
+        const reasonElement = card.querySelector(".reason");
+        if (reasonElement && selectedReason) reasonElement.textContent = decodeURIComponent(selectedReason);
         return;
       }
       const included = selectable.getAttribute("aria-pressed") !== "true";
