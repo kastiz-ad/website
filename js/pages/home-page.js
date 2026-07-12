@@ -462,7 +462,11 @@ const updateLocation = () => {
   const locale = navigator.language || "en";
   const region = locale.includes("-") ? locale.split("-").pop().toUpperCase() : "";
 
-  locationText.textContent = window.matchMedia("(max-width: 640px)").matches
+  const usesPhoneFooter = window.matchMedia(
+    "(max-width: 640px), (orientation: landscape) and (max-height: 500px) and (max-width: 950px)"
+  ).matches;
+
+  locationText.textContent = usesPhoneFooter
     ? (activeLanguage === "ko" ? "대한민국" : "South Korea")
     : countryNamesByRegion[region] || getTranslation("unknownLocation");
 };
