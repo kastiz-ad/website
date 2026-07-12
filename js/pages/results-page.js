@@ -1222,7 +1222,7 @@ const initializeOptionSelections = () => {
     detail.classList.remove("is-excluded");
     detail.querySelector(".option-key").textContent = "✓";
   });
-  ["restaurants", "budget"].forEach((cardId) => {
+  ["restaurants", "budget", "checklist"].forEach((cardId) => {
     missionGrid.querySelectorAll(`[data-card-id="${cardId}"] .option-row.selectable-option`).forEach((option) => {
       option.setAttribute("aria-pressed", "true");
       option.classList.remove("is-excluded");

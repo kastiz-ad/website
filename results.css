@@ -427,6 +427,9 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .option-value { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 0 32px; }
 .option-value > span:last-child:not(:only-child) { margin-left: 0; text-align: center; }
 .option-value strong { font-size: 13px; }
+.selectable-option:not(.is-excluded) .option-value strong { font-size: 17px; font-weight: 800; }
+.selectable-option.is-excluded .option-value strong { font-size: 13px; font-weight: 550; }
+.mission-card[data-card-id="restaurants"] .selectable-option:not(.is-excluded) .option-value { font-size: 17px; font-weight: 700; }
 .selectable-recommendation { position: relative; width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 15px; padding: 10px 45px; background: var(--chip); color: var(--text); text-align: center; cursor: pointer; }
 .selectable-recommendation .option-key { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
 .selectable-recommendation.is-excluded { opacity: .42; }
@@ -654,10 +657,11 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
 
 .completion-message h3 {
   margin: 0;
-  font-size: clamp(28px, 4.2vw, 52px);
+  font-size: clamp(18px, 3vw, 32px);
   line-height: 1.02;
   font-weight: 800;
-  letter-spacing: -0.075em;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
 }
 
 .completion-message p {
