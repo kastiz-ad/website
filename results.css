@@ -354,6 +354,61 @@ html[data-theme="light"] .brand img {
 .visa-protection-note { margin: 12px 0 0; color: var(--text-soft); font-size: 12px; line-height: 1.45; }
 @media (max-width: 560px) { .visa-upload-grid { grid-template-columns: 1fr; } }
 
+/* Match the current homepage footer on portrait phones. */
+@media (max-width: 640px) {
+  .site-footer {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: max-content max-content !important;
+    grid-template-areas: "powered powered" "footer-left footer-right" !important;
+    justify-content: center !important;
+    align-content: center !important;
+    column-gap: 7px !important;
+    row-gap: 9px !important;
+    padding: 11px 8px calc(11px + env(safe-area-inset-bottom)) !important;
+    font-size: clamp(8px, 2.25vw, 11px) !important;
+    overflow: hidden !important;
+  }
+  .footer-center { grid-area: powered !important; width: 100% !important; justify-self: stretch !important; justify-content: center !important; text-align: center !important; }
+  .footer-left { grid-area: footer-left !important; }
+  .footer-right { grid-area: footer-right !important; }
+  .footer-left, .footer-right { width: auto !important; justify-self: auto !important; justify-content: flex-start !important; flex-wrap: nowrap !important; gap: 7px !important; white-space: nowrap !important; }
+  html[lang="ko"] .site-footer { font-size: clamp(9px, 2.55vw, 12px) !important; column-gap: 12px !important; }
+  html[lang="ko"] .footer-left, html[lang="ko"] .footer-right { gap: 12px !important; }
+}
+
+/* Match the homepage's compact landscape-phone footer. */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
+  .site-footer {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    display: grid !important;
+    grid-template-columns: max-content max-content !important;
+    grid-template-areas: "powered powered" "footer-left footer-right" !important;
+    justify-content: center !important;
+    align-content: center !important;
+    column-gap: 8px !important;
+    row-gap: 4px !important;
+    min-height: 0 !important;
+    padding: 5px 10px calc(5px + env(safe-area-inset-bottom)) !important;
+    font-size: 9px !important;
+  }
+  .footer-center { grid-area: powered !important; width: 100% !important; justify-content: center !important; text-align: center !important; }
+  .footer-left { grid-area: footer-left !important; }
+  .footer-right { grid-area: footer-right !important; }
+  .footer-left, .footer-right { width: auto !important; justify-content: flex-start !important; flex-wrap: nowrap !important; gap: 8px !important; white-space: nowrap !important; }
+  html[lang="ko"] .site-footer { column-gap: 12px !important; font-size: 10px !important; }
+  html[lang="ko"] .footer-left, html[lang="ko"] .footer-right { gap: 12px !important; }
+}
+
+@media (min-width: 901px) {
+  html[lang="ko"] .footer-left, html[lang="ko"] .footer-right { gap: 26px !important; }
+}
+
 button.option-row { width: 100%; border: 0; font: inherit; text-align: left; cursor: pointer; }
 button.option-row .option-key { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); }
 button.option-row.is-excluded { opacity: .42; }
@@ -784,4 +839,29 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* Final footer parity overrides; kept last so legacy result-page rules cannot win. */
+@media (max-width: 640px) {
+  .site-footer { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; display: grid !important; grid-template-columns: max-content max-content !important; grid-template-areas: "powered powered" "footer-left footer-right" !important; justify-content: center !important; align-content: center !important; column-gap: 7px !important; row-gap: 9px !important; padding: 11px 8px calc(11px + env(safe-area-inset-bottom)) !important; font-size: clamp(8px, 2.25vw, 11px) !important; overflow: hidden !important; }
+  .footer-center { grid-area: powered !important; width: 100% !important; justify-self: stretch !important; justify-content: center !important; text-align: center !important; }
+  .footer-left { grid-area: footer-left !important; }
+  .footer-right { grid-area: footer-right !important; }
+  .footer-left, .footer-right { width: auto !important; justify-self: auto !important; justify-content: flex-start !important; flex-wrap: nowrap !important; gap: 7px !important; white-space: nowrap !important; }
+  html[lang="ko"] .site-footer { font-size: clamp(9px, 2.55vw, 12px) !important; column-gap: 12px !important; }
+  html[lang="ko"] .footer-left, html[lang="ko"] .footer-right { gap: 12px !important; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
+  .site-footer { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; overflow: hidden !important; display: grid !important; grid-template-columns: max-content max-content !important; grid-template-areas: "powered powered" "footer-left footer-right" !important; justify-content: center !important; align-content: center !important; column-gap: 8px !important; row-gap: 4px !important; min-height: 0 !important; padding: 5px 10px calc(5px + env(safe-area-inset-bottom)) !important; font-size: 9px !important; }
+  .footer-center { grid-area: powered !important; width: 100% !important; justify-content: center !important; text-align: center !important; }
+  .footer-left { grid-area: footer-left !important; }
+  .footer-right { grid-area: footer-right !important; }
+  .footer-left, .footer-right { width: auto !important; justify-content: flex-start !important; flex-wrap: nowrap !important; gap: 8px !important; white-space: nowrap !important; }
+  html[lang="ko"] .site-footer { column-gap: 12px !important; font-size: 10px !important; }
+  html[lang="ko"] .footer-left, html[lang="ko"] .footer-right { gap: 12px !important; }
+}
+
+@media (min-width: 901px) {
+  html[lang="ko"] .footer-left, html[lang="ko"] .footer-right { gap: 26px !important; }
 }
