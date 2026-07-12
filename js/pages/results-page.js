@@ -998,6 +998,21 @@ const createWeatherForecastCard = (result) => {
   return createListCard({ id: "weather", title: t("weather"), label: provider ? (activeLanguage === "ko" ? "실시간 예보" : "Live forecast") : t("apiPlaceholder"), items, wide: true, editable: false });
 };
 
+const createScheduleCard = (result) => {
+  const schedule = result.schedule;
+  if (!schedule?.startDate || !schedule?.endDate) return null;
+  const locale = activeLanguage === "ko" ? "ko-KR" : "en-US";
+  const formatDate = (value) => new Intl.DateTimeFormat(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(new Date(`${value}T00:00:00`));
+  const timeLabels = activeLanguage === "ko"
+    ? { any: "시간 무관", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" }
+    : { any: "Any time / No preference", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
+  return createListCard({ id: "schedule", title: activeLanguage === "ko" ? "선택 일정" : "Selected Schedule", label: activeLanguage === "ko" ? "확정" : "Confirmed", items: [
+    `${activeLanguage === "ko" ? "시작" : "From"}: ${formatDate(schedule.startDate)}`,
+    `${activeLanguage === "ko" ? "종료" : "To"}: ${formatDate(schedule.endDate)}`,
+    `${activeLanguage === "ko" ? "시간" : "Time"}: ${timeLabels[schedule.timePreference] || timeLabels.any}`
+  ], wide: true, editable: false });
+};
+
 const renderTravelMission = (result) => {
   const recommendedFlight = result.flights?.[0];
   const recommendedHotel = result.hotels?.[0];
@@ -1007,6 +1022,8 @@ const renderTravelMission = (result) => {
 
   missionTitle.textContent = result.display?.title || t("fallbackTitle");
   missionGrid.innerHTML = "";
+  const scheduleCard = createScheduleCard(result);
+  if (scheduleCard) missionGrid.appendChild(scheduleCard);
 
   const flightOptions = (result.flights || [])
     .map((flight) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice)));
@@ -1107,6 +1124,8 @@ const renderTravelMission = (result) => {
 const renderGeneralMission = (result) => {
   missionTitle.textContent = result.display?.title || result.rawInput || (activeLanguage === "ko" ? "미션 계획" : "Mission Plan");
   missionGrid.innerHTML = "";
+  const scheduleCard = createScheduleCard(result);
+  if (scheduleCard) missionGrid.appendChild(scheduleCard);
 
   const detailLabels = {
     tutors: ["Matched tutor profiles", "튜터 프로필 매칭"], style: ["Teaching approach compared", "수업 방식 비교"],

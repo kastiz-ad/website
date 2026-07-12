@@ -1204,6 +1204,20 @@ html[data-theme="light"] .login-modal-mark img { filter: invert(1); }
 .login-notify-status { min-height: 20px; margin: 12px 0 0; font-size: 13px; font-weight: 650; }
 html[data-theme="gray"] .login-modal { --surface-color: #f4f2ed; }
 html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
+.schedule-modal { width: min(560px, calc(100vw - 28px)); border: 1px solid var(--border-color, rgba(128,128,128,.24)); border-radius: 28px; padding: 38px 32px 30px; color: inherit; background: var(--surface-color, #fff); box-shadow: 0 28px 80px rgba(0,0,0,.3); }
+.schedule-modal::backdrop { background: rgba(0,0,0,.62); backdrop-filter: blur(8px); }
+.schedule-modal-close { position: absolute; top: 13px; right: 16px; border: 0; background: none; color: inherit; font-size: 28px; cursor: pointer; }
+.schedule-modal h2 { margin: 0 0 8px; text-align: center; font-size: clamp(24px,5vw,32px); }
+.schedule-help { margin: 0 0 24px; color: var(--text-muted); text-align: center; }
+.schedule-date-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.schedule-modal label { display: grid; gap: 8px; color: var(--text-muted); font-size: 13px; font-weight: 650; }
+.schedule-modal input, .schedule-modal select { width: 100%; height: 50px; border: 1px solid var(--border); border-radius: 15px; padding: 0 14px; background: var(--surface-strong); color: var(--text); font: inherit; color-scheme: inherit; }
+.schedule-time-label { margin-top: 14px; }
+.schedule-summary { margin: 18px 0; padding: 16px; border-radius: 16px; background: var(--chip); color: var(--text); text-align: center; font-weight: 700; line-height: 1.5; }
+.schedule-confirm { width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 800; cursor: pointer; }
+html[data-theme="gray"] .schedule-modal { --surface-color: #f4f2ed; }
+html[data-theme="midnight"] .schedule-modal { --surface-color: #17191c; }
+@media (max-width: 520px) { .schedule-modal { padding: 34px 18px 22px; } .schedule-date-grid { grid-template-columns: 1fr; } }
 
 html[data-theme="light"] .one-symbol {
   filter: invert(1);

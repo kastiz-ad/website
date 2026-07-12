@@ -22,6 +22,14 @@ const loginModal = document.getElementById("loginModal");
 const loginModalClose = document.getElementById("loginModalClose");
 const loginNotifyButton = document.getElementById("loginNotifyButton");
 const loginNotifyStatus = document.getElementById("loginNotifyStatus");
+const scheduleModal = document.getElementById("scheduleModal");
+const scheduleModalClose = document.getElementById("scheduleModalClose");
+const scheduleForm = document.getElementById("scheduleForm");
+const scheduleStartDate = document.getElementById("scheduleStartDate");
+const scheduleEndDate = document.getElementById("scheduleEndDate");
+const scheduleTimePreference = document.getElementById("scheduleTimePreference");
+const scheduleSummary = document.getElementById("scheduleSummary");
+let pendingMissionText = "";
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -51,6 +59,16 @@ const translations = {
     loginPriority: "Early users will receive priority access.",
     notifyMe: "Notify Me",
     notifyConfirmed: "You're on the priority list.",
+    scheduleTitle: "Choose dates and time",
+    scheduleHelp: "Select the required date range. Time is optional.",
+    startDate: "Start date",
+    endDate: "End date",
+    timePreference: "Time preference",
+    anyTime: "Any time / No preference",
+    morning: "Morning · 06:00–12:00",
+    afternoon: "Afternoon · 12:00–17:00",
+    evening: "Evening · 17:00–22:00",
+    confirmSchedule: "Confirm and Continue",
     searchLabel: "Enter your mission",
     searchDefault: "What mission should ONE complete?",
     missionTools: "Mission tools",
@@ -109,6 +127,16 @@ const translations = {
     loginPriority: "초기 사용자에게 우선 이용 기회를 드립니다.",
     notifyMe: "알림 신청",
     notifyConfirmed: "우선 알림 목록에 등록되었습니다.",
+    scheduleTitle: "날짜와 시간을 선택하세요",
+    scheduleHelp: "필요한 날짜 범위를 선택하세요. 시간은 선택 사항입니다.",
+    startDate: "시작 날짜",
+    endDate: "종료 날짜",
+    timePreference: "선호 시간",
+    anyTime: "시간 무관 / 선호 없음",
+    morning: "오전 · 06:00–12:00",
+    afternoon: "오후 · 12:00–17:00",
+    evening: "저녁 · 17:00–22:00",
+    confirmSchedule: "확인 후 계속",
     searchLabel: "미션 입력",
     searchDefault: "ONE이 어떤 미션을 완성할까요?",
     missionTools: "미션 도구",
@@ -1343,7 +1371,7 @@ const buildGeneralMission = (mission) => {
   return buildMissionObject(mission);
 };
 
-const saveMission = (mission) => {
+const saveMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
   const missionType = detectMissionType(cleanMission);
   const payload = missionType === "travel"
@@ -1351,6 +1379,16 @@ const saveMission = (mission) => {
     : buildGeneralMission(cleanMission);
 
   payload.aiMode = aiModeEnabled;
+  payload.schedule = schedule;
+  if (schedule?.startDate && schedule?.endDate) {
+    payload.durationDays = Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1);
+  }
+  const profileConsent = localStorage.getItem("kastiz-one-profile-consent") === "true";
+  if (profileConsent) {
+    try { payload.userPreferences = JSON.parse(localStorage.getItem("kastiz-one-profile-preferences") || "null"); } catch { payload.userPreferences = null; }
+  } else {
+    payload.userPreferences = null;
+  }
   payload.attachments = selectedImageFiles.map((file) => ({
     name: file.name,
     type: file.type,
@@ -1373,7 +1411,7 @@ const saveMission = (mission) => {
   return payload;
 };
 
-const startMission = (mission) => {
+const startMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
 
   if (!cleanMission) {
@@ -1381,7 +1419,7 @@ const startMission = (mission) => {
     return;
   }
 
-  saveMission(cleanMission);
+  saveMission(cleanMission, schedule);
   body.classList.add("is-transitioning");
 
   window.setTimeout(() => {
@@ -1568,9 +1606,57 @@ loginNotifyButton?.addEventListener("click", () => {
   loginNotifyButton.disabled = true;
 });
 
+const toLocalIsoDate = (date) => {
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10);
+};
+
+const updateScheduleSummary = () => {
+  const start = scheduleStartDate.value;
+  const end = scheduleEndDate.value;
+  if (!start || !end) return;
+  scheduleEndDate.min = start;
+  if (end < start) scheduleEndDate.value = start;
+  const finalEnd = scheduleEndDate.value;
+  const startLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${start}T00:00:00`));
+  const endLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${finalEnd}T00:00:00`));
+  const timeLabel = scheduleTimePreference.options[scheduleTimePreference.selectedIndex]?.textContent || "";
+  scheduleSummary.textContent = `${startLabel} → ${endLabel} · ${timeLabel}`;
+  scheduleSummary.classList.add("has-valid-range");
+};
+
+const openScheduleModal = (mission) => {
+  pendingMissionText = normalizeMission(mission);
+  if (!pendingMissionText) { missionInput.focus(); return; }
+  const today = new Date();
+  const defaultEnd = new Date(today);
+  defaultEnd.setDate(defaultEnd.getDate() + 6);
+  scheduleStartDate.min = toLocalIsoDate(today);
+  scheduleStartDate.value = toLocalIsoDate(today);
+  scheduleEndDate.min = scheduleStartDate.value;
+  scheduleEndDate.value = toLocalIsoDate(defaultEnd);
+  scheduleTimePreference.value = "any";
+  updateScheduleSummary();
+  if (typeof scheduleModal.showModal === "function") scheduleModal.showModal();
+  else scheduleModal.setAttribute("open", "");
+};
+
+scheduleStartDate?.addEventListener("change", updateScheduleSummary);
+scheduleEndDate?.addEventListener("change", updateScheduleSummary);
+scheduleTimePreference?.addEventListener("change", updateScheduleSummary);
+scheduleModalClose?.addEventListener("click", () => scheduleModal.close());
+scheduleModal?.addEventListener("click", (event) => { if (event.target === scheduleModal) scheduleModal.close(); });
+scheduleForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!scheduleForm.reportValidity()) return;
+  const schedule = { startDate: scheduleStartDate.value, endDate: scheduleEndDate.value, timePreference: scheduleTimePreference.value };
+  scheduleModal.close();
+  startMission(pendingMissionText, schedule);
+});
+
 missionForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  startMission(missionInput.value);
+  openScheduleModal(missionInput.value);
 });
 
 const restartOneAnimation = () => {

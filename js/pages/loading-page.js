@@ -121,11 +121,16 @@ const getCoordinates = (mission) => {
 
 const fetchWeather = async (mission) => {
   const { latitude, longitude } = getCoordinates(mission);
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,relative_humidity_2m_max&timezone=auto`;
+  const schedule = mission?.schedule;
+  const scheduledDays = schedule?.startDate && schedule?.endDate
+    ? Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1)
+    : 6;
+  const dateQuery = schedule?.startDate && schedule?.endDate ? `&start_date=${encodeURIComponent(schedule.startDate)}&end_date=${encodeURIComponent(schedule.endDate)}` : "";
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,relative_humidity_2m_max&timezone=auto${dateQuery}`;
 
   try {
     const data = await fetchJson(url);
-    const items = data?.daily?.time?.slice(0, 6).map((date, index) => ({
+    const items = data?.daily?.time?.slice(0, Math.min(scheduledDays, 16)).map((date, index) => ({
       label: date,
       value: `${Math.round(data.daily.temperature_2m_min[index])}°C - ${Math.round(data.daily.temperature_2m_max[index])}°C`,
       precipitation: `${data.daily.precipitation_probability_max[index] ?? 0}%`,

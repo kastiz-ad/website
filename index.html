@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260713-22" />
+  <link rel="stylesheet" href="style.css?v=20260713-23" />
 </head>
 
 <body>
@@ -149,6 +149,29 @@
     <p class="login-notify-status" id="loginNotifyStatus" aria-live="polite"></p>
   </dialog>
 
-  <script type="module" src="script.js?v=20260712-8"></script>
+  <dialog class="schedule-modal" id="scheduleModal" aria-labelledby="scheduleModalTitle">
+    <button class="schedule-modal-close" id="scheduleModalClose" type="button" aria-label="Close">×</button>
+    <p class="login-modal-kicker">KASTIZ ONE</p>
+    <h2 id="scheduleModalTitle" data-i18n="scheduleTitle">Choose dates and time</h2>
+    <p class="schedule-help" data-i18n="scheduleHelp">Select the required date range. Time is optional.</p>
+    <form id="scheduleForm">
+      <div class="schedule-date-grid">
+        <label><span data-i18n="startDate">Start date</span><input id="scheduleStartDate" type="date" required /></label>
+        <label><span data-i18n="endDate">End date</span><input id="scheduleEndDate" type="date" required /></label>
+      </div>
+      <label class="schedule-time-label"><span data-i18n="timePreference">Time preference</span>
+        <select id="scheduleTimePreference">
+          <option value="any" data-i18n="anyTime">Any time / No preference</option>
+          <option value="morning" data-i18n="morning">Morning · 06:00–12:00</option>
+          <option value="afternoon" data-i18n="afternoon">Afternoon · 12:00–17:00</option>
+          <option value="evening" data-i18n="evening">Evening · 17:00–22:00</option>
+        </select>
+      </label>
+      <div class="schedule-summary" id="scheduleSummary" aria-live="polite"></div>
+      <button class="schedule-confirm" type="submit" data-i18n="confirmSchedule">Confirm and Continue</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="script.js?v=20260713-9"></script>
 </body>
 </html>
