@@ -592,6 +592,7 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .primary-action small { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .primary-action small img { width: 17px; height: 17px; object-fit: contain; }
 html[data-theme="light"] .primary-action small img { filter: invert(1); }
+html[lang="ko"] .primary-action small { width: 100%; transform: translateX(-10px); }
 
 .primary-action:hover,
 .secondary-action:hover {
