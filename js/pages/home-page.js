@@ -1517,8 +1517,22 @@ const restartOneAnimation = () => {
   window.requestAnimationFrame(() => oneLogoText.classList.add("is-animating"));
 };
 
+const syncVisualViewport = () => {
+  const viewport = window.visualViewport;
+  const layoutHeight = document.documentElement.clientHeight;
+  const visibleBottom = viewport ? viewport.height + viewport.offsetTop : window.innerHeight;
+  const bottomOffset = Math.max(0, layoutHeight - visibleBottom);
+  root.style.setProperty("--visual-bottom-offset", `${bottomOffset}px`);
+};
+
+window.visualViewport?.addEventListener("resize", syncVisualViewport);
+window.visualViewport?.addEventListener("scroll", syncVisualViewport);
+window.addEventListener("orientationchange", () => window.setTimeout(syncVisualViewport, 120));
+window.addEventListener("resize", syncVisualViewport);
+
 window.addEventListener("pageshow", () => {
   body.classList.remove("is-transitioning");
+  syncVisualViewport();
   restartOneAnimation();
 });
 
