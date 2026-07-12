@@ -1655,6 +1655,12 @@ scheduleEndDate?.addEventListener("change", updateScheduleSummary);
 scheduleTimePreference?.addEventListener("change", updateScheduleSummary);
 scheduleModalClose?.addEventListener("click", () => scheduleModal.close());
 scheduleModal?.addEventListener("click", (event) => { if (event.target === scheduleModal) scheduleModal.close(); });
+scheduleModal?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.isComposing || event.repeat) return;
+  event.preventDefault();
+  if (scheduleForm?.requestSubmit) scheduleForm.requestSubmit();
+  else scheduleForm?.querySelector('[type="submit"]')?.click();
+});
 scheduleForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!scheduleForm.reportValidity()) return;
