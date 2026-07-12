@@ -259,6 +259,7 @@ html[data-theme="light"] .brand img {
 }
 
 .card-top {
+  position: relative;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -340,8 +341,11 @@ html[data-theme="light"] .brand img {
 .mission-card.is-excluded { opacity: .48; }
 .mission-card.is-excluded .category-toggle { background: transparent; color: var(--text-soft); }
 .mission-card.is-excluded > :not(.card-top) { pointer-events: none; }
-.card-title-group { min-width: 0; display: flex; align-items: center; gap: 12px; }
+.card-title-group { width: 100%; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 72px; text-align: center; }
 .card-title-group .card-title { min-width: 0; }
+.card-title-group .category-toggle { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
+.card-top > .card-label { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
+@media (max-width: 520px) { .card-title-group { padding: 0 56px; } .card-title { font-size: 16px; } }
 .additional-services { margin-top: 16px; min-height: 0; display: flex !important; flex-direction: column; visibility: visible !important; position: relative; z-index: 2; }
 .additional-service-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 16px; }
 .additional-service-entry input { min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; }
@@ -412,18 +416,18 @@ html[data-theme="light"] .brand img {
   html[lang="ko"] .footer-left, html[lang="ko"] .footer-right { gap: 26px !important; }
 }
 
-button.option-row { width: 100%; border: 0; font: inherit; text-align: left; cursor: pointer; }
-button.option-row .option-key { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); }
+button.option-row { position: relative; width: 100%; border: 0; font: inherit; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+button.option-row .option-key { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); }
 button.option-row.is-excluded { opacity: .42; }
 button.option-row.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
 button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .selectable-option:not(.is-excluded) .option-value { color: var(--text); font-size: 16px; font-weight: 800; }
 .selectable-option.is-excluded .option-value { color: var(--text-soft); font-size: 14px; font-weight: 550; text-decoration: none !important; }
-.option-value { display: flex; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+.option-value { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 0 32px; }
 .option-value > span:last-child:not(:only-child) { margin-left: 0; text-align: center; }
 .option-value strong { font-size: 13px; }
-.selectable-recommendation { width: 100%; min-height: 48px; display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center; gap: 12px; border: 0; border-radius: 15px; padding: 10px 13px; background: var(--chip); color: var(--text); text-align: left; cursor: pointer; }
-.selectable-recommendation .option-key { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
+.selectable-recommendation { position: relative; width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 15px; padding: 10px 45px; background: var(--chip); color: var(--text); text-align: center; cursor: pointer; }
+.selectable-recommendation .option-key { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
 .selectable-recommendation.is-excluded { opacity: .42; }
 .selectable-recommendation.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
 .selectable-recommendation.is-excluded .recommendation-value { text-decoration: line-through; }
