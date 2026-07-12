@@ -829,6 +829,7 @@ const createListCard = ({ id, title, label, items, wide = false, editable = true
   const article = document.createElement("article");
   article.className = "mission-card";
   article.dataset.cardId = id;
+  if (!editable) article.classList.add("is-locked-card");
 
   if (wide) {
     article.classList.add("is-wide");
@@ -977,6 +978,14 @@ const createExchangeBudgetCard = (result) => {
   return createListCard({ id: "exchange-rate", title: t("exchangeRate"), label: provider ? (activeLanguage === "ko" ? "실시간 데이터" : "Live data") : t("apiPlaceholder"), items, wide: true, editable: false });
 };
 
+const createWeatherForecastCard = (result) => {
+  const provider = findLiveProvider(result, "weather");
+  const items = provider?.items?.length
+    ? provider.items.map((item) => `${item.label}: ${item.value}${item.precipitation ? ` · ${item.precipitation}` : ""}`)
+    : [localize(result.weather?.message)];
+  return createListCard({ id: "weather", title: t("weather"), label: provider ? (activeLanguage === "ko" ? "실시간 예보" : "Live forecast") : t("apiPlaceholder"), items, wide: true, editable: false });
+};
+
 const renderTravelMission = (result) => {
   const recommendedFlight = result.flights?.[0];
   const recommendedHotel = result.hotels?.[0];
@@ -1032,7 +1041,7 @@ const renderTravelMission = (result) => {
       label: activeLanguage === "ko" ? "추천" : "Recommended",
       value: localize(transfer?.recommended),
       reason: localize(transfer?.reason),
-      options: (transfer?.options || []).map((option) => makeOptionRow("•", localize(option))),
+      options: [...(transfer?.options || []), { en: "Keisei Skyliner", ko: "게이세이 스카이라이너" }].map((option) => makeOptionRow("•", localize(option))),
       editable: true
     })
   );
@@ -1078,14 +1087,7 @@ const renderTravelMission = (result) => {
 
   missionGrid.appendChild(createBudgetCard(result.budget));
 
-  missionGrid.appendChild(
-    createPlaceholderCard({
-      id: "weather",
-      title: t("weather"),
-      message: result.weather?.message,
-      status: result.weather?.status
-    })
-  );
+  missionGrid.appendChild(createWeatherForecastCard(result));
 
   missionGrid.appendChild(createExchangeBudgetCard(result));
 
