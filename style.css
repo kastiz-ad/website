@@ -1471,3 +1471,22 @@ html[data-theme="light"] .one-symbol {
     font-size: 16px !important;
   }
 }
+
+/* Enable native portrait pull-to-refresh without moving the fixed app layout. */
+@media (orientation: portrait) and (max-width: 640px) {
+  html {
+    height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+  }
+
+  body {
+    height: calc(100dvh + 1px) !important;
+    min-height: calc(100dvh + 1px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+    touch-action: pan-y !important;
+  }
+}
