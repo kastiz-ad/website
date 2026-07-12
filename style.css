@@ -1148,7 +1148,8 @@ html[data-theme="midnight"] body {
   min-width: 0 !important;
   overflow: visible;
   letter-spacing: -0.09em;
-  align-items: flex-end !important;
+  align-items: center !important;
+  transform: translateX(-20px);
 }
 
 .one-symbol {
@@ -1225,6 +1226,7 @@ html[data-theme="light"] .one-symbol {
 
   .one-logo-text {
     font-size: 72px !important;
+    transform: translateX(-11px);
   }
 
   .search-language {
