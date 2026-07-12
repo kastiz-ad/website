@@ -40,6 +40,19 @@
 
       <section class="mission-grid" id="missionGrid" aria-label="Prepared mission plan"></section>
 
+      <section class="additional-services mission-card is-full" id="additionalServices">
+        <div class="card-top">
+          <h2 class="card-title" data-i18n="additionalServices">Additional Services</h2>
+          <span class="card-label" data-i18n="optional">Optional</span>
+        </div>
+        <p class="reason" data-i18n="additionalServicesHelp">Add another destination, flight, tutor subject, language, or any other service.</p>
+        <div class="additional-service-entry">
+          <input id="additionalServiceInput" type="text" data-i18n-placeholder="additionalServicesPlaceholder" placeholder="Example: Add a flight to LAX" />
+          <button id="addServiceButton" type="button" data-i18n="addService">Add</button>
+        </div>
+        <div class="option-list" id="additionalServiceList"></div>
+      </section>
+
       <section class="bottom-actions" id="bottomActions" aria-label="Mission actions">
         <button class="primary-action" id="makeRealityButton" type="button">
           <span data-i18n="makeItReality">Make It Reality</span>
@@ -87,6 +100,6 @@
     </footer>
   </div>
 
-  <script type="module" src="results.js?v=20260712-5"></script>
+  <script type="module" src="results.js?v=20260713-6"></script>
 </body>
 </html>

@@ -9,6 +9,9 @@ const completionMessage = document.getElementById("completionMessage");
 const returnCountdown = document.getElementById("returnCountdown");
 const returnHomeButton = document.getElementById("returnHomeButton");
 const locationText = document.getElementById("locationText");
+const additionalServiceInput = document.getElementById("additionalServiceInput");
+const addServiceButton = document.getElementById("addServiceButton");
+const additionalServiceList = document.getElementById("additionalServiceList");
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -30,6 +33,11 @@ const translations = {
     customize: "Customize",
     makeItReality: "Approve & Proceed",
     withOne: "with ONE",
+    additionalServices: "Additional Services",
+    optional: "Optional",
+    additionalServicesHelp: "Add another destination, flight, tutor subject, language, or any other service.",
+    additionalServicesPlaceholder: "Example: Add a flight to LAX",
+    addService: "Add",
     missionApproved: "Mission Approved",
     oneIsWorking: "ONE is making it happen.",
     finalMessage: "Your future is now in motion.",
@@ -88,6 +96,11 @@ const translations = {
     customize: "수정하기",
     makeItReality: "승인 후 실행",
     withOne: "ONE과 함께",
+    additionalServices: "추가 서비스",
+    optional: "선택 사항",
+    additionalServicesHelp: "다른 목적지, 항공편, 튜터 과목, 언어 또는 원하는 서비스를 추가하세요.",
+    additionalServicesPlaceholder: "예: LAX행 항공편 추가",
+    addService: "추가",
     missionApproved: "미션 승인 완료",
     oneIsWorking: "ONE이 실행하고 있습니다.",
     finalMessage: "당신의 미래가 움직이기 시작했습니다.",
@@ -777,7 +790,7 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
   article.innerHTML = `
     <div class="card-top">
       <h2 class="card-title">${title}</h2>
-      <span class="card-label">${label}</span>
+      <div class="card-top-actions"><span class="card-label">${label}</span>${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}</div>
     </div>
 
     <div class="recommendation">
@@ -823,7 +836,7 @@ const createListCard = ({ id, title, label, items, wide = false, editable = true
   article.innerHTML = `
     <div class="card-top">
       <h2 class="card-title">${title}</h2>
-      <span class="card-label">${label}</span>
+      <div class="card-top-actions"><span class="card-label">${label}</span>${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}</div>
     </div>
 
     <div class="option-list">
@@ -872,7 +885,7 @@ const createBudgetCard = (budget) => {
   article.innerHTML = `
     <div class="card-top">
       <h2 class="card-title">${activeLanguage === "ko" ? "예산" : "Budget"}</h2>
-      <span class="card-label">${activeLanguage === "ko" ? "예상" : "Estimated"}</span>
+      <div class="card-top-actions"><span class="card-label">${activeLanguage === "ko" ? "예상" : "Estimated"}</span><button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "예산 포함" : "Include budget"}">✓</button></div>
     </div>
 
     <div class="option-list">
@@ -992,7 +1005,7 @@ const renderTravelMission = (result) => {
       value: activeLanguage === "ko" ? "실행 전 확인 필요" : "Verification required",
       reason: localize(result.visa?.message),
       options: [],
-      editable: true
+      editable: false
     })
   );
 
@@ -1285,6 +1298,16 @@ const applySimulatedModification = (cardId, card, button) => {
 
 const enableCustomization = () => {
   document.addEventListener("click", (event) => {
+    const categoryToggle = event.target.closest(".category-toggle");
+    if (categoryToggle) {
+      const card = categoryToggle.closest(".mission-card");
+      const included = categoryToggle.getAttribute("aria-pressed") !== "true";
+      categoryToggle.setAttribute("aria-pressed", String(included));
+      categoryToggle.textContent = included ? "✓" : "+";
+      card?.classList.toggle("is-excluded", !included);
+      return;
+    }
+
     const selectable = event.target.closest(".selectable-option");
     if (selectable) {
       const included = selectable.getAttribute("aria-pressed") !== "true";
@@ -1330,7 +1353,30 @@ const enableCustomization = () => {
     }
     applySimulatedModification(cardId, card, button);
   });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.placeholder = t(element.getAttribute("data-i18n-placeholder"));
+  });
 };
+
+const addAdditionalService = () => {
+  const value = additionalServiceInput?.value.trim();
+  if (!value || !additionalServiceList) return;
+  additionalServiceList.insertAdjacentHTML("beforeend", `
+    <button class="option-row selectable-option" type="button" aria-pressed="true">
+      <span class="option-key">✓</span><span class="option-value">${value.replace(/[<>]/g, "")}</span>
+    </button>
+  `);
+  additionalServiceInput.value = "";
+  additionalServiceInput.focus();
+};
+
+addServiceButton?.addEventListener("click", addAdditionalService);
+additionalServiceInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    addAdditionalService();
+  }
+});
 
 returnHomeButton.addEventListener("click", returnHome);
 makeRealityButton.addEventListener("click", runApprovalSequence);
