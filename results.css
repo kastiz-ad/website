@@ -890,6 +890,30 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
   }
 }
 
+/* Selected schedule: dates share one row; time remains a smaller row below. */
+.mission-card[data-card-id="schedule"] .option-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-rows: auto auto !important;
+  grid-auto-flow: row !important;
+}
+
+.mission-card[data-card-id="schedule"] .option-row:nth-child(3) {
+  grid-column: 1 / -1;
+  width: calc(50% - 5px);
+  min-width: min(260px, 100%);
+  justify-self: center;
+}
+
+@media (max-width: 520px) {
+  .mission-card[data-card-id="schedule"] .option-list { gap: 8px; }
+  .mission-card[data-card-id="schedule"] .option-row { padding-inline: 10px; }
+  .mission-card[data-card-id="schedule"] .option-value { font-size: 12px; }
+  .mission-card[data-card-id="schedule"] .option-row:nth-child(3) {
+    width: calc(50% - 4px);
+    min-width: 0;
+  }
+}
+
 /* Final footer parity overrides; kept last so legacy result-page rules cannot win. */
 @media (max-width: 640px) {
   .site-footer { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; display: grid !important; grid-template-columns: max-content max-content !important; grid-template-areas: "powered powered" "footer-left footer-right" !important; justify-content: center !important; align-content: center !important; column-gap: 7px !important; row-gap: 9px !important; padding: 11px 8px calc(11px + env(safe-area-inset-bottom)) !important; font-size: clamp(8px, 2.25vw, 11px) !important; overflow: hidden !important; }
