@@ -189,7 +189,7 @@ a {
   object-fit: contain;
 }
 .header-brand-mark > .header-mini-ne {
-  margin-left: 0;
+  margin-left: -4px;
   color: inherit;
   font-size: 26px;
   font-weight: 800;
@@ -199,7 +199,7 @@ a {
 }
 @media (max-width: 640px) {
   .header-brand-mark > .header-mini-symbol { width: 34px !important; height: 34px !important; flex-basis: 34px; }
-  .header-brand-mark > .header-mini-ne { margin-left: 0; font-size: 23px; }
+  .header-brand-mark > .header-mini-ne { margin-left: -4px; font-size: 23px; }
 }
 
 .header-brand-mark {
