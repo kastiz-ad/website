@@ -342,7 +342,7 @@ html[data-theme="light"] .brand img {
 .mission-card.is-excluded > :not(.card-top) { pointer-events: none; }
 .card-title-group { min-width: 0; display: flex; align-items: center; gap: 12px; }
 .card-title-group .card-title { min-width: 0; }
-.additional-services { margin-top: 16px; min-height: 0; }
+.additional-services { margin-top: 16px; min-height: 0; display: flex !important; flex-direction: column; visibility: visible !important; position: relative; z-index: 2; }
 .additional-service-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 16px; }
 .additional-service-entry input { min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; }
 .additional-service-entry button { padding: 0 20px; border: 0; border-radius: 16px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 750; cursor: pointer; }
@@ -530,6 +530,14 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
   opacity: 0.72;
   letter-spacing: -0.01em;
 }
+.is-locked-card .option-row { grid-template-columns: minmax(0, 1fr); }
+.is-locked-card .option-key { display: none; }
+.mission-card[data-card-id="approval-protection"] { text-align: center; }
+.mission-card[data-card-id="approval-protection"] .card-top { justify-content: center; }
+.mission-card[data-card-id="approval-protection"] .recommendation-value,
+.mission-card[data-card-id="approval-protection"] .reason,
+.mission-card[data-card-id="approval-protection"] .recommendation-label { text-align: center; }
+.bottom-actions { position: relative; bottom: auto; }
 .primary-action small { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .primary-action small img { width: 17px; height: 17px; object-fit: contain; }
 html[data-theme="light"] .primary-action small img { filter: invert(1); }
@@ -881,5 +889,7 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
 @media (min-width: 761px) {
   .mission-card .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mission-card.is-locked-card .option-list { grid-template-columns: minmax(0, 1fr); }
+  .mission-card[data-card-id="weather"] .option-list,
+  .mission-card[data-card-id="exchange-rate"] .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mission-card .option-row { min-width: 0; }
 }

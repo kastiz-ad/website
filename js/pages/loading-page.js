@@ -121,14 +121,15 @@ const getCoordinates = (mission) => {
 
 const fetchWeather = async (mission) => {
   const { latitude, longitude } = getCoordinates(mission);
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,relative_humidity_2m_max&timezone=auto`;
 
   try {
     const data = await fetchJson(url);
-    const items = data?.daily?.time?.slice(0, 5).map((date, index) => ({
+    const items = data?.daily?.time?.slice(0, 6).map((date, index) => ({
       label: date,
       value: `${Math.round(data.daily.temperature_2m_min[index])}°C - ${Math.round(data.daily.temperature_2m_max[index])}°C`,
-      precipitation: `${data.daily.precipitation_probability_max[index] ?? 0}%`
+      precipitation: `${data.daily.precipitation_probability_max[index] ?? 0}%`,
+      humidity: `${data.daily.relative_humidity_2m_max?.[index] ?? "—"}%`
     })) || [];
 
     return { provider: "Open-Meteo", category: "weather", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items, error: null };

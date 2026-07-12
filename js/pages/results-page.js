@@ -981,7 +981,13 @@ const createExchangeBudgetCard = (result) => {
 const createWeatherForecastCard = (result) => {
   const provider = findLiveProvider(result, "weather");
   const items = provider?.items?.length
-    ? provider.items.map((item) => `${item.label}: ${item.value}${item.precipitation ? ` · ${item.precipitation}` : ""}`)
+    ? provider.items.map((item) => {
+      const date = new Date(`${item.label}T00:00:00`);
+      const weekday = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "long" }).format(date);
+      return activeLanguage === "ko"
+        ? `${weekday} · 날짜 ${item.label} · 기온 ${item.value} · 습도 ${item.humidity || "—"} · 강수확률 ${item.precipitation || "—"}`
+        : `${weekday} · Date ${item.label} · Temperature ${item.value} · Humidity ${item.humidity || "—"} · Rain chance ${item.precipitation || "—"}`;
+    })
     : [localize(result.weather?.message)];
   return createListCard({ id: "weather", title: t("weather"), label: provider ? (activeLanguage === "ko" ? "실시간 예보" : "Live forecast") : t("apiPlaceholder"), items, wide: true, editable: false });
 };
@@ -1192,6 +1198,19 @@ const renderMission = () => {
   }
 
   renderGeneralMission(currentResult);
+};
+
+const initializeOptionSelections = () => {
+  missionGrid.querySelectorAll(".option-row.selectable-option").forEach((option) => {
+    option.setAttribute("aria-pressed", "false");
+    option.classList.add("is-excluded");
+    option.querySelector(".option-key").textContent = "+";
+  });
+  missionGrid.querySelectorAll(".selectable-recommendation").forEach((option) => {
+    option.setAttribute("aria-pressed", "true");
+    option.classList.remove("is-excluded");
+    option.querySelector(".option-key").textContent = "✓";
+  });
 };
 
 const renderApprovalList = () => {
@@ -1487,6 +1506,7 @@ setTheme();
 updateTextContent();
 updateLocation();
 renderMission();
+initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
 
