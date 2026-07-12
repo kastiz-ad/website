@@ -795,7 +795,6 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
     </div>
 
     <div class="recommendation">
-      <p class="recommendation-label">${t("recommended")}</p>
       ${editable ? `<button class="selectable-recommendation selectable-option" type="button" aria-pressed="true"><span class="option-key">✓</span><span class="recommendation-value">${value}</span></button>` : `<p class="recommendation-value">${value}</p>`}
     </div>
 
@@ -1222,6 +1221,16 @@ const initializeOptionSelections = () => {
     detail.classList.remove("is-excluded");
     detail.querySelector(".option-key").textContent = "✓";
   });
+  ["restaurants", "budget"].forEach((cardId) => {
+    missionGrid.querySelectorAll(`[data-card-id="${cardId}"] .option-row.selectable-option`).forEach((option) => {
+      option.setAttribute("aria-pressed", "true");
+      option.classList.remove("is-excluded");
+      option.querySelector(".option-key").textContent = "✓";
+    });
+  });
+  missionGrid.querySelectorAll(".option-list").forEach((list) => {
+    list.style.setProperty("--option-rows", String(Math.max(1, Math.ceil(list.children.length / 2))));
+  });
 };
 
 const renderApprovalList = () => {
@@ -1395,8 +1404,13 @@ const enableCustomization = () => {
       const card = selectable.closest(".mission-card");
       const exclusive = card?.classList.contains("exclusive-choice-card") && !card.classList.contains("is-editing");
       if (exclusive) {
+        const recommendation = card.querySelector(".selectable-recommendation");
+        const recommendedDetail = card.querySelector(".option-list .selectable-option");
+        const choosingRecommended = selectable === recommendation || selectable === recommendedDetail;
         card.querySelectorAll(".selectable-option").forEach((option) => {
-          const selected = option === selectable;
+          const selected = choosingRecommended
+            ? option === recommendation || option === recommendedDetail
+            : option === selectable;
           option.setAttribute("aria-pressed", String(selected));
           option.classList.toggle("is-excluded", !selected);
           option.querySelector(".option-key").textContent = selected ? "✓" : "+";

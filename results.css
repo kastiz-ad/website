@@ -346,7 +346,7 @@ html[data-theme="light"] .brand img {
 .card-title-group .category-toggle { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
 .card-top > .card-label { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
 @media (max-width: 520px) { .card-title-group { padding: 0 56px; } .card-title { font-size: 16px; } }
-.additional-services { margin-top: 16px; min-height: 0; display: flex !important; flex-direction: column; visibility: visible !important; position: relative; z-index: 2; }
+.additional-services { margin: 16px 0 28px; min-height: max-content !important; height: auto !important; display: flex !important; flex-direction: column; visibility: visible !important; overflow: visible !important; position: relative; z-index: 2; contain: none !important; }
 .additional-service-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 16px; }
 .additional-service-entry input { min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; }
 .additional-service-entry button { padding: 0 20px; border: 0; border-radius: 16px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 750; cursor: pointer; }
@@ -421,7 +421,7 @@ button.option-row .option-key { position: absolute; left: 13px; top: 50%; transf
 button.option-row.is-excluded { opacity: .42; }
 button.option-row.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
 button.option-row.is-excluded .option-value { text-decoration: line-through; }
-.selectable-option:not(.is-excluded) .option-value { color: var(--text); font-size: 16px; font-weight: 800; }
+.selectable-option:not(.is-excluded) .option-value { color: var(--text); font-size: 19px; font-weight: 800; }
 .selectable-option.is-excluded .option-value { color: var(--text-soft); font-size: 14px; font-weight: 550; text-decoration: none !important; }
 .option-value { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 0 32px; }
 .option-value > span:last-child:not(:only-child) { margin-left: 0; text-align: center; }
@@ -431,6 +431,7 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .selectable-recommendation.is-excluded { opacity: .42; }
 .selectable-recommendation.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
 .selectable-recommendation.is-excluded .recommendation-value { text-decoration: line-through; }
+.selectable-recommendation:not(.is-excluded) .recommendation-value { font-size: 27px; font-weight: 800; }
 .selectable-recommendation .recommendation-value { width: 100%; display: flex; align-items: baseline; justify-content: center; gap: 12px; min-width: 0; }
 .recommended-name { min-width: 0; font-size: inherit; font-weight: 800; }
 .recommended-price { flex: 0 1 auto; color: var(--text-muted); font-size: 13px; line-height: 1.2; font-weight: 650; letter-spacing: -0.02em; white-space: nowrap; }
@@ -895,9 +896,16 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
 }
 
 @media (min-width: 761px) {
-  .mission-card .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mission-card .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(var(--option-rows, 1), auto); grid-auto-flow: column; }
   .mission-card.is-locked-card .option-list { grid-template-columns: minmax(0, 1fr); }
   .mission-card[data-card-id="weather"] .option-list,
   .mission-card[data-card-id="exchange-rate"] .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mission-card .option-row { min-width: 0; }
+}
+
+@media (max-width: 760px) {
+  .mission-card .option-list { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
+  .selectable-option:not(.is-excluded) .option-value { font-size: 18px; }
+  .selectable-recommendation:not(.is-excluded) .recommendation-value { font-size: 25px; }
+  .mission-layout { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
 }
