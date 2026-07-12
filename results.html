@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;650;700;750;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="results.css?v=20260713-13" />
+  <link rel="stylesheet" href="results.css?v=20260713-14" />
 </head>
 
 <body>
@@ -42,7 +42,7 @@
 
       <section class="mission-grid" id="missionGrid" aria-label="Prepared mission plan"></section>
 
-      <section class="additional-services mission-card is-full" id="additionalServices">
+      <form class="additional-services mission-card is-full" id="additionalServicesForm">
         <div class="card-top">
           <h2 class="card-title" data-i18n="additionalServices">Customize Services</h2>
           <span class="card-label" data-i18n="optional">Optional</span>
@@ -50,10 +50,10 @@
         <p class="reason" data-i18n="additionalServicesHelp">Add or request a new destination, flight, tutor subject, language, or any other service.</p>
         <div class="additional-service-entry">
           <input id="additionalServiceInput" type="text" data-i18n-placeholder="additionalServicesPlaceholder" placeholder="Example: Add a flight to LAX" />
-          <button id="addServiceButton" type="button" data-i18n="addService">Add</button>
+          <button id="addServiceButton" type="submit" data-i18n="addService">Add</button>
         </div>
         <div class="option-list" id="additionalServiceList"></div>
-      </section>
+      </form>
 
       <section class="bottom-actions" id="bottomActions" aria-label="Mission actions">
         <button class="primary-action" id="makeRealityButton" type="button">
@@ -102,6 +102,6 @@
     </footer>
   </div>
 
-  <script type="module" src="results.js?v=20260713-17"></script>
+  <script type="module" src="results.js?v=20260713-18"></script>
 </body>
 </html>

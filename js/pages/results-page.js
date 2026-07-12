@@ -12,6 +12,7 @@ const locationText = document.getElementById("locationText");
 const additionalServiceInput = document.getElementById("additionalServiceInput");
 const addServiceButton = document.getElementById("addServiceButton");
 const additionalServiceList = document.getElementById("additionalServiceList");
+const additionalServicesForm = document.getElementById("additionalServicesForm");
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -1469,21 +1470,27 @@ const enableCustomization = () => {
 const addAdditionalService = () => {
   const value = additionalServiceInput?.value.trim();
   if (!value || !additionalServiceList) return;
-  additionalServiceList.insertAdjacentHTML("beforeend", `
-    <button class="option-row selectable-option" type="button" aria-pressed="true">
-      <span class="option-key">✓</span><span class="option-value">${value.replace(/[<>]/g, "")}</span>
-    </button>
-  `);
+  const option = document.createElement("button");
+  option.className = "option-row selectable-option";
+  option.type = "button";
+  option.setAttribute("aria-pressed", "true");
+  const check = document.createElement("span");
+  check.className = "option-key";
+  check.textContent = "✓";
+  const label = document.createElement("span");
+  label.className = "option-value";
+  label.textContent = value;
+  option.append(check, label);
+  additionalServiceList.appendChild(option);
+  const saved = JSON.parse(sessionStorage.getItem("kastiz-one-custom-services") || "[]");
+  sessionStorage.setItem("kastiz-one-custom-services", JSON.stringify([...saved, value]));
   additionalServiceInput.value = "";
   additionalServiceInput.focus();
 };
 
-addServiceButton?.addEventListener("click", addAdditionalService);
-additionalServiceInput?.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    addAdditionalService();
-  }
+additionalServicesForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  addAdditionalService();
 });
 
 document.addEventListener("click", (event) => {
