@@ -1212,6 +1212,22 @@ html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
 .schedule-date-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
 .schedule-modal label { display: grid; gap: 8px; color: var(--text-muted); font-size: 13px; font-weight: 650; }
 .schedule-modal input, .schedule-modal select { width: 100%; height: 50px; border: 1px solid var(--border); border-radius: 15px; padding: 0 14px; background: var(--surface-strong); color: var(--text); font: inherit; color-scheme: inherit; }
+.schedule-modal select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 48px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23888888' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  background-size: 16px 16px;
+}
+html[data-theme="midnight"] .schedule-modal input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.35);
+  opacity: 1;
+}
+html[data-theme="midnight"] .schedule-modal select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23ffffff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
 .schedule-time-label { margin-top: 14px; }
 .schedule-summary { margin: 18px 0; padding: 16px; border-radius: 16px; background: var(--chip); color: var(--text); text-align: center; font-weight: 700; line-height: 1.5; }
 .schedule-confirm { width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 800; cursor: pointer; }
