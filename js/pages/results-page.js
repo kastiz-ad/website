@@ -4,6 +4,7 @@ const missionGrid = document.getElementById("missionGrid");
 const bottomActions = document.getElementById("bottomActions");
 const makeRealityButton = document.getElementById("makeRealityButton");
 const approvalPanel = document.getElementById("approvalPanel");
+const executionSummary = document.getElementById("executionSummary");
 const approvalList = document.getElementById("approvalList");
 const completionMessage = document.getElementById("completionMessage");
 const returnCountdown = document.getElementById("returnCountdown");
@@ -1406,6 +1407,39 @@ const returnHome = () => {
   }, 420);
 };
 
+const escapeSummaryText = (value) => String(value ?? "—").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+
+const selectedOptionIndex = (cardId) => {
+  const option = missionGrid.querySelector(`[data-card-id="${cardId}"] .option-list .selectable-option[aria-pressed="true"]`);
+  const index = Number(option?.dataset.optionIndex);
+  return Number.isInteger(index) && index >= 0 ? index : 0;
+};
+
+const buildExecutionSummary = () => {
+  if (!executionSummary || currentResult?.type !== "travel") return;
+  const ko = activeLanguage === "ko";
+  const flightIndex = selectedOptionIndex("flights");
+  const flight = currentResult.flights?.[flightIndex] || currentResult.flights?.[0];
+  const hotel = currentResult.hotels?.[selectedOptionIndex("hotel")] || currentResult.hotels?.[0];
+  const transfer = currentResult.airportTransfer?.options?.[selectedOptionIndex("airport-transfer")] || currentResult.airportTransfer?.recommended;
+  const restaurants = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .selectable-option[aria-pressed="true"] .option-value')].map((item) => item.textContent.trim()).filter(Boolean);
+  const schedule = currentResult.schedule || {};
+  const dateRange = schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : (ko ? "날짜 확인 필요" : "Dates pending");
+  const timeLabels = ko ? { any: "시간 미정", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" } : { any: "Time to be confirmed", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
+  const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "Avianca": "AV", "Iberia": "IB", "LATAM Airlines": "LA" };
+  const flightNumber = `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}`;
+  const reference = `ONE-DEMO-${String(currentResult.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
+  const rows = [
+    [ko ? "항공편" : "Flight", `${flight ? getFlightName(flight) : "—"} · ${flightNumber}`, `${dateRange} · ${timeLabels[schedule.timePreference] || timeLabels.any} · ${formatRange(flight?.estimatedPrice)}`],
+    [ko ? "호텔" : "Hotel", hotel ? getHotelName(hotel) : "—", `${dateRange} · ${formatRange(hotel?.estimatedNightlyPrice)} / ${ko ? "1박" : "night"}`],
+    [ko ? "공항 이동" : "Airport transfer", localize(transfer), ko ? "선택한 이동 옵션 준비 완료" : "Selected transfer option prepared"],
+    [ko ? "여행 일정" : "Schedule", dateRange, timeLabels[schedule.timePreference] || timeLabels.any],
+    [ko ? "레스토랑" : "Restaurants", restaurants.length ? restaurants.join(" · ") : (ko ? "선택 없음" : "None selected"), ko ? "가격 및 예약 가능 여부 최종 확인 필요" : "Final price and availability verification required"],
+    [ko ? "프로토타입 참조 번호" : "Prototype reference", reference, ko ? "실제 예약 번호가 아닙니다" : "This is not a real booking number"]
+  ];
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(([label, value, detail], index) => `<div class="execution-summary-item${index === 4 ? " is-wide" : ""}"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span><span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`).join("")}</div>`;
+};
+
 const runApprovalSequence = () => {
   const items = [...approvalList.querySelectorAll(".approval-item")];
 
@@ -1427,6 +1461,7 @@ const runApprovalSequence = () => {
             finalTitle.textContent = localize(currentResult?.finalMessage) || t("finalMessage");
           }
 
+          buildExecutionSummary();
           completionMessage.hidden = false;
           startReturnCountdown();
         }, 650);
