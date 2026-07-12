@@ -840,11 +840,11 @@ const createListCard = ({ id, title, label, items, wide = false, editable = true
     </div>
 
     <div class="option-list">
-      ${items.map((item, index) => `
+      ${items.map((item, index) => editable ? `
         <button class="option-row selectable-option" type="button" data-option-index="${index}" aria-pressed="true">
           <span class="option-key">✓</span><span class="option-value">${item}</span>
         </button>
-      `).join("")}
+      ` : `<div class="option-row locked-option"><span class="option-key">•</span><span class="option-value">${item}</span></div>`).join("")}
     </div>
 
     ${editable ? `
@@ -946,6 +946,28 @@ const createVisaVerificationCard = (result) => {
     <p class="visa-protection-note">${ko ? "ONE은 신청서를 준비만 합니다. 최종 승인 전에는 제출, 서명 또는 결제가 진행되지 않습니다." : "ONE prepares the application only. Nothing is submitted, signed, or paid until your final approval."}</p>
   `;
   return article;
+};
+
+const createExchangeBudgetCard = (result) => {
+  const provider = findLiveProvider(result, "currency");
+  const localCode = result.exchangeRate?.from || result.budget?.currency || "KRW";
+  const destinationCode = result.exchangeRate?.to || result.countryProfile?.currency || "JPY";
+  const total = result.budget?.estimatedTotal;
+  const formatAmount = (amount, code) => new Intl.NumberFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", {
+    style: "currency", currency: code, maximumFractionDigits: code === "KRW" ? 0 : 2
+  }).format(amount);
+  const rangeWithRate = (rate, code) => Number.isFinite(rate) && total
+    ? `${formatAmount(total.min * rate, code)} – ${formatAmount(total.max * rate, code)}`
+    : (activeLanguage === "ko" ? "실시간 환율 확인 필요" : "Live rate required");
+  const destinationRate = Number(provider?.items?.find((item) => item.to === destinationCode)?.rate ?? provider?.items?.[0]?.value);
+  const usdRate = Number(provider?.items?.find((item) => item.to === "USD")?.rate);
+  const items = [
+    `${localCode}: ${total ? `${formatAmount(total.min, localCode)} – ${formatAmount(total.max, localCode)}` : "—"}`,
+    `USD: ${rangeWithRate(usdRate, "USD")}`,
+    `${destinationCode}: ${rangeWithRate(destinationRate, destinationCode)}`,
+    localize(result.exchangeRate?.message)
+  ];
+  return createListCard({ id: "exchange-rate", title: t("exchangeRate"), label: provider ? (activeLanguage === "ko" ? "실시간 데이터" : "Live data") : t("apiPlaceholder"), items, wide: true, editable: false });
 };
 
 const renderTravelMission = (result) => {
@@ -1058,14 +1080,7 @@ const renderTravelMission = (result) => {
     })
   );
 
-  missionGrid.appendChild(
-    createPlaceholderCard({
-      id: "exchange-rate",
-      title: t("exchangeRate"),
-      message: result.exchangeRate?.message,
-      status: result.exchangeRate?.status
-    })
-  );
+  missionGrid.appendChild(createExchangeBudgetCard(result));
 
   missionGrid.appendChild(createApprovalCard(result));
 };

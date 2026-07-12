@@ -1,1 +1,1 @@
-import "./js/pages/loading-page.js?v=20260711-4";
+import "./js/pages/loading-page.js?v=20260713-5";

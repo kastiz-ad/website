@@ -182,19 +182,21 @@ a {
 }
 
 .header-brand-mark {
-  width: 50px;
+  width: auto;
   height: 50px;
-  flex: 0 0 50px;
-  display: block;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .header-brand-mark img {
   display: block;
-  width: 100%;
+  width: 50px;
   height: 100%;
   object-fit: contain;
 }
+.header-brand-mark span { margin-left: -10px; font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -0.11em; transform: translateY(2px); }
 
 html[data-theme="light"] .header-brand-mark img {
   filter: invert(1);
@@ -1164,7 +1166,13 @@ html[data-theme="midnight"] body {
 .login-trigger {
   border: 0;
   background: transparent;
-  font: inherit;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  padding: 0;
   cursor: pointer;
 }
 
@@ -1249,17 +1257,21 @@ html[data-theme="light"] .one-symbol {
 }
 
 .header-brand-mark {
-  width: 38px;
+  width: auto;
   height: 38px;
-  flex-basis: 38px;
+  flex-basis: auto;
 }
+.header-brand-mark img { width: 38px; }
+.header-brand-mark span { margin-left: -8px; font-size: 26px; }
 
 @media (max-width: 640px) {
   .header-brand-mark {
-    width: 34px;
+    width: auto;
     height: 34px;
-    flex-basis: 34px;
+    flex-basis: auto;
   }
+  .header-brand-mark img { width: 34px; }
+  .header-brand-mark span { margin-left: -7px; font-size: 23px; }
 
   .one-logo {
     height: 122px;

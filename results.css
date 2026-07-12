@@ -141,7 +141,7 @@ a {
   height: 100%;
   object-fit: contain;
 }
-.brand span { font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -0.11em; transform: translateY(2px); }
+.brand span { margin-left: -10px; font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -0.11em; transform: translateY(2px); }
 
 html[data-theme="light"] .brand img {
   filter: invert(1);
@@ -417,7 +417,8 @@ button.option-row .option-key { width: 24px; height: 24px; display: grid; place-
 button.option-row.is-excluded { opacity: .42; }
 button.option-row.is-excluded .option-key { background: transparent; color: var(--text-soft); outline: 1px solid var(--border-strong); }
 button.option-row.is-excluded .option-value { text-decoration: line-through; }
-.option-value { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.option-value { display: flex; align-items: center; justify-content: flex-start; gap: 12px; text-align: left; }
+.option-value > span:last-child:not(:only-child) { margin-left: auto; text-align: right; }
 .option-value strong { font-size: 13px; }
 .selectable-recommendation { width: 100%; min-height: 48px; display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center; gap: 12px; border: 0; border-radius: 15px; padding: 10px 13px; background: var(--chip); color: var(--text); text-align: left; cursor: pointer; }
 .selectable-recommendation .option-key { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
@@ -772,7 +773,7 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
     flex-basis: auto;
   }
   .brand img { width: 44px; }
-  .brand span { font-size: 29px; }
+  .brand span { margin-left: -8px; font-size: 29px; }
 
   .header-actions {
     gap: 13px;
@@ -803,10 +804,7 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
     font-size: 22px;
   }
 
-  .option-row {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
+  .option-row { grid-template-columns: 24px minmax(0, 1fr); gap: 12px; }
 
   .bottom-actions {
     width: calc(100% - 32px);
