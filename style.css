@@ -1158,7 +1158,7 @@ html[data-theme="midnight"] body {
   flex: 0 0 1.5em;
   display: block;
   object-fit: contain;
-  margin-right: -0.12em;
+  margin-right: -0.18em;
 }
 
 html[data-theme="light"] .one-symbol {
@@ -1167,6 +1167,7 @@ html[data-theme="light"] .one-symbol {
 
 .one-letter {
   font-size: 1.06em;
+  transform: translateY(7px);
   animation-duration: 36s;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
@@ -1289,6 +1290,44 @@ html[data-theme="light"] .one-symbol {
   .one-letter {
     opacity: 1 !important;
     animation: none !important;
+  }
+}
+
+/* Keep the mission input visible when a phone is rotated sideways. */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 950px) {
+  .site-header {
+    height: 58px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .hero {
+    padding: 62px 16px 58px !important;
+  }
+
+  .hero-content {
+    margin-top: 0;
+  }
+
+  .brand-lockup {
+    margin-bottom: 5px;
+  }
+
+  .one-logo {
+    height: 68px;
+  }
+
+  .one-logo-text {
+    font-size: 47px !important;
+    transform: translateX(-8px);
+  }
+
+  .one-letter {
+    transform: translateY(4px);
+  }
+
+  .search-language {
+    margin-top: 6px;
   }
 }
 
