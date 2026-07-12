@@ -1198,6 +1198,13 @@ html[data-theme="light"] .one-symbol {
   100% { opacity: 0; }
 }
 
+@keyframes oneLetterEPhoneSequence {
+  0%, 5.56% { opacity: 0; }
+  8.33% { opacity: 1; }
+  94.44% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 .search-language {
   margin-top: 30px;
   align-self: center;
@@ -1232,6 +1239,10 @@ html[data-theme="light"] .one-symbol {
 
   .search-language {
     margin-top: 26px;
+  }
+
+  .one-letter-e {
+    animation-name: oneLetterEPhoneSequence;
   }
 }
 
@@ -1314,11 +1325,11 @@ html[data-theme="light"] .one-symbol {
   }
 
   .one-logo {
-    height: 88px;
+    height: 108px;
   }
 
   .one-logo-text {
-    font-size: 60px !important;
+    font-size: 72px !important;
     transform: translateX(-8px);
   }
 
@@ -1327,7 +1338,15 @@ html[data-theme="light"] .one-symbol {
   }
 
   .search-language {
-    margin-top: 6px;
+    margin-top: 14px;
+  }
+
+  .mission-search {
+    margin-top: 9px;
+  }
+
+  .one-letter-e {
+    animation-name: oneLetterEPhoneSequence;
   }
 
   .site-footer {
