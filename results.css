@@ -464,10 +464,10 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .option-value strong { font-size: 13px; }
 .selectable-option:not(.is-excluded) .option-value strong { font-size: 17px; font-weight: 800; }
 .selectable-option.is-excluded .option-value strong { font-size: 13px; font-weight: 550; }
-.mission-card[data-card-id="restaurants"] .selectable-option .option-value { padding: 0 28px; display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 3px 9px; text-align: center; }
+.mission-card[data-card-id="restaurants"] .selectable-option .option-value { min-width: 0; padding: 2px 34px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 4px; text-align: center; }
 .mission-card[data-card-id="restaurants"] .selectable-option:not(.is-excluded) .option-value { font-size: 14px; font-weight: 700; }
-.mission-card[data-card-id="restaurants"] .selectable-option .option-value strong { font-size: 14px; white-space: nowrap; }
-.restaurant-meta { color: var(--text-muted); font-size: 10px; font-weight: 650; line-height: 1.3; white-space: nowrap; }
+.mission-card[data-card-id="restaurants"] .selectable-option .option-value strong { max-width: 100%; font-size: 14px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; }
+.restaurant-meta { display: block; max-width: 100%; color: var(--text-muted); font-size: 10px; font-weight: 650; line-height: 1.35; white-space: normal; }
 .selectable-recommendation { position: relative; width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 15px; padding: 10px 45px; background: var(--chip); color: var(--text); text-align: center; cursor: pointer; }
 .selectable-recommendation .option-key { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
 .selectable-recommendation.is-excluded { opacity: .42; }
@@ -718,6 +718,7 @@ html[lang="ko"] .primary-action small { width: 100%; transform: none; }
 .execution-summary-status { display: inline-flex; margin-top: 10px; padding: 7px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--chip); color: var(--text); font-size: 11px; font-weight: 750; }
 .execution-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .execution-summary-item { min-width: 0; padding: 15px; border: 1px solid var(--border); border-radius: 17px; background: var(--chip); }
+.execution-summary-item.is-restaurant { grid-column: 1 / -1; text-align: center; }
 .execution-summary-item.is-wide { grid-column: 1 / -1; }
 .execution-summary-label { display: block; margin-bottom: 7px; color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .execution-summary-value { display: block; color: var(--text); font-size: 14px; font-weight: 750; line-height: 1.45; overflow-wrap: anywhere; }

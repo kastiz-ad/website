@@ -1245,7 +1245,7 @@ const renderTravelMission = (result) => {
         const venue = restaurantVenueProfiles[countryCode]?.[index];
         const venueName = venue ? (activeLanguage === "ko" ? venue.ko : venue.en) : getRestaurantName(restaurant);
         const rating = venue?.rating || (4.2 + ((index * 2) % 6) / 10).toFixed(1);
-        return `<strong>${venueName}</strong><small class="restaurant-meta">★ ${rating} · ${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}</small>`;
+        return `<strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta">★ ${rating}<span aria-hidden="true"> · </span>${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}</small>`;
       }),
       wide: true,
       editable: true
@@ -1449,9 +1449,10 @@ const buildExecutionSummary = () => {
     ? restaurants.map((restaurant, index) => [
         ko ? `레스토랑 ${index + 1}` : `Restaurant ${index + 1}`,
         restaurant,
-        ko ? "가격 및 예약 가능 여부 최종 확인 필요" : "Final price and availability verification required"
+        ko ? "가격 및 예약 가능 여부 최종 확인 필요" : "Final price and availability verification required",
+        "is-restaurant"
       ])
-    : [[ko ? "레스토랑" : "Restaurants", ko ? "선택 없음" : "None selected", ko ? "선택된 레스토랑이 없습니다" : "No restaurants selected"]];
+    : [[ko ? "레스토랑" : "Restaurants", ko ? "선택 없음" : "None selected", ko ? "선택된 레스토랑이 없습니다" : "No restaurants selected", "is-restaurant"]];
   const rows = [
     [ko ? "항공편" : "Flight", `${flight ? getFlightName(flight) : "—"} · ${tripTypeLabel} · ${flightNumbers}`, `${flightDates} · ${timeLabels[schedule.timePreference] || timeLabels.any} · ${formatRange(flight?.estimatedPrice)}`],
     [ko ? "호텔" : "Hotel", hotel ? getHotelName(hotel) : "—", `${dateRange} · ${formatRange(hotel?.estimatedNightlyPrice)} / ${ko ? "1박" : "night"}`],
@@ -1460,7 +1461,7 @@ const buildExecutionSummary = () => {
     ...restaurantRows,
     [ko ? "프로토타입 참조 번호" : "Prototype reference", reference, ko ? "실제 예약 번호가 아닙니다" : "This is not a real booking number"]
   ];
-  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(([label, value, detail]) => `<div class="execution-summary-item"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span><span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`).join("")}</div><div class="all-in-slogan"><span>ALL in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-circle-mark-graffiti.png?v=20260713-17" alt=""><strong>NE</strong></span></div>`;
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(([label, value, detail, className = ""]) => `<div class="execution-summary-item ${className}"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span><span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`).join("")}</div><div class="all-in-slogan"><span>ALL in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-circle-mark-graffiti.png?v=20260713-17" alt=""><strong>NE</strong></span></div>`;
 };
 
 const runApprovalSequence = () => {
