@@ -1193,15 +1193,15 @@ html[data-theme="light"] .one-symbol {
 }
 
 @keyframes oneLetterESequence {
-  0%, 9.72% { opacity: 0; }
-  13.89% { opacity: 1; }
+  0%, 8.33% { opacity: 0; }
+  12.5% { opacity: 1; }
   94.44% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 @keyframes oneLetterEPhoneSequence {
-  0%, 9.72% { opacity: 0; }
-  12.5% { opacity: 1; }
+  0%, 8.33% { opacity: 0; }
+  11.11% { opacity: 1; }
   94.44% { opacity: 1; }
   100% { opacity: 0; }
 }
@@ -1253,7 +1253,7 @@ html[data-theme="light"] .one-symbol {
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: 0 !important;
+    bottom: calc((100vh - 100dvh) + env(safe-area-inset-bottom)) !important;
     display: grid !important;
     grid-template-columns: max-content max-content !important;
     grid-template-areas: "powered powered" "footer-left footer-right" !important;
@@ -1369,7 +1369,7 @@ html[data-theme="light"] .one-symbol {
     column-gap: 8px !important;
     row-gap: 4px !important;
     min-height: 0 !important;
-    padding: 5px 10px calc(5px + env(safe-area-inset-bottom)) !important;
+    padding: 5px 10px !important;
     font-size: 9px !important;
   }
 
