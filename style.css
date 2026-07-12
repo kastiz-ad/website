@@ -1158,8 +1158,40 @@ html[data-theme="midnight"] body {
   flex: 0 0 1.5em;
   display: block;
   object-fit: contain;
-  margin-right: -0.18em;
+  margin-right: -0.23em;
 }
+
+.login-trigger {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.login-modal {
+  width: min(430px, calc(100vw - 32px));
+  border: 1px solid var(--border-color, rgba(128, 128, 128, .24));
+  border-radius: 26px;
+  padding: 42px 34px 32px;
+  color: inherit;
+  background: var(--surface-color, #fff);
+  text-align: center;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+}
+
+.login-modal::backdrop { background: rgba(0, 0, 0, .58); backdrop-filter: blur(8px); }
+.login-modal-close { position: absolute; top: 13px; right: 16px; border: 0; background: none; color: inherit; font-size: 28px; cursor: pointer; }
+.login-modal-mark { width: 58px; height: 58px; margin: 0 auto 18px; }
+.login-modal-mark img { width: 100%; height: 100%; object-fit: contain; }
+html[data-theme="light"] .login-modal-mark img { filter: invert(1); }
+.login-modal-kicker { margin: 0 0 10px; font-size: 11px; font-weight: 800; letter-spacing: .18em; opacity: .55; }
+.login-modal h2 { margin: 0 0 18px; font-size: clamp(24px, 5vw, 32px); }
+.login-modal p:not(.login-modal-kicker):not(.login-notify-status) { margin: 7px 0; opacity: .72; }
+.login-notify { width: 100%; margin-top: 24px; padding: 14px 20px; border: 0; border-radius: 999px; background: currentColor; color: var(--surface-color, #fff); font: inherit; font-weight: 700; cursor: pointer; }
+.login-notify:disabled { opacity: .55; cursor: default; }
+.login-notify-status { min-height: 20px; margin: 12px 0 0; font-size: 13px; font-weight: 650; }
+html[data-theme="gray"] .login-modal { --surface-color: #f4f2ed; }
+html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
 
 html[data-theme="light"] .one-symbol {
   filter: invert(1);
@@ -1223,6 +1255,9 @@ html[data-theme="light"] .one-symbol {
 }
 
 @media (max-width: 640px) {
+  #themeControlText { font-size: 0; }
+  #themeControlText::after { content: "Theme"; font-size: 16px; }
+  html[lang="ko"] #themeControlText::after { content: "테마"; }
   .header-brand-mark {
     width: 34px;
     height: 34px;

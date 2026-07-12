@@ -17,6 +17,11 @@ const imageUploadInput = document.getElementById("imageUploadInput");
 const aiModeButton = document.getElementById("aiModeButton");
 const missionToolStatus = document.getElementById("missionToolStatus");
 const oneLogoText = document.querySelector(".one-logo-text");
+const loginButton = document.getElementById("loginButton");
+const loginModal = document.getElementById("loginModal");
+const loginModalClose = document.getElementById("loginModalClose");
+const loginNotifyButton = document.getElementById("loginNotifyButton");
+const loginNotifyStatus = document.getElementById("loginNotifyStatus");
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -41,6 +46,11 @@ const translations = {
     account: "Account",
     upgrade: "Upgrade",
     login: "Login",
+    loginWelcome: "Welcome to Kastiz ONE",
+    loginComingSoon: "Accounts are coming soon.",
+    loginPriority: "Early users will receive priority access.",
+    notifyMe: "Notify Me",
+    notifyConfirmed: "You're on the priority list.",
     searchLabel: "Enter your mission",
     searchDefault: "What mission should ONE complete?",
     missionTools: "Mission tools",
@@ -94,6 +104,11 @@ const translations = {
     account: "계정",
     upgrade: "업그레이드",
     login: "로그인",
+    loginWelcome: "Kastiz ONE에 오신 것을 환영합니다",
+    loginComingSoon: "계정 기능은 곧 제공됩니다.",
+    loginPriority: "초기 사용자에게 우선 이용 기회를 드립니다.",
+    notifyMe: "알림 신청",
+    notifyConfirmed: "우선 알림 목록에 등록되었습니다.",
     searchLabel: "미션 입력",
     searchDefault: "ONE이 어떤 미션을 완성할까요?",
     missionTools: "미션 도구",
@@ -121,10 +136,9 @@ const translations = {
     },
     missions: [
       "일본 여행 계획해줘",
-      "내 첫 집 찾아줘",
-      "사업 시작 도와줘",
-      "캐나다 이주 준비해줘",
-      "최고의 노트북 찾아줘",
+      "영어 선생님 찾아줘",
+      "좋은 노트북 추천해줘",
+      "캐나다 이주 도와줘",
       "아이 돌봄 서비스 찾아줘",
       "상표 등록 도와줘",
       "신혼여행 계획해줘",
@@ -228,8 +242,8 @@ const missionKeywordMap = {
   },
   career: {
     subtype: "career_search",
-    en: ["job", "resume", "career", "interview", "salary", "recruiter"],
-    ko: ["취업", "이직", "이력서", "면접", "연봉"]
+    en: ["job", "resume", "career", "interview", "salary", "recruiter", "tutor", "teacher", "lesson", "english teacher"],
+    ko: ["취업", "이직", "이력서", "면접", "연봉", "선생님", "튜터", "과외", "영어 수업"]
   },
   lifestyle: {
     subtype: "lifestyle_planning",
@@ -790,6 +804,40 @@ const buildMissionObject = (mission) => {
   const country = detectCountry(cleanMission, type);
   const theme = root.getAttribute("data-theme") || "light";
   const providers = providerCatalog[type] || providerCatalog.general_mission;
+  const isTutorMission = type === "career" && /tutor|teacher|lesson|선생님|튜터|과외|수업/i.test(cleanMission);
+  const tutorSteps = [
+    ["tutors", "Tutor shortlist", "튜터 후보"],
+    ["style", "Teaching style", "수업 방식"],
+    ["format", "Online / Offline", "온라인 / 오프라인"],
+    ["experience", "Experience", "경력"],
+    ["price", "Price", "가격"],
+    ["languages", "Languages", "사용 언어"],
+    ["availability", "Availability", "가능 시간"],
+    ["questions", "Interview questions", "인터뷰 질문"],
+    ["trial", "Trial lesson", "체험 수업"]
+  ];
+  const tutorCards = tutorSteps.map(([id, en, ko]) => ({
+    id,
+    title: activeLanguage === "ko" ? ko : en,
+    status: "prepared",
+    priority: "Balanced",
+    removed: false,
+    editable: true,
+    removable: true,
+    replaceable: true,
+    expandable: true,
+    approved: false,
+    items: []
+  }));
+  const preparedTutorSteps = tutorSteps.map(([id, en, ko], index) => ({
+    id,
+    title: activeLanguage === "ko" ? `${ko} 준비 완료` : `${en} prepared`,
+    order: index + 1,
+    status: "prepared",
+    editable: true,
+    removable: true,
+    approved: false
+  }));
 
   return {
     id: createMissionId(type),
@@ -799,7 +847,7 @@ const buildMissionObject = (mission) => {
     mission: cleanMission,
     slug: createMissionSlug(cleanMission),
     type,
-    subtype: detectSubtype(type),
+    subtype: isTutorMission ? "tutor_search" : detectSubtype(type),
     language: activeLanguage,
     theme,
     country,
@@ -812,11 +860,11 @@ const buildMissionObject = (mission) => {
     assumptions: buildAssumptions(type, country),
     providers,
     providerResults: buildProviderResults(providers),
-    steps: buildSteps(type),
+    steps: isTutorMission ? preparedTutorSteps : buildSteps(type),
     recommendations: buildRecommendations(type),
     budget: buildBudget(type),
     risks: buildRisks(type),
-    cards: buildCards(type),
+    cards: isTutorMission ? tutorCards : buildCards(type),
     priority: "Balanced",
     approvalProtection: {
       required: true,
@@ -1503,6 +1551,21 @@ imageUploadInput?.addEventListener("change", () => {
     selectedImageFiles.length === 1 ? "1 image attached." : `${selectedImageFiles.length} images attached.`,
     `이미지 ${selectedImageFiles.length}개가 첨부되었습니다.`
   );
+});
+
+loginButton?.addEventListener("click", () => {
+  loginNotifyStatus.textContent = "";
+  if (typeof loginModal.showModal === "function") loginModal.showModal();
+  else loginModal.setAttribute("open", "");
+});
+
+loginModalClose?.addEventListener("click", () => loginModal.close());
+loginModal?.addEventListener("click", (event) => {
+  if (event.target === loginModal) loginModal.close();
+});
+loginNotifyButton?.addEventListener("click", () => {
+  loginNotifyStatus.textContent = getTranslation("notifyConfirmed");
+  loginNotifyButton.disabled = true;
 });
 
 missionForm.addEventListener("submit", (event) => {

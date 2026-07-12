@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260712-18" />
+  <link rel="stylesheet" href="style.css?v=20260712-19" />
 </head>
 
 <body>
@@ -37,7 +37,7 @@
 
       <nav class="header-actions" aria-label="Account" data-i18n-aria="account">
         <a href="upgrade.html" class="header-link" data-i18n="upgrade">Upgrade</a>
-        <a href="login.html" class="header-link" data-i18n="login">Login</a>
+        <button type="button" class="header-link login-trigger" id="loginButton" data-i18n="login">Login</button>
       </nav>
     </header>
 
@@ -136,6 +136,17 @@
     </footer>
   </div>
 
-  <script type="module" src="script.js?v=20260712-6"></script>
+  <dialog class="login-modal" id="loginModal" aria-labelledby="loginModalTitle">
+    <button class="login-modal-close" id="loginModalClose" type="button" aria-label="Close">×</button>
+    <div class="login-modal-mark" aria-hidden="true"><img src="assets/one-circle-mark-proto.png?v=20260712-5" alt="" /></div>
+    <p class="login-modal-kicker">KASTIZ ONE</p>
+    <h2 id="loginModalTitle" data-i18n="loginWelcome">Welcome to Kastiz ONE</h2>
+    <p data-i18n="loginComingSoon">Accounts are coming soon.</p>
+    <p data-i18n="loginPriority">Early users will receive priority access.</p>
+    <button class="login-notify" id="loginNotifyButton" type="button" data-i18n="notifyMe">Notify Me</button>
+    <p class="login-notify-status" id="loginNotifyStatus" aria-live="polite"></p>
+  </dialog>
+
+  <script type="module" src="script.js?v=20260712-7"></script>
 </body>
 </html>
