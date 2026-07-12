@@ -337,7 +337,8 @@ html[data-theme="light"] .brand img {
 .mission-card.is-excluded { opacity: .48; }
 .mission-card.is-excluded .category-toggle { background: transparent; color: var(--text-soft); }
 .mission-card.is-excluded > :not(.card-top) { pointer-events: none; }
-.card-top-actions { display: flex; align-items: center; gap: 8px; }
+.card-title-group { min-width: 0; display: flex; align-items: center; gap: 12px; }
+.card-title-group .card-title { min-width: 0; }
 .additional-services { margin-top: 16px; min-height: 0; }
 .additional-service-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 16px; }
 .additional-service-entry input { min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; }

@@ -789,8 +789,8 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
 
   article.innerHTML = `
     <div class="card-top">
-      <h2 class="card-title">${title}</h2>
-      <div class="card-top-actions"><span class="card-label">${label}</span>${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}</div>
+      <div class="card-title-group">${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}<h2 class="card-title">${title}</h2></div>
+      <span class="card-label">${label}</span>
     </div>
 
     <div class="recommendation">
@@ -835,8 +835,8 @@ const createListCard = ({ id, title, label, items, wide = false, editable = true
 
   article.innerHTML = `
     <div class="card-top">
-      <h2 class="card-title">${title}</h2>
-      <div class="card-top-actions"><span class="card-label">${label}</span>${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}</div>
+      <div class="card-title-group">${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}<h2 class="card-title">${title}</h2></div>
+      <span class="card-label">${label}</span>
     </div>
 
     <div class="option-list">
@@ -884,8 +884,8 @@ const createBudgetCard = (budget) => {
 
   article.innerHTML = `
     <div class="card-top">
-      <h2 class="card-title">${activeLanguage === "ko" ? "예산" : "Budget"}</h2>
-      <div class="card-top-actions"><span class="card-label">${activeLanguage === "ko" ? "예상" : "Estimated"}</span><button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "예산 포함" : "Include budget"}">✓</button></div>
+      <div class="card-title-group"><button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "예산 포함" : "Include budget"}">✓</button><h2 class="card-title">${activeLanguage === "ko" ? "예산" : "Budget"}</h2></div>
+      <span class="card-label">${activeLanguage === "ko" ? "예상" : "Estimated"}</span>
     </div>
 
     <div class="option-list">
