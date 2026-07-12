@@ -1137,6 +1137,9 @@ const renderTravelMission = (result) => {
   const transfer = result.airportTransfer;
   const checklist = result.checklist || [];
   const restaurants = result.restaurants || [];
+  const flightPriceLabel = result.tripType === "one_way"
+    ? (activeLanguage === "ko" ? "편도" : "one way")
+    : (activeLanguage === "ko" ? "왕복" : "round trip");
 
   missionTitle.textContent = result.display?.title || t("fallbackTitle");
   missionGrid.innerHTML = "";
@@ -1144,7 +1147,7 @@ const renderTravelMission = (result) => {
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
 
   const flightOptions = (result.flights || [])
-    .map((flight, index) => makeOptionRow(getFlightName(flight), formatRange(flight.estimatedPrice), {
+    .map((flight, index) => makeOptionRow(getFlightName(flight), `${formatRange(flight.estimatedPrice)} · ${flightPriceLabel}`, {
       index, label: getFlightName(flight), reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason
     }));
 
@@ -1153,7 +1156,7 @@ const renderTravelMission = (result) => {
       id: "flights",
       title: activeLanguage === "ko" ? "항공권" : "Flights",
       label: activeLanguage === "ko" ? "추천" : "Recommended",
-      value: `<span class="recommended-name">${getFlightName(recommendedFlight)}</span><span class="recommended-price">${formatRange(recommendedFlight?.estimatedPrice)}</span>`,
+      value: `<span class="recommended-name">${getFlightName(recommendedFlight)}</span><span class="recommended-price">${formatRange(recommendedFlight?.estimatedPrice)} · ${flightPriceLabel}</span>`,
       reason:
         activeLanguage === "ko"
           ? recommendedFlight?.reasonKo || recommendedFlight?.reason || ""
@@ -1409,18 +1412,11 @@ const renderApprovalList = () => {
 };
 
 const startReturnCountdown = () => {
-  remainingSeconds = 60;
-  returnCountdown.textContent = t("returningHome").replace("{seconds}", remainingSeconds);
-
-  returnTimer = window.setInterval(() => {
-    remainingSeconds -= 1;
-    returnCountdown.textContent = t("returningHome").replace("{seconds}", remainingSeconds);
-
-    if (remainingSeconds <= 0) {
-      window.clearInterval(returnTimer);
-      returnHome();
-    }
-  }, 1000);
+  window.clearInterval(returnTimer);
+  returnTimer = null;
+  returnCountdown.textContent = activeLanguage === "ko"
+    ? "이 요약은 페이지를 새로고침하거나 닫을 때까지 유지됩니다."
+    : "This summary remains open until you reload or close this page.";
 };
 
 const returnHome = () => {
@@ -1452,9 +1448,16 @@ const buildExecutionSummary = () => {
   const timeLabels = ko ? { any: "시간 미정", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" } : { any: "Time to be confirmed", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
   const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "Avianca": "AV", "Iberia": "IB", "LATAM Airlines": "LA" };
   const flightNumber = `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}`;
+  const isRoundTrip = currentResult.tripType !== "one_way";
+  const returnFlightNumber = `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}`;
+  const tripTypeLabel = isRoundTrip ? (ko ? "왕복" : "Round trip") : (ko ? "편도" : "One way");
+  const flightNumbers = isRoundTrip ? `${flightNumber} / ${returnFlightNumber}` : flightNumber;
+  const flightDates = isRoundTrip && schedule.startDate && schedule.endDate
+    ? (ko ? `출국 ${schedule.startDate} · 귀국 ${schedule.endDate}` : `Outbound ${schedule.startDate} · Return ${schedule.endDate}`)
+    : dateRange;
   const reference = `ONE-DEMO-${String(currentResult.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
   const rows = [
-    [ko ? "항공편" : "Flight", `${flight ? getFlightName(flight) : "—"} · ${flightNumber}`, `${dateRange} · ${timeLabels[schedule.timePreference] || timeLabels.any} · ${formatRange(flight?.estimatedPrice)}`],
+    [ko ? "항공편" : "Flight", `${flight ? getFlightName(flight) : "—"} · ${tripTypeLabel} · ${flightNumbers}`, `${flightDates} · ${timeLabels[schedule.timePreference] || timeLabels.any} · ${formatRange(flight?.estimatedPrice)}`],
     [ko ? "호텔" : "Hotel", hotel ? getHotelName(hotel) : "—", `${dateRange} · ${formatRange(hotel?.estimatedNightlyPrice)} / ${ko ? "1박" : "night"}`],
     [ko ? "공항 이동" : "Airport transfer", localize(transfer), ko ? "선택한 이동 옵션 준비 완료" : "Selected transfer option prepared"],
     [ko ? "여행 일정" : "Schedule", dateRange, timeLabels[schedule.timePreference] || timeLabels.any],

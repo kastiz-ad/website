@@ -970,10 +970,22 @@ const detectDepartureCountry = () => {
   };
 };
 
+const detectTripType = (mission) => {
+  const text = normalizeForDetection(mission);
+  const oneWayKeywords = [
+    "one way", "one-way", "migrate", "migration", "immigrate", "immigration",
+    "relocate", "relocation", "moving permanently", "permanent move",
+    "편도", "이민", "이주", "영구 이주"
+  ];
+
+  return oneWayKeywords.some((keyword) => text.includes(keyword)) ? "one_way" : "round_trip";
+};
+
 const buildTravelMission = (mission) => {
   const baseMission = buildMissionObject(mission);
   const destination = detectDestination(mission, baseMission.countryProfile);
   const durationDays = detectDurationDays(mission);
+  const tripType = detectTripType(mission);
   const departureCountry = detectDepartureCountry();
   const language = activeLanguage;
   const theme = root.getAttribute("data-theme") || "light";
@@ -1004,6 +1016,7 @@ const buildTravelMission = (mission) => {
       longitude: destination.longitude ?? baseMission.countryProfile?.longitude
     },
     durationDays,
+    tripType,
     departureCountry,
     apiReadiness: {
       flights: {
