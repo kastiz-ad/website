@@ -1544,8 +1544,12 @@ const updateTravelBudgetFromSelections = () => {
   currentResult.budget = { ...currentResult.budget, flights, hotel, food, transport, activities, estimatedTotal };
 
   Object.entries({ flights, hotel, food, transport, activities, estimatedTotal }).forEach(([key, range]) => {
-    const value = missionGrid.querySelector(`[data-card-id="budget"] [data-budget-key="${key}"] .option-value > span`);
-    if (value) value.textContent = formatRange(range);
+    const row = missionGrid.querySelector(`[data-card-id="budget"] [data-budget-key="${key}"]`);
+    const value = row?.querySelector(".option-value > span");
+    const displayRange = key !== "estimatedTotal" && row?.getAttribute("aria-pressed") === "false"
+      ? { currency: range.currency, min: 0, max: 0 }
+      : range;
+    if (value) value.textContent = formatRange(displayRange);
   });
 
   const exchangeCard = missionGrid.querySelector('[data-card-id="exchange-rate"]');
