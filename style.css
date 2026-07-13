@@ -1705,3 +1705,15 @@ html[data-theme="light"] .one-symbol {
     transform: none !important;
   }
 }
+
+/* Preserve the metallic O's desktop edge weight after mobile downscaling. */
+@media (max-width: 640px) {
+  .one-symbol {
+    filter: drop-shadow(0 0 .65px currentColor);
+  }
+
+  html[data-theme="light"] .one-symbol,
+  html[data-theme="gray"] .one-symbol {
+    filter: invert(1) drop-shadow(0 0 .65px currentColor);
+  }
+}
