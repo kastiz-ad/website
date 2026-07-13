@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260714-53" />
+  <link rel="stylesheet" href="style.css?v=20260714-54" />
 </head>
 
 <body>
@@ -156,8 +156,8 @@
     <p class="schedule-help" data-i18n="scheduleHelp">Select the required date range. Time is optional.</p>
     <form id="scheduleForm">
       <div class="schedule-date-grid">
-        <label><span data-i18n="startDate">Start date</span><input id="scheduleStartDate" type="date" required /></label>
-        <label><span data-i18n="endDate">End date</span><input id="scheduleEndDate" type="date" required /></label>
+        <label class="schedule-date-field"><span data-i18n="startDate">Start date</span><input id="scheduleStartDate" type="date" required /><span class="schedule-date-value" id="scheduleStartDateValue" aria-hidden="true"></span></label>
+        <label class="schedule-date-field"><span data-i18n="endDate">End date</span><input id="scheduleEndDate" type="date" required /><span class="schedule-date-value" id="scheduleEndDateValue" aria-hidden="true"></span></label>
       </div>
       <label class="schedule-time-label"><span data-i18n="timePreference">Time preference</span>
         <select id="scheduleTimePreference">
@@ -172,6 +172,6 @@
     </form>
   </dialog>
 
-  <script type="module" src="script.js?v=20260714-14"></script>
+  <script type="module" src="script.js?v=20260714-15"></script>
 </body>
 </html>

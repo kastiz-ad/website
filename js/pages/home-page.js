@@ -29,6 +29,8 @@ const scheduleModalClose = document.getElementById("scheduleModalClose");
 const scheduleForm = document.getElementById("scheduleForm");
 const scheduleStartDate = document.getElementById("scheduleStartDate");
 const scheduleEndDate = document.getElementById("scheduleEndDate");
+const scheduleStartDateValue = document.getElementById("scheduleStartDateValue");
+const scheduleEndDateValue = document.getElementById("scheduleEndDateValue");
 const scheduleTimePreference = document.getElementById("scheduleTimePreference");
 const scheduleSummary = document.getElementById("scheduleSummary");
 let pendingMissionText = "";
@@ -1643,6 +1645,8 @@ const updateScheduleSummary = () => {
   scheduleEndDate.min = start;
   if (end < start) scheduleEndDate.value = start;
   const finalEnd = scheduleEndDate.value;
+  if (scheduleStartDateValue) scheduleStartDateValue.textContent = start;
+  if (scheduleEndDateValue) scheduleEndDateValue.textContent = finalEnd;
   const startLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${start}T00:00:00`));
   const endLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${finalEnd}T00:00:00`));
   const timeLabel = scheduleTimePreference.options[scheduleTimePreference.selectedIndex]?.textContent || "";

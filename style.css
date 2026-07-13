@@ -1270,6 +1270,7 @@ html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
 .schedule-modal form { width: 100%; min-width: 0; overflow: hidden; }
 .schedule-modal label { display: grid; gap: 8px; color: var(--text-muted); font-size: 13px; font-weight: 650; }
 .schedule-date-grid label > span { display: block; width: 100%; text-align: center; }
+.schedule-date-field { position: relative; }
 .schedule-date-grid input[type="date"] {
   position: relative;
   width: 200px;
@@ -1278,6 +1279,8 @@ html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
   padding-right: 30px !important;
   text-align: center !important;
   text-align-last: center !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
 }
 .schedule-date-grid input[type="date"]::-webkit-date-and-time-value {
   width: 100%;
@@ -1298,6 +1301,23 @@ html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
   margin: 0;
   padding: 0;
 }
+.schedule-date-value {
+  position: absolute;
+  left: 30px;
+  right: 30px;
+  bottom: 0;
+  height: 36px;
+  display: grid !important;
+  place-items: center;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  width: auto !important;
+}
 .schedule-modal input, .schedule-modal select { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; height: 36px; border: 1px solid var(--border); border-radius: 11px; padding: 0 7px; background: var(--surface-strong); color: var(--text); font: inherit; font-size: 12px; color-scheme: inherit; }
 .schedule-modal select {
   -webkit-appearance: none;
@@ -1308,10 +1328,12 @@ html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
   background-position: right 18px center;
   background-size: 16px 16px;
 }
+html[data-theme="gray"] .schedule-modal input[type="date"]::-webkit-calendar-picker-indicator,
 html[data-theme="midnight"] .schedule-modal input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(1.35);
   opacity: 1;
 }
+html[data-theme="gray"] .schedule-modal select,
 html[data-theme="midnight"] .schedule-modal select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23ffffff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
@@ -1332,7 +1354,11 @@ html[data-theme="midnight"] .schedule-modal select {
 .schedule-summary-row strong { color: var(--text-muted); font-size: 11px; font-weight: 750; }
 .schedule-summary-row > span { text-align: right; font-size: 12px; }
 .schedule-confirm { width: 100%; min-height: 52px; border: 0; border-radius: 999px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 800; cursor: pointer; }
-html[data-theme="gray"] .schedule-modal { --surface-color: #f4f2ed; }
+html[data-theme="gray"] .schedule-modal {
+  --surface-color: #484a50;
+  --border-color: rgba(244, 241, 234, 0.24);
+  color: var(--text);
+}
 html[data-theme="midnight"] .schedule-modal { --surface-color: #17191c; }
 @media (max-width: 520px) {
   .schedule-modal { width: min(350px, calc(100vw - 20px)); width: min(350px, calc(100dvw - 20px)); max-width: calc(100vw - 20px); max-width: calc(100dvw - 20px); padding: 28px 12px 18px; border-radius: 22px; }
@@ -1348,6 +1374,7 @@ html[data-theme="midnight"] .schedule-modal { --surface-color: #17191c; }
     padding-right: 30px !important;
     font-size: 16px;
   }
+  .schedule-date-value { font-size: 13px; }
   .schedule-modal h2 { font-size: 22px; }
   .schedule-help { margin-bottom: 18px; font-size: 13px; }
   .schedule-summary { margin: 14px 0; padding: 12px 8px; font-size: 12px; }
