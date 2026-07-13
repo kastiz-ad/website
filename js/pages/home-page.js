@@ -1643,7 +1643,14 @@ const updateScheduleSummary = () => {
   const startLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${start}T00:00:00`));
   const endLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${finalEnd}T00:00:00`));
   const timeLabel = scheduleTimePreference.options[scheduleTimePreference.selectedIndex]?.textContent || "";
-  scheduleSummary.textContent = `${startLabel} → ${endLabel} · ${timeLabel}`;
+  const outgoingLabel = activeLanguage === "ko" ? "출국 날짜" : "Outgoing date";
+  const returningLabel = activeLanguage === "ko" ? "귀국 날짜" : "Returning date";
+  const timeHeading = activeLanguage === "ko" ? "시간" : "Time";
+  scheduleSummary.innerHTML = `
+    <span class="schedule-summary-row"><strong>${outgoingLabel}</strong><span>${startLabel}</span></span>
+    <span class="schedule-summary-row"><strong>${returningLabel}</strong><span>${endLabel}</span></span>
+    <span class="schedule-summary-row"><strong>${timeHeading}</strong><span>${timeLabel}</span></span>
+  `;
   scheduleSummary.classList.add("has-valid-range");
 };
 
