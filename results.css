@@ -597,8 +597,8 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .bottom-actions { position: relative; bottom: auto; }
 .primary-action small { width: 100%; display: grid; place-items: center; transform: none; text-align: center; }
 .with-one-lockup { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-.primary-action small img { width: 17px; height: 17px; object-fit: contain; }
-html[data-theme="light"] .primary-action small img { filter: invert(1); }
+.primary-action small img { width: 17px; height: 17px; object-fit: contain; filter: none; }
+html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .primary-action:hover,
 .secondary-action:hover {
