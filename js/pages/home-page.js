@@ -1,3 +1,5 @@
+import { trackEvent } from "../analytics.js";
+
 const root = document.documentElement;
 const body = document.body;
 const themeDropdown = document.getElementById("themeDropdown");
@@ -1436,7 +1438,13 @@ const startMission = (mission, schedule = null) => {
     return;
   }
 
-  saveMission(cleanMission, schedule);
+  const savedMission = saveMission(cleanMission, schedule);
+  trackEvent("mission_started", {
+    mission_type: savedMission.type,
+    language: savedMission.language,
+    page: "home",
+    schedule_used: Boolean(schedule?.startDate && schedule?.endDate)
+  });
   body.classList.add("is-transitioning");
 
   window.setTimeout(() => {
@@ -1680,6 +1688,12 @@ scheduleForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!scheduleForm.reportValidity()) return;
   const schedule = { startDate: scheduleStartDate.value, endDate: scheduleEndDate.value, timePreference: scheduleTimePreference.value };
+  trackEvent("schedule_confirmed", {
+    mission_type: detectMissionType(normalizeMission(pendingMissionText)),
+    language: activeLanguage,
+    page: "home",
+    schedule_used: true
+  });
   scheduleModal.close();
   startMission(pendingMissionText, schedule);
 });

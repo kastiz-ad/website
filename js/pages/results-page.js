@@ -1,3 +1,5 @@
+import { trackEvent } from "../analytics.js";
+
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
 const missionGrid = document.getElementById("missionGrid");
@@ -1606,6 +1608,12 @@ const buildExecutionSummary = () => {
 };
 
 const runApprovalSequence = () => {
+  trackEvent("approval_clicked", {
+    mission_type: currentResult?.type,
+    language: activeLanguage,
+    page: "results",
+    schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate)
+  });
   const items = [...approvalList.querySelectorAll(".approval-item")];
 
   makeRealityButton.disabled = true;
@@ -1628,6 +1636,12 @@ const runApprovalSequence = () => {
 
           buildExecutionSummary();
           completionMessage.hidden = false;
+          trackEvent("execution_summary_shown", {
+            mission_type: currentResult?.type,
+            language: activeLanguage,
+            page: "results",
+            schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate)
+          });
           window.requestAnimationFrame(() => {
             const headerHeight = document.querySelector(".results-header")?.getBoundingClientRect().height || 76;
             const targetTop = window.scrollY + completionMessage.getBoundingClientRect().top - headerHeight - 28;
@@ -1735,6 +1749,7 @@ const enableCustomization = () => {
       categoryToggle.setAttribute("aria-pressed", String(included));
       categoryToggle.textContent = included ? "✓" : "+";
       card?.classList.toggle("is-excluded", !included);
+      trackEvent("option_selected", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: card?.dataset.cardId });
       if (["flights", "hotel", "airport-transfer", "restaurants"].includes(card?.dataset.cardId)) {
         updateTravelBudgetFromSelections();
       }
@@ -1744,6 +1759,7 @@ const enableCustomization = () => {
     const selectable = event.target.closest(".selectable-option");
     if (selectable) {
       const card = selectable.closest(".mission-card");
+      trackEvent("option_selected", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: card?.dataset.cardId });
       const exclusive = card?.classList.contains("exclusive-choice-card") && !card.classList.contains("is-editing");
       if (exclusive) {
         const recommendation = card.querySelector(".selectable-recommendation");
@@ -1824,6 +1840,7 @@ const enableCustomization = () => {
     const cardId = button.getAttribute("data-card-action") || card?.dataset.cardId;
 
     if (!card || !cardId) return;
+    trackEvent("customize_used", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: cardId });
 
     const picker = card.querySelector("[data-alternatives-for]");
     if (picker && !picker.children.length) {
@@ -1845,6 +1862,7 @@ const enableCustomization = () => {
 const addAdditionalService = () => {
   const value = additionalServiceInput?.value.trim();
   if (!value || !additionalServiceList) return;
+  trackEvent("customize_used", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: "custom-services" });
   const option = document.createElement("button");
   option.className = "option-row selectable-option";
   option.type = "button";

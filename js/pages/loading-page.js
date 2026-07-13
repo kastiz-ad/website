@@ -1,4 +1,5 @@
 import { fetchJson } from "../engine/providers.js?v=20260711-1";
+import { trackEvent } from "../analytics.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -365,6 +366,12 @@ const runLoadingSequence = async () => {
 
   updateLoadingMessage(language === "ko" ? "미션 준비가 완료되었습니다..." : "Mission ready...", 100, loadingSteps.length);
   saveMission(enrichedMission);
+  trackEvent("results_generated", {
+    mission_type: enrichedMission.type,
+    language,
+    page: "loading",
+    schedule_used: Boolean(enrichedMission.schedule?.startDate && enrichedMission.schedule?.endDate)
+  });
 
   await wait(620);
 
