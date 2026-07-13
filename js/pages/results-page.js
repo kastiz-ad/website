@@ -745,8 +745,11 @@ const makeOptionRow = (key, value, details = {}) => {
   const reason = encodeURIComponent(details.reason || "");
   const label = encodeURIComponent(details.label || key || "");
   const index = Number.isInteger(details.index) ? details.index : -1;
+  const priceAttributes = details.price
+    ? ` data-price-min="${Number(details.price.min || 0)}" data-price-max="${Number(details.price.max || 0)}" data-price-currency="${details.price.currency || "KRW"}"`
+    : "";
   return `
-    <button class="option-row selectable-option" type="button" aria-pressed="true" data-option-index="${index}" data-option-label="${label}" data-option-reason="${reason}">
+    <button class="option-row selectable-option" type="button" aria-pressed="true" data-option-index="${index}" data-option-label="${label}" data-option-reason="${reason}"${priceAttributes}>
       <span class="option-key">✓</span>
       <span class="option-value"><strong>${key}</strong><span>${value}</span></span>
     </button>
@@ -848,7 +851,7 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
   return article;
 };
 
-const createListCard = ({ id, title, label, items, wide = false, editable = true }) => {
+const createListCard = ({ id, title, label, items, itemDetails = [], wide = false, editable = true }) => {
   const article = document.createElement("article");
   article.className = "mission-card";
   article.dataset.cardId = id;
@@ -865,11 +868,17 @@ const createListCard = ({ id, title, label, items, wide = false, editable = true
     </div>
 
     <div class="option-list">
-      ${items.map((item, index) => editable ? `
-        <button class="option-row selectable-option" type="button" data-option-index="${index}" aria-pressed="true">
+      ${items.map((item, index) => {
+        const price = itemDetails[index]?.price;
+        const priceAttributes = price
+          ? ` data-price-min="${Number(price.min || 0)}" data-price-max="${Number(price.max || 0)}" data-price-currency="${price.currency || "KRW"}"`
+          : "";
+        return editable ? `
+        <button class="option-row selectable-option" type="button" data-option-index="${index}"${priceAttributes} aria-pressed="true">
           <span class="option-key">✓</span><span class="option-value">${item}</span>
         </button>
-      ` : `<div class="option-row locked-option"><span class="option-key">•</span><span class="option-value">${item}</span></div>`).join("")}
+      ` : `<div class="option-row locked-option"><span class="option-key">•</span><span class="option-value">${item}</span></div>`;
+      }).join("")}
     </div>
 
     ${editable ? `
@@ -1142,6 +1151,19 @@ const renderTravelMission = (result) => {
   const flightPriceLabel = result.tripType === "one_way"
     ? (activeLanguage === "ko" ? "편도" : "one way")
     : (activeLanguage === "ko" ? "왕복" : "round trip");
+  const transportBudget = result.budget?.transport || { currency: "KRW", min: 120000, max: 280000 };
+  const transferPriceRanges = [
+    { currency: transportBudget.currency || result.budget?.currency || "KRW", min: Math.round(transportBudget.min * .5), max: Math.round(transportBudget.max * .57) },
+    { currency: transportBudget.currency || result.budget?.currency || "KRW", min: Math.round(transportBudget.min * 1.15), max: Math.round(transportBudget.max * 1.35) },
+    { currency: transportBudget.currency || result.budget?.currency || "KRW", min: Math.round(transportBudget.min * .17), max: Math.round(transportBudget.max * .22) }
+  ];
+  const restaurantPriceFallbacks = [
+    { currency: "KRW", min: 25000, max: 65000 },
+    { currency: "KRW", min: 12000, max: 25000 },
+    { currency: "KRW", min: 70000, max: 180000 },
+    { currency: "KRW", min: 25000, max: 60000 },
+    { currency: "KRW", min: 8000, max: 22000 }
+  ];
 
   missionTitle.textContent = result.display?.title || t("fallbackTitle");
   missionGrid.innerHTML = "";
@@ -1200,7 +1222,8 @@ const renderTravelMission = (result) => {
           ? [localize(transfer?.reason), "수하물 이동과 편안함을 우선하는 가장 편리한 옵션입니다.", "공식 대중교통으로 비용을 줄이려는 여행자에게 적합한 예산형 옵션입니다."]
           : [localize(transfer?.reason), "Best comfort option when luggage handling and convenience matter most.", "Best budget option for travelers comfortable using official public transport."];
         const types = activeLanguage === "ko" ? ["균형형", "편의 중심", "예산 중심"] : ["Balanced", "Best comfort", "Best budget"];
-        return makeOptionRow(localize(option), types[index] || types[0], { index, label: localize(option), reason: reasons[index] || reasons[0] });
+        const price = transferPriceRanges[index] || transferPriceRanges[0];
+        return makeOptionRow(localize(option), `${types[index] || types[0]} · ${formatRange(price)}`, { index, label: localize(option), reason: reasons[index] || reasons[0], price });
       }),
       editable: true
     })
@@ -1238,20 +1261,14 @@ const renderTravelMission = (result) => {
       title: activeLanguage === "ko" ? "레스토랑" : "Restaurants",
       label: activeLanguage === "ko" ? "프로토타입 가격" : "Prototype prices",
       items: restaurants.map((restaurant, index) => {
-        const restaurantPrices = [
-          { currency: "KRW", min: 25000, max: 65000 },
-          { currency: "KRW", min: 12000, max: 25000 },
-          { currency: "KRW", min: 70000, max: 180000 },
-          { currency: "KRW", min: 25000, max: 60000 },
-          { currency: "KRW", min: 8000, max: 22000 }
-        ];
-        const price = formatRange(restaurant.estimatedPrice || restaurantPrices[index] || restaurantPrices[0]);
+        const price = formatRange(restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0]);
         const countryCode = result.country || result.countryProfile?.code || "JP";
         const venue = restaurantVenueProfiles[countryCode]?.[index];
         const venueName = venue ? (activeLanguage === "ko" ? venue.ko : venue.en) : getRestaurantName(restaurant);
         const rating = venue?.rating || (4.2 + ((index * 2) % 6) / 10).toFixed(1);
         return `<strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta">★ ${rating}<span aria-hidden="true"> · </span>${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}</small>`;
       }),
+      itemDetails: restaurants.map((restaurant, index) => ({ price: restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0] })),
       wide: true,
       editable: true
     })
@@ -1453,18 +1470,67 @@ const getTripNightCount = () => {
   return Number.isFinite(nights) ? Math.max(1, nights) : 1;
 };
 
+const rangeFromPricedOption = (option) => option ? normalizeBudgetRange({
+  currency: option.dataset.priceCurrency,
+  min: Number(option.dataset.priceMin || 0),
+  max: Number(option.dataset.priceMax || 0)
+}) : normalizeBudgetRange();
+
+const addBudgetRanges = (...ranges) => {
+  const normalized = ranges.map((range) => normalizeBudgetRange(range));
+  return {
+    currency: normalized.find((range) => range.currency)?.currency || currentResult?.budget?.currency || "KRW",
+    min: normalized.reduce((sum, range) => sum + range.min, 0),
+    max: normalized.reduce((sum, range) => sum + range.max, 0)
+  };
+};
+
+const subtractBudgetRange = (total, deduction) => {
+  const normalizedTotal = normalizeBudgetRange(total);
+  const normalizedDeduction = normalizeBudgetRange(deduction);
+  return {
+    currency: normalizedTotal.currency,
+    min: Math.max(0, normalizedTotal.min - normalizedDeduction.min),
+    max: Math.max(0, normalizedTotal.max - normalizedDeduction.max)
+  };
+};
+
 const updateTravelBudgetFromSelections = () => {
   if (currentResult?.type !== "travel" || !currentResult.budget) return;
 
+  if (!currentResult._budgetBaseline) {
+    currentResult._budgetBaseline = {
+      flights: normalizeBudgetRange(currentResult.budget.flights),
+      hotel: normalizeBudgetRange(currentResult.budget.hotel),
+      food: normalizeBudgetRange(currentResult.budget.food),
+      transport: normalizeBudgetRange(currentResult.budget.transport),
+      activities: normalizeBudgetRange(currentResult.budget.activities)
+    };
+  }
+  const baseline = currentResult._budgetBaseline;
+  const cardIncluded = (cardId) => !missionGrid.querySelector(`[data-card-id="${cardId}"]`)?.classList.contains("is-excluded");
   const selectedFlight = currentResult.flights?.[selectedOptionIndex("flights")];
   const selectedHotel = currentResult.hotels?.[selectedOptionIndex("hotel")];
-  const flights = normalizeBudgetRange(selectedFlight?.estimatedPrice, currentResult.budget.flights);
-  const hotel = selectedHotel?.estimatedNightlyPrice
+  const flights = cardIncluded("flights")
+    ? normalizeBudgetRange(selectedFlight?.estimatedPrice, baseline.flights)
+    : normalizeBudgetRange();
+  const hotel = cardIncluded("hotel") && selectedHotel?.estimatedNightlyPrice
     ? scaleBudgetRange(selectedHotel.estimatedNightlyPrice, getTripNightCount())
-    : normalizeBudgetRange(currentResult.budget.hotel);
-  const food = normalizeBudgetRange(currentResult.budget.food);
-  const transport = normalizeBudgetRange(currentResult.budget.transport);
-  const activities = normalizeBudgetRange(currentResult.budget.activities);
+    : cardIncluded("hotel") ? normalizeBudgetRange(baseline.hotel) : normalizeBudgetRange();
+
+  const restaurantRows = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .option-row[data-price-min]')];
+  const allRestaurantFees = addBudgetRanges(...restaurantRows.map(rangeFromPricedOption));
+  const selectedRestaurantFees = cardIncluded("restaurants")
+    ? addBudgetRanges(...restaurantRows.filter((row) => row.getAttribute("aria-pressed") === "true").map(rangeFromPricedOption))
+    : normalizeBudgetRange();
+  const food = addBudgetRanges(subtractBudgetRange(baseline.food, allRestaurantFees), selectedRestaurantFees);
+
+  const transferRows = [...missionGrid.querySelectorAll('[data-card-id="airport-transfer"] .option-row[data-price-min]')];
+  const standardTransferFee = rangeFromPricedOption(transferRows[0]);
+  const selectedTransferRow = transferRows.find((row) => row.getAttribute("aria-pressed") === "true");
+  const selectedTransferFee = cardIncluded("airport-transfer") ? rangeFromPricedOption(selectedTransferRow) : normalizeBudgetRange();
+  const transport = addBudgetRanges(subtractBudgetRange(baseline.transport, standardTransferFee), selectedTransferFee);
+  const activities = normalizeBudgetRange(baseline.activities);
   const ranges = [flights, hotel, food, transport, activities];
   const estimatedTotal = {
     currency: currentResult.budget.currency || flights.currency,
@@ -1472,7 +1538,7 @@ const updateTravelBudgetFromSelections = () => {
     max: ranges.reduce((sum, range) => sum + range.max, 0)
   };
 
-  currentResult.budget = { ...currentResult.budget, flights, hotel, estimatedTotal };
+  currentResult.budget = { ...currentResult.budget, flights, hotel, food, transport, activities, estimatedTotal };
 
   Object.entries({ flights, hotel, food, transport, activities, estimatedTotal }).forEach(([key, range]) => {
     const value = missionGrid.querySelector(`[data-card-id="budget"] [data-budget-key="${key}"] .option-value > span`);
@@ -1662,6 +1728,9 @@ const enableCustomization = () => {
       categoryToggle.setAttribute("aria-pressed", String(included));
       categoryToggle.textContent = included ? "✓" : "+";
       card?.classList.toggle("is-excluded", !included);
+      if (["flights", "hotel", "airport-transfer", "restaurants"].includes(card?.dataset.cardId)) {
+        updateTravelBudgetFromSelections();
+      }
       return;
     }
 
@@ -1689,7 +1758,7 @@ const enableCustomization = () => {
         if (recommendationValue && chosenName) {
           const suffix = card.dataset.cardId === "hotel" && chosenPrice
             ? `${chosenPrice} / ${activeLanguage === "ko" ? "1박" : "night"}`
-            : card.dataset.cardId === "airport-transfer" ? "" : chosenPrice || "";
+            : chosenPrice || "";
           recommendationValue.innerHTML = `<span class="recommended-name">${chosenName}</span><span class="recommended-price">${suffix}</span>`;
         }
         let selectedReason = chosen?.dataset.optionReason;
@@ -1702,7 +1771,7 @@ const enableCustomization = () => {
         }
         const reasonElement = card.querySelector(".reason");
         if (reasonElement && selectedReason) reasonElement.textContent = decodeURIComponent(selectedReason);
-        if (card.dataset.cardId === "flights" || card.dataset.cardId === "hotel") {
+        if (["flights", "hotel", "airport-transfer"].includes(card.dataset.cardId)) {
           updateTravelBudgetFromSelections();
         }
         return;
@@ -1711,6 +1780,7 @@ const enableCustomization = () => {
       selectable.setAttribute("aria-pressed", String(included));
       selectable.classList.toggle("is-excluded", !included);
       selectable.querySelector(".option-key").textContent = included ? "✓" : "+";
+      if (card?.dataset.cardId === "restaurants") updateTravelBudgetFromSelections();
       return;
     }
 
