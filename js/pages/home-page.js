@@ -70,7 +70,7 @@ const translations = {
     evening: "Evening · 17:00–22:00",
     confirmSchedule: "Confirm and Continue",
     searchLabel: "Enter your mission",
-    searchDefault: "What mission should ONE complete?",
+    searchDefault: "Plan my Japan trip.",
     missionTools: "Mission tools",
     microphone: "Use microphone",
     uploadImage: "Upload image",
@@ -138,7 +138,7 @@ const translations = {
     evening: "저녁 · 17:00–22:00",
     confirmSchedule: "확인 후 계속",
     searchLabel: "미션 입력",
-    searchDefault: "ONE이 어떤 미션을 완성할까요?",
+    searchDefault: "일본 여행 계획해줘",
     missionTools: "미션 도구",
     microphone: "마이크 사용",
     uploadImage: "이미지 업로드",
@@ -423,7 +423,6 @@ const destinationPatterns = [
 let activeLanguage = "en";
 let activeMissionIndex = -1;
 let rotatorInterval = null;
-let firstRotationTimeout = null;
 let aiModeEnabled = false;
 let selectedImageFiles = [];
 
@@ -547,18 +546,14 @@ const fadeRotatorTo = (text) => {
 
 const resetMissionRotator = () => {
   window.clearInterval(rotatorInterval);
-  window.clearTimeout(firstRotationTimeout);
 
-  activeMissionIndex = -1;
-  missionRotatorText.textContent = getTranslation("searchDefault");
+  const missions = getTranslation("missions");
+  activeMissionIndex = 0;
+  missionRotatorText.textContent = missions[activeMissionIndex];
 
-  firstRotationTimeout = window.setTimeout(() => {
+  rotatorInterval = window.setInterval(() => {
     rotateMission();
-
-    rotatorInterval = window.setInterval(() => {
-      rotateMission();
-    }, 5000);
-  }, 10000);
+  }, 5000);
 };
 
 const rotateMission = () => {
