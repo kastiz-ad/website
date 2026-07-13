@@ -62,9 +62,27 @@ body{
 .logo{
     text-decoration:none;
     color:var(--text);
-    font-size:34px;
+    display:inline-flex;
+    align-items:center;
+    gap:0;
+}
+
+.logo img{
+    width:44px;
+    height:44px;
+    object-fit:contain;
+}
+
+.logo strong{
+    margin-left:0;
+    font-size:30px;
+    line-height:1;
     font-weight:800;
-    letter-spacing:-4px;
+    letter-spacing:-.09em;
+}
+
+html[data-theme="light"] .logo img{
+    filter:invert(1);
 }
 
 .topbar nav{

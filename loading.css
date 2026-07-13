@@ -95,6 +95,10 @@ body {
 }
 
 .one-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
   font-size: clamp(58px, 9vw, 86px);
   line-height: 0.9;
   font-weight: 800;
@@ -102,6 +106,21 @@ body {
   color: var(--text);
   margin-bottom: 26px;
 }
+
+.one-mark img {
+  width: 1.32em;
+  height: 1.32em;
+  object-fit: contain;
+}
+
+.one-mark strong {
+  margin-left: -0.02em;
+  font-size: 1em;
+  line-height: 1;
+  letter-spacing: -0.09em;
+}
+
+html[data-theme="light"] .one-mark img { filter: invert(1); }
 
 .loading-title {
   margin: 0;
