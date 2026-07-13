@@ -854,6 +854,10 @@ html[data-theme="light"] .all-in-one img { filter: invert(1); }
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .mission-status-card {
+    align-self: center;
+  }
 }
 
 @media (max-width: 760px) {

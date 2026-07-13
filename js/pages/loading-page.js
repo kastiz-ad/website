@@ -140,7 +140,7 @@ const fetchWeather = async (mission) => {
     const data = await fetchJson(url);
     const items = data?.daily?.time?.slice(0, Math.min(scheduledDays, 16)).map((date, index) => ({
       label: date,
-      value: `${Math.round(data.daily.temperature_2m_min[index])}°C - ${Math.round(data.daily.temperature_2m_max[index])}°C`,
+      value: `${Math.round(data.daily.temperature_2m_min[index])}°C ~ ${Math.round(data.daily.temperature_2m_max[index])}°C`,
       precipitation: `${data.daily.precipitation_probability_max[index] ?? 0}%`,
       humidity: `${data.daily.relative_humidity_2m_max?.[index] ?? "—"}%`
     })) || [];
