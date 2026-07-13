@@ -1191,7 +1191,7 @@ html[data-theme="midnight"] body {
   clip-path: circle(49% at 50% 50%);
   -webkit-mask-image: conic-gradient(from 180deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
   mask-image: conic-gradient(from 180deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
-  animation: oneLogoCircleDraw 2.25s linear 100ms forwards;
+  animation: oneLogoCircleDraw 3.6s linear 240ms forwards;
   transform: translateZ(0);
   backface-visibility: hidden;
   will-change: opacity, mask-image;
