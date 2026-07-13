@@ -1020,6 +1020,27 @@ html[data-theme="light"] .all-in-one img { filter: invert(1); }
   .mission-card .option-row { min-width: 0; }
 }
 
+/* Keep touch scrolling strictly vertical on the results experience. */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+body {
+  touch-action: pan-y pinch-zoom;
+}
+
+.results-shell,
+.results-header,
+.mission-layout,
+.site-footer {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .mission-card[data-card-id="weather"] .option-row { width: 100%; }
 .mission-card[data-card-id="weather"] .option-value { padding: 0 34px; line-height: 1.45; text-align: center; }
 
