@@ -1178,12 +1178,36 @@ html[data-theme="midnight"] body {
 }
 
 .one-symbol {
+  --one-logo-sweep: 0deg;
   width: 1.5em;
   height: 1.5em;
   flex: 0 0 1.5em;
   display: block;
   object-fit: contain;
   margin-right: -0.03em;
+  -webkit-mask-image: conic-gradient(from -90deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
+  mask-image: conic-gradient(from -90deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
+  animation: oneLogoCircleDraw 1.9s cubic-bezier(.2,.72,.2,1) 180ms forwards;
+}
+
+@property --one-logo-sweep {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes oneLogoCircleDraw {
+  0% {
+    --one-logo-sweep: 0deg;
+    opacity: .35;
+  }
+  72% {
+    opacity: 1;
+  }
+  100% {
+    --one-logo-sweep: 360deg;
+    opacity: 1;
+  }
 }
 
 .login-trigger {
@@ -1624,6 +1648,13 @@ html[data-theme="light"] .one-symbol {
 }
 
 /* Final header lockup alignment, placed after legacy responsive overrides. */
+@media (prefers-reduced-motion: reduce) {
+  .one-symbol {
+    --one-logo-sweep: 360deg;
+    animation: none !important;
+  }
+}
+
 .site-header .header-left .header-brand-mark {
   width: auto !important;
   height: 31px !important;
