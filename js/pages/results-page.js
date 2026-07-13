@@ -1531,7 +1531,10 @@ const updateTravelBudgetFromSelections = () => {
   const selectedTransferFee = cardIncluded("airport-transfer") ? rangeFromPricedOption(selectedTransferRow) : normalizeBudgetRange();
   const transport = addBudgetRanges(subtractBudgetRange(baseline.transport, standardTransferFee), selectedTransferFee);
   const activities = normalizeBudgetRange(baseline.activities);
-  const ranges = [flights, hotel, food, transport, activities];
+  const costRanges = { flights, hotel, food, transport, activities };
+  const ranges = Object.entries(costRanges)
+    .filter(([key]) => missionGrid.querySelector(`[data-card-id="budget"] [data-budget-key="${key}"]`)?.getAttribute("aria-pressed") !== "false")
+    .map(([, range]) => range);
   const estimatedTotal = {
     currency: currentResult.budget.currency || flights.currency,
     min: ranges.reduce((sum, range) => sum + range.min, 0),
@@ -1781,6 +1784,15 @@ const enableCustomization = () => {
       selectable.classList.toggle("is-excluded", !included);
       selectable.querySelector(".option-key").textContent = included ? "✓" : "+";
       if (card?.dataset.cardId === "restaurants") updateTravelBudgetFromSelections();
+      if (card?.dataset.cardId === "budget") {
+        const budgetKey = selectable.dataset.budgetKey;
+        if (budgetKey === "estimatedTotal") {
+          selectable.setAttribute("aria-pressed", "true");
+          selectable.classList.remove("is-excluded");
+          selectable.querySelector(".option-key").textContent = "✓";
+        }
+        updateTravelBudgetFromSelections();
+      }
       return;
     }
 
