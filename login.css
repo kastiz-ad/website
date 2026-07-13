@@ -232,6 +232,7 @@ form{
 .one-logo{
     transform:scale(.9);
 }
+.account-status{font-size:11px!important;font-weight:800;letter-spacing:.12em;margin-bottom:14px}.account-actions{display:grid;gap:10px;margin-top:28px}.primary-button{text-decoration:none}.request-link{height:48px;border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--text);font-weight:700}.account-links{margin-top:26px;padding-top:22px;border-top:1px solid var(--border);display:grid;gap:10px}.account-links a{color:var(--muted);font-size:13px;text-decoration:none}.provider:disabled{cursor:not-allowed;opacity:.58}.light-logo{filter:invert(1)}
 
 .login-card h1{
     font-size:28px;
