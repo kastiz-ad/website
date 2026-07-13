@@ -385,7 +385,7 @@ html[data-theme="light"] .brand img {
 .additional-services { width: 100%; margin: 16px 0 28px; min-height: 0 !important; height: auto !important; display: flex !important; flex-direction: column; visibility: visible !important; overflow: visible !important; position: relative; z-index: 2; contain: none !important; }
 .additional-service-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 16px; }
 .additional-service-entry input { min-width: 0; height: 48px; padding: 0 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; }
-.additional-service-entry button { padding: 0 20px; border: 0; border-radius: 16px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 750; cursor: pointer; }
+.additional-service-entry button { padding: 0 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; font-weight: 750; cursor: pointer; }
 .visa-upload-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .document-upload-button, .prepare-visa-button { min-height: 48px; padding: 10px 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface-strong); color: var(--text); font: inherit; font-weight: 750; cursor: pointer; }
 .document-upload-button.has-file { border-color: var(--success); }
@@ -595,10 +595,10 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .mission-card[data-card-id="approval-protection"] .reason,
 .mission-card[data-card-id="approval-protection"] .recommendation-label { text-align: center; }
 .bottom-actions { position: relative; bottom: auto; }
-.primary-action small { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.primary-action small { width: 100%; display: grid; place-items: center; transform: none; text-align: center; }
+.with-one-lockup { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .primary-action small img { width: 17px; height: 17px; object-fit: contain; }
 html[data-theme="light"] .primary-action small img { filter: invert(1); }
-html[lang="ko"] .primary-action small { width: 100%; transform: none; }
 
 .primary-action:hover,
 .secondary-action:hover {
