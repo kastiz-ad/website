@@ -1612,3 +1612,18 @@ html[data-theme="light"] .one-symbol {
     touch-action: pan-y !important;
   }
 }
+
+/* Final header lockup alignment, placed after legacy responsive overrides. */
+.site-header .header-left .header-brand-mark {
+  width: auto !important;
+  height: 31px !important;
+  flex-basis: auto !important;
+  transform: translateY(-6px) !important;
+}
+
+@media (max-width: 640px) {
+  .site-header .header-left .header-brand-mark {
+    height: 28px !important;
+    transform: translateY(-5px) !important;
+  }
+}
