@@ -1226,16 +1226,16 @@ html[data-theme="light"] .login-modal-mark img { filter: invert(1); }
 .login-notify-status { min-height: 20px; margin: 12px 0 0; font-size: 13px; font-weight: 650; }
 html[data-theme="gray"] .login-modal { --surface-color: #f4f2ed; }
 html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
-.schedule-modal { box-sizing: border-box; width: min(420px, calc(100vw - 28px)); width: min(420px, calc(100dvw - 28px)); max-width: calc(100vw - 28px); max-width: calc(100dvw - 28px); margin: auto; border: 1px solid var(--border-color, rgba(128,128,128,.24)); border-radius: 28px; padding: 34px 26px 26px; overflow-x: hidden; color: inherit; background: var(--surface-color, #fff); box-shadow: 0 28px 80px rgba(0,0,0,.3); }
+.schedule-modal { box-sizing: border-box; width: min(380px, calc(100vw - 28px)); width: min(380px, calc(100dvw - 28px)); max-width: calc(100vw - 28px); max-width: calc(100dvw - 28px); margin: auto; border: 1px solid var(--border-color, rgba(128,128,128,.24)); border-radius: 26px; padding: 32px 22px 24px; overflow-x: hidden; color: inherit; background: var(--surface-color, #fff); box-shadow: 0 28px 80px rgba(0,0,0,.3); }
 .schedule-modal::backdrop { background: rgba(0,0,0,.62); backdrop-filter: blur(8px); }
 .schedule-modal-close { position: absolute; top: 13px; right: 16px; border: 0; background: none; color: inherit; font-size: 28px; cursor: pointer; }
 .schedule-modal h2 { margin: 0 0 8px; text-align: center; font-size: 24px; line-height: 1.2; font-weight: 750; letter-spacing: -0.045em; white-space: nowrap; }
 .schedule-help { margin: 0 0 24px; color: var(--text-muted); text-align: center; }
-.schedule-date-grid { width: min(100%, 300px); margin: 0 auto; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.schedule-date-grid { width: min(100%, 260px); margin: 0 auto; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
 .schedule-modal form { width: 100%; min-width: 0; overflow: hidden; }
 .schedule-modal label { display: grid; gap: 8px; color: var(--text-muted); font-size: 13px; font-weight: 650; }
 .schedule-date-grid label > span { display: block; width: 100%; text-align: center; }
-.schedule-modal input, .schedule-modal select { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; height: 40px; border: 1px solid var(--border); border-radius: 12px; padding: 0 10px; background: var(--surface-strong); color: var(--text); font: inherit; color-scheme: inherit; }
+.schedule-modal input, .schedule-modal select { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; height: 36px; border: 1px solid var(--border); border-radius: 11px; padding: 0 7px; background: var(--surface-strong); color: var(--text); font: inherit; font-size: 12px; color-scheme: inherit; }
 .schedule-modal select {
   -webkit-appearance: none;
   appearance: none;
@@ -1262,7 +1262,7 @@ html[data-theme="midnight"] .schedule-modal select {
 html[data-theme="gray"] .schedule-modal { --surface-color: #f4f2ed; }
 html[data-theme="midnight"] .schedule-modal { --surface-color: #17191c; }
 @media (max-width: 520px) {
-  .schedule-modal { width: calc(100vw - 20px); width: calc(100dvw - 20px); max-width: calc(100vw - 20px); max-width: calc(100dvw - 20px); padding: 30px 12px 18px; border-radius: 22px; }
+  .schedule-modal { width: min(350px, calc(100vw - 20px)); width: min(350px, calc(100dvw - 20px)); max-width: calc(100vw - 20px); max-width: calc(100dvw - 20px); padding: 28px 12px 18px; border-radius: 22px; }
   .schedule-date-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 6px;
