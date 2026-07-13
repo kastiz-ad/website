@@ -1185,9 +1185,16 @@ html[data-theme="midnight"] body {
   display: block;
   object-fit: contain;
   margin-right: -0.03em;
-  -webkit-mask-image: conic-gradient(from -90deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
-  mask-image: conic-gradient(from -90deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
-  animation: oneLogoCircleDraw 1.9s cubic-bezier(.2,.72,.2,1) 180ms forwards;
+  overflow: hidden;
+  border-radius: 50%;
+  background: transparent !important;
+  clip-path: circle(49% at 50% 50%);
+  -webkit-mask-image: conic-gradient(from 180deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
+  mask-image: conic-gradient(from 180deg, #000 0deg var(--one-logo-sweep), transparent var(--one-logo-sweep) 360deg);
+  animation: oneLogoCircleDraw 3.6s linear 240ms forwards;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: opacity, mask-image;
 }
 
 @property --one-logo-sweep {
