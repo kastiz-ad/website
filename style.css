@@ -1231,7 +1231,7 @@ html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
 .schedule-modal-close { position: absolute; top: 13px; right: 16px; border: 0; background: none; color: inherit; font-size: 28px; cursor: pointer; }
 .schedule-modal h2 { margin: 0 0 8px; text-align: center; font-size: 24px; line-height: 1.2; font-weight: 750; letter-spacing: -0.045em; white-space: nowrap; }
 .schedule-help { margin: 0 0 24px; color: var(--text-muted); text-align: center; }
-.schedule-date-grid { width: min(100%, 260px); margin: 0 auto; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.schedule-date-grid { width: min(100%, 220px); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .schedule-modal form { width: 100%; min-width: 0; overflow: hidden; }
 .schedule-modal label { display: grid; gap: 8px; color: var(--text-muted); font-size: 13px; font-weight: 650; }
 .schedule-date-grid label > span { display: block; width: 100%; text-align: center; }
@@ -1252,7 +1252,7 @@ html[data-theme="midnight"] .schedule-modal input[type="date"]::-webkit-calendar
 html[data-theme="midnight"] .schedule-modal select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23ffffff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
-.schedule-time-label { margin-top: 14px; }
+.schedule-time-label { width: min(100%, 220px); margin: 14px auto 0; }
 .schedule-summary { max-width: 100%; margin: 18px 0; padding: 16px; overflow-wrap: anywhere; border-radius: 16px; background: var(--chip); color: var(--text); text-align: center; font-weight: 700; line-height: 1.5; }
 .schedule-summary-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 12px; padding: 5px 0; text-align: left; }
 .schedule-summary-row + .schedule-summary-row { border-top: 1px solid var(--border); }
@@ -1264,8 +1264,8 @@ html[data-theme="midnight"] .schedule-modal { --surface-color: #17191c; }
 @media (max-width: 520px) {
   .schedule-modal { width: min(350px, calc(100vw - 20px)); width: min(350px, calc(100dvw - 20px)); max-width: calc(100vw - 20px); max-width: calc(100dvw - 20px); padding: 28px 12px 18px; border-radius: 22px; }
   .schedule-date-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
   }
   .schedule-date-grid label { min-width: 0; }
   .schedule-date-grid input[type="date"] {
