@@ -1724,8 +1724,7 @@ html[data-theme="light"] .one-symbol {
     filter: drop-shadow(0 0 .65px currentColor);
   }
 
-  html[data-theme="light"] .one-symbol,
-  html[data-theme="gray"] .one-symbol {
+  html[data-theme="light"] .one-symbol {
     filter: invert(1) drop-shadow(0 0 .65px currentColor);
   }
 }
