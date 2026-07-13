@@ -144,7 +144,7 @@ a {
   object-fit: contain;
 }
 .brand > .header-mini-ne {
-  margin-left: -5px;
+  margin-left: 0;
   color: inherit;
   font-size: 34px;
   font-weight: 800;
@@ -154,7 +154,7 @@ a {
 }
 @media (max-width: 640px) {
   .brand > .header-mini-symbol { width: 44px !important; height: 44px !important; flex-basis: 44px; }
-  .brand > .header-mini-ne { margin-left: -5px; font-size: 29px; }
+  .brand > .header-mini-ne { margin-left: 0; font-size: 29px; }
 }
 
 .brand img {
@@ -744,7 +744,7 @@ html[data-theme="light"] .primary-action small img { filter: invert(1); }
 .all-in-slogan { margin: 30px auto 4px; display: flex; align-items: center; justify-content: center; gap: 4px; color: var(--text); font-size: clamp(30px, 6vw, 46px); font-weight: 800; letter-spacing: -0.04em; }
 .all-in-one { display: inline-flex; align-items: center; gap: 0; }
 .all-in-one img { width: 1.45em; height: 1.45em; object-fit: contain; }
-.all-in-one strong { margin-left: -0.16em; font-size: 1em; line-height: 1; letter-spacing: -0.09em; }
+.all-in-one strong { margin-left: 0; font-size: 1em; line-height: 1; letter-spacing: -0.09em; }
 html[data-theme="light"] .all-in-one img { filter: invert(1); }
 @media (max-width: 600px) { .execution-summary-grid { grid-template-columns: 1fr; } .execution-summary-item.is-wide { grid-column: auto; } }
 
