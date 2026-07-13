@@ -693,7 +693,7 @@ html[lang="ko"] .primary-action small { width: 100%; transform: none; }
 
 .completion-message {
   margin: 34px auto 0;
-  width: min(100%, 560px);
+  width: min(100%, 960px);
   padding-top: 30px;
   scroll-margin-top: calc(110px + env(safe-area-inset-top));
   border-top: 1px solid var(--border);
@@ -718,11 +718,13 @@ html[lang="ko"] .primary-action small { width: 100%; transform: none; }
   letter-spacing: 0.16em;
 }
 
+.completion-message > p { white-space: nowrap; }
+
 .execution-summary { width: 100%; margin: 28px 0 8px; text-align: left; }
 .execution-summary-head { margin-bottom: 14px; text-align: center; }
-.execution-summary-head h4 { margin: 0 0 7px; font-size: clamp(18px, 3vw, 32px); }
-.execution-summary-head p { margin: 0; color: var(--text-muted); font-size: 12px; line-height: 1.45; letter-spacing: 0; }
-.execution-summary-status { display: inline-flex; margin-top: 10px; padding: 7px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--chip); color: var(--text); font-size: 11px; font-weight: 750; }
+.execution-summary-head h4 { margin: 0 0 7px; font-size: clamp(18px, 3vw, 30px); white-space: nowrap; }
+.execution-summary-head p { margin: 0; color: var(--text-muted); font-size: clamp(6px, 1.25vw, 12px); line-height: 1.45; font-weight: 650; letter-spacing: -0.025em; white-space: nowrap; }
+.execution-summary-status { display: inline-flex; margin-top: 10px; padding: 7px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--chip); color: var(--text); font-size: 11px; font-weight: 750; white-space: nowrap; }
 .execution-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .execution-summary-item { min-width: 0; padding: 15px; border: 1px solid var(--border); border-radius: 17px; background: var(--chip); }
 .execution-summary-item.is-restaurant { grid-column: 1 / -1; text-align: center; }
