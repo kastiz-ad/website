@@ -1659,12 +1659,21 @@ html[data-theme="light"] .one-symbol {
   width: auto !important;
   height: 31px !important;
   flex-basis: auto !important;
-  transform: translateY(-6px) !important;
+  transform: none !important;
+  align-items: center !important;
+}
+
+.site-header .header-left .header-brand-mark > .header-mini-ne {
+  transform: translateY(1px) !important;
 }
 
 @media (max-width: 640px) {
   .site-header .header-left .header-brand-mark {
     height: 28px !important;
-    transform: translateY(-5px) !important;
+    transform: none !important;
+  }
+
+  .site-header .header-left .header-brand-mark > .header-mini-ne {
+    transform: none !important;
   }
 }
