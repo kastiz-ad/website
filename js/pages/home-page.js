@@ -464,7 +464,7 @@ const getTranslation = (key) => {
 const setMetaThemeColor = (theme) => {
   const colors = {
     light: "#ffffff",
-    gray: "#f4f2ed",
+    gray: "#3f4146",
     midnight: "#121315"
   };
 

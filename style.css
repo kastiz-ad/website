@@ -45,27 +45,6 @@ html[data-theme="gray"] {
   --gradient-c: rgba(92, 94, 102, 0.26);
   color-scheme: dark;
 }
-  --bg: #f4f2ed;
-  --text: #171717;
-  --text-muted: #6f6a62;
-  --text-soft: #9b948a;
-  --border: rgba(23, 23, 23, 0.11);
-  --border-strong: rgba(23, 23, 23, 0.18);
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-strong: rgba(255, 255, 255, 0.94);
-  --shadow-search: 0 16px 50px rgba(33, 27, 19, 0.1);
-  --accent: #171717;
-  --accent-text: #ffffff;
-  --chip-bg: rgba(23, 23, 23, 0.045);
-  --footer-bg: rgba(244, 242, 237, 0.76);
-  --menu-bg: rgba(255, 255, 255, 0.96);
-  --menu-shadow: 0 18px 54px rgba(34, 28, 20, 0.12);
-  --gradient-a: rgba(255, 255, 255, 0.86);
-  --gradient-b: rgba(232, 226, 216, 0.6);
-  --gradient-c: rgba(224, 232, 244, 0.28);
-  color-scheme: light;
-}
-
 html[data-theme="midnight"] {
 
   --bg: #111315;
@@ -660,18 +639,6 @@ html[data-theme="midnight"] .search-box:focus-within {
 
 }
 
-  .footer-left,
-  .footer-right {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .hero {
-    padding-bottom: 156px;
-  }
-}
-
 @media (max-width: 640px) {
   .site-header {
     height: 72px;
@@ -1259,7 +1226,11 @@ html[data-theme="light"] .login-modal-mark img { filter: invert(1); }
 .login-notify { width: 100%; margin-top: 24px; padding: 14px 20px; border: 0; border-radius: 999px; background: currentColor; color: var(--surface-color, #fff); font: inherit; font-weight: 700; cursor: pointer; }
 .login-notify:disabled { opacity: .55; cursor: default; }
 .login-notify-status { min-height: 20px; margin: 12px 0 0; font-size: 13px; font-weight: 650; }
-html[data-theme="gray"] .login-modal { --surface-color: #f4f2ed; }
+html[data-theme="gray"] .login-modal {
+  --surface-color: #484a50;
+  --border-color: rgba(244, 241, 234, 0.24);
+  color: var(--text);
+}
 html[data-theme="midnight"] .login-modal { --surface-color: #17191c; }
 .schedule-modal { box-sizing: border-box; width: min(380px, calc(100vw - 28px)); width: min(380px, calc(100dvw - 28px)); max-width: calc(100vw - 28px); max-width: calc(100dvw - 28px); margin: auto; border: 1px solid var(--border-color, rgba(128,128,128,.24)); border-radius: 26px; padding: 32px 22px 24px; overflow-x: hidden; color: inherit; background: var(--surface-color, #fff); box-shadow: 0 28px 80px rgba(0,0,0,.3); }
 .schedule-modal::backdrop { background: rgba(0,0,0,.62); backdrop-filter: blur(8px); }

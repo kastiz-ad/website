@@ -13,12 +13,16 @@
 }
 
 html[data-theme="gray"]{
-    --bg:#f3f2ef;
-    --surface:#fcfcfc;
-    --surface2:#f5f4f2;
-    --text:#171717;
-    --muted:#6d6d6d;
-    --border:#dddddd;
+    --bg:#3f4146;
+    --surface:#484a50;
+    --surface2:#51535a;
+    --text:#f4f1ea;
+    --muted:#d0ccc4;
+    --border:rgba(244,241,234,.18);
+    --accent:#f4f1ea;
+    --accentText:#33353a;
+    --shadow:0 24px 76px rgba(0,0,0,.28);
+    color-scheme:dark;
 }
 
 html[data-theme="midnight"]{
