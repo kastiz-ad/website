@@ -898,14 +898,15 @@ const createBudgetCard = (budget) => {
   article.className = "mission-card is-wide";
   article.dataset.cardId = "budget";
 
-  const rows = [
-    makeOptionRow(t("budgetFlights"), formatRange(budget?.flights)),
-    makeOptionRow(t("budgetHotel"), formatRange(budget?.hotel)),
-    makeOptionRow(t("budgetFood"), formatRange(budget?.food)),
-    makeOptionRow(t("budgetTransport"), formatRange(budget?.transport)),
-    makeOptionRow(t("budgetActivities"), formatRange(budget?.activities)),
-    makeOptionRow(t("estimatedTotal"), formatRange(budget?.estimatedTotal))
-  ].join("");
+  const budgetRows = [
+    ["flights", t("budgetFlights"), budget?.flights],
+    ["hotel", t("budgetHotel"), budget?.hotel],
+    ["food", t("budgetFood"), budget?.food],
+    ["transport", t("budgetTransport"), budget?.transport],
+    ["activities", t("budgetActivities"), budget?.activities],
+    ["estimatedTotal", t("estimatedTotal"), budget?.estimatedTotal]
+  ];
+  const rows = budgetRows.map(([, label, range]) => makeOptionRow(label, formatRange(range))).join("");
 
   article.innerHTML = `
     <div class="card-top">
@@ -921,6 +922,10 @@ const createBudgetCard = (budget) => {
       <button class="modify-button" type="button" data-card-action="budget">${t("modify")}</button>
     </div>
   `;
+
+  article.querySelectorAll(".option-list .option-row").forEach((row, index) => {
+    row.dataset.budgetKey = budgetRows[index][0];
+  });
 
   return article;
 };
@@ -1424,6 +1429,60 @@ const selectedOptionIndex = (cardId) => {
   return Number.isInteger(index) && index >= 0 ? index : 0;
 };
 
+const normalizeBudgetRange = (range, fallback = { min: 0, max: 0 }) => ({
+  currency: range?.currency || fallback?.currency || currentResult?.budget?.currency || "KRW",
+  min: Number.isFinite(Number(range?.min)) ? Number(range.min) : Number(fallback?.min || 0),
+  max: Number.isFinite(Number(range?.max)) ? Number(range.max) : Number(fallback?.max || 0)
+});
+
+const scaleBudgetRange = (range, multiplier) => {
+  const normalized = normalizeBudgetRange(range);
+  return {
+    currency: normalized.currency,
+    min: Math.round(normalized.min * multiplier),
+    max: Math.round(normalized.max * multiplier)
+  };
+};
+
+const getTripNightCount = () => {
+  const { startDate, endDate } = currentResult?.schedule || {};
+  if (!startDate || !endDate) return 1;
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+  const nights = Math.round((end - start) / 86400000);
+  return Number.isFinite(nights) ? Math.max(1, nights) : 1;
+};
+
+const updateTravelBudgetFromSelections = () => {
+  if (currentResult?.type !== "travel" || !currentResult.budget) return;
+
+  const selectedFlight = currentResult.flights?.[selectedOptionIndex("flights")];
+  const selectedHotel = currentResult.hotels?.[selectedOptionIndex("hotel")];
+  const flights = normalizeBudgetRange(selectedFlight?.estimatedPrice, currentResult.budget.flights);
+  const hotel = selectedHotel?.estimatedNightlyPrice
+    ? scaleBudgetRange(selectedHotel.estimatedNightlyPrice, getTripNightCount())
+    : normalizeBudgetRange(currentResult.budget.hotel);
+  const food = normalizeBudgetRange(currentResult.budget.food);
+  const transport = normalizeBudgetRange(currentResult.budget.transport);
+  const activities = normalizeBudgetRange(currentResult.budget.activities);
+  const ranges = [flights, hotel, food, transport, activities];
+  const estimatedTotal = {
+    currency: currentResult.budget.currency || flights.currency,
+    min: ranges.reduce((sum, range) => sum + range.min, 0),
+    max: ranges.reduce((sum, range) => sum + range.max, 0)
+  };
+
+  currentResult.budget = { ...currentResult.budget, flights, hotel, estimatedTotal };
+
+  Object.entries({ flights, hotel, food, transport, activities, estimatedTotal }).forEach(([key, range]) => {
+    const value = missionGrid.querySelector(`[data-card-id="budget"] [data-budget-key="${key}"] .option-value > span`);
+    if (value) value.textContent = formatRange(range);
+  });
+
+  const exchangeCard = missionGrid.querySelector('[data-card-id="exchange-rate"]');
+  if (exchangeCard) exchangeCard.replaceWith(createExchangeBudgetCard(currentResult));
+};
+
 const buildExecutionSummary = () => {
   if (!executionSummary || currentResult?.type !== "travel") return;
   const ko = activeLanguage === "ko";
@@ -1643,6 +1702,9 @@ const enableCustomization = () => {
         }
         const reasonElement = card.querySelector(".reason");
         if (reasonElement && selectedReason) reasonElement.textContent = decodeURIComponent(selectedReason);
+        if (card.dataset.cardId === "flights" || card.dataset.cardId === "hotel") {
+          updateTravelBudgetFromSelections();
+        }
         return;
       }
       const included = selectable.getAttribute("aria-pressed") !== "true";
