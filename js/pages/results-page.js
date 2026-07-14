@@ -1282,7 +1282,6 @@ const renderTravelMission = (result) => {
 
   missionGrid.appendChild(createExchangeBudgetCard(result));
 
-  missionGrid.appendChild(createApprovalCard(result));
 };
 
 const renderGeneralMission = (result) => {
@@ -1373,7 +1372,6 @@ const renderGeneralMission = (result) => {
     editable: false
   }));
 
-  missionGrid.appendChild(createApprovalCard(result));
 };
 
 const renderMission = () => {
@@ -1381,10 +1379,12 @@ const renderMission = () => {
 
   if (currentResult.type === "travel") {
     renderTravelMission(currentResult);
-    return;
+  } else {
+    renderGeneralMission(currentResult);
   }
 
-  renderGeneralMission(currentResult);
+  missionGrid.appendChild(additionalServicesForm);
+  missionGrid.appendChild(createApprovalCard(currentResult));
 };
 
 const initializeOptionSelections = () => {
