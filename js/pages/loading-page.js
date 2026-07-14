@@ -42,6 +42,9 @@ const loadingMessages = {
     healthcare: ["Understanding your healthcare mission...", "Preparing clinic and hospital options...", "Preparing appointment steps...", "Checking document needs...", "Preparing healthcare checklist..."],
     finance: ["Understanding your finance mission...", "Preparing loan and rate options...", "Checking required documents...", "Preparing risk notes...", "Preparing finance checklist..."],
     career: ["Understanding your career mission...", "Preparing job targets...", "Preparing resume steps...", "Preparing interview plan...", "Preparing career checklist..."],
+    tutoring: ["Understanding the learner's goal...", "Comparing tutor profiles...", "Checking format and schedule...", "Preparing lesson options...", "Preparing a trial-lesson checklist..."],
+    childcare: ["Understanding the care requirements...", "Preparing trust and safety checks...", "Comparing caregiver preferences...", "Preparing schedule and budget options...", "Preparing the childcare checklist..."],
+    language_exchange: ["Understanding your language goal...", "Matching level and interests...", "Comparing online and local formats...", "Preparing conversation options...", "Preparing a safe first-meeting checklist..."],
     lifestyle: ["Understanding your lifestyle mission...", "Preparing vendors...", "Preparing timeline...", "Preparing budget options...", "Preparing reservation checklist..."]
   },
   ko: {
@@ -55,6 +58,9 @@ const loadingMessages = {
     healthcare: ["의료 미션을 이해하고 있어요...", "병원과 클리닉 옵션을 준비하고 있어요...", "예약 단계를 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "의료 체크리스트를 준비하고 있어요..."],
     finance: ["금융 미션을 이해하고 있어요...", "대출과 금리 옵션을 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "리스크를 정리하고 있어요...", "금융 체크리스트를 준비하고 있어요..."],
     career: ["커리어 미션을 이해하고 있어요...", "채용 목표를 준비하고 있어요...", "이력서 단계를 준비하고 있어요...", "면접 계획을 준비하고 있어요...", "커리어 체크리스트를 준비하고 있어요..."],
+    tutoring: ["학습 목표를 이해하고 있어요...", "튜터 후보를 비교하고 있어요...", "수업 방식과 일정을 확인하고 있어요...", "수업 선택지를 준비하고 있어요...", "체험 수업 체크리스트를 준비하고 있어요..."],
+    childcare: ["돌봄 조건을 이해하고 있어요...", "신뢰와 안전 확인 항목을 준비하고 있어요...", "돌봄 제공자 조건을 비교하고 있어요...", "일정과 예산 선택지를 준비하고 있어요...", "아이 돌봄 체크리스트를 준비하고 있어요..."],
+    language_exchange: ["언어 목표를 이해하고 있어요...", "수준과 관심사를 맞추고 있어요...", "온라인과 현지 방식을 비교하고 있어요...", "대화 파트너 선택지를 준비하고 있어요...", "안전한 첫 만남 체크리스트를 준비하고 있어요..."],
     lifestyle: ["라이프스타일 미션을 이해하고 있어요...", "업체 후보를 준비하고 있어요...", "일정을 준비하고 있어요...", "예산 옵션을 준비하고 있어요...", "예약 체크리스트를 준비하고 있어요..."]
   }
 };
@@ -62,8 +68,9 @@ const loadingMessages = {
 const fallbackProvider = (provider, category, message, error = null) => ({
   provider,
   category,
-  sourceStatus: "fallback_data",
+  sourceStatus: "fallback_demo",
   liveData: false,
+  retrievedAt: new Date().toISOString(),
   requiresKey: false,
   requiresPartnerAccess: false,
   items: [{ label: category, value: message }],

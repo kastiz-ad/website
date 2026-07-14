@@ -1,4 +1,7 @@
 import { trackEvent } from "../analytics.js";
+import { classifyMission } from "../engine/mission-classification.js";
+import { openMissionFollowUp } from "../ui/mission-followup.js";
+import { isPresentationMode } from "../engine/demo-missions.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -34,6 +37,7 @@ const scheduleEndDateValue = document.getElementById("scheduleEndDateValue");
 const scheduleTimePreference = document.getElementById("scheduleTimePreference");
 const scheduleSummary = document.getElementById("scheduleSummary");
 let pendingMissionText = "";
+let pendingFollowUp = null;
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -50,7 +54,7 @@ const supportedThemes = ["light", "gray", "midnight"];
 
 const translations = {
   en: {
-    description: "Kastiz ONE completes real-life missions.",
+    description: "Kastiz ONE structures real-world goals into approval-ready missions using public information and clearly labeled prototype recommendations.",
     siteNavigation: "Kastiz ONE navigation",
     preferences: "Preferences",
     themeLabel: "Theme",
@@ -59,8 +63,13 @@ const translations = {
     upgrade: "Upgrade",
     login: "Login",
     loginWelcome: "Welcome to Kastiz ONE",
-    loginComingSoon: "Accounts are coming soon.",
-    loginPriority: "Early users will receive priority access.",
+    loginComingSoon: "Account access is being released gradually.",
+    loginPriority: "Join early access or request an invitation. No account or password is created on this prototype.",
+    joinEarlyAccess: "Join Early Access",
+    requestInvitation: "Request Invitation",
+    contactSupport: "Contact Support",
+    productExplanation: "Tell ONE what you want accomplished. ONE prepares the mission, organizes the options and waits for your approval before anything is executed.",
+    trustStatement: "Nothing is booked, purchased, paid, reserved, signed, submitted or shared with a provider until you approve.",
     notifyMe: "Notify Me",
     notifyConfirmed: "You're on the priority list.",
     scheduleTitle: "Choose dates and time",
@@ -129,6 +138,11 @@ const translations = {
     loginWelcome: "Kastiz ONE에 오신 것을 환영합니다",
     loginComingSoon: "계정 기능은 곧 제공됩니다.",
     loginPriority: "초기 사용자에게 우선 이용 기회를 드립니다.",
+    joinEarlyAccess: "얼리 액세스 참여",
+    requestInvitation: "초대 요청",
+    contactSupport: "고객 지원 문의",
+    productExplanation: "원하는 목표를 ONE에게 알려주세요. ONE이 필요한 과정과 선택지를 준비하고, 사용자의 승인을 받은 후에만 실행합니다.",
+    trustStatement: "사용자가 승인하기 전에는 예약, 구매, 결제, 서명, 제출 또는 제공업체와의 정보 공유가 진행되지 않습니다.",
     notifyMe: "알림 신청",
     notifyConfirmed: "우선 알림 목록에 등록되었습니다.",
     scheduleTitle: "날짜와 시간을 선택하세요",
@@ -834,11 +848,11 @@ const buildMissionObject = (mission) => {
     localStorage.setItem(STORAGE_KEYS.language, activeLanguage);
   }
 
-  const type = detectMissionType(cleanMission);
+  const type = classifyMission(cleanMission);
   const country = detectCountry(cleanMission, type);
   const theme = root.getAttribute("data-theme") || "light";
   const providers = providerCatalog[type] || providerCatalog.general_mission;
-  const isTutorMission = type === "career" && /tutor|teacher|lesson|선생님|튜터|과외|수업/i.test(cleanMission);
+  const isTutorMission = type === "tutoring" || (type === "career" && /tutor|teacher|lesson|선생님|튜터|과외|수업/i.test(cleanMission));
   const tutorSteps = [
     ["tutors", "Tutor shortlist", "튜터 후보"],
     ["style", "Teaching style", "수업 방식"],
@@ -1394,13 +1408,15 @@ const buildGeneralMission = (mission) => {
 
 const saveMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
-  const missionType = detectMissionType(cleanMission);
+  const missionType = classifyMission(cleanMission);
   const payload = missionType === "travel"
     ? buildTravelMission(cleanMission)
     : buildGeneralMission(cleanMission);
 
   payload.aiMode = aiModeEnabled;
   payload.schedule = schedule;
+  payload.followUp = pendingFollowUp;
+  payload.presentationMode = isPresentationMode();
   if (schedule?.startDate && schedule?.endDate) {
     payload.durationDays = Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1);
   }
@@ -1708,7 +1724,14 @@ scheduleForm?.addEventListener("submit", (event) => {
 
 missionForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  openScheduleModal(missionInput.value);
+  const mission = normalizeMission(missionInput.value);
+  if (!mission) { missionInput.focus(); return; }
+  const type = classifyMission(mission);
+  openMissionFollowUp({ mission, type, language: activeLanguage, onComplete: (followUp) => {
+    pendingFollowUp = followUp;
+    if (type === "travel") openScheduleModal(mission);
+    else startMission(mission);
+  }});
 });
 
 const restartOneAnimation = () => {
