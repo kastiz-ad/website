@@ -212,6 +212,15 @@ a {
 .mission-followup-fields select { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid rgba(127,127,127,.35); border-radius: 14px; padding: 14px 16px; background: var(--surface-strong); color: inherit; font: inherit; }
 .mission-followup-date-field { cursor: pointer; }
 .mission-followup-date-field input { cursor: pointer; }
+.profile-prefill-summary { display:grid; gap:10px; padding:16px; border:1px solid var(--border); border-radius:16px; background:var(--surface-strong); }
+.profile-prefill-summary strong,.profile-prefill-summary p { text-align:left; }
+.profile-prefill-summary ul { display:grid; gap:7px; margin:0; padding:0; list-style:none; }
+.profile-prefill-summary li { display:flex; justify-content:space-between; gap:16px; color:var(--text-muted); }
+.profile-prefill-summary li b { color:var(--text); text-align:right; }
+.profile-sample-button { min-height:44px; border:1px solid var(--border); border-radius:999px; background:transparent; color:inherit; font-weight:700; cursor:pointer; }
+.profile-remember-row { display:flex; align-items:center; gap:10px; font-weight:650; }
+.profile-remember-row input { width:18px; height:18px; }
+.profile-local-note { margin:0; color:var(--text-muted); font-size:.8rem; line-height:1.5; text-align:left!important; }
 .mission-followup-error { min-height: 1.2em; color: #c9362b; font-size: .9rem; text-align: center; }
 .mission-followup-actions { position: sticky; bottom: 0; z-index: 2; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding-top: 4px; background: var(--surface, #fff); }
 .mission-followup-back,

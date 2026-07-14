@@ -3,6 +3,7 @@ import { classifyMission } from "../engine/mission-classification.js";
 import { openMissionFollowUp } from "../ui/mission-followup.js";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
+import { getProfileForMission } from "../profile/profile-memory-engine.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -1417,12 +1418,10 @@ const saveMission = (mission, schedule = null) => {
   if (schedule?.startDate && schedule?.endDate) {
     payload.durationDays = Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1);
   }
-  const profileConsent = localStorage.getItem("kastiz-one-profile-consent") === "true";
-  if (profileConsent) {
-    try { payload.userPreferences = JSON.parse(localStorage.getItem("kastiz-one-profile-preferences") || "null"); } catch { payload.userPreferences = null; }
-  } else {
-    payload.userPreferences = null;
-  }
+  const profileContext = getProfileForMission(payload.type);
+  payload.userPreferences = profileContext.enabled
+    ? Object.fromEntries(Object.entries(profileContext.category).map(([key, record]) => [key, record.value]))
+    : null;
   payload.attachments = selectedImageFiles.map((file) => ({
     name: file.name,
     type: file.type,
