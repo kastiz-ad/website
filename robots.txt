@@ -2,5 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /*?demo=1
 Disallow: /offline-demo/
+Disallow: /founder-analytics.html
+Disallow: /founder-weekly-report.html
 
 Sitemap: https://kastiz.com/sitemap.xml
