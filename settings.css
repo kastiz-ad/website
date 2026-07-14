@@ -149,6 +149,7 @@ html[data-theme="light"] .settings-header .brand img { filter: invert(1); }
 .mode-preview button, .secondary-button { cursor: pointer; }
 .mode-preview button[aria-pressed="true"], .mode-preview button.is-active { color: var(--accent-text); background: var(--accent); }
 .secondary-button { padding: 10px 16px; }
+.settings-card-link { display:flex; align-items:center; justify-content:center; text-align:center; text-decoration:none; }
 .select-input { width: 100%; padding: 0 14px; }
 .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; color: var(--muted); font-weight: 700; }
 .switch-row input { position: absolute; opacity: 0; pointer-events: none; }
