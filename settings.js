@@ -1,3 +1,5 @@
+import { openConsentSettings, trackEvent } from "./js/analytics.js";
+
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
   language: "kastiz-one-language",
@@ -41,6 +43,9 @@ const translations = {
     profileMemory: "Profile & Memory",
     profileMemoryCopy: "Review, export, pause or delete information you chose to save.",
     reviewProfile: "Review Saved Information",
+    privacyChoices: "Privacy Choices",
+    privacyChoicesCopy: "Review optional preferences, analytics and marketing consent.",
+    manageConsent: "Manage Consent",
     clearMission: "Clear Current Mission",
     executionStyle: "Execution Style",
     executionStyleCopy: "Control recommendation strategy.",
@@ -82,6 +87,9 @@ const translations = {
     profileMemory: "프로필 및 메모리",
     profileMemoryCopy: "저장을 선택한 정보를 검토, 내보내기, 일시 중지 또는 삭제합니다.",
     reviewProfile: "저장된 정보 검토",
+    privacyChoices: "개인정보 선택",
+    privacyChoicesCopy: "선택적 설정, 분석 및 마케팅 동의를 검토합니다.",
+    manageConsent: "동의 관리",
     clearMission: "현재 미션 삭제",
     executionStyle: "실행 스타일",
     executionStyleCopy: "추천 방식을 선택하세요.",
@@ -247,3 +255,5 @@ applyTheme(
 document.documentElement.lang = language;
 updateTexts();
 updateLocation();
+document.getElementById("privacyChoicesButton")?.addEventListener("click", openConsentSettings);
+trackEvent("page_view", { page: "settings", language });

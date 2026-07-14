@@ -1,0 +1,9 @@
+export const analyticsEnabled = true;
+export const googleAnalyticsMeasurementId = "G-21WTWG7WYG";
+export const googleAnalyticsEnabled = Boolean(googleAnalyticsMeasurementId);
+export const cloudflareAnalyticsToken = "";
+export const cloudflareAnalyticsEnabled = Boolean(cloudflareAnalyticsToken);
+export const founderDashboardEnabled = true;
+export const rawMissionTextTracking = false;
+export const sensitiveAnalyticsTracking = false;
+export const analyticsConsentVersion = "1.0";
