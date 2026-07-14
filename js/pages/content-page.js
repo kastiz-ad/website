@@ -29,7 +29,7 @@ const descriptions = {
   status:["Public prototype status. Live public-data services may be unavailable, delayed, incomplete, or replaced with clearly labeled estimates.","공개 프로토타입 상태입니다. 실시간 공개 데이터 서비스는 중단, 지연, 불완전할 수 있으며 명확히 표시된 추정치로 대체될 수 있습니다."],
   "early-access":["Private Alpha is targeted for August or September 2026, followed by a planned Public Beta in Q4 2026. Dates may change.","비공개 알파는 2026년 8월 또는 9월, 공개 베타는 2026년 4분기를 목표로 하며 일정은 변경될 수 있습니다."],
   roadmap:["The roadmap prioritizes reliable mission routing, account controls, provider integrations, approval records, and safe production execution.","로드맵은 신뢰할 수 있는 미션 라우팅, 계정 통제, 제공업체 연동, 승인 기록 및 안전한 운영 실행을 우선합니다."],
-  pricing:["ONE Free, ONE Plus, and ONE Pro are planned. Pricing to be announced; no paid plan is currently activated.","ONE Free, ONE Plus, ONE Pro를 계획하고 있습니다. 요금은 추후 공개되며 현재 유료 플랜은 활성화되지 않았습니다."],
+  pricing:["Founder-approved early-access pricing. Payments remain disabled until operational and legal launch requirements are complete.","창업자 승인 얼리 액세스 요금 안내입니다. 운영 및 법률 출시 요건이 완료될 때까지 결제는 비활성화됩니다."],
   "provider-standards":["Provider status must be precise: Recommended, Partner, Identity Verified, License Verified, Background Checked, Community Reviewed, Prototype Profile, Publicly Sourced, or Unverified.","제공업체 상태는 추천, 파트너, 신원 확인, 면허 확인, 신원조회 완료, 커뮤니티 리뷰, 프로토타입 프로필, 공개 출처 또는 미확인으로 구체적으로 표시해야 합니다."]
 };
 const policyFocus = {
@@ -59,11 +59,21 @@ const policyFocus = {
 };
 const genericSections = (key, lang) => {
   const ko = lang === "ko";
-  if (key === "pricing") return [
-    ["ONE Free","기본 미션 계획 · 제한된 저장 미션 · 기본 제공업체 · 표준 지원"],
-    ["ONE Plus","무제한 미션 · 미션 메모리 · 알림 · 프리미엄 추천 · 우선 지원 · 고급 맞춤 설정"],
-    ["ONE Pro","비즈니스 및 팀 · 공유 미션 · 제공업체 대시보드 · API 액세스 · 관리자 통제 · 엔터프라이즈 지원"]
-  ].map(([h,p])=>({h,p:ko?p:p.replaceAll(" · "," · ")}));
+  if (key === "pricing") return ko ? [
+    {h:"ONE Free · ₩0",p:"월 5개 자동화 미션 · 기본 실시간 공개 데이터 · 활성 저장 미션 1개 · 기본 맞춤 설정 · 사람의 검토 또는 실행 없음"},
+    {h:"ONE Plus · 베타 출시가 ₩9,900/월",p:"예정 정상가 ₩14,900/월 · 공정 사용 기준 확대된 자동화 미션 · 미션 기록 및 메모리 · 고급 비교 및 맞춤 설정 · 알림 및 선호 설정 · 우선 처리 · 월 1회 제한된 지원/검토 크레딧"},
+    {h:"ONE Assist · 선택형 미션별 추가 서비스",p:"간단한 미션 ₩9,900 · 표준 미션 ₩19,900 · 사람 검토 · 제공업체 후보 확인 · 수정 1회 · 승인 준비 요약"},
+    {h:"ONE Complete · 복잡한 미션 ₩39,000부터",p:"승인 전 맞춤 견적 표시 · 이주, 복잡한 여행, 사업 준비 또는 여러 제공업체 조율용"},
+    {h:"파운딩 멤버 혜택",p:"조건을 충족하는 선착순 100명 · 첫 3개월 월 ₩4,900 · 사람 검토가 포함된 베타 미션 1개"},
+    {h:"중요 안내",p:"제3자 가격은 항상 별도입니다. 명시적 승인 없이 구매, 예약, 결제, 제공업체 연락 또는 어떠한 약속도 진행되지 않습니다. 사업자 등록, 결제 처리, 환불 운영 및 법률 검토가 완료될 때까지 결제는 비활성화됩니다."}
+  ] : [
+    {h:"ONE Free · ₩0",p:"5 automated missions per month · Basic live public data · One active saved mission · Basic customization · No human review or execution"},
+    {h:"ONE Plus · Introductory beta ₩9,900/month",p:"Planned standard price ₩14,900/month · Expanded automated missions subject to fair use · Mission history and memory · Advanced comparison and customization · Notifications and preferences · Priority processing · One limited support/review credit monthly"},
+    {h:"ONE Assist · Optional per-mission add-on",p:"₩9,900 for simple missions · ₩19,900 for standard missions · Human review · Provider shortlist check · One revision · Approval-ready summary"},
+    {h:"ONE Complete · From ₩39,000",p:"Custom quote shown before approval · For relocation, complex travel, business setup, or multi-provider coordination"},
+    {h:"Founding Member Offer",p:"First 100 qualifying users · ₩4,900/month for the first three months · One human-reviewed beta mission included"},
+    {h:"Important",p:"Third-party prices are always separate. No purchase, booking, payment, reservation, provider contact, or commitment occurs without explicit approval. Payments remain disabled until business registration, payment processing, refund operations, and legal review are complete."}
+  ];
   if (POLICY_KEYS.has(key)) {
     const focus = policyFocus[key];
     return ko ? [

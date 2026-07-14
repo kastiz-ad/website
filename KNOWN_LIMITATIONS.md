@@ -1,6 +1,7 @@
 # Known Limitations
 
 - No production authentication, user accounts, backend request inbox, deletion workflow, or approval audit log.
+- `paymentsEnabled` is intentionally `false`; displayed prices are early-access offers, not an active checkout.
 - No payment, booking, reservation, ticketing, filing, signature, insurer/broker, medical, legal, finance, childcare, background-check, or government execution integration.
 - Flight, hotel, restaurant, transport, budget, and provider results may be prototype estimates.
 - Keyless public APIs can be unavailable, rate-limited, stale, or incomplete.

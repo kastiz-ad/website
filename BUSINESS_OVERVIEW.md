@@ -12,4 +12,6 @@ Kastiz ONE is an early-access AI Mission Operating System and mission-orchestrat
 
 Private Alpha target: August or September 2026. Public Beta target: Q4 2026. These are targets, not guarantees. No investors, grants, employees, customers, offices, licenses, certifications, audits, partnerships, or government approval are claimed by this document.
 
-Potential revenue models—none activated here—include subscription, service purchase, commission, business plans, and authorized provider/API access. Pricing remains to be announced.
+Founder-approved early-access pricing includes ONE Free (₩0), ONE Plus (introductory beta ₩9,900/month; planned standard ₩14,900/month), ONE Assist (₩9,900 simple or ₩19,900 standard per mission), and ONE Complete (from ₩39,000 with a custom quote before approval). A qualifying first-100-user founding offer is planned at ₩4,900/month for three months with one human-reviewed beta mission.
+
+Third-party prices are separate. Payments remain disabled until business registration, payment processing, refund operations, and legal review are complete.
