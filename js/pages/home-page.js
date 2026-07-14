@@ -1,6 +1,7 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js";
 import { openMissionFollowUp } from "../ui/mission-followup.js";
+import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 
 const root = document.documentElement;
@@ -68,8 +69,6 @@ const translations = {
     joinEarlyAccess: "Join Early Access",
     requestInvitation: "Request Invitation",
     contactSupport: "Contact Support",
-    productExplanation: "Tell ONE what you want accomplished. ONE prepares the mission, organizes the options and waits for your approval before anything is executed.",
-    trustStatement: "Nothing is booked, purchased, paid, reserved, signed, submitted or shared with a provider until you approve.",
     notifyMe: "Notify Me",
     notifyConfirmed: "You're on the priority list.",
     scheduleTitle: "Choose dates and time",
@@ -141,8 +140,6 @@ const translations = {
     joinEarlyAccess: "얼리 액세스 참여",
     requestInvitation: "초대 요청",
     contactSupport: "고객 지원 문의",
-    productExplanation: "원하는 목표를 ONE에게 알려주세요. ONE이 필요한 과정과 선택지를 준비하고, 사용자의 승인을 받은 후에만 실행합니다.",
-    trustStatement: "사용자가 승인하기 전에는 예약, 구매, 결제, 서명, 제출 또는 제공업체와의 정보 공유가 진행되지 않습니다.",
     notifyMe: "알림 신청",
     notifyConfirmed: "우선 알림 목록에 등록되었습니다.",
     scheduleTitle: "날짜와 시간을 선택하세요",
@@ -1727,11 +1724,23 @@ missionForm.addEventListener("submit", (event) => {
   const mission = normalizeMission(missionInput.value);
   if (!mission) { missionInput.focus(); return; }
   const type = classifyMission(mission);
-  openMissionFollowUp({ mission, type, language: activeLanguage, onComplete: (followUp) => {
-    pendingFollowUp = followUp;
-    if (type === "travel") openScheduleModal(mission);
-    else startMission(mission);
-  }});
+  const openFollowUp = () => openMissionFollowUp({
+    mission,
+    type,
+    language: activeLanguage,
+    demoMode: isPresentationMode(),
+    restoreFocusTo: missionInput,
+    onComplete: (followUp) => {
+      pendingFollowUp = followUp;
+      startMission(mission, followUp.schedule || null);
+    }
+  });
+  ensureDisclosureAcknowledged({
+    language: activeLanguage,
+    restoreFocusTo: missionInput,
+    onAcknowledge: openFollowUp,
+    onCancel: () => { missionInput.value = mission; syncInputState(); }
+  });
 });
 
 const restartOneAnimation = () => {

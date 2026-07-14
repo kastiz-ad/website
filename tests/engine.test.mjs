@@ -5,6 +5,7 @@ import { executeAction } from "../js/engine/execution.js";
 import { fetchProviderResult } from "../js/engine/providers.js";
 import { authenticationEnabled } from "../js/config/authentication.js";
 import { paymentsEnabled } from "../js/config/commerce.js";
+import { DISCLOSURE_VERSION, DISCLOSURE_VERSION_KEY } from "../js/ui/disclosure.js";
 
 assert.equal(classifyMission("Plan my Japan trip"), "travel");
 assert.equal(classifyMission("일본 여행 계획해줘"), "travel");
@@ -18,6 +19,8 @@ assert.equal(classifyMission("가까운 곳에서 믿을 수 있는 베이비시
 assert.equal(classifyMission("한국에서 사업 시작을 도와줘."), "business");
 assert.equal(paymentsEnabled, false);
 assert.equal(authenticationEnabled, false);
+assert.equal(DISCLOSURE_VERSION, "1.0");
+assert.equal(DISCLOSURE_VERSION_KEY, "kastiz-one-disclosure-version");
 
 const fallback = await fetchProviderResult({ provider: "Test Provider", category: "test", url: "https://invalid.test", fallbackItems: [{ demo: true }], options: { retries: 0, fetchImpl: async () => { throw new Error("offline"); } } });
 assert.equal(fallback.sourceStatus, "fallback_demo");
