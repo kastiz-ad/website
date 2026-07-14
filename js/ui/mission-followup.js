@@ -1,4 +1,5 @@
 import { getProfileForMission, getSampleProfile, getSuggestedPrefill, saveApprovedPreference, useSampleProfile } from "../profile/profile-memory-engine.js";
+import { trackEvent } from "../analytics.js";
 
 const CATEGORY_FIELDS = Object.freeze({
   tutoring: [
@@ -122,6 +123,8 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   const sampleTravel = sampleProfile?.travel || {};
   const suggested = travel ? { ...savedPrefill, ...(sampleTravel.departureAirport ? { departure: sampleTravel.departureAirport, priority: sampleTravel.tripPace?.toLowerCase(), preferences: [sampleTravel.cabin, sampleTravel.seat, sampleTravel.hotelStyle].filter(Boolean).join(" · ") } : {}) } : savedPrefill;
   const suggestedEntries = Object.entries(suggested).filter(([, value]) => value);
+  trackEvent("followup_opened", { page: "home", language, mission_category: type, demo_mode: demoMode });
+  if (suggestedEntries.length) trackEvent("saved_profile_suggestion_shown", { page: "home", language, mission_category: type, demo_mode: demoMode });
   let current = 0;
 
   dialog.innerHTML = `<form method="dialog" class="mission-followup-form" novalidate>
@@ -189,6 +192,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     next.textContent = current === steps.length - 1 ? (ko ? "미션 준비하기" : "Prepare Mission") : (ko ? "계속" : "Continue");
     error.textContent = "";
     sections[current].querySelector("input, select")?.focus();
+    trackEvent("followup_step_viewed", { page: "home", language, mission_category: type, step: String(current + 1) });
   };
 
   const validateStep = () => {
@@ -197,11 +201,13 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     if (invalid) {
       error.textContent = ko ? "필수 정보를 입력해주세요." : "Please complete the required information.";
       invalid.focus();
+      trackEvent("followup_validation_error", { page: "home", language, mission_category: type, error_code: "required_field" });
       return false;
     }
     if (travel && current === 1 && form.elements.endDate.value < form.elements.startDate.value) {
       error.textContent = ko ? "귀국 날짜는 출국 날짜 이후여야 합니다." : "End date must be on or after the start date.";
       form.elements.endDate.focus();
+      trackEvent("followup_validation_error", { page: "home", language, mission_category: type, error_code: "invalid_date_range" });
       return false;
     }
     return true;
@@ -210,11 +216,12 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   form.addEventListener("click", (event) => {
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (!action) return;
-    if (action === "cancel") { dialog.close("cancel"); return; }
-    if (action === "sample") { useSampleProfile(); dialog.close("sample"); openMissionFollowUp({ mission, type, language, demoMode, restoreFocusTo, onComplete }); return; }
-    if (action === "back") { current = Math.max(0, current - 1); render(); return; }
+    if (action === "cancel") { trackEvent("followup_cancelled", { page: "home", language, mission_category: type }); dialog.close("cancel"); return; }
+    if (action === "sample") { useSampleProfile(); trackEvent("sample_profile_used", { page: "home", language, mission_category: type, demo_mode: true }); dialog.close("sample"); openMissionFollowUp({ mission, type, language, demoMode, restoreFocusTo, onComplete }); return; }
+    if (action === "back") { trackEvent("followup_back_clicked", { page: "home", language, mission_category: type, step: String(current + 1) }); current = Math.max(0, current - 1); render(); return; }
     if (action === "next") {
       if (!validateStep()) return;
+      trackEvent("followup_step_completed", { page: "home", language, mission_category: type, step: String(current + 1) });
       if (current < steps.length - 1) { current += 1; render(); return; }
       const values = Object.fromEntries(new FormData(form).entries());
       if (values.rememberPreferences === "on") {
@@ -236,9 +243,13 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           saveApprovedPreference("shopping", "priorities", values.priority, missionId);
           saveApprovedPreference("shopping", "deliveryCountry", values.country, missionId);
         }
+        trackEvent("preference_saved", { page: "home", language, mission_category: type, success: true });
+      } else {
+        trackEvent("preference_declined", { page: "home", language, mission_category: type });
       }
       const schedule = travel ? { startDate: values.startDate, endDate: values.endDate, timePreference: "any" } : null;
       dialog.close("complete");
+      trackEvent("followup_completed", { page: "home", language, mission_category: type, success: true });
       onComplete?.({ type, answers: values, schedule, completedAt: new Date().toISOString() });
     }
   });

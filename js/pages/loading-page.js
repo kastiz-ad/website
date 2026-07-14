@@ -347,6 +347,7 @@ const runLoadingSequence = async () => {
   }
 
   const language = mission.language === "ko" ? "ko" : "en";
+  trackEvent("loading_started", { mission_type: mission.type, language, page: "loading" });
   const messages = loadingMessages[language][mission.type] || loadingMessages[language].general_mission;
   const subtext = language === "ko" ? approvalMessages.ko : approvalMessages.en;
 
@@ -370,15 +371,22 @@ const runLoadingSequence = async () => {
   }
 
   const enrichedMission = await enrichMission(mission);
+  (enrichedMission.providerResults || []).filter(Boolean).forEach((provider) => {
+    const status = provider.sourceStatus || "unknown";
+    trackEvent("provider_request_started", { mission_type: enrichedMission.type, mission_subtype: provider.category, language, page: "loading", source_status: status });
+    trackEvent(status === "fallback_demo" ? "provider_fallback_used" : provider.error ? "provider_request_failed" : "provider_request_succeeded", {
+      mission_type: enrichedMission.type,
+      mission_subtype: provider.category,
+      language,
+      page: "loading",
+      source_status: status,
+      success: !provider.error,
+      error_code: provider.error ? "provider_unavailable" : undefined
+    });
+  });
 
   updateLoadingMessage(language === "ko" ? "미션 준비가 완료되었습니다..." : "Mission ready...", 100, loadingSteps.length);
   saveMission(enrichedMission);
-  trackEvent("results_generated", {
-    mission_type: enrichedMission.type,
-    language,
-    page: "loading",
-    schedule_used: Boolean(enrichedMission.schedule?.startDate && enrichedMission.schedule?.endDate)
-  });
   trackEvent("loading_complete", { mission_type: enrichedMission.type, language, page: "loading", schedule_used: Boolean(enrichedMission.schedule?.startDate && enrichedMission.schedule?.endDate) });
 
   await wait(620);

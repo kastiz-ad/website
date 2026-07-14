@@ -1617,13 +1617,7 @@ const buildExecutionSummary = () => {
 };
 
 const runApprovalSequence = () => {
-  trackEvent("approval_clicked", {
-    mission_type: currentResult?.type,
-    language: activeLanguage,
-    page: "results",
-    schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate)
-  });
-  trackEvent("approval_requested", { mission_type: currentResult?.type, language: activeLanguage, page: "results", schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate) });
+  trackEvent("simulated_execution_started", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "prototype_simulation" });
   const items = [...approvalList.querySelectorAll(".approval-item")];
 
   makeRealityButton.disabled = true;
@@ -1632,9 +1626,11 @@ const runApprovalSequence = () => {
   approvalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 
   items.forEach((item, index) => {
+    trackEvent("simulated_step_started", { mission_type: currentResult?.type, language: activeLanguage, page: "results", step: String(index + 1) });
     window.setTimeout(() => {
       item.classList.add("is-complete");
       item.querySelector(".approval-check").textContent = "✓";
+      trackEvent("simulated_step_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", step: String(index + 1), success: true });
 
       if (index === items.length - 1) {
         window.setTimeout(() => {
@@ -1852,7 +1848,7 @@ const enableCustomization = () => {
     const cardId = button.getAttribute("data-card-action") || card?.dataset.cardId;
 
     if (!card || !cardId) return;
-    trackEvent("customize_used", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: cardId });
+    trackEvent("customize_opened", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: cardId });
 
     const picker = card.querySelector("[data-alternatives-for]");
     if (picker && !picker.children.length) {
@@ -1865,6 +1861,7 @@ const enableCustomization = () => {
       picker.innerHTML = options.map((option) => `<button class="alternative-choice" type="button">${option}</button>`).join("");
     }
     applySimulatedModification(cardId, card, button);
+    trackEvent("customize_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: cardId, success: true });
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
     element.placeholder = t(element.getAttribute("data-i18n-placeholder"));
@@ -1874,7 +1871,7 @@ const enableCustomization = () => {
 const addAdditionalService = () => {
   const value = additionalServiceInput?.value.trim();
   if (!value || !additionalServiceList) return;
-  trackEvent("customize_used", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: "custom-services" });
+  trackEvent("customize_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: "custom-services", success: true });
   const option = document.createElement("button");
   option.className = "option-row selectable-option";
   option.type = "button";
@@ -1933,6 +1930,7 @@ document.addEventListener("change", (event) => {
 
 returnHomeButton.addEventListener("click", returnHome);
 makeRealityButton.addEventListener("click", () => {
+  trackEvent("make_it_reality_clicked", { mission_type: currentResult?.type, language: activeLanguage, page: "results", schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate) });
   const schedule = currentResult?.schedule || {};
   const flight = currentResult?.flights?.find?.((item) => item.recommended) || currentResult?.flights?.[0];
   const hotel = currentResult?.hotels?.find?.((item) => item.recommended) || currentResult?.hotels?.[0];

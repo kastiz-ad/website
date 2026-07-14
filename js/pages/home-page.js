@@ -577,6 +577,7 @@ const rotateMission = () => {
 
   activeMissionIndex = (activeMissionIndex + 1) % missions.length;
   fadeRotatorTo(missions[activeMissionIndex]);
+  trackEvent("mission_prompt_rotated", { page: "home", language: activeLanguage });
 };
 
 const setLanguage = (language) => {
@@ -1602,6 +1603,7 @@ const moveEmptyCaretToStart = () => {
 missionInput.addEventListener("focus", () => {
   missionForm.querySelector(".search-box").classList.add("is-input-focused");
   window.requestAnimationFrame(moveEmptyCaretToStart);
+  trackEvent("search_focused", { page: "home", language: activeLanguage });
 });
 missionInput.addEventListener("blur", () => {
   missionForm.querySelector(".search-box").classList.remove("is-input-focused");
@@ -1772,6 +1774,7 @@ window.KastizONE = {
 
 setTheme(getInitialTheme());
 trackEvent("page_visit", { page: "home", language: getInitialLanguage() });
+trackEvent("homepage_loaded", { page: "home", language: getInitialLanguage() });
 setLanguage(getInitialLanguage());
 syncInputState();
 
