@@ -1,4 +1,5 @@
 import { trackEvent } from "../analytics.js";
+import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -1931,7 +1932,21 @@ document.addEventListener("change", (event) => {
 });
 
 returnHomeButton.addEventListener("click", returnHome);
-makeRealityButton.addEventListener("click", runApprovalSequence);
+makeRealityButton.addEventListener("click", () => {
+  const schedule = currentResult?.schedule || {};
+  const flight = currentResult?.flights?.find?.((item) => item.recommended) || currentResult?.flights?.[0];
+  const hotel = currentResult?.hotels?.find?.((item) => item.recommended) || currentResult?.hotels?.[0];
+  openApprovalInformationReview({
+    language: activeLanguage,
+    items: [
+      { label: activeLanguage === "ko" ? "미션" : "Mission", value: currentResult?.title?.[activeLanguage] || currentResult?.rawInput || "" },
+      { label: activeLanguage === "ko" ? "여행 날짜" : "Travel dates", value: schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : "" },
+      { label: activeLanguage === "ko" ? "항공편 설정" : "Flight preference", value: flight?.provider || "" },
+      { label: activeLanguage === "ko" ? "호텔 설정" : "Hotel preference", value: hotel?.name || "" }
+    ],
+    onApprove: runApprovalSequence
+  });
+});
 
 activeLanguage = getLanguage();
 

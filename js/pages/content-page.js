@@ -59,6 +59,19 @@ const policyFocus = {
 };
 const genericSections = (key, lang) => {
   const ko = lang === "ko";
+  if (["privacy","ai-transparency","data-retention"].includes(key)) return ko ? [
+    {h:"ONE은 사용자가 저장을 허용한 정보만 기억합니다.",p:"프로필 메모리는 기본적으로 선택 사항입니다. 현재 프로토타입에서는 사용자가 명시적으로 저장한 비민감 설정만 이 브라우저의 기기에 저장하며 계정과 동기화하지 않습니다."},
+    {h:"기억하는 정보",p:"사용자가 저장을 선택한 여행, 음식, 쇼핑, 주거, 교육, 비즈니스 및 인터페이스 선호 설정을 기억할 수 있습니다. 각 값은 프로필 페이지에서 검토, 수정, 개별 삭제, 카테고리 삭제 또는 전체 삭제할 수 있습니다."},
+    {h:"기억하지 않는 정보",p:"여권 번호·스캔, 비자 문서, 주민등록 정보, 결제카드, 은행 정보, 건강 정보, 아동 개인정보와 비상연락처는 이 단계에서 프로필 메모리에 저장하지 않습니다."},
+    {h:"동의와 사용",p:"저장 동의는 미리 선택되지 않습니다. 메모리를 끄면 기존 값은 유지되지만 자동으로 사용하지 않습니다. 삭제는 별도 동작입니다. 저장된 값은 다음 미션의 입력 제안에만 사용되며 사용자가 변경할 수 있습니다."},
+    {h:"외부 공유와 보관",p:"현재 외부 자동 입력과 제공업체 정보 공유는 비활성화되어 있습니다. 정보 검토와 명시적 승인 전에는 외부로 전송하지 않습니다. 기기 저장 정보는 사용자가 삭제할 때까지 유지되며 프로필 페이지에서 요약을 내보낼 수 있습니다."}
+  ] : [
+    {h:"ONE remembers only what you choose to save.",p:"Profile memory is optional. In this prototype, only non-sensitive preferences that you explicitly choose to save are stored locally in this browser. They are not account-synced."},
+    {h:"What ONE may remember",p:"ONE may remember user-approved travel, food, shopping, housing, education, business and interface preferences. Every value can be reviewed, edited, deleted individually, cleared by category, or cleared entirely on the Profile page."},
+    {h:"What ONE does not remember",p:"Passport numbers or scans, visa documents, national IDs, payment cards, bank details, health information, child personal data and emergency contacts are not stored in profile memory at this stage."},
+    {h:"Consent and use",p:"Save consent is never preselected. Turning memory off stops use of saved values but does not delete them; deletion is a separate action. Saved values are offered as editable suggestions for later missions."},
+    {h:"Sharing and retention",p:"External autofill and provider data sharing are disabled. Nothing is transmitted externally before information review and explicit approval. Device-local preferences remain until the user deletes them and can be exported as a readable summary."}
+  ];
   if (key === "pricing") return ko ? [
     {h:"ONE Free · ₩0",p:"월 5개 자동화 미션 · 기본 실시간 공개 데이터 · 활성 저장 미션 1개 · 기본 맞춤 설정 · 사람의 검토 또는 실행 없음"},
     {h:"ONE Plus · 베타 출시가 ₩9,900/월",p:"예정 정상가 ₩14,900/월 · 공정 사용 기준 확대된 자동화 미션 · 미션 기록 및 메모리 · 고급 비교 및 맞춤 설정 · 알림 및 선호 설정 · 우선 처리 · 월 1회 제한된 지원/검토 크레딧"},
