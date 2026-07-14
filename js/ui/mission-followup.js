@@ -60,7 +60,7 @@ const TRAVEL_STEPS = [
   { title: ["Where are you going?", "어디로 가시나요?"], fields: [["destination", "Destination", "목적지", "Japan", "text"]] },
   { title: ["When?", "언제 여행하시나요?"], fields: [["startDate", "Start date", "출국 날짜", "", "date"], ["endDate", "End date", "귀국 날짜", "", "date"]] },
   { title: ["Travelers", "여행 인원"], fields: [["adults", "Adults", "성인", "1", "number"], ["children", "Children", "어린이", "0", "number"]] },
-  { title: ["Departure location", "출발지"], fields: [["departure", "City or airport", "도시 또는 공항", "Seoul / ICN", "text"]] },
+  { title: ["We'll use your nearby airport", "현재 위치와 가까운 공항을 사용할게요"], fields: [["departure", "Departure airport (change if needed)", "출발 공항 (필요하면 변경)", "Current location", "text"]] },
   { title: ["Budget and priorities", "예산과 우선순위"], fields: [["budget", "Total budget", "총예산", "₩3,000,000", "text"], ["priority", "Priority", "우선순위", "Balanced", "select"], ["preferences", "Optional preferences", "선호 사항", "Airline, hotel or itinerary preferences", "text"]] }
 ];
 
@@ -70,6 +70,22 @@ const iso = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+};
+
+const inferDepartureFromDevice = () => {
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+  const region = (navigator.language || "").split("-")[1]?.toUpperCase() || "";
+  const byTimezone = {
+    "Asia/Seoul": "Incheon International Airport (ICN)",
+    "Asia/Tokyo": "Tokyo Haneda Airport (HND)",
+    "Europe/London": "London Heathrow Airport (LHR)",
+    "Europe/Madrid": "Adolfo Suárez Madrid–Barajas Airport (MAD)",
+    "Europe/Paris": "Paris Charles de Gaulle Airport (CDG)",
+    "America/New_York": "John F. Kennedy International Airport (JFK)",
+    "America/Los_Angeles": "Los Angeles International Airport (LAX)"
+  };
+  const byRegion = { KR: "Incheon International Airport (ICN)", JP: "Tokyo Haneda Airport (HND)", GB: "London Heathrow Airport (LHR)", ES: "Adolfo Suárez Madrid–Barajas Airport (MAD)", FR: "Paris Charles de Gaulle Airport (CDG)" };
+  return byTimezone[timezone] || byRegion[region] || (region ? `Current location (${region})` : "Current location");
 };
 
 const inferTravelDestination = (mission = "") => {
@@ -135,7 +151,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     ${suggestedEntries.length ? `<aside class="profile-prefill-summary" aria-label="${ko ? "저장된 설정" : "Saved preferences"}"><strong>${ko ? "다음 설정을 사용할게요" : "We'll use"}</strong><ul>${suggestedEntries.map(([key, value]) => `<li><span>${esc(key)}</span><b>${esc(value)}</b><em>${ko ? "사용" : "Use"}</em><button type="button" data-action="change-pref" data-pref-key="${esc(key)}">${ko ? "변경" : "Change"}</button></li>`).join("")}</ul></aside>` : ""}
     ${demoMode && !sampleProfile && !savedProfile.enabled ? `<button type="button" class="profile-sample-button" data-action="sample">${ko ? "샘플 프로필 사용" : "Use sample profile"}</button>` : ""}
     <div class="mission-followup-progress" aria-live="polite"></div>
-    ${steps.map((step, index) => `<section class="mission-followup-step" data-step="${index}" ${index ? "hidden" : ""}><h3>${ko ? step.title[1] : step.title[0]}</h3><div class="mission-followup-fields">${step.fields.map((field, fieldIndex) => renderField(field, language, field[0] !== "preferences" && field[0] !== "brands" && field[0] !== "constraints")).join("")}</div></section>`).join("")}
+    ${steps.map((step, index) => `<section class="mission-followup-step" data-step="${index}" ${index ? "hidden" : ""}><h3>${ko ? step.title[1] : step.title[0]}</h3>${step.fields.some((field) => field[0] === "departure") ? `<p class="mission-step-why">${ko ? "기기의 지역 설정을 기준으로 제안했습니다. 정확한 위치는 저장하지 않습니다." : "Suggested from your device region. ONE does not store your precise location."}</p>` : ""}<div class="mission-followup-fields">${step.fields.map((field, fieldIndex) => renderField(field, language, field[0] !== "preferences" && field[0] !== "brands" && field[0] !== "constraints")).join("")}</div></section>`).join("")}
     <label class="profile-remember-row"><input type="checkbox" name="rememberPreferences"><span>${ko ? "다음 미션에도 이 설정을 사용하기" : "Save these preferences for future missions"}</span></label>
     <p class="profile-local-note">${ko ? "선택한 비민감 설정만 이 기기에 저장됩니다. 여권·결제·건강 정보는 저장하지 않습니다." : "Only selected non-sensitive preferences are stored on this device. Passport, payment and health data are not saved."}</p>
     <p class="mission-followup-error" role="alert" aria-live="assertive"></p>
@@ -158,10 +174,11 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       endDate: iso(end),
       adults: "1",
       children: "0",
+      departure: inferDepartureFromDevice(),
       priority: "balanced"
     };
     Object.assign(defaults, suggested);
-    if (demoMode) defaults.departure = "Seoul / ICN";
+    if (demoMode && !defaults.departure) defaults.departure = "Incheon International Airport (ICN)";
     Object.entries(defaults).forEach(([name, value]) => { const field = form.elements.namedItem(name); if (field && !field.value) field.value = value; });
     form.elements.startDate.min = iso(today);
     form.elements.endDate.min = form.elements.startDate.value;
