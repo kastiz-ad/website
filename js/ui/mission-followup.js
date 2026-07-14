@@ -69,6 +69,26 @@ const iso = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+const inferTravelDestination = (mission = "") => {
+  const text = String(mission).toLowerCase();
+  const destinations = [
+    ["New York", ["new york", "nyc", "뉴욕"]],
+    ["Japan", ["japan", "tokyo", "일본", "도쿄"]],
+    ["Madrid", ["madrid", "마드리드"]],
+    ["Colombia", ["colombia", "bogota", "bogotá", "콜롬비아", "보고타"]],
+    ["South Korea", ["south korea", "korea", "seoul", "대한민국", "한국", "서울"]],
+    ["Paris", ["paris", "파리"]],
+    ["London", ["london", "런던"]],
+    ["Canada", ["canada", "캐나다"]],
+    ["Thailand", ["thailand", "bangkok", "태국", "방콕"]],
+    ["Singapore", ["singapore", "싱가포르"]],
+    ["Australia", ["australia", "sydney", "호주", "시드니"]],
+    ["Italy", ["italy", "rome", "이탈리아", "로마"]],
+    ["Vietnam", ["vietnam", "hanoi", "베트남", "하노이"]]
+  ];
+  return destinations.find(([, aliases]) => aliases.some((alias) => text.includes(alias)))?.[0] || "";
+};
+
 const getDialog = () => {
   let dialog = document.getElementById("missionFollowUpDialog");
   if (!dialog) {
@@ -117,8 +137,15 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   if (travel) {
     const today = new Date();
     const end = new Date(today); end.setDate(end.getDate() + 6);
-    const defaults = { startDate: iso(today), endDate: iso(end), adults: "1", children: "0", priority: "balanced" };
-    if (demoMode) Object.assign(defaults, { destination: "Japan", departure: "Seoul / ICN" });
+    const defaults = {
+      destination: inferTravelDestination(mission) || (demoMode ? "Japan" : ""),
+      startDate: iso(today),
+      endDate: iso(end),
+      adults: "1",
+      children: "0",
+      priority: "balanced"
+    };
+    if (demoMode) defaults.departure = "Seoul / ICN";
     Object.entries(defaults).forEach(([name, value]) => { const field = form.elements.namedItem(name); if (field && !field.value) field.value = value; });
     form.elements.startDate.min = iso(today);
     form.elements.endDate.min = form.elements.startDate.value;
@@ -183,6 +210,12 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   });
 
   form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    next.click();
+  });
+
+  form.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || event.isComposing || event.target instanceof HTMLTextAreaElement) return;
     event.preventDefault();
     next.click();
   });
