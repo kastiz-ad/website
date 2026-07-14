@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /*?demo=1
+Disallow: /offline-demo/
+
+Sitemap: https://kastiz.com/sitemap.xml

@@ -80,13 +80,13 @@ const genericSections = (key, lang) => {
       {h:"적용 범위",p:`이 정책은 Kastiz ONE 얼리 액세스와 관련된 ${focus} 내용을 다룹니다. 기능이 실제로 연결되지 않은 경우 프로토타입 또는 준비 중으로 표시합니다.`},
       {h:"사용자 통제",p:"필요한 정보만 현재 미션에 사용합니다. 중요한 행동, 제공업체와의 개인정보 공유 및 법적 의무 생성 전에는 선택된 행동, 제공업체, 예상 비용, 알려진 세금·수수료, 취소 조건, 공유 데이터 및 주요 위험을 표시하고 명시적 승인을 요구합니다."},
       {h:"제3자와 제한",p:"독립 제공업체의 가격, 가용성, 자격, 정책 및 결과는 변경될 수 있습니다. Kastiz는 별도로 권한을 부여받지 않은 규제 서비스 제공업체라고 주장하지 않습니다."},
-      {h:"권리와 문의",p:"사용자는 계정·미션 기록·업로드 파일 삭제, 데이터 내보내기, 정정 및 처리 제한을 요청할 수 있습니다. 도메인 이메일 활성화 전 임시 개인정보 문의처는 ckookik@gmail.com입니다."},
+      {h:"권리와 문의",p:"사용자는 계정·미션 기록·업로드 파일 삭제, 데이터 내보내기, 정정 및 처리 제한을 요청할 수 있습니다. 개인정보 문의: privacy@kastiz.com"},
       {h:"관할 및 변경",p:"출시 관할은 대한민국입니다. 정책은 서비스, 법률 및 제공업체 연동 변화에 따라 갱신될 수 있으며 중요한 변경은 합리적인 방식으로 고지합니다."}
     ] : [
       {h:"Scope",p:`This policy covers ${focus} for the Kastiz ONE early-access experience. Capabilities that are not connected are labeled Prototype, Planned, or Coming Soon.`},
       {h:"User control",p:"Kastiz uses only information needed for the current mission. Before consequential action or provider data sharing, ONE presents the selected action, provider, estimated total, known taxes or fees, cancellation terms, data shared, material risks, and a final explicit confirmation."},
       {h:"Third parties and limitations",p:"Independent-provider prices, availability, qualifications, policies, and outcomes can change. Kastiz does not claim to be a regulated provider unless separately authorized."},
-      {h:"Rights and contact",p:"Users may request account, mission-history, and upload deletion; data export; correction; or processing restriction. Until domain inboxes are activated, the temporary privacy contact is ckookik@gmail.com."},
+      {h:"Rights and contact",p:"Users may request account, mission-history, and upload deletion; data export; correction; or processing restriction. Privacy contact: privacy@kastiz.com."},
       {h:"Jurisdiction and changes",p:"The launch jurisdiction is the Republic of Korea. Policies may change with the service, law, and provider integrations; material changes will be communicated reasonably."}
     ];
   }
