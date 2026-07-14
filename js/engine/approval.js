@@ -1,6 +1,21 @@
 export const IRREVERSIBLE_ACTIONS = Object.freeze([
-  "book", "buy", "reserve", "sign", "submit", "pay", "legally_commit"
+  "book", "buy", "reserve", "sign", "submit", "pay", "legally_commit",
+  "share_personal_data", "accept_provider_terms", "start_regulated_service"
 ]);
+
+export function buildApprovalDisclosure({ action, provider, estimatedCost, taxesAndFees, cancellationTerms, personalDataShared=[], materialRisks=[] }={}) {
+  return Object.freeze({
+    action: action || "Not selected",
+    provider: provider || "Not selected",
+    estimatedCost: estimatedCost || "Estimate unavailable",
+    taxesAndFees: taxesAndFees || "Confirm with provider",
+    cancellationTerms: cancellationTerms || "Review provider terms before approval",
+    personalDataShared,
+    materialRisks,
+    confirmationRequired: true,
+    executionMode: "simulation_until_authorized_integration"
+  });
+}
 
 const MESSAGES = Object.freeze({
   en: "Nothing will be booked, purchased, reserved, signed, submitted, paid for, or legally committed until you approve.",

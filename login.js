@@ -1,71 +1,8 @@
-const STORAGE_KEYS = {
-  theme: "kastiz-one-theme",
-  language: "kastiz-one-language"
-};
-
-const translations = {
-  en: {
-    upgrade: "Upgrade",
-    settings: "Settings",
-    welcomeBack: "Welcome back",
-    loginSubtitle:
-      "Sign in to continue completing real-world missions with ONE.",
-    email: "Email",
-    password: "Password",
-    login: "Login",
-    orContinue: "or continue with",
-    noAccount: "Don't have an account?",
-    createAccount: "Create one",
-    signingIn: "Signing in..."
-  },
-
-  ko: {
-    upgrade: "업그레이드",
-    settings: "설정",
-    welcomeBack: "다시 오신 것을 환영합니다",
-    loginSubtitle:
-      "ONE와 함께 현실의 미션을 계속 진행하려면 로그인하세요.",
-    email: "이메일",
-    password: "비밀번호",
-    login: "로그인",
-    orContinue: "또는",
-    noAccount: "계정이 없으신가요?",
-    createAccount: "회원가입",
-    signingIn: "로그인 중..."
-  }
-};
-
-const language =
-  localStorage.getItem(STORAGE_KEYS.language) ||
-  (navigator.language.startsWith("ko") ? "ko" : "en");
-
-const theme =
-  localStorage.getItem(STORAGE_KEYS.theme) || "light";
-
-document.documentElement.dataset.theme = theme;
-document.documentElement.lang = language;
-
-const t = translations[language];
-
-document.querySelectorAll("[data-i18n]").forEach((el) => {
-  const key = el.dataset.i18n;
-
-  if (t[key]) {
-    el.textContent = t[key];
-  }
-});
-
-const loginForm = document.getElementById("loginForm");
-
-loginForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const button = loginForm.querySelector("button");
-
-  button.disabled = true;
-  button.textContent = t.signingIn;
-
-  setTimeout(() => {
-    window.location.href = "index.html";
-  }, 1200);
-});
+import { trackEvent } from "./js/analytics.js";
+const language=localStorage.getItem("kastiz-one-language")||(navigator.language.startsWith("ko")?"ko":"en");
+const theme=localStorage.getItem("kastiz-one-theme")||"light";
+document.documentElement.lang=language;document.documentElement.dataset.theme=theme;
+const copy={en:{pricing:"Pricing",settings:"Settings",status:"EARLY ACCESS · ACCOUNTS NOT CONNECTED",title:"Early Access Login Coming Soon",copy:"Account interfaces are being prepared. No account will be created and no password is collected on this prototype page.",waitlist:"Join waitlist",request:"Request early access",support:"Contact support",forgot:"Forgot password placeholder",privacy:"Privacy request",deletion:"Account deletion & data export",preferences:"Mission history, notification, language & theme settings"},ko:{pricing:"요금제",settings:"설정",status:"얼리 액세스 · 계정 미연동",title:"얼리 액세스 로그인이 곧 제공됩니다",copy:"계정 인터페이스를 준비 중입니다. 이 프로토타입 페이지에서는 계정을 만들거나 비밀번호를 수집하지 않습니다.",waitlist:"대기 명단 참여",request:"얼리 액세스 요청",support:"지원 문의",forgot:"비밀번호 찾기 준비 중",privacy:"개인정보 요청",deletion:"계정 삭제 및 데이터 내보내기",preferences:"미션 기록, 알림, 언어 및 테마 설정"}}[language];
+document.querySelectorAll("[data-i18n]").forEach(el=>{if(copy[el.dataset.i18n])el.textContent=copy[el.dataset.i18n]});
+document.querySelectorAll(".logo img,.one-logo img").forEach(img=>img.classList.toggle("light-logo",theme==="light"));
+trackEvent("page_visit",{page:"login",language});

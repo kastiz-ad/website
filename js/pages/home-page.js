@@ -1555,7 +1555,9 @@ languageControl.addEventListener("click", (event) => {
 document.querySelectorAll("[data-theme-option]").forEach((button) => {
   button.addEventListener("click", (event) => {
     event.stopPropagation();
-    setTheme(button.getAttribute("data-theme-option"));
+    const theme = button.getAttribute("data-theme-option");
+    setTheme(theme);
+    trackEvent("theme_selection", { page: "home", language: getInitialLanguage(), status: theme });
     closeDropdowns();
   });
 });
@@ -1563,7 +1565,9 @@ document.querySelectorAll("[data-theme-option]").forEach((button) => {
 document.querySelectorAll("[data-language-option]").forEach((button) => {
   button.addEventListener("click", (event) => {
     event.stopPropagation();
-    setLanguage(button.getAttribute("data-language-option"));
+    const language = button.getAttribute("data-language-option");
+    setLanguage(language);
+    trackEvent("language_selection", { page: "home", language });
     closeDropdowns();
   });
 });
@@ -1736,6 +1740,7 @@ window.KastizONE = {
 };
 
 setTheme(getInitialTheme());
+trackEvent("page_visit", { page: "home", language: getInitialLanguage() });
 setLanguage(getInitialLanguage());
 syncInputState();
 

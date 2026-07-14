@@ -372,6 +372,7 @@ const runLoadingSequence = async () => {
     page: "loading",
     schedule_used: Boolean(enrichedMission.schedule?.startDate && enrichedMission.schedule?.endDate)
   });
+  trackEvent("loading_complete", { mission_type: enrichedMission.type, language, page: "loading", schedule_used: Boolean(enrichedMission.schedule?.startDate && enrichedMission.schedule?.endDate) });
 
   await wait(620);
 

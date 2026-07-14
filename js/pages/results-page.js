@@ -1433,6 +1433,7 @@ const renderApprovalList = () => {
 };
 
 const returnHome = () => {
+  trackEvent("return_home", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
   document.body.classList.add("is-leaving");
 
   window.setTimeout(() => {
@@ -1614,6 +1615,7 @@ const runApprovalSequence = () => {
     page: "results",
     schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate)
   });
+  trackEvent("approval_requested", { mission_type: currentResult?.type, language: activeLanguage, page: "results", schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate) });
   const items = [...approvalList.querySelectorAll(".approval-item")];
 
   makeRealityButton.disabled = true;
@@ -1642,6 +1644,8 @@ const runApprovalSequence = () => {
             page: "results",
             schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate)
           });
+          trackEvent("approval_confirmed", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
+          trackEvent("simulated_execution_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "prototype_simulation" });
           window.requestAnimationFrame(() => {
             const headerHeight = document.querySelector(".results-header")?.getBoundingClientRect().height || 76;
             const targetTop = window.scrollY + completionMessage.getBoundingClientRect().top - headerHeight - 28;
@@ -1934,5 +1938,7 @@ renderMission();
 initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
+trackEvent("page_visit", { page: "results", language: activeLanguage });
+trackEvent("results_viewed", { page: "results", language: activeLanguage, mission_type: currentResult?.type });
 
 

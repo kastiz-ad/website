@@ -143,6 +143,7 @@ html[data-theme="light"] .logo img{
     grid-template-columns:repeat(3,1fr);
     gap:28px;
 }
+.plans{grid-template-columns:repeat(2,minmax(0,1fr));max-width:1000px}.payment-status{display:inline-flex!important;margin-top:18px!important;padding:8px 13px;border:1px solid var(--border);border-radius:999px;font-size:12px!important;font-weight:700}.plan-action{text-decoration:none;display:flex;align-items:center;justify-content:center}.small-price{font-size:23px!important;line-height:1.25}.planned-price{font-size:13px;color:var(--muted);min-height:36px}.founding-offer,.pricing-disclosure{max-width:1000px;margin:28px auto 0;border:1px solid var(--border);border-radius:28px;padding:34px;background:var(--surface)}.founding-offer{text-align:center}.founding-offer h2{font-size:clamp(24px,4vw,40px);margin:12px 0}.founding-offer p{color:var(--muted)}.founding-offer .plan-action{width:max-content;max-width:100%;margin:24px auto 0;padding:0 24px;min-height:54px;border-radius:18px}.pricing-disclosure p{color:var(--muted);line-height:1.6;margin:10px 0 0}
 
 .plan{
     background:var(--surface);
@@ -248,6 +249,7 @@ html[data-theme="light"] .logo img{
 }
 
 @media(max-width:600px){
+.plans{grid-template-columns:1fr}.founding-offer,.pricing-disclosure{padding:26px 22px}
 
 .topbar{
     padding:0 20px;
