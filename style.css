@@ -204,6 +204,8 @@ a {
 .mission-disclosure-content p { margin: 0; text-align: center; }
 .mission-followup-mission { color: var(--text-muted); font-size: .92rem; line-height: 1.5; }
 .mission-followup-progress { min-height: 1.2em; text-align: center; color: var(--text-muted); font-size: .82rem; font-weight: 700; letter-spacing: .08em; }
+.profile-prefill-summary li em { color: var(--text-muted); font-size: .78rem; font-style: normal; }
+.profile-prefill-summary li button { border: 1px solid rgba(127,127,127,.35); border-radius: 999px; padding: 6px 10px; background: transparent; color: inherit; cursor: pointer; }
 .mission-followup-step { min-width: 0; }
 .mission-followup-step h3 { margin-bottom: 16px; }
 .mission-followup-fields { display: grid; gap: 14px; }
@@ -215,7 +217,7 @@ a {
 .profile-prefill-summary { display:grid; gap:10px; padding:16px; border:1px solid var(--border); border-radius:16px; background:var(--surface-strong); }
 .profile-prefill-summary strong,.profile-prefill-summary p { text-align:left; }
 .profile-prefill-summary ul { display:grid; gap:7px; margin:0; padding:0; list-style:none; }
-.profile-prefill-summary li { display:flex; justify-content:space-between; gap:16px; color:var(--text-muted); }
+.profile-prefill-summary li { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto; align-items:center; gap:8px; color:var(--text-muted); }
 .profile-prefill-summary li b { color:var(--text); text-align:right; }
 .profile-sample-button { min-height:44px; border:1px solid var(--border); border-radius:999px; background:transparent; color:inherit; font-weight:700; cursor:pointer; }
 .profile-remember-row { display:flex; align-items:center; gap:10px; font-weight:650; }
@@ -239,6 +241,8 @@ body.modal-open { overflow: hidden !important; overscroll-behavior: none !import
   .mission-followup-form,
   .mission-disclosure-content { padding: 28px 20px calc(20px + env(safe-area-inset-bottom)); }
 }
+@media (max-width: 560px) { .profile-prefill-summary li { grid-template-columns: minmax(0,1fr) auto auto; } .profile-prefill-summary li b { grid-column: 1 / -1; } }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
 @media (max-width: 640px) {
   .header-brand-mark > .header-mini-symbol { width: 28px !important; height: 28px !important; flex-basis: 28px; }
   .header-brand-mark > .header-mini-ne { margin-left: 0; font-size: 19px; }

@@ -132,7 +132,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     <p class="login-modal-kicker">KASTIZ ONE</p>
     <h2 id="missionFollowUpTitle">${ko ? "미션에 필요한 정보를 알려주세요" : "Help ONE prepare the mission"}</h2>
     <p class="mission-followup-mission">${esc(mission)}</p>
-    ${suggestedEntries.length ? `<aside class="profile-prefill-summary" aria-label="${ko ? "저장된 설정" : "Saved preferences"}"><strong>${sampleProfile ? (ko ? "샘플 프로필" : "Sample profile") : (ko ? "저장된 설정 사용" : "Using saved preferences")}</strong><ul>${suggestedEntries.map(([key, value]) => `<li><span>${esc(key)}</span><b>${esc(value)}</b></li>`).join("")}</ul><p>${ko ? "필요하면 아래에서 언제든 변경할 수 있습니다." : "You can review and change these values below."}</p></aside>` : ""}
+    ${suggestedEntries.length ? `<aside class="profile-prefill-summary" aria-label="${ko ? "저장된 설정" : "Saved preferences"}"><strong>${ko ? "다음 설정을 사용할게요" : "We'll use"}</strong><ul>${suggestedEntries.map(([key, value]) => `<li><span>${esc(key)}</span><b>${esc(value)}</b><em>${ko ? "사용" : "Use"}</em><button type="button" data-action="change-pref" data-pref-key="${esc(key)}">${ko ? "변경" : "Change"}</button></li>`).join("")}</ul></aside>` : ""}
     ${demoMode && !sampleProfile && !savedProfile.enabled ? `<button type="button" class="profile-sample-button" data-action="sample">${ko ? "샘플 프로필 사용" : "Use sample profile"}</button>` : ""}
     <div class="mission-followup-progress" aria-live="polite"></div>
     ${steps.map((step, index) => `<section class="mission-followup-step" data-step="${index}" ${index ? "hidden" : ""}><h3>${ko ? step.title[1] : step.title[0]}</h3><div class="mission-followup-fields">${step.fields.map((field, fieldIndex) => renderField(field, language, field[0] !== "preferences" && field[0] !== "brands" && field[0] !== "constraints")).join("")}</div></section>`).join("")}
@@ -218,6 +218,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     if (!action) return;
     if (action === "cancel") { trackEvent("followup_cancelled", { page: "home", language, mission_category: type }); dialog.close("cancel"); return; }
     if (action === "sample") { useSampleProfile(); trackEvent("sample_profile_used", { page: "home", language, mission_category: type, demo_mode: true }); dialog.close("sample"); openMissionFollowUp({ mission, type, language, demoMode, restoreFocusTo, onComplete }); return; }
+    if (action === "change-pref") { const key = event.target.closest("[data-pref-key]")?.dataset.prefKey; const field = form.elements.namedItem(key); const target = field?.closest(".mission-followup-step"); const index = sections.indexOf(target); if (index >= 0) { current = index; render(); field.focus(); } return; }
     if (action === "back") { trackEvent("followup_back_clicked", { page: "home", language, mission_category: type, step: String(current + 1) }); current = Math.max(0, current - 1); render(); return; }
     if (action === "next") {
       if (!validateStep()) return;

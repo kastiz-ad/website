@@ -16,6 +16,8 @@ const additionalServiceInput = document.getElementById("additionalServiceInput")
 const addServiceButton = document.getElementById("addServiceButton");
 const additionalServiceList = document.getElementById("additionalServiceList");
 const additionalServicesForm = document.getElementById("additionalServicesForm");
+const missionUnderstoodGoal = document.getElementById("missionUnderstoodGoal");
+const missionUnderstoodItems = document.getElementById("missionUnderstoodItems");
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -44,7 +46,7 @@ const translations = {
     addService: "Add",
     missionApproved: "Mission Approved",
     oneIsWorking: "ONE is making it happen.",
-    finalMessage: "Your future is now in motion.",
+    finalMessage: "ONE'D",
     returnHomeNow: "Return Home Now",
     returningHome: "Returning to Home in {seconds} seconds...",
     partners: "Partners",
@@ -108,7 +110,7 @@ const translations = {
     addService: "추가",
     missionApproved: "미션 승인 완료",
     oneIsWorking: "ONE이 실행하고 있습니다.",
-    finalMessage: "당신의 미래가 움직이기 시작했습니다.",
+    finalMessage: "ONE'D",
     returnHomeNow: "지금 홈으로 돌아가기",
     returningHome: "{seconds}초 후 홈으로 돌아갑니다...",
     partners: "파트너",
@@ -1375,6 +1377,52 @@ const renderGeneralMission = (result) => {
 
 };
 
+const renderMissionUnderstanding = () => {
+  if (!missionUnderstoodGoal || !missionUnderstoodItems) return;
+  const ko = activeLanguage === "ko";
+  const title = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.rawInput || (ko ? "준비된 미션" : "Prepared mission");
+  const prepared = currentResult?.type === "travel"
+    ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
+    : (ko ? ["추천 계획", "비교 선택지", "예산", "체크리스트"] : ["Recommended plan", "Compared options", "Budget", "Checklist"]);
+  missionUnderstoodGoal.innerHTML = `<span>${ko ? "목표" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
+  missionUnderstoodItems.innerHTML = prepared.map((item) => `<span>✓ ${item}</span>`).join("");
+  const heading = document.getElementById("missionUnderstoodTitle");
+  const summary = document.querySelector("#missionUnderstood .eyebrow");
+  const timing = document.querySelector("#missionUnderstood .mission-understood-time");
+  if (heading) heading.textContent = ko ? "ONE이 미션을 이해했습니다." : "ONE understood your mission.";
+  if (summary) summary.textContent = ko ? "미션 요약" : "Mission Summary";
+  if (timing) timing.textContent = ko ? "1분 이내에 준비했습니다." : "Prepared in under a minute.";
+  const stages = ko ? { mission: "미션", planning: "계획", review: "검토", approval: "승인", execution: "실행", complete: "완료" } : { mission: "Mission", planning: "Planning", review: "Review", approval: "Approval", execution: "Execution", complete: "Complete" };
+  document.querySelectorAll("[data-stage]").forEach((item) => { item.textContent = stages[item.dataset.stage] || item.textContent; });
+};
+
+const organizeProgressiveResults = () => {
+  const nodes = [...missionGrid.children];
+  const groups = [
+    { title: activeLanguage === "ko" ? "1. 추천 계획" : "1. Recommended Plan", open: true, match: () => true },
+    { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["weather", "exchange-rate", "visa", "checklist", "information-sources"]) },
+    { title: activeLanguage === "ko" ? "3. 선택 개선" : "3. Optional Improvements", ids: new Set(["additional-services"]) },
+    { title: activeLanguage === "ko" ? "4. 승인" : "4. Approval", ids: new Set(["approval-protection"]) }
+  ];
+  const details = groups.map((group) => {
+    const element = document.createElement("details");
+    element.className = "result-section";
+    element.open = Boolean(group.open);
+    element.innerHTML = `<summary>${group.title}<span aria-hidden="true">+</span></summary><div class="result-section-grid"></div>`;
+    missionGrid.appendChild(element);
+    return element;
+  });
+  nodes.forEach((node) => {
+    const id = node.dataset?.cardId || (node.id === "additionalServicesForm" ? "additional-services" : "");
+    const groupIndex = groups.findIndex((group, index) => index > 0 && group.ids?.has(id));
+    details[groupIndex >= 0 ? groupIndex : 0].querySelector(".result-section-grid").appendChild(node);
+  });
+  details.forEach((detail) => detail.addEventListener("toggle", () => {
+    detail.querySelector("summary span").textContent = detail.open ? "−" : "+";
+  }));
+  details[0].querySelector("summary span").textContent = "−";
+};
+
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
 
@@ -1386,6 +1434,8 @@ const renderMission = () => {
 
   missionGrid.appendChild(additionalServicesForm);
   missionGrid.appendChild(createApprovalCard(currentResult));
+  renderMissionUnderstanding();
+  organizeProgressiveResults();
 };
 
 const initializeOptionSelections = () => {

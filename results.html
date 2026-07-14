@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;650;700;750;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="results.css?v=20260714-52" />
+  <link rel="stylesheet" href="results.css?v=20260715-60" />
 </head>
 
 <body>
@@ -39,6 +39,23 @@
           <span class="status-dot"></span>
           <span data-i18n="preparedByOne">Prepared by ONE</span>
         </div>
+      </section>
+
+      <nav class="mission-timeline" aria-label="Mission progress">
+        <span class="is-complete" data-stage="mission">Mission</span><i aria-hidden="true">→</i>
+        <span class="is-complete" data-stage="planning">Planning</span><i aria-hidden="true">→</i>
+        <span class="is-current" data-stage="review" aria-current="step">Review</span><i aria-hidden="true">→</i>
+        <span data-stage="approval">Approval</span><i aria-hidden="true">→</i>
+        <span data-stage="execution">Execution</span><i aria-hidden="true">→</i>
+        <span data-stage="complete">Complete</span>
+      </nav>
+
+      <section class="mission-understood" id="missionUnderstood" aria-labelledby="missionUnderstoodTitle">
+        <p class="eyebrow">Mission Summary</p>
+        <h2 id="missionUnderstoodTitle">ONE understood your mission.</h2>
+        <p class="mission-understood-goal" id="missionUnderstoodGoal"></p>
+        <div class="mission-understood-items" id="missionUnderstoodItems"></div>
+        <p class="mission-understood-time">Prepared in under a minute.</p>
       </section>
 
       <section class="mission-grid" id="missionGrid" aria-label="Prepared mission plan"></section>
@@ -72,8 +89,8 @@
         <div class="approval-list" id="approvalList"></div>
 
         <div class="completion-message" id="completionMessage" hidden>
-          <h3 data-i18n="finalMessage">Your future is now in motion.</h3>
-          <p>— ONE —</p>
+          <h3 data-i18n="finalMessage">ONE'D</h3>
+          <p>Everything is prepared. You're always in control.</p>
 
           <section class="execution-summary" id="executionSummary" aria-label="Prepared reservation summary"></section>
 
@@ -104,6 +121,6 @@
     </footer>
   </div>
 
-  <script type="module" src="results.js?v=20260715-51"></script>
+  <script type="module" src="results.js?v=20260715-60"></script>
 </body>
 </html>

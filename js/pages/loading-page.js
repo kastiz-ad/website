@@ -101,7 +101,7 @@ const saveMission = (mission) => {
 
 const updateLoadingMessage = (message, progress, activeStepIndex) => {
   if (loadingMessage) loadingMessage.textContent = message;
-  if (progressBar) progressBar.style.width = `${progress}%`;
+  // Progress is communicated by completed preparation steps, never a fake percentage.
 
   loadingSteps.forEach((step, index) => {
     step.classList.toggle("is-active", index === activeStepIndex);
@@ -111,12 +111,12 @@ const updateLoadingMessage = (message, progress, activeStepIndex) => {
 
 const loadingUi = {
   en: {
-    title: "Mission in progress",
-    steps: ["Understanding your dream", "Exploring every possibility", "Finding trusted providers", "Preparing everything", "Turning your idea into reality"]
+    title: "ONE is preparing your mission...",
+    steps: ["Understanding your goal", "Collecting live information", "Comparing available options", "Organizing your mission", "Almost ready"]
   },
   ko: {
-    title: "미션 진행 중",
-    steps: ["요청 이해하기", "가능성 탐색하기", "신뢰할 수 있는 제공자 찾기", "필요한 내용 준비하기", "아이디어를 현실로 만들기"]
+    title: "ONE이 미션을 준비하고 있어요...",
+    steps: ["목표 이해하기", "실시간 정보 수집하기", "선택지 비교하기", "미션 정리하기", "거의 준비 완료"]
   }
 };
 
