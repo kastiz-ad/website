@@ -21,3 +21,7 @@
 /founder-weekly-report.html
   X-Robots-Tag: noindex, nofollow
   Cache-Control: private, no-store
+
+/tools/founder-os/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: private, no-store

@@ -4,5 +4,6 @@ Disallow: /*?demo=1
 Disallow: /offline-demo/
 Disallow: /founder-analytics.html
 Disallow: /founder-weekly-report.html
+Disallow: /tools/founder-os/
 
 Sitemap: https://kastiz.com/sitemap.xml
