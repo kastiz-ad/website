@@ -1174,7 +1174,7 @@ const renderTravelMission = (result) => {
 
   const flightOptions = (result.flights || [])
     .map((flight, index) => makeOptionRow(getFlightName(flight), `${formatRange(flight.estimatedPrice)} · ${flightPriceLabel}`, {
-      index, label: getFlightName(flight), reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason
+      index, label: getFlightName(flight), reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason, price: flight.estimatedPrice
     }));
 
   missionGrid.appendChild(
@@ -1194,7 +1194,7 @@ const renderTravelMission = (result) => {
 
   const hotelOptions = (result.hotels || [])
     .map((hotel, index) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice), {
-      index, label: getHotelName(hotel), reason: activeLanguage === "ko" ? hotel.reasonKo || hotel.reason : hotel.reason
+      index, label: getHotelName(hotel), reason: activeLanguage === "ko" ? hotel.reasonKo || hotel.reason : hotel.reason, price: hotel.estimatedNightlyPrice
     }));
 
   missionGrid.appendChild(
@@ -1479,6 +1479,10 @@ const rangeFromPricedOption = (option) => option ? normalizeBudgetRange({
   max: Number(option.dataset.priceMax || 0)
 }) : normalizeBudgetRange();
 
+const selectedPricedOption = (cardId) => missionGrid.querySelector(
+  `[data-card-id="${cardId}"] .option-list .selectable-option[aria-pressed="true"][data-price-min]`
+);
+
 const addBudgetRanges = (...ranges) => {
   const normalized = ranges.map((range) => normalizeBudgetRange(range));
   return {
@@ -1514,11 +1518,14 @@ const updateTravelBudgetFromSelections = () => {
   const cardIncluded = (cardId) => !missionGrid.querySelector(`[data-card-id="${cardId}"]`)?.classList.contains("is-excluded");
   const selectedFlight = currentResult.flights?.[selectedOptionIndex("flights")];
   const selectedHotel = currentResult.hotels?.[selectedOptionIndex("hotel")];
+  const selectedFlightPrice = selectedPricedOption("flights");
+  const selectedHotelPrice = selectedPricedOption("hotel");
   const flights = cardIncluded("flights")
-    ? normalizeBudgetRange(selectedFlight?.estimatedPrice, baseline.flights)
+    ? (selectedFlightPrice ? rangeFromPricedOption(selectedFlightPrice) : normalizeBudgetRange(selectedFlight?.estimatedPrice, baseline.flights))
     : normalizeBudgetRange();
-  const hotel = cardIncluded("hotel") && selectedHotel?.estimatedNightlyPrice
-    ? scaleBudgetRange(selectedHotel.estimatedNightlyPrice, getTripNightCount())
+  const nightlyHotelPrice = selectedHotelPrice ? rangeFromPricedOption(selectedHotelPrice) : selectedHotel?.estimatedNightlyPrice;
+  const hotel = cardIncluded("hotel") && nightlyHotelPrice
+    ? scaleBudgetRange(nightlyHotelPrice, getTripNightCount())
     : cardIncluded("hotel") ? normalizeBudgetRange(baseline.hotel) : normalizeBudgetRange();
 
   const restaurantRows = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .option-row[data-price-min]')];

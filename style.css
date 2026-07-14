@@ -210,6 +210,8 @@ a {
 .mission-followup-fields label { display: grid; gap: 7px; min-width: 0; font-weight: 600; }
 .mission-followup-fields input,
 .mission-followup-fields select { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid rgba(127,127,127,.35); border-radius: 14px; padding: 14px 16px; background: var(--surface-strong); color: inherit; font: inherit; }
+.mission-followup-date-field { cursor: pointer; }
+.mission-followup-date-field input { cursor: pointer; }
 .mission-followup-error { min-height: 1.2em; color: #c9362b; font-size: .9rem; text-align: center; }
 .mission-followup-actions { position: sticky; bottom: 0; z-index: 2; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding-top: 4px; background: var(--surface, #fff); }
 .mission-followup-back,

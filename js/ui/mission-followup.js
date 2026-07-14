@@ -62,7 +62,12 @@ const TRAVEL_STEPS = [
 ];
 
 const esc = (value) => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
-const iso = (date) => date.toISOString().slice(0, 10);
+const iso = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const getDialog = () => {
   let dialog = document.getElementById("missionFollowUpDialog");
@@ -80,7 +85,8 @@ const renderField = ([name, en, ko, placeholder, type], language, required = tru
   const label = language === "ko" ? ko : en;
   if (type === "select") return `<label><span>${label}</span><select name="${name}" ${required ? "required" : ""}><option value="cheapest">${language === "ko" ? "최저가" : "Cheapest"}</option><option value="quality">${language === "ko" ? "최고 품질" : "Best quality"}</option><option value="fastest">${language === "ko" ? "최단 시간" : "Fastest"}</option><option value="balanced" selected>${language === "ko" ? "균형형" : "Balanced"}</option></select></label>`;
   const min = type === "number" ? ' min="0"' : "";
-  return `<label><span>${label}</span><input name="${name}" type="${type}" placeholder="${esc(placeholder)}"${min} ${required ? "required" : ""}></label>`;
+  const className = type === "date" ? ' class="mission-followup-date-field"' : "";
+  return `<label${className}><span>${label}</span><input name="${name}" type="${type}" placeholder="${esc(placeholder)}"${min} ${required ? "required" : ""}></label>`;
 };
 
 export function openMissionFollowUp({ mission, type, language = "en", demoMode = false, restoreFocusTo, onComplete }) {
@@ -108,11 +114,33 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   const next = form.querySelector('[data-action="next"]');
   const sections = Array.from(form.querySelectorAll(".mission-followup-step"));
 
-  if (travel && demoMode) {
+  if (travel) {
     const today = new Date();
     const end = new Date(today); end.setDate(end.getDate() + 6);
-    Object.entries({ destination: "Japan", startDate: iso(today), endDate: iso(end), adults: "1", children: "0", departure: "Seoul / ICN", priority: "balanced" }).forEach(([name, value]) => { const field = form.elements.namedItem(name); if (field) field.value = value; });
+    const defaults = { startDate: iso(today), endDate: iso(end), adults: "1", children: "0", priority: "balanced" };
+    if (demoMode) Object.assign(defaults, { destination: "Japan", departure: "Seoul / ICN" });
+    Object.entries(defaults).forEach(([name, value]) => { const field = form.elements.namedItem(name); if (field && !field.value) field.value = value; });
+    form.elements.startDate.min = iso(today);
+    form.elements.endDate.min = form.elements.startDate.value;
   }
+
+  form.addEventListener("click", (event) => {
+    const dateField = event.target.closest(".mission-followup-date-field");
+    if (!dateField) return;
+    const input = dateField.querySelector('input[type="date"]');
+    if (event.target !== input) event.preventDefault();
+    input?.focus();
+    input?.showPicker?.();
+  });
+
+  form.elements.startDate?.addEventListener("change", () => {
+    form.elements.endDate.min = form.elements.startDate.value;
+    if (form.elements.endDate.value < form.elements.startDate.value) {
+      const estimate = new Date(`${form.elements.startDate.value}T12:00:00`);
+      estimate.setDate(estimate.getDate() + 6);
+      form.elements.endDate.value = iso(estimate);
+    }
+  });
 
   const render = () => {
     sections.forEach((section, index) => { section.hidden = index !== current; });
