@@ -152,8 +152,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     ${demoMode && !sampleProfile && !savedProfile.enabled ? `<button type="button" class="profile-sample-button" data-action="sample">${ko ? "샘플 프로필 사용" : "Use sample profile"}</button>` : ""}
     <div class="mission-followup-progress" aria-live="polite"></div>
     ${steps.map((step, index) => `<section class="mission-followup-step" data-step="${index}" ${index ? "hidden" : ""}><h3>${ko ? step.title[1] : step.title[0]}</h3>${step.fields.some((field) => field[0] === "departure") ? `<p class="mission-step-why">${ko ? "기기의 지역 설정을 기준으로 제안했습니다. 정확한 위치는 저장하지 않습니다." : "Suggested from your device region. ONE does not store your precise location."}</p>` : ""}<div class="mission-followup-fields">${step.fields.map((field, fieldIndex) => renderField(field, language, field[0] !== "preferences" && field[0] !== "brands" && field[0] !== "constraints")).join("")}</div></section>`).join("")}
-    <label class="profile-remember-row"><input type="checkbox" name="rememberPreferences"><span>${ko ? "다음 미션에도 이 설정을 사용하기" : "Save these preferences for future missions"}</span></label>
-    <p class="profile-local-note">${ko ? "선택한 비민감 설정만 이 기기에 저장됩니다. 여권·결제·건강 정보는 저장하지 않습니다." : "Only selected non-sensitive preferences are stored on this device. Passport, payment and health data are not saved."}</p>
+    ${savedProfile.enabled ? `<label class="profile-remember-row"><input type="checkbox" name="rememberPreferences"><span>${ko ? "다음 미션에도 이 설정을 사용하기" : "Save these preferences for future missions"}</span></label><p class="profile-local-note">${ko ? "선택한 비민감 설정만 이 기기에 저장됩니다. 여권·결제·건강 정보는 저장하지 않습니다." : "Only selected non-sensitive preferences are stored on this device. Passport, payment and health data are not saved."}</p>` : ""}
     <p class="mission-followup-error" role="alert" aria-live="assertive"></p>
     <div class="mission-followup-actions"><button type="button" class="mission-followup-back" data-action="back">${ko ? "이전" : "Back"}</button><button type="button" class="schedule-confirm" data-action="next"></button></div>
   </form>`;
@@ -244,14 +243,10 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       const values = Object.fromEntries(new FormData(form).entries());
       if (values.rememberPreferences === "on") {
         const missionId = `mission-${Date.now()}`;
-        if (!savedProfile.profile.profileConsent.enabled) {
-          error.textContent = ko ? "먼저 프로필 페이지에서 메모리를 켜주세요." : "Turn on memory in Profile before saving preferences.";
-          return;
-        }
-        if (travel) {
+        if (savedProfile.profile.profileConsent.enabled && travel) {
           saveApprovedPreference("travel", "departureAirport", values.departure, missionId);
           saveApprovedPreference("travel", "tripPace", values.priority, missionId);
-        } else if (type === "tutoring" || type === "language_exchange") {
+        } else if (savedProfile.profile.profileConsent.enabled && (type === "tutoring" || type === "language_exchange")) {
           saveApprovedPreference("education", "subject", values.subject || values.language, missionId);
           saveApprovedPreference("education", "level", values.level, missionId);
           saveApprovedPreference("education", "format", values.format, missionId);

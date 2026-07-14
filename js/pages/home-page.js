@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js";
-import { openMissionFollowUp } from "../ui/mission-followup.js?v=20260715-61";
+import { openMissionFollowUp } from "../ui/mission-followup.js?v=20260715-62";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
