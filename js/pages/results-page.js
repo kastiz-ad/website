@@ -1033,11 +1033,30 @@ const destinationPrototypeProfiles = {
 
 function adaptTravelResultToDestination(result) {
   const code = result.country || result.countryProfile?.code || result.destination?.code;
-  const profile = destinationPrototypeProfiles[code];
-  if (!profile) return result;
-
+  const profileCode = String(code || "global").toLowerCase();
   const city = result.destination?.city || result.countryProfile?.capital || "the destination";
   const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
+  const regionalFareRanges = {
+    KR: [[90000, 220000], [100000, 250000], [70000, 190000], [120000, 280000]],
+    CN: [[280000, 620000], [300000, 680000], [220000, 520000], [340000, 740000]],
+    VN: [[350000, 780000], [380000, 820000], [260000, 650000], [420000, 900000]],
+    TH: [[420000, 900000], [450000, 950000], [320000, 760000], [480000, 1020000]],
+    SG: [[500000, 1050000], [530000, 1100000], [390000, 850000], [560000, 1180000]],
+    AU: [[1050000, 2100000], [1150000, 2250000], [900000, 1850000], [1200000, 2350000]],
+    CA: [[1750000, 2850000], [1650000, 2700000], [1800000, 2950000], [1600000, 2650000]],
+    GB: [[1450000, 2550000], [1400000, 2450000], [1500000, 2600000], [1380000, 2400000]],
+    FR: [[1450000, 2550000], [1400000, 2450000], [1500000, 2600000], [1380000, 2400000]],
+    DE: [[1400000, 2500000], [1350000, 2400000], [1450000, 2550000], [1330000, 2350000]],
+    IT: [[1500000, 2700000], [1450000, 2600000], [1550000, 2750000], [1420000, 2500000]],
+    MX: [[1900000, 3200000], [1850000, 3100000], [2000000, 3350000], [1800000, 3000000]]
+  };
+  const genericPrices = regionalFareRanges[code] || [[900000, 1900000], [850000, 1800000], [750000, 1650000], [950000, 2050000]];
+  const profile = destinationPrototypeProfiles[code] || {
+    airlines: ["Recommended full-service carrier", "Best connecting carrier", "Best-value carrier", "Flexible-fare carrier"],
+    flightPrices: genericPrices,
+    hotels: [`${city} Central Hotel`, `${city} International Hotel`, `${city} City Stay`, `${city} Value Hotel`],
+    transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
+  };
   const flightReasons = [
     [`Best overall balance of schedule, comfort, service, and estimated price for ${city}.`, `${cityKo} 노선에서 일정, 편안함, 서비스와 예상 가격의 균형이 가장 좋습니다.`],
     [`Best service-focused alternative with dependable connections to ${city}.`, `${cityKo} 노선에서 서비스 품질과 연결 편의성이 좋은 대안입니다.`],
@@ -1064,7 +1083,7 @@ function adaptTravelResultToDestination(result) {
   };
   const flights = profile.airlines.map((provider, index) => ({
     ...(result.flights?.[index] || result.flights?.[0] || {}),
-    id: `flight-${code.toLowerCase()}-${index + 1}`,
+    id: `flight-${profileCode}-${index + 1}`,
     provider,
     providerKo: provider,
     category: index === 0 ? "recommended" : "alternative",
@@ -1076,7 +1095,7 @@ function adaptTravelResultToDestination(result) {
   }));
   const hotels = profile.hotels.map((name, index) => ({
     ...(result.hotels?.[index] || result.hotels?.[0] || {}),
-    id: `hotel-${code.toLowerCase()}-${index + 1}`,
+    id: `hotel-${profileCode}-${index + 1}`,
     name,
     nameKo: name,
     category: index === 0 ? "recommended" : index === 1 ? "premium" : index === 2 ? "value" : "budget",

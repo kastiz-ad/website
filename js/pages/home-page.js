@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js";
-import { openMissionFollowUp } from "../ui/mission-followup.js?v=20260715-62";
+import { openMissionFollowUp } from "../ui/mission-followup.js?v=20260716-1";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
@@ -1415,6 +1415,25 @@ const saveMission = (mission, schedule = null) => {
   payload.aiMode = aiModeEnabled;
   payload.schedule = schedule;
   payload.followUp = pendingFollowUp;
+  const selectedDestination = pendingFollowUp?.answers;
+  if (payload.type === "travel" && selectedDestination?.destination) {
+    payload.destination = {
+      ...payload.destination,
+      country: selectedDestination.destinationCountry || payload.destination?.country,
+      countryKo: selectedDestination.destinationCountry || payload.destination?.countryKo,
+      city: selectedDestination.destination,
+      cityKo: selectedDestination.destination
+    };
+    if (selectedDestination.destinationCountryCode) {
+      payload.country = selectedDestination.destinationCountryCode;
+      payload.countryProfile = countryProfiles[selectedDestination.destinationCountryCode] || payload.countryProfile;
+      const currencyByCountry = { JP: "JPY", ES: "EUR", US: "USD", CA: "CAD", FR: "EUR", IT: "EUR", GB: "GBP", DE: "EUR", AU: "AUD", TH: "THB", VN: "VND", CN: "CNY", KR: "KRW", CO: "COP", MX: "MXN", SG: "SGD" };
+      payload.exchangeRate = {
+        ...payload.exchangeRate,
+        to: currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to
+      };
+    }
+  }
   payload.presentationMode = isPresentationMode();
   if (schedule?.startDate && schedule?.endDate) {
     payload.durationDays = Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1);
