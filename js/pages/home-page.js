@@ -1,5 +1,5 @@
 import { trackEvent } from "../analytics.js";
-import { classifyMission } from "../engine/mission-classification.js";
+import { classifyMission } from "../engine/mission-classification.js?v=20260716-2";
 import { openMissionFollowUp } from "../ui/mission-followup.js?v=20260716-1";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
@@ -247,7 +247,7 @@ const missionKeywordMap = {
   travel: {
     subtype: "trip_planning",
     en: ["travel", "trip", "vacation", "honeymoon", "flight", "hotel", "japan", "tokyo", "osaka", "kyoto", "airport"],
-    ko: ["여행", "일본", "도쿄", "오사카", "교토", "항공권", "호텔", "신혼여행", "공항"]
+    ko: ["여행", "출장", "해외출장", "업무출장", "일본", "도쿄", "오사카", "교토", "항공권", "호텔", "신혼여행", "공항"]
   },
   shopping: {
     subtype: "product_research",
@@ -399,6 +399,9 @@ const travelKeywordMap = {
   ],
   ko: [
     "여행",
+    "출장",
+    "해외출장",
+    "업무출장",
     "일본",
     "도쿄",
     "오사카",

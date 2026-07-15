@@ -1,5 +1,5 @@
 const RULES = {
-  travel: /travel|trip|vacation|honeymoon|flight|hotel|japan|tokyo|osaka|kyoto|airport|여행|일본|도쿄|오사카|교토|항공권|호텔|신혼여행|공항/i,
+  travel: /travel|trip|business trip|vacation|honeymoon|flight|hotel|japan|tokyo|osaka|kyoto|airport|여행|출장|해외출장|업무출장|일본|도쿄|오사카|교토|항공권|호텔|신혼여행|공항/i,
   shopping: /buy|laptop|phone|product|compare|deal|구매|노트북|핸드폰|제품|비교|최저가|추천/i,
   housing: /home|house|apartment|rent|mortgage|property|집|아파트|전세|월세|부동산|주택담보대출/i,
   legal: /lawyer|legal|attorney|divorce|contract|lawsuit|trademark|변호사|법률|이혼|계약서|소송|상표/i,
