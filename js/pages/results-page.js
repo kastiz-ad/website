@@ -1007,21 +1007,25 @@ const createVisaVerificationCard = (result) => {
 const destinationPrototypeProfiles = {
   US: {
     airlines: ["Korean Air", "Delta Air Lines", "Asiana Airlines", "United Airlines"],
+    flightPrices: [[2200000, 2850000], [2050000, 2700000], [2150000, 2800000], [1950000, 2600000]],
     hotels: ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square"],
     transfer: "AirTrain + subway or licensed airport transfer"
   },
   ES: {
     airlines: ["Korean Air", "Iberia", "Lufthansa", "Air France"],
+    flightPrices: [[1550000, 2670000], [1450000, 2400000], [1500000, 2450000], [1530000, 2500000]],
     hotels: ["Hotel Riu Plaza España", "Hyatt Centric Gran Vía Madrid", "NH Collection Madrid", "Room Mate Macarena"],
     transfer: "Airport Express bus, Metro, or licensed airport transfer"
   },
   CO: {
     airlines: ["Avianca", "LATAM Airlines", "American Airlines", "United Airlines"],
+    flightPrices: [[2300000, 3500000], [2400000, 3700000], [2200000, 3400000], [2250000, 3450000]],
     hotels: ["Grand Hyatt Bogotá", "Hilton Bogotá", "Sofitel Bogotá Victoria Regia", "GHL Hotel Capital"],
     transfer: "Authorized airport taxi or pre-arranged airport transfer"
   },
   JP: {
     airlines: ["Korean Air", "Asiana Airlines", "Jeju Air", "Japan Airlines"],
+    flightPrices: [[440000, 660000], [400000, 620000], [180000, 390000], [520000, 830000]],
     hotels: ["Hotel Metropolitan Tokyo Marunouchi", "Hilton Tokyo", "Tokyu Stay Shinjuku", "APA Hotel"],
     transfer: "Narita Express or Airport Limousine Bus"
   }
@@ -1046,12 +1050,27 @@ function adaptTravelResultToDestination(result) {
     [`Best value option for balancing location and total stay cost.`, `위치와 전체 숙박비의 균형을 맞추기 좋은 가성비 옵션입니다.`],
     [`Best budget option for keeping accommodation costs lower while retaining practical access.`, `실용적인 접근성을 유지하면서 숙박비를 낮추기 좋은 예산형 옵션입니다.`]
   ];
+  const tripMultiplier = result.tripType === "one_way" ? 0.62 : 1;
+  const travelerCount = Math.max(1, Number(
+    result.followUp?.answers?.adults || result.travelerCount || result.travelers || 1
+  ));
+  const priceFor = (index) => {
+    const range = profile.flightPrices?.[index] || profile.flightPrices?.[0] || [420000, 760000];
+    return {
+      currency: "KRW",
+      min: Math.round(range[0] * tripMultiplier * travelerCount / 10000) * 10000,
+      max: Math.round(range[1] * tripMultiplier * travelerCount / 10000) * 10000
+    };
+  };
   const flights = profile.airlines.map((provider, index) => ({
     ...(result.flights?.[index] || result.flights?.[0] || {}),
     id: `flight-${code.toLowerCase()}-${index + 1}`,
     provider,
     providerKo: provider,
     category: index === 0 ? "recommended" : "alternative",
+    estimatedPrice: priceFor(index),
+    priceBasis: "prototype_market_estimate",
+    priceCheckedAt: "2026-07-16",
     reason: flightReasons[index]?.[0] || `Practical prototype flight option for ${city}.`,
     reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
   }));
