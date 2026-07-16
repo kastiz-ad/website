@@ -282,6 +282,9 @@ const getPortableSharedResult = () => {
     const budgetMax = budgetValues.length === 2 ? budgetValues[1] : compactBudgetMax;
     const savedFoodMin = budgetValues.length === 2 ? 0 : foodMin;
     const savedFoodMax = budgetValues.length === 2 ? 0 : foodMax;
+    const portableChecklist = parsed.l === "ko"
+      ? ["여권", "여행자 보험", "SIM / eSIM", "환전", "교통카드", "호텔 예약 확인서", "비상 연락처"]
+      : ["Passport", "Travel insurance", "SIM / eSIM", "Currency", "Transit card", "Hotel confirmation", "Emergency contacts"];
     const providerResults = [];
     if (parsed.w?.length) providerResults.push({ category: "weather", provider: "Open-Meteo", liveData: true, items: parsed.w.map(([label, value, humidity, precipitation]) => ({ label, value, humidity, precipitation })) });
     if (parsed.e?.length) providerResults.push({ category: "currency", provider: "ExchangeRate API", liveData: true, items: parsed.e.map(([to, rate]) => ({ to, rate, value: rate })) });
@@ -298,7 +301,7 @@ const getPortableSharedResult = () => {
       hotels: hotelName ? [{ name: hotelName, nameKo: hotelNameKo || hotelName, estimatedNightlyPrice: { currency: "KRW", min: hotelMin, max: hotelMax }, recommended: true }] : [],
       airportTransfer: { recommended: parsed.x || "", options: parsed.x ? [parsed.x] : [] },
       restaurants: (parsed.n || []).map((name) => ({ type: name, typeKo: name, venueName: name, venueNameKo: name })),
-      checklist: (parsed.k || []).map((text) => ({ en: text, ko: text })), providerResults,
+      checklist: (parsed.k?.length ? parsed.k : portableChecklist).map((text) => ({ en: text, ko: text })), providerResults,
       weather: { status: parsed.w?.length ? "live" : "prototype", message: { en: "Weather data saved with this summary", ko: "이 요약에 저장된 날씨 정보" } },
       exchangeRate: { from: "KRW", to: parsed.c || "USD", status: parsed.e?.length ? "live" : "prototype", message: { en: "Currency data saved with this summary", ko: "이 요약에 저장된 환율 정보" } },
       budget: { currency: "KRW", flights: { currency: "KRW", min: flightMin, max: flightMax }, hotel: { currency: "KRW", min: hotelMin, max: hotelMax }, food: { currency: "KRW", min: savedFoodMin, max: savedFoodMax }, transport: { currency: "KRW", min: transportMin, max: transportMax }, activities: { currency: "KRW", min: activitiesMin, max: activitiesMax }, estimatedTotal: { currency: "KRW", min: budgetMin, max: budgetMax } },
@@ -2093,11 +2096,10 @@ const buildExecutionSummary = () => {
     f: flight ? [flight.provider || "", flight.providerKo || flight.provider || "", flight.estimatedPrice?.min || 0, flight.estimatedPrice?.max || 0] : [],
     h: hotel ? [hotel.name || "", hotel.nameKo || hotel.name || "", hotel.estimatedNightlyPrice?.min || 0, hotel.estimatedNightlyPrice?.max || 0] : [],
     x: localize(transfer) || "", n: selectedRestaurantNames,
-    k: (currentResult.checklist || []).map((item) => localize(item)).filter(Boolean).slice(0, 8),
     w: weatherItems, e: currencyItems, c: currentResult.exchangeRate?.to || currentResult.countryProfile?.currency || "USD",
     b: [foodRange.min || 0, foodRange.max || 0, transportRange.min || 0, transportRange.max || 0, activitiesRange.min || 0, activitiesRange.max || 0, totalRange.min || 0, totalRange.max || 0]
   };
-  const portableUrl = `${location.origin}${location.pathname}?reference=${encodeURIComponent(reference)}&share=${encodeURIComponent(encodePortableShare(portableResult))}`;
+  const portableUrl = `${location.origin}${location.pathname}?share=${encodeURIComponent(encodePortableShare(portableResult))}`;
   const restaurantRows = restaurants.length
     ? restaurants.map((restaurant, index) => [
         ko ? `레스토랑 ${index + 1}` : `Restaurant ${index + 1}`,
@@ -2116,7 +2118,7 @@ const buildExecutionSummary = () => {
   ];
   const renderSummaryRow = ([label, value, detail, className = "", metadata = null]) => {
     const qrMarkup = className.includes("is-reference")
-      ? `<a href="${escapeSummaryText(portableUrl)}" aria-label="${ko ? "QR 링크로 이 요약 다시 열기" : "Reopen this summary from the QR link"}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&amp;format=png&amp;data=${encodeURIComponent(portableUrl)}" alt="${ko ? "프로토타입 요약 링크 QR 코드" : "Prototype summary link QR code"}" width="220" height="220" loading="lazy"></a><small class="prototype-reference-qr-help">${ko ? "휴대폰 카메라로 스캔하면 이 요약을 다시 열 수 있습니다" : "Scan with your phone camera to reopen this summary"}</small>`
+      ? `<a href="${escapeSummaryText(portableUrl)}" aria-label="${ko ? "QR 링크로 이 요약 다시 열기" : "Reopen this summary from the QR link"}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&amp;format=png&amp;ecc=L&amp;qzone=4&amp;data=${encodeURIComponent(portableUrl)}" alt="${ko ? "프로토타입 요약 링크 QR 코드" : "Prototype summary link QR code"}" width="260" height="260"></a><small class="prototype-reference-qr-help">${ko ? "휴대폰 카메라로 스캔하면 이 요약을 다시 열 수 있습니다" : "Scan with your phone camera to reopen this summary"}</small>`
       : "";
     const valueMarkup = className.includes("is-schedule")
       ? `<span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(metadata?.start || "—")}</strong><i aria-hidden="true">→</i><strong>${escapeSummaryText(metadata?.end || "—")}</strong></span>`
