@@ -45,6 +45,7 @@ assert.match(loading, /amenity~"restaurant\|cafe\|fast_food"/);
 assert.match(loading, /out center 160/);
 assert.match(loading, /restaurants", city, country/);
 assert.match(loading, /OpenStreetMap Nominatim/);
+assert.match(loading, /hotels and accommodations/);
 assert.match(loading, /www\.gov\.uk\/api\/content\/foreign-travel-advice/);
 assert.match(loading, /youtube\.com\/results\?search_query/);
 assert.match(loading, /overseas\.mofa\.go\.kr/);
@@ -76,6 +77,7 @@ assert.match(results, /prototype-reference-qr/);
 assert.match(results, /GT:\s*\[\["Aeromexico"/);
 assert.match(results, /GT:\s*\[\[2300000, 3900000\]/);
 assert.match(results, /liveHotelNames/);
+assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.\.hotelFallbacks/);
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
 

@@ -1224,7 +1224,7 @@ function adaptTravelResultToDestination(result) {
   const city = result.destination?.city || result.countryProfile?.capital || "the destination";
   const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
   const livePlaces = findLiveProvider(result, "local_places");
-  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, 4);
+  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, 5);
   const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, 6);
   const regionalFareRanges = {
     KR: [[90000, 220000], [100000, 250000], [70000, 190000], [120000, 280000]],
@@ -1278,7 +1278,15 @@ function adaptTravelResultToDestination(result) {
     transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
   };
   const cityOverride = cityProfileOverride(code, city);
-  const profile = cityOverride ? { ...baseProfile, ...cityOverride, ...(liveHotelNames.length ? { hotels: liveHotelNames } : {}) } : baseProfile;
+  const profile = cityOverride ? { ...baseProfile, ...cityOverride } : { ...baseProfile };
+  const hotelFallbacks = [
+    `${city} central hotel — provider confirmation required`,
+    `${city} premium accommodation — provider confirmation required`,
+    `${city} best-value stay — provider confirmation required`,
+    `${city} budget accommodation — provider confirmation required`,
+    `${city} flexible-stay option — provider confirmation required`
+  ];
+  profile.hotels = [...new Set([...liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks])].slice(0, 5);
   const flightReasons = [
     [`Best overall prototype itinerary candidate for ${city}; connections, operating carriers, and current fare require live provider confirmation.`, `${cityKo}행 프로토타입 일정 중 균형이 좋은 후보입니다. 경유지, 실제 운항사와 현재 운임은 실시간 제공업체 확인이 필요합니다.`],
     [`Service-focused connecting itinerary candidate for ${city}; route availability requires live confirmation.`, `${cityKo}행 서비스 중심 경유 일정 후보입니다. 노선 이용 가능 여부는 실시간 확인이 필요합니다.`],

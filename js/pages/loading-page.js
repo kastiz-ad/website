@@ -302,6 +302,17 @@ const fetchLocalPlaces = async (mission) => {
         items.push({ label, value: place.type || "restaurant", kind: "restaurant", cuisine: place.extratags?.cuisine || "", stars: "", source: "OpenStreetMap Nominatim" });
       });
     }
+    if (items.filter((item) => item.kind === "hotel").length < 5) {
+      const placeQuery = ["hotels and accommodations", city, country].filter(Boolean).join(" ");
+      const accommodationSearch = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&extratags=1&limit=15&q=${encodeURIComponent(placeQuery)}`, { timeout: 10000, retries: 0, cacheTtl: 86400000 }).catch(() => []);
+      (Array.isArray(accommodationSearch) ? accommodationSearch : []).forEach((place) => {
+        const label = place.namedetails?.[mission.language === "ko" ? "name:ko" : "name:en"] || place.namedetails?.name || String(place.display_name || "").split(",")[0].trim();
+        const key = `hotel:${String(label).toLowerCase()}`;
+        if (!label || /^(hotel|hotels|accommodation|accommodations)$/i.test(label) || seen.has(key)) return;
+        seen.add(key);
+        items.push({ label, value: place.type || "hotel", kind: "hotel", cuisine: "", stars: place.extratags?.stars || "", source: "OpenStreetMap Nominatim" });
+      });
+    }
     return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: items.length > 0, requiresKey: false, requiresPartnerAccess: false, items, attribution: "© OpenStreetMap contributors", error: null };
   } catch (error) {
     return fallbackProvider("OpenStreetMap Overpass", "local_places", "Public hotel, restaurant and transport names could not be loaded; prototype fallbacks are shown.", error.message);
