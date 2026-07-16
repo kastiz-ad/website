@@ -152,7 +152,44 @@ const CITY_NAMES_KO = {
   Berlin: "베를린", Munich: "뮌헨", Lisbon: "리스본", Amsterdam: "암스테르담", Athens: "아테네", Dubai: "두바이", Delhi: "델리", Bali: "발리",
   Auckland: "오클랜드", "Cape Town": "케이프타운", Cairo: "카이로", Marrakesh: "마라케시"
 };
+Object.assign(CITY_NAMES_KO, {
+  Toronto: "토론토", Vancouver: "밴쿠버", Montreal: "몬트리올", Calgary: "캘거리", Ottawa: "오타와", "Quebec City": "퀘벡시티",
+  Nice: "니스", Lyon: "리옹", Marseille: "마르세유", Bordeaux: "보르도", Strasbourg: "스트라스부르",
+  Naples: "나폴리", Bologna: "볼로냐", Edinburgh: "에든버러", Manchester: "맨체스터", Liverpool: "리버풀", Oxford: "옥스퍼드", Bath: "바스",
+  Frankfurt: "프랑크푸르트", Hamburg: "함부르크", Cologne: "쾰른", Dresden: "드레스덴",
+  Brisbane: "브리즈번", Perth: "퍼스", Adelaide: "애들레이드", "Gold Coast": "골드코스트",
+  "Chiang Mai": "치앙마이", Krabi: "끄라비", Pattaya: "파타야", "Koh Samui": "코사무이",
+  "Hoi An": "호이안", "Nha Trang": "나트랑", "Phu Quoc": "푸꾸옥", Guangzhou: "광저우", Shenzhen: "선전", Chengdu: "청두", "Xi'an": "시안",
+  Gyeongju: "경주", Incheon: "인천", Gangneung: "강릉", "Medellín": "메데인", Cartagena: "카르타헤나", Cali: "칼리", "Santa Marta": "산타마르타", Pereira: "페레이라",
+  "Mexico City": "멕시코시티", "Cancún": "칸쿤", "Los Cabos": "로스카보스", Oaxaca: "오악사카", Guadalajara: "과달라하라", "Puerto Vallarta": "푸에르토바야르타",
+  Belmopan: "벨모판", "San Ignacio": "산이그나시오", "San Pedro": "산페드로", Liberia: "리베리아", Limon: "리몬", "La Fortuna": "라포르투나",
+  "Santa Ana": "산타아나", "La Libertad": "라리베르타드", Suchitoto: "수치토토", "Antigua Guatemala": "안티과과테말라", Flores: "플로레스", Quetzaltenango: "케찰테낭고",
+  "San Pedro Sula": "산페드로술라", "La Ceiba": "라세이바", Roatan: "로아탄", Granada: "그라나다", Leon: "레온", "San Juan del Sur": "산후안델수르",
+  "Bocas del Toro": "보카스델토로", Boquete: "보케테", Colon: "콜론", Mendoza: "멘도사", Cordoba: "코르도바", Bariloche: "바릴로체",
+  Brasilia: "브라질리아", Salvador: "사우바도르", Cusco: "쿠스코", Arequipa: "아레키파", Trujillo: "트루히요", Santiago: "산티아고", Valparaiso: "발파라이소",
+  "Puerto Montt": "푸에르토몬트", "San Pedro de Atacama": "산페드로데아타카마", Porto: "포르투", Faro: "파루", Coimbra: "코임브라",
+  Rotterdam: "로테르담", "The Hague": "헤이그", Utrecht: "위트레흐트", Thessaloniki: "테살로니키", Santorini: "산토리니", Mykonos: "미코노스",
+  "Abu Dhabi": "아부다비", Sharjah: "샤르자", Mumbai: "뭄바이", Bengaluru: "벵갈루루", Jaipur: "자이푸르", Jakarta: "자카르타", Yogyakarta: "욕야카르타", Surabaya: "수라바야",
+  "Kuala Lumpur": "쿠알라룸푸르", Penang: "페낭", "Kota Kinabalu": "코타키나발루", Malacca: "말라카", Queenstown: "퀸스타운", Wellington: "웰링턴", Christchurch: "크라이스트처치",
+  Johannesburg: "요하네스버그", Durban: "더반", Pretoria: "프리토리아", Luxor: "룩소르", Alexandria: "알렉산드리아", "Sharm El Sheikh": "샤름엘셰이크",
+  Casablanca: "카사블랑카", Fes: "페스", Rabat: "라바트"
+});
 const cityLabel = (city, language) => language === "ko" ? (CITY_NAMES_KO[city] || city) : city;
+const worldwideCityLabelCache = new Map();
+const koreanCityLabel = async (city, country) => {
+  if (CITY_NAMES_KO[city]) return CITY_NAMES_KO[city];
+  const key = `${city}|${country}`;
+  if (worldwideCityLabelCache.has(key)) return worldwideCityLabelCache.get(key);
+  const lookup = fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=1&accept-language=ko&q=${encodeURIComponent(`${city}, ${country}`)}`)
+    .then((response) => response.ok ? response.json() : [])
+    .then(([place]) => {
+      const label = place?.namedetails?.["name:ko"] || String(place?.display_name || "").split(",")[0] || city;
+      return /[가-힣]/.test(label) ? label : city;
+    })
+    .catch(() => city);
+  worldwideCityLabelCache.set(key, lookup);
+  return lookup;
+};
 const normalizeDestinationLookup = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
 const CITY_ALIASES = {
   nyc: "New York", la: "Los Angeles", "l.a.": "Los Angeles", "엘에이": "Los Angeles",
@@ -199,7 +236,7 @@ const resolveWorldwideDestination = async (value, language) => {
         const countryData = await countryResponse.json();
         country = countryData?.name?.common || country;
         continent = countryData?.region === "Americas"
-          ? (countryData?.subregion === "South America" ? "South America" : "North America")
+          ? (countryData?.subregion === "South America" ? "South America" : countryData?.subregion === "Central America" ? "Central America" : countryData?.subregion === "Caribbean" ? "Caribbean" : "North America")
           : (countryData?.region === "Oceania" ? "Oceania" : countryData?.region || "");
         currency = Object.keys(countryData?.currencies || {})[0] || "";
       }
@@ -375,6 +412,15 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         const item = TRAVEL_DESTINATION_CHOICES.find((candidate) => candidate.country === country) || globalCountries.find((candidate) => candidate.country === country);
         citySelect.innerHTML = `<option value="">${ko ? "도시 선택" : "Select a city"}</option>${(item?.cities || []).map((city) => `<option value="${esc(city)}" ${city === selected ? "selected" : ""}>${esc(cityLabel(city, language))}</option>`).join("")}`;
         citySelect.disabled = !item;
+        if (ko && item) {
+          Promise.all(item.cities.map(async (city) => [city, await koreanCityLabel(city, country)])).then((labels) => {
+            if (countrySelect.value !== country) return;
+            labels.forEach(([city, label]) => {
+              const option = [...citySelect.options].find((candidate) => candidate.value === city);
+              if (option) option.textContent = label;
+            });
+          });
+        }
       };
       const syncHierarchy = (value) => {
         const match = findDestinationMatch(value, language);
