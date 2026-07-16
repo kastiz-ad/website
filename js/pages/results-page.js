@@ -1039,6 +1039,25 @@ const destinationPrototypeProfiles = {
     transfer: "Narita Express or Airport Limousine Bus"
   }
 };
+const PROTOTYPE_MISSION_ARCHIVE_KEY = "kastiz-one-prototype-mission-archive";
+
+const sanitizeArchivedMission = (value) => {
+  const blockedKey = /passport|visaimage|payment|card|health|child|email|phone|upload|filename|nationalid/i;
+  if (Array.isArray(value)) return value.map(sanitizeArchivedMission);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value)
+    .filter(([key]) => !blockedKey.test(key))
+    .map(([key, item]) => [key, sanitizeArchivedMission(item)]));
+};
+
+const savePrototypeMission = (reference) => {
+  try {
+    const existing = JSON.parse(localStorage.getItem(PROTOTYPE_MISSION_ARCHIVE_KEY) || "[]");
+    const record = { reference, savedAt: new Date().toISOString(), result: sanitizeArchivedMission(currentResult) };
+    const next = [record, ...existing.filter((item) => item?.reference !== reference)].slice(0, 10);
+    localStorage.setItem(PROTOTYPE_MISSION_ARCHIVE_KEY, JSON.stringify(next));
+  } catch {}
+};
 
 const airlineProfilesByCountry = {
   KR: [["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Jeju Air", "제주항공"], ["T'way Air", "티웨이항공"]],
@@ -1984,6 +2003,7 @@ const buildExecutionSummary = () => {
     return `<div class="execution-summary-item ${className}"><span class="execution-summary-label">${escapeSummaryText(label)}</span>${valueMarkup}<span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`;
   };
   executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(renderSummaryRow).join("")}</div><div class="all-in-slogan"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></div>`;
+  savePrototypeMission(reference);
 };
 
 const runApprovalSequence = () => {
@@ -2338,6 +2358,13 @@ renderMission();
 initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
+const requestedReference = new URLSearchParams(location.search).get("reference")?.toUpperCase();
+if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
+  buildExecutionSummary();
+  completionMessage.hidden = false;
+  bottomActions.hidden = true;
+  approvalPanel.hidden = true;
+}
 trackEvent("page_visit", { page: "results", language: activeLanguage });
 trackEvent("results_viewed", { page: "results", language: activeLanguage, mission_type: currentResult?.type });
 

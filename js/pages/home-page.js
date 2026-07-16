@@ -50,6 +50,34 @@ const STORAGE_KEYS = {
   enrichedMission: "kastiz-one-enriched-mission",
   executionState: "kastiz-one-execution-state"
 };
+const PROTOTYPE_MISSION_ARCHIVE_KEY = "kastiz-one-prototype-mission-archive";
+
+const reopenPrototypeMission = (reference) => {
+  try {
+    const archive = JSON.parse(localStorage.getItem(PROTOTYPE_MISSION_ARCHIVE_KEY) || "[]");
+    const record = archive.find((item) => item?.reference === reference);
+    if (!record?.result?.type) return false;
+    sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(record.result));
+    sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(record.result));
+    if (record.result.type === "travel") sessionStorage.setItem(STORAGE_KEYS.travelMission, JSON.stringify(record.result));
+    location.href = `results.html?reference=${encodeURIComponent(reference)}`;
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const detectPrototypeReferenceInImage = async (file) => {
+  if (!file || typeof window.TextDetector !== "function" || typeof createImageBitmap !== "function") return "";
+  try {
+    const bitmap = await createImageBitmap(file);
+    const blocks = await new window.TextDetector().detect(bitmap);
+    bitmap.close?.();
+    return blocks.map((block) => block.rawValue || "").join(" ").toUpperCase().match(/ONE-DEMO-[A-Z0-9]{8}/)?.[0] || "";
+  } catch {
+    return "";
+  }
+};
 
 const supportedLanguages = ["en", "ko"];
 const supportedThemes = ["light", "gray", "midnight"];
@@ -1673,12 +1701,20 @@ aiModeButton?.addEventListener("click", () => {
 microphoneButton?.addEventListener("click", speakWelcomeMessage);
 
 imageUploadButton?.addEventListener("click", () => imageUploadInput?.click());
-imageUploadInput?.addEventListener("change", () => {
+imageUploadInput?.addEventListener("change", async () => {
   selectedImageFiles = [...(imageUploadInput.files || [])];
   imageUploadButton.classList.toggle("is-active", selectedImageFiles.length > 0);
+  const detectedReference = await detectPrototypeReferenceInImage(selectedImageFiles[0]);
+  if (detectedReference) {
+    missionInput.value = detectedReference;
+    syncInputState();
+    if (reopenPrototypeMission(detectedReference)) return;
+    announceMissionTool("Reference detected, but it is not saved in this browser.", "참조 번호를 찾았지만 이 브라우저에 저장된 기록이 없습니다.");
+    return;
+  }
   announceMissionTool(
-    selectedImageFiles.length === 1 ? "1 image attached." : `${selectedImageFiles.length} images attached.`,
-    `이미지 ${selectedImageFiles.length}개가 첨부되었습니다.`
+    typeof window.TextDetector === "function" ? (selectedImageFiles.length === 1 ? "1 image attached. No saved reference was detected." : `${selectedImageFiles.length} images attached.`) : "Image attached. Copy the ONE-DEMO reference into the search box for lookup.",
+    typeof window.TextDetector === "function" ? `이미지 ${selectedImageFiles.length}개가 첨부되었습니다. 저장된 참조 번호를 찾지 못했습니다.` : "이미지가 첨부되었습니다. 조회하려면 ONE-DEMO 참조 번호를 검색창에 입력하세요."
   );
 });
 
@@ -1770,6 +1806,14 @@ missionForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const mission = normalizeMission(missionInput.value);
   if (!mission) { missionInput.focus(); return; }
+  missionInput.setCustomValidity("");
+  const prototypeReference = mission.toUpperCase().match(/^ONE-DEMO-[A-Z0-9]{8}$/)?.[0];
+  if (prototypeReference) {
+    if (reopenPrototypeMission(prototypeReference)) return;
+    missionInput.setCustomValidity(activeLanguage === "ko" ? "이 브라우저에 저장된 프로토타입 참조 번호를 찾을 수 없습니다." : "This prototype reference is not saved in this browser.");
+    missionInput.reportValidity();
+    return;
+  }
   const type = classifyMission(mission);
   const openFollowUp = () => openMissionFollowUp({
     mission,
