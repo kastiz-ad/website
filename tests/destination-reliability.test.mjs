@@ -41,11 +41,13 @@ assert.match(loading, /countriesnow\.space\/api\/v0\.1\/countries\/capital/);
 assert.match(loading, /open\.er-api\.com\/v6\/latest/);
 assert.match(loading, /geocoding-api\.open-meteo\.com/);
 assert.match(loading, /overpass-api\.de\/api\/interpreter/);
-assert.match(loading, /nwr\(around:12000/);
+assert.match(loading, /nwr\(around:8000/);
 assert.doesNotMatch(loading, /bounded=1&viewbox=/);
 assert.match(loading, /tourism~"hotel\|hostel\|guest_house\|motel\|apartment"/);
 assert.match(loading, /amenity~"restaurant\|cafe\|fast_food"/);
-assert.match(loading, /out center 160/);
+assert.match(loading, /out center 30/);
+assert.match(loading, /out center 20/);
+assert.match(loading, /Promise\.allSettled\(placeQueries/);
 assert.match(loading, /restaurants", city, country/);
 assert.match(loading, /OpenStreetMap Nominatim/);
 assert.match(loading, /hotels and accommodations/);
@@ -62,9 +64,9 @@ assert.match(followup, /아직 모르겠다면 비워두세요\. ONE이 다양�
 assert.match(followup, /Best overall balance/);
 assert.match(followup, /가격·품질·시간을 고르게/);
 assert.match(followup, /!\["budget", "housingBudget", "preferences"/);
-assert.match(results, /budgetFriendlyTier/);
-assert.match(results, /recommendedTier/);
-assert.match(results, /luxuryTier/);
+assert.doesNotMatch(results, /budgetFriendlyTier/);
+assert.doesNotMatch(results, /recommendedTier/);
+assert.doesNotMatch(results, /luxuryTier/);
 assert.match(results, /PROTOTYPE_MISSION_ARCHIVE_KEY/);
 assert.match(results, /savePrototypeMission\(reference\)/);
 assert.match(results, /requestedReference/);
@@ -84,7 +86,7 @@ assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
 assert.match(indexHtml, /script\.js\?v=20260717-8/);
-assert.match(loadingHtml, /loading\.js\?v=20260717-7/);
-assert.match(resultsHtml, /results\.js\?v=20260717-5/);
+assert.match(loadingHtml, /loading\.js\?v=20260717-9/);
+assert.match(resultsHtml, /results\.js\?v=20260717-7/);
 
 console.log("destination reliability checks passed");

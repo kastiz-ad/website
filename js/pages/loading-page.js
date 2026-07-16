@@ -281,8 +281,12 @@ const fetchLocalPlaces = async (mission) => {
   if (!city) return fallbackProvider("OpenStreetMap", "local_places", "Local place search requires a destination city.");
   try {
     const { latitude, longitude } = await getCoordinates(mission);
-    const query = `[out:json][timeout:20];(nwr(around:12000,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"];nwr(around:12000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"];nwr(around:12000,${latitude},${longitude})[public_transport];);out center 160;`;
-    const data = await fetchJson(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 18000, retries: 0, cacheTtl: 86400000 });
+    const placeQueries = [
+      `[out:json][timeout:12];nwr(around:8000,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"][name];out center 30;`,
+      `[out:json][timeout:12];nwr(around:8000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"][name];out center 20;`
+    ];
+    const placeResponses = await Promise.allSettled(placeQueries.map((query) => fetchJson(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 14000, retries: 0, cacheTtl: 86400000 })));
+    const elements = placeResponses.flatMap((response) => response.status === "fulfilled" ? response.value?.elements || [] : []);
     const seen = new Set();
     const normalize = (entry) => {
       const tags = entry.tags || {};
@@ -290,7 +294,7 @@ const fetchLocalPlaces = async (mission) => {
       const name = tags[mission.language === "ko" ? "name:ko" : "name:en"] || tags.name;
       return { label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", source: "OpenStreetMap" };
     };
-    const items = (data?.elements || []).map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
+    const items = elements.map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
     if (items.filter((item) => item.kind === "restaurant").length < 4) {
       const placeQuery = ["restaurants", city, country].filter(Boolean).join(" ");
       const restaurantSearch = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&extratags=1&limit=12&q=${encodeURIComponent(placeQuery)}`, { timeout: 10000, retries: 0, cacheTtl: 86400000 }).catch(() => []);
