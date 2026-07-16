@@ -1608,12 +1608,15 @@ const renderMissionUnderstanding = () => {
 
 const organizeProgressiveResults = () => {
   const nodes = [...missionGrid.children];
+  const nodeIds = new Set(nodes.map((node) => node.dataset?.cardId || (node.id === "additionalServicesForm" ? "additional-services" : "")));
   const groups = [
     { title: activeLanguage === "ko" ? "1. 추천 계획" : "1. Recommended Plan", open: true, match: () => true },
-    { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["weather", "exchange-rate", "visa", "checklist", "information-sources"]) },
-    { title: activeLanguage === "ko" ? "3. 선택 개선" : "3. Optional Improvements", ids: new Set(["additional-services"]) },
-    { title: activeLanguage === "ko" ? "4. 승인" : "4. Approval", open: true, ids: new Set(["approval-protection"]) }
-  ];
+    { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["visa", "checklist", "information-sources"]) },
+    { title: activeLanguage === "ko" ? "3. 날씨" : "3. Weather", ids: new Set(["weather"]) },
+    { title: activeLanguage === "ko" ? "4. 환율" : "4. Currency", ids: new Set(["exchange-rate"]) },
+    { title: activeLanguage === "ko" ? "5. 선택 개선" : "5. Optional Improvements", ids: new Set(["additional-services"]) },
+    { title: activeLanguage === "ko" ? "6. 승인" : "6. Approval", open: true, ids: new Set(["approval-protection"]) }
+  ].filter((group) => !group.ids || [...group.ids].some((id) => nodeIds.has(id)));
   const details = groups.map((group) => {
     const element = document.createElement("details");
     element.className = "result-section";
