@@ -592,7 +592,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         if (countryOnly) return;
         resolvedDestination = { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city, continent };
       };
-      showResolvedDestination = (resolved) => {
+      showResolvedDestination = async (resolved) => {
         if (!resolved) return;
         const continent = resolved.continent || CONTINENT_BY_COUNTRY[resolved.country] || "";
         if (continent && ![...continentSelect.options].some((option) => option.value === continent)) continentSelect.add(new Option(ko ? CONTINENT_NAMES_KO[continent] || continent : continent, continent));
@@ -602,7 +602,13 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         countrySelect.disabled = false;
         countrySelect.value = resolved.country;
         fillCities(resolved.country, "", "", false);
-        fillStates(resolved.country).then((states) => { if (!states.length) fillCities(resolved.country); });
+        const states = await fillStates(resolved.country, resolved.state || "");
+        if (resolved.state) {
+          if (![...stateSelect.options].some((option) => option.value === resolved.state)) stateSelect.add(new Option(resolved.state, resolved.state));
+          stateSelect.disabled = false;
+          stateSelect.value = resolved.state;
+        }
+        fillCities(resolved.country, resolved.city || "", resolved.state || "", true);
         if (resolved.city && ![...citySelect.options].some((option) => option.value === resolved.city)) citySelect.add(new Option(cityLabel(resolved.city, language), resolved.city));
         citySelect.disabled = false;
         citySelect.value = resolved.city;
@@ -646,9 +652,9 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           const matches = await searchWorldwideDestinations(typedValue, language);
           if (!matches.length || lookupSequence !== destinationLookupSequence || destinationInput.value !== typedValue) return;
           renderDestinationMatches(matches);
+          showResolvedDestination(matches[0]);
           if (matches.length === 1) {
             resolvedDestination = matches[0];
-            showResolvedDestination(matches[0]);
           }
         }, 450);
       });
