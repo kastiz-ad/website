@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260717-3";
-import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mission-followup.js?v=20260717-7";
+import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mission-followup.js?v=20260717-8";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";

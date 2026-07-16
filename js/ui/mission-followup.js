@@ -461,7 +461,10 @@ const renderField = ([name, en, ko, placeholder, type], language, required = tru
   if (type === "select") return `<label><span>${label}</span><select name="${name}" ${required ? "required" : ""}><option value="cheapest">${language === "ko" ? "가격을 가장 중요하게" : "Lowest price"}</option><option value="quality">${language === "ko" ? "편안함과 품질을 중요하게" : "Comfort and quality"}</option><option value="fastest">${language === "ko" ? "이동 시간을 짧게" : "Shortest travel time"}</option><option value="balanced" selected>${language === "ko" ? "가격·품질·시간을 고르게" : "Best overall balance"}</option></select></label>`;
   const min = type === "number" ? ' min="0"' : "";
   const className = type === "date" ? ' class="mission-followup-date-field"' : "";
-  return `<label${className}><span>${label}</span><input name="${name}" type="${type}" placeholder="${esc(placeholder)}"${min} ${required ? "required" : ""}></label>`;
+  const localizedPlaceholder = language === "ko" && name === "budget"
+    ? "아직 모르겠다면 비워두세요. ONE이 다양한 가격대를 비교해드려요."
+    : placeholder;
+  return `<label${className}><span>${label}</span><input name="${name}" type="${type}" placeholder="${esc(localizedPlaceholder)}"${min} ${required ? "required" : ""}></label>`;
 };
 
 export function openMissionFollowUp({ mission, type, language = "en", demoMode = false, restoreFocusTo, onComplete }) {

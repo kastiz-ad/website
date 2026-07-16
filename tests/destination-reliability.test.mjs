@@ -51,6 +51,7 @@ assert.match(loading, /식당 네이버 예약/);
 assert.match(results, /createPublicResourceCard/);
 assert.match(followup, /How much can you spend\? \(optional\)/);
 assert.match(followup, /총 예산은 얼마인가요\?/);
+assert.match(followup, /아직 모르겠다면 비워두세요\. ONE이 다양한 가격대를 비교해드려요\./);
 assert.match(followup, /Best overall balance/);
 assert.match(followup, /가격·품질·시간을 고르게/);
 assert.match(followup, /!\["budget", "housingBudget", "preferences"/);
