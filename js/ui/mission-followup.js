@@ -239,11 +239,18 @@ const countryForCity = (value, language) => {
   return match ? { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city, continent: CONTINENT_BY_COUNTRY[match.item.country] || "" } : null;
 };
 
-const resolveWorldwideDestination = async (value, language) => {
+const destinationCandidateKey = (item) => [item.city, item.state, item.code].map(normalizeDestinationLookup).join("|");
+const destinationCandidateLabel = (item, language) => {
+  const place = cityLabel(item.city || item.country, language);
+  const region = item.state ? `${item.state}, ` : "";
+  const country = language === "ko" ? (item.countryKo || item.country) : item.country;
+  return `${place} — ${region}${country}`;
+};
+
+const searchWorldwideDestinations = async (value, language) => {
   const local = countryForCity(value, language);
-  if (local) return local;
   const query = String(value || "").trim();
-  if (query.length < 2) return null;
+  if (query.length < 2) return [];
   try {
     const normalizedQuery = normalizeDestinationLookup(query).replaceAll(" ", "");
     const countryAliases = { 필리핀: "PH", 콩고: "CG", 콩고공화국: "CG", 민주콩고: "CD", 콩고민주공화국: "CD", 남아프리카: "ZA", 남아공: "ZA", 캄보디아: "KH", 말라시아: "MY", 말레이시아: "MY", 대만: "TW", 타이완: "TW", 파푸아뉴기니: "PG", 엘살바도르: "SV", 살바도르: "SV" };
@@ -251,39 +258,53 @@ const resolveWorldwideDestination = async (value, language) => {
     const exactCountry = countries.find((item) => item.code === countryAliases[normalizedQuery]
       || normalizeDestinationLookup(item.country).replaceAll(" ", "") === normalizedQuery
       || normalizeDestinationLookup(item.countryKo).replaceAll(" ", "") === normalizedQuery);
+    const candidates = [];
     if (exactCountry) {
-      return {
+      candidates.push({
         country: exactCountry.country,
+        countryKo: exactCountry.countryKo,
         code: exactCountry.code,
         city: exactCountry.cities[0] || exactCountry.country,
+        state: "",
         continent: exactCountry.continent,
         currency: exactCountry.currency,
         latitude: exactCountry.latitude,
         longitude: exactCountry.longitude
-      };
+      });
     }
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&featuretype=city&q=${encodeURIComponent(query)}`, {
+    if (local && !exactCountry) candidates.push({ ...local, state: "" });
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=10&q=${encodeURIComponent(query)}`, {
       headers: { "Accept-Language": language === "ko" ? "ko,en;q=0.8" : "en" }
     });
-    if (!response.ok) return null;
-    const [place] = await response.json();
-    if (!place?.address) return null;
-    const code = String(place.address.country_code || "").toUpperCase();
-    const city = place.address.city || place.address.town || place.address.village || place.address.municipality || String(place.display_name || "").split(",")[0] || query;
-    let country = place.address.country || "";
-    let continent = "";
-    let currency = "";
-    if (code) {
-      const countryData = (await loadWorldwideCountries()).find((item) => item.code === code);
-      country = countryData?.country || country;
-      continent = countryData?.continent || "";
-      currency = countryData?.currency || "";
+    if (response.ok) {
+      const places = await response.json();
+      places.filter((place) => place?.address).forEach((place) => {
+        const code = String(place.address.country_code || "").toUpperCase();
+        const countryData = countries.find((item) => item.code === code);
+        const city = place.address.city || place.address.town || place.address.village || place.address.municipality || place.address.county || String(place.display_name || "").split(",")[0] || query;
+        candidates.push({
+          country: countryData?.country || place.address.country || "",
+          countryKo: countryData?.countryKo || "",
+          code,
+          city,
+          state: place.address.state || place.address.province || place.address.region || place.address.county || "",
+          continent: countryData?.continent || "",
+          currency: countryData?.currency || "",
+          latitude: Number(place.lat),
+          longitude: Number(place.lon)
+        });
+      });
     }
-    return { country, code, city, continent, currency, latitude: Number(place.lat), longitude: Number(place.lon) };
+    return candidates
+      .filter((item) => item.city && item.country)
+      .filter((item, index, all) => all.findIndex((candidate) => destinationCandidateKey(candidate) === destinationCandidateKey(item)) === index)
+      .slice(0, 10);
   } catch {
-    return null;
+    return local ? [{ ...local, state: "" }] : [];
   }
 };
+
+const resolveWorldwideDestination = async (value, language) => (await searchWorldwideDestinations(value, language))[0] || null;
 
 let worldwideCountriesPromise;
 const countryCitiesCache = new Map();
@@ -433,6 +454,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   if (suggestedEntries.length) trackEvent("saved_profile_suggestion_shown", { page: "home", language, mission_category: type, demo_mode: demoMode });
   let current = 0;
   let resolvedDestination = null;
+  let destinationCandidates = [];
   let showResolvedDestination = () => {};
   let destinationLookupTimer = 0;
   let destinationLookupSequence = 0;
@@ -486,12 +508,29 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         <label><span>${ko ? "대륙" : "Continent"}</span><select data-destination-level="continent"><option value="">${ko ? "대륙 선택" : "Select a continent"}</option></select></label>
         <label><span>${ko ? "국가" : "Country"}</span><select data-destination-level="country" disabled><option value="">${ko ? "국가 선택" : "Select a country"}</option></select></label>
         <label><span>${ko ? "주 / 지역" : "State / Region"}</span><select data-destination-level="state" disabled><option value="">${ko ? "주 또는 지역 선택" : "Select a state or region"}</option></select></label>
-        <label><span>${ko ? "도시" : "City"}</span><select data-destination-level="city" disabled><option value="">${ko ? "도시 선택" : "Select a city"}</option></select></label>`;
+        <label><span>${ko ? "도시" : "City"}</span><select data-destination-level="city" disabled><option value="">${ko ? "도시 선택" : "Select a city"}</option></select></label>
+        <label data-destination-matches hidden><span>${ko ? "일치하는 위치" : "Matching locations"}</span><select data-destination-level="match"><option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option></select></label>`;
       destinationInput.closest("label")?.after(hierarchy);
       const continentSelect = hierarchy.querySelector('[data-destination-level="continent"]');
       const countrySelect = hierarchy.querySelector('[data-destination-level="country"]');
       const stateSelect = hierarchy.querySelector('[data-destination-level="state"]');
       const citySelect = hierarchy.querySelector('[data-destination-level="city"]');
+      const matchField = hierarchy.querySelector('[data-destination-matches]');
+      const matchSelect = hierarchy.querySelector('[data-destination-level="match"]');
+      const clearDestinationMatches = () => {
+        destinationCandidates = [];
+        matchField.hidden = true;
+        matchSelect.innerHTML = `<option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option>`;
+      };
+      const renderDestinationMatches = (matches) => {
+        destinationCandidates = matches;
+        if (matches.length <= 1) {
+          matchField.hidden = true;
+          return;
+        }
+        matchSelect.innerHTML = `<option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
+        matchField.hidden = false;
+      };
       let globalCountries = buildStaticWorldwideCountries();
       const continents = [...new Set([...Object.values(CONTINENT_BY_COUNTRY), ...Object.keys(CONTINENT_CODES)])];
       continentSelect.insertAdjacentHTML("beforeend", continents.map((continent) => `<option value="${esc(continent)}">${esc(ko ? CONTINENT_NAMES_KO[continent] || continent : continent)}</option>`).join(""));
@@ -586,18 +625,31 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           resolvedDestination = { country: countrySelect.value, code: globalCountry?.code || TRAVEL_COUNTRY_CODES[countrySelect.value] || "", city: citySelect.value, state: stateSelect.value || "", continent: globalCountry?.continent || continentSelect.value, currency: globalCountry?.currency || "" };
         }
       });
+      matchSelect.addEventListener("change", () => {
+        const selected = destinationCandidates[Number(matchSelect.value)];
+        if (!selected) return;
+        resolvedDestination = selected;
+        destinationInput.value = cityLabel(selected.city, language);
+        showResolvedDestination(selected);
+        error.textContent = "";
+      });
       destinationInput.addEventListener("input", () => {
         resolvedDestination = null;
+        clearDestinationMatches();
         const typedValue = destinationInput.value;
         syncHierarchy(typedValue);
-        if (resolvedDestination || typedValue.trim().length < 2) return;
+        resolvedDestination = null;
+        if (typedValue.trim().length < 2) return;
         window.clearTimeout(destinationLookupTimer);
         const lookupSequence = ++destinationLookupSequence;
         destinationLookupTimer = window.setTimeout(async () => {
-          const worldwideMatch = await resolveWorldwideDestination(typedValue, language);
-          if (!worldwideMatch || lookupSequence !== destinationLookupSequence || destinationInput.value !== typedValue) return;
-          resolvedDestination = worldwideMatch;
-          showResolvedDestination(worldwideMatch);
+          const matches = await searchWorldwideDestinations(typedValue, language);
+          if (!matches.length || lookupSequence !== destinationLookupSequence || destinationInput.value !== typedValue) return;
+          renderDestinationMatches(matches);
+          if (matches.length === 1) {
+            resolvedDestination = matches[0];
+            showResolvedDestination(matches[0]);
+          }
         }, 450);
       });
       loadWorldwideCountries().then((countries) => {
@@ -671,8 +723,20 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       if (travel && current === 0 && !resolvedDestination) {
         next.disabled = true;
         next.textContent = ko ? "목적지 확인 중..." : "Checking destination...";
-        resolvedDestination = await resolveWorldwideDestination(form.elements.destination.value, language);
+        const matches = await searchWorldwideDestinations(form.elements.destination.value, language);
         next.disabled = false;
+        if (matches.length > 1) {
+          destinationCandidates = matches;
+          const matchField = form.querySelector('[data-destination-matches]');
+          const matchSelect = form.querySelector('[data-destination-level="match"]');
+          matchSelect.innerHTML = `<option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
+          matchField.hidden = false;
+          error.textContent = ko ? "같은 이름의 위치가 여러 곳입니다. 정확한 위치와 국가를 선택하세요." : "Several places share this name. Choose the exact place and country.";
+          matchSelect.focus();
+          next.textContent = ko ? "계속" : "Continue";
+          return;
+        }
+        resolvedDestination = matches[0] || null;
         if (resolvedDestination) {
           form.elements.destination.value = cityLabel(resolvedDestination.city, language);
           showResolvedDestination(resolvedDestination);

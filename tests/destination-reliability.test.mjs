@@ -12,6 +12,11 @@ for (const code of ["PH", "CG", "CD", "ZA", "KH", "MY", "TW", "PG"]) {
 }
 assert.match(followup, /buildStaticWorldwideCountries/);
 assert.match(followup, /Promise\.allSettled/);
+assert.match(followup, /searchWorldwideDestinations/);
+assert.match(followup, /dedupe=0&limit=10/);
+assert.match(followup, /data-destination-matches/);
+assert.match(followup, /Several places share this name/);
+assert.match(followup, /destinationCandidateLabel/);
 assert.doesNotMatch(followup, /restcountries\.com\/v3/);
 assert.match(loading, /countriesnow\.space\/api\/v0\.1\/countries\/capital/);
 assert.match(loading, /open\.er-api\.com\/v6\/latest/);
