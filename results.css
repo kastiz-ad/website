@@ -1117,3 +1117,17 @@ body {
   .mission-card.additional-services { min-height: 0 !important; height: auto !important; }
 }
 .information-review-dialog{box-sizing:border-box;width:min(580px,calc(100vw - 28px));max-height:88dvh;margin:auto;border:1px solid var(--border);border-radius:26px;padding:0;background:var(--surface,#fff);color:var(--text);box-shadow:0 30px 100px rgba(0,0,0,.4)}.information-review-dialog::backdrop{background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}.information-review-content{position:relative;display:grid;gap:16px;padding:30px}.information-review-content h2,.information-review-content p{margin:0}.information-review-close{position:absolute;right:18px;top:16px;border:0;background:none;color:inherit;font-size:26px;cursor:pointer}.review-kicker{color:var(--muted);font-size:.75rem;font-weight:800;letter-spacing:.12em}.information-review-content ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}.information-review-content li{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid var(--border);border-radius:12px}.information-review-content li span{flex:0 0 auto;color:var(--muted);white-space:nowrap}.information-review-content li strong{min-width:0;text-align:right;overflow-wrap:anywhere}.information-review-content aside{padding:15px;border-radius:14px;background:var(--surface-strong)}.information-review-content aside p{margin:6px 0;color:var(--muted);line-height:1.5}.information-review-content code{font-size:.7rem;overflow-wrap:anywhere}.information-review-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.information-review-actions button{min-height:48px;border:1px solid var(--border);border-radius:999px;background:transparent;color:inherit;font-weight:750;cursor:pointer}.information-review-actions .primary{background:var(--text);color:var(--bg)}@media(max-width:520px){.information-review-content{padding:28px 20px 22px}.information-review-actions{grid-template-columns:1fr}.information-review-content li{display:flex;gap:10px}.information-review-content li strong{font-size:.92rem}}
+
+/* Consistent centered result choices and compact selected flights on phones. */
+.mission-card .option-value,
+.mission-card .option-value strong,
+.mission-card .option-value > span,
+.mission-card .restaurant-name,
+.mission-card .restaurant-meta { text-align: center; }
+
+@media (max-width: 520px) {
+  .mission-card[data-card-id="flights"] .option-value { flex-wrap: nowrap; gap: 5px; padding-inline: 31px; }
+  .mission-card[data-card-id="flights"] .option-value strong { flex: 0 1 auto; min-width: 0; font-size: clamp(10px, 3vw, 13px) !important; line-height: 1.1; letter-spacing: -.045em; white-space: nowrap; }
+  .mission-card[data-card-id="flights"] .option-value > span:last-child { flex: 0 1 auto; min-width: 0; font-size: clamp(8px, 2.35vw, 11px); line-height: 1.1; letter-spacing: -.055em; white-space: nowrap; }
+  .completion-message > p { width: min(100%, 330px); margin-inline: auto; padding-inline: 10px; font-size: 11px; line-height: 1.45; letter-spacing: .08em; white-space: normal; overflow-wrap: normal; }
+}
