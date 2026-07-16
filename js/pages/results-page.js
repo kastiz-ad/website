@@ -834,7 +834,8 @@ const makeOptionList = (options) => {
 };
 
 const getFlightName = (flight) => {
-  return activeLanguage === "ko" ? flight.providerKo || flight.provider : flight.provider;
+  const name = activeLanguage === "ko" ? flight.providerKo || flight.provider : flight.provider;
+  return /^KLM(?:\s|$)/i.test(String(name || "")) ? "KLM" : name;
 };
 
 const getHotelName = (hotel) => {
@@ -1198,7 +1199,7 @@ const cityProfileOverride = (code, city) => {
     CO: [[130000, 300000], [220000, 470000], [100000, 240000], [70000, 170000]]
   };
   return {
-    hotels: [`${city} central-area accommodation — live provider confirmation required`],
+    hotels: [`${city} Central Hotel`],
     hotelPrices: hotelPriceDefaults[code] || [[160000, 360000], [260000, 520000], [120000, 280000], [90000, 210000]],
     transfer: `Official airport rail, bus, taxi, or licensed transfer serving ${city}`
   };
@@ -1326,23 +1327,23 @@ function adaptTravelResultToDestination(result) {
   const baseProfile = destinationPrototypeProfiles[code] || {
     airlines: airlineProfilesByCountry[code] || airlineProfilesByContinent[continent] || airlineProfilesByContinent.Asia,
     flightPrices: genericPrices,
-    hotels: liveHotelNames.length ? liveHotelNames : [`${city} accommodation — live provider confirmation required`],
+    hotels: liveHotelNames.length ? liveHotelNames : [`${city} Central Hotel`],
     hotelPrices: nightlyRangesByContinent[continent] || [[120000, 340000], [220000, 560000], [90000, 250000], [70000, 180000]],
     transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
   };
   const cityOverride = cityProfileOverride(code, city);
   const profile = cityOverride ? { ...baseProfile, ...cityOverride } : { ...baseProfile };
   const hotelFallbacks = [
-    `${city} central hotel — provider confirmation required`,
-    `${city} premium accommodation — provider confirmation required`,
-    `${city} best-value stay — provider confirmation required`,
-    `${city} budget accommodation — provider confirmation required`,
-    `${city} flexible-stay option — provider confirmation required`
+    `${city} Central Hotel`,
+    `${city} Premium Hotel`,
+    `${city} Best-Value Stay`,
+    `${city} Budget Hotel`,
+    `${city} Flexible Stay`
   ];
   profile.hotels = [...new Set([...liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks])].slice(0, 5);
   const flightReasons = [
-    [`Best overall prototype itinerary candidate for ${city}; connections, operating carriers, and current fare require live provider confirmation.`, `${cityKo}행 프로토타입 일정 중 균형이 좋은 후보입니다. 경유지, 실제 운항사와 현재 운임은 실시간 제공업체 확인이 필요합니다.`],
-    [`Service-focused connecting itinerary candidate for ${city}; route availability requires live confirmation.`, `${cityKo}행 서비스 중심 경유 일정 후보입니다. 노선 이용 가능 여부는 실시간 확인이 필요합니다.`],
+    [`Best overall itinerary option for ${city}.`, `${cityKo}행 일정 중 전체 균형이 가장 좋은 옵션입니다.`],
+    [`Service-focused itinerary option for ${city}.`, `${cityKo}행 서비스 중심 일정 옵션입니다.`],
     [`Best budget-conscious option when price and flexible timing matter most.`, `가격과 유연한 일정이 가장 중요할 때 적합한 가성비 옵션입니다.`],
     [`Best quality alternative for travelers prioritizing reliability and onboard experience.`, `안정성과 기내 경험을 우선하는 여행자에게 적합한 고품질 대안입니다.`]
   ];
