@@ -107,6 +107,15 @@ const TRAVEL_DESTINATION_CHOICES = [
   { country: "Singapore", aliases: ["singapore", "싱가포르"], cities: ["Singapore"] }
 ];
 const TRAVEL_COUNTRY_CODES = { Japan: "JP", Spain: "ES", "United States": "US", Canada: "CA", France: "FR", Italy: "IT", "United Kingdom": "GB", Germany: "DE", Australia: "AU", Thailand: "TH", Vietnam: "VN", China: "CN", "South Korea": "KR", Colombia: "CO", Mexico: "MX", Singapore: "SG" };
+const CITY_NAMES_KO = {
+  Madrid: "마드리드", Barcelona: "바르셀로나", Seville: "세비야", Valencia: "발렌시아", "Málaga": "말라가", Bilbao: "빌바오",
+  "New York": "뉴욕", "Los Angeles": "로스앤젤레스", "Washington, D.C.": "워싱턴 D.C.", "San Francisco": "샌프란시스코", Chicago: "시카고", Miami: "마이애미",
+  Tokyo: "도쿄", Osaka: "오사카", Kyoto: "교토", Sapporo: "삿포로", Fukuoka: "후쿠오카", Okinawa: "오키나와",
+  Paris: "파리", London: "런던", Rome: "로마", Milan: "밀라노", Venice: "베네치아", Florence: "피렌체",
+  Bangkok: "방콕", Phuket: "푸껫", Hanoi: "하노이", "Ho Chi Minh City": "호찌민", "Da Nang": "다낭", Singapore: "싱가포르",
+  Sydney: "시드니", Melbourne: "멜버른", Beijing: "베이징", Shanghai: "상하이", Seoul: "서울", Busan: "부산", Jeju: "제주"
+};
+const cityLabel = (city, language) => language === "ko" ? (CITY_NAMES_KO[city] || city) : city;
 
 const inferTravelContext = (mission = "") => {
   const text = String(mission).toLowerCase();
@@ -127,10 +136,10 @@ const inferTravelContext = (mission = "") => {
   ];
   const exactCity = destinations.find(([, aliases]) => aliases.some((alias) => text.includes(alias)))?.[0] || "";
   const countryMatch = TRAVEL_DESTINATION_CHOICES.find((item) =>
-    item.aliases.some((alias) => text.includes(alias)) || item.cities.some((city) => text.includes(city.toLowerCase()))
+    item.aliases.some((alias) => text.includes(alias)) || item.cities.some((city) => text.includes(city.toLowerCase()) || text.includes(CITY_NAMES_KO[city] || "\u0000"))
   );
   if (countryMatch) {
-    const city = countryMatch.cities.find((item) => text.includes(item.toLowerCase()));
+    const city = countryMatch.cities.find((item) => text.includes(item.toLowerCase()) || text.includes(CITY_NAMES_KO[item] || "\u0000"));
     return { country: countryMatch.country, code: TRAVEL_COUNTRY_CODES[countryMatch.country] || "", value: city || exactCity || countryMatch.cities[0], cities: countryMatch.cities };
   }
   if (exactCity) return { country: exactCity, value: exactCity, cities: [exactCity] };
@@ -200,7 +209,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     const today = new Date();
     const end = new Date(today); end.setDate(end.getDate() + 6);
     const defaults = {
-      destination: destinationContext?.value || (demoMode ? "Tokyo" : ""),
+      destination: destinationContext?.value ? cityLabel(destinationContext.value, language) : (demoMode ? cityLabel("Tokyo", language) : ""),
       startDate: iso(today),
       endDate: iso(end),
       adults: "1",
@@ -219,7 +228,10 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       choices.className = "destination-choice-grid";
       choices.setAttribute("role", "group");
       choices.setAttribute("aria-label", ko ? `${destinationContext.country} 도시 선택` : `Choose a city in ${destinationContext.country}`);
-      choices.innerHTML = destinationContext.cities.map((city) => `<button type="button" class="destination-choice" data-city="${esc(city)}" aria-pressed="${city === destinationInput.value}">${esc(city)}</button>`).join("");
+      choices.innerHTML = destinationContext.cities.map((city) => {
+        const label = cityLabel(city, language);
+        return `<button type="button" class="destination-choice" data-city="${esc(label)}" aria-pressed="${label === destinationInput.value}">${esc(label)}</button>`;
+      }).join("");
       if (destinationContext.cities.length) destinationInput.closest("label")?.append(choices);
       choices.addEventListener("click", (event) => {
         const button = event.target.closest("[data-city]");
