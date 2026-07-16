@@ -276,9 +276,16 @@ const fetchLocalPlaces = async (mission) => {
   if (!city) return fallbackProvider("OpenStreetMap", "local_places", "Local place search requires a destination city.");
   try {
     const language = mission.language === "ko" ? "ko,en" : "en";
-    const hotels = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent(`hotels in ${city}, ${country}`)}`, { timeout: 8000 });
+    const matches = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(`${city}, ${country}`)}`, { timeout: 7000 });
+    const place = Array.isArray(matches) ? matches[0] : null;
+    if (!place?.lat || !place?.lon) throw new Error("Destination coordinates unavailable");
+    const latitude = Number(place.lat);
+    const longitude = Number(place.lon);
+    const viewbox = `${longitude - 0.28},${latitude + 0.22},${longitude + 0.28},${latitude - 0.22}`;
     await wait(350);
-    const restaurants = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent(`restaurants in ${city}, ${country}`)}`, { timeout: 8000 });
+    const hotels = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&bounded=1&viewbox=${encodeURIComponent(viewbox)}&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent("hotel")}`, { timeout: 8000 });
+    await wait(350);
+    const restaurants = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&bounded=1&viewbox=${encodeURIComponent(viewbox)}&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent("restaurant")}`, { timeout: 8000 });
     const seen = new Set();
     const normalize = (entry, kind) => {
       const name = entry.namedetails?.[mission.language === "ko" ? "name:ko" : "name:en"] || entry.namedetails?.name || String(entry.display_name || "").split(",")[0];
