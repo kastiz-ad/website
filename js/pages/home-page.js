@@ -1429,8 +1429,15 @@ const saveMission = (mission, schedule = null) => {
     };
     if (selectedDestination.destinationCountryCode) {
       payload.country = selectedDestination.destinationCountryCode;
-      payload.countryProfile = countryProfiles[selectedDestination.destinationCountryCode] || payload.countryProfile;
-      const currencyByCountry = { JP: "JPY", ES: "EUR", US: "USD", CA: "CAD", FR: "EUR", IT: "EUR", GB: "GBP", DE: "EUR", AU: "AUD", TH: "THB", VN: "VND", CN: "CNY", KR: "KRW", CO: "COP", MX: "MXN", SG: "SGD" };
+      const currencyByCountry = { JP: "JPY", ES: "EUR", US: "USD", CA: "CAD", FR: "EUR", IT: "EUR", GB: "GBP", DE: "EUR", AU: "AUD", TH: "THB", VN: "VND", CN: "CNY", KR: "KRW", CO: "COP", MX: "MXN", SG: "SGD", AR: "ARS", BR: "BRL", PE: "PEN", CL: "CLP", PT: "EUR", NL: "EUR", GR: "EUR", AE: "AED", IN: "INR", ID: "IDR", MY: "MYR", NZ: "NZD", ZA: "ZAR", EG: "EGP", MA: "MAD" };
+      payload.countryProfile = countryProfiles[selectedDestination.destinationCountryCode] || {
+        code: selectedDestination.destinationCountryCode,
+        name: selectedDestination.destinationCountry,
+        nameKo: selectedDestination.destinationCountry,
+        currency: currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to || "USD",
+        capital: selectedDestination.destination,
+        capitalKo: selectedDestination.destination
+      };
       payload.exchangeRate = {
         ...payload.exchangeRate,
         to: currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to

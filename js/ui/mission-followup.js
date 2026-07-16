@@ -104,40 +104,72 @@ const TRAVEL_DESTINATION_CHOICES = [
   { country: "South Korea", aliases: ["south korea", "korea", "대한민국", "한국"], cities: ["Seoul", "Busan", "Jeju", "Gyeongju", "Incheon", "Gangneung"] },
   { country: "Colombia", aliases: ["colombia", "콜롬비아"], cities: ["Bogotá", "Medellín", "Cartagena", "Cali", "Santa Marta", "Pereira"] },
   { country: "Mexico", aliases: ["mexico", "멕시코"], cities: ["Mexico City", "Cancún", "Los Cabos", "Oaxaca", "Guadalajara", "Puerto Vallarta"] },
-  { country: "Singapore", aliases: ["singapore", "싱가포르"], cities: ["Singapore"] }
+  { country: "Singapore", aliases: ["singapore", "싱가포르"], cities: ["Singapore"] },
+  { country: "Argentina", aliases: ["argentina", "아르헨티나"], cities: ["Buenos Aires", "Mendoza", "Cordoba", "Bariloche"] },
+  { country: "Brazil", aliases: ["brazil", "브라질"], cities: ["Sao Paulo", "Rio de Janeiro", "Brasilia", "Salvador"] },
+  { country: "Peru", aliases: ["peru", "페루"], cities: ["Lima", "Cusco", "Arequipa", "Trujillo"] },
+  { country: "Chile", aliases: ["chile", "칠레"], cities: ["Santiago", "Valparaiso", "Puerto Montt", "San Pedro de Atacama"] },
+  { country: "Portugal", aliases: ["portugal", "포르투갈"], cities: ["Lisbon", "Porto", "Faro", "Coimbra"] },
+  { country: "Netherlands", aliases: ["netherlands", "holland", "네덜란드"], cities: ["Amsterdam", "Rotterdam", "The Hague", "Utrecht"] },
+  { country: "Greece", aliases: ["greece", "그리스"], cities: ["Athens", "Thessaloniki", "Santorini", "Mykonos"] },
+  { country: "United Arab Emirates", aliases: ["uae", "united arab emirates", "아랍에미리트"], cities: ["Dubai", "Abu Dhabi", "Sharjah"] },
+  { country: "India", aliases: ["india", "인도"], cities: ["Delhi", "Mumbai", "Bengaluru", "Jaipur"] },
+  { country: "Indonesia", aliases: ["indonesia", "인도네시아"], cities: ["Bali", "Jakarta", "Yogyakarta", "Surabaya"] },
+  { country: "Malaysia", aliases: ["malaysia", "말레이시아"], cities: ["Kuala Lumpur", "Penang", "Kota Kinabalu", "Malacca"] },
+  { country: "New Zealand", aliases: ["new zealand", "뉴질랜드"], cities: ["Auckland", "Queenstown", "Wellington", "Christchurch"] },
+  { country: "South Africa", aliases: ["south africa", "남아프리카공화국"], cities: ["Cape Town", "Johannesburg", "Durban", "Pretoria"] },
+  { country: "Egypt", aliases: ["egypt", "이집트"], cities: ["Cairo", "Luxor", "Alexandria", "Sharm El Sheikh"] },
+  { country: "Morocco", aliases: ["morocco", "모로코"], cities: ["Marrakesh", "Casablanca", "Fes", "Rabat"] }
 ];
-const TRAVEL_COUNTRY_CODES = { Japan: "JP", Spain: "ES", "United States": "US", Canada: "CA", France: "FR", Italy: "IT", "United Kingdom": "GB", Germany: "DE", Australia: "AU", Thailand: "TH", Vietnam: "VN", China: "CN", "South Korea": "KR", Colombia: "CO", Mexico: "MX", Singapore: "SG" };
+const TRAVEL_COUNTRY_CODES = { Japan: "JP", Spain: "ES", "United States": "US", Canada: "CA", France: "FR", Italy: "IT", "United Kingdom": "GB", Germany: "DE", Australia: "AU", Thailand: "TH", Vietnam: "VN", China: "CN", "South Korea": "KR", Colombia: "CO", Mexico: "MX", Singapore: "SG", Argentina: "AR", Brazil: "BR", Peru: "PE", Chile: "CL", Portugal: "PT", Netherlands: "NL", Greece: "GR", "United Arab Emirates": "AE", India: "IN", Indonesia: "ID", Malaysia: "MY", "New Zealand": "NZ", "South Africa": "ZA", Egypt: "EG", Morocco: "MA" };
+const CONTINENT_BY_COUNTRY = {
+  "United States": "North America", Canada: "North America", Mexico: "North America",
+  Colombia: "South America", Argentina: "South America", Brazil: "South America", Peru: "South America", Chile: "South America",
+  Spain: "Europe", France: "Europe", Italy: "Europe", "United Kingdom": "Europe", Germany: "Europe", Portugal: "Europe", Netherlands: "Europe", Greece: "Europe",
+  Japan: "Asia", Thailand: "Asia", Vietnam: "Asia", China: "Asia", "South Korea": "Asia", Singapore: "Asia", India: "Asia", Indonesia: "Asia", Malaysia: "Asia",
+  Australia: "Oceania", "New Zealand": "Oceania",
+  "United Arab Emirates": "Middle East", Egypt: "Middle East",
+  "South Africa": "Africa", Morocco: "Africa"
+};
+const CONTINENT_NAMES_KO = { "North America": "북아메리카", "South America": "남아메리카", Europe: "유럽", Asia: "아시아", Oceania: "오세아니아", "Middle East": "중동", Africa: "아프리카" };
+const COUNTRY_NAMES_KO = { "United States": "미국", Canada: "캐나다", Mexico: "멕시코", Colombia: "콜롬비아", Argentina: "아르헨티나", Brazil: "브라질", Peru: "페루", Chile: "칠레", Spain: "스페인", France: "프랑스", Italy: "이탈리아", "United Kingdom": "영국", Germany: "독일", Portugal: "포르투갈", Netherlands: "네덜란드", Greece: "그리스", Japan: "일본", Thailand: "태국", Vietnam: "베트남", China: "중국", "South Korea": "대한민국", Singapore: "싱가포르", India: "인도", Indonesia: "인도네시아", Malaysia: "말레이시아", Australia: "호주", "New Zealand": "뉴질랜드", "United Arab Emirates": "아랍에미리트", Egypt: "이집트", "South Africa": "남아프리카공화국", Morocco: "모로코" };
 const CITY_NAMES_KO = {
   Madrid: "마드리드", Barcelona: "바르셀로나", Seville: "세비야", Valencia: "발렌시아", "Málaga": "말라가", Bilbao: "빌바오",
   "New York": "뉴욕", "Los Angeles": "로스앤젤레스", "Washington, D.C.": "워싱턴 D.C.", "San Francisco": "샌프란시스코", Chicago: "시카고", Miami: "마이애미",
   Tokyo: "도쿄", Osaka: "오사카", Kyoto: "교토", Sapporo: "삿포로", Fukuoka: "후쿠오카", Okinawa: "오키나와",
   Paris: "파리", London: "런던", Rome: "로마", Milan: "밀라노", Venice: "베네치아", Florence: "피렌체",
   Bangkok: "방콕", Phuket: "푸껫", Hanoi: "하노이", "Ho Chi Minh City": "호찌민", "Da Nang": "다낭", Singapore: "싱가포르",
-  Sydney: "시드니", Melbourne: "멜버른", Beijing: "베이징", Shanghai: "상하이", Seoul: "서울", Busan: "부산", Jeju: "제주"
+  Sydney: "시드니", Melbourne: "멜버른", Beijing: "베이징", Shanghai: "상하이", Seoul: "서울", Busan: "부산", Jeju: "제주",
+  "Buenos Aires": "부에노스아이레스", Lima: "리마", "Sao Paulo": "상파울루", "Rio de Janeiro": "리우데자네이루", Bogota: "보고타", "Bogotá": "보고타",
+  Berlin: "베를린", Munich: "뮌헨", Lisbon: "리스본", Amsterdam: "암스테르담", Athens: "아테네", Dubai: "두바이", Delhi: "델리", Bali: "발리",
+  Auckland: "오클랜드", "Cape Town": "케이프타운", Cairo: "카이로", Marrakesh: "마라케시"
 };
 const cityLabel = (city, language) => language === "ko" ? (CITY_NAMES_KO[city] || city) : city;
-const FEATURED_TRAVEL_CITIES = [
-  { city: "New York", en: "NYC", country: "United States" },
-  { city: "Los Angeles", en: "LA", country: "United States" },
-  { city: "Paris", en: "Paris", country: "France" },
-  { city: "Tokyo", en: "Tokyo", country: "Japan" },
-  { city: "Madrid", en: "Madrid", country: "Spain" },
-  { city: "London", en: "London", country: "United Kingdom" },
-  { city: "Sydney", en: "Sydney", country: "Australia" }
-];
-
+const normalizeDestinationLookup = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+const CITY_ALIASES = { nyc: "New York", la: "Los Angeles", "l.a.": "Los Angeles", "sao paulo": "Sao Paulo", "são paulo": "Sao Paulo", bogota: "Bogotá", "buenos aires": "Buenos Aires" };
+const findDestinationMatch = (value, language) => {
+  const normalized = normalizeDestinationLookup(value);
+  const aliasCity = CITY_ALIASES[normalized];
+  for (const item of TRAVEL_DESTINATION_CHOICES) {
+    const city = item.cities.find((candidate) => {
+      return normalizeDestinationLookup(candidate) === normalized || normalizeDestinationLookup(cityLabel(candidate, language)) === normalized || candidate === aliasCity;
+    });
+    if (city) return { item, city };
+  }
+  const country = TRAVEL_DESTINATION_CHOICES.find((item) => item.aliases.some((alias) => normalizeDestinationLookup(alias) === normalized));
+  return country ? { item: country, city: country.cities[0] } : null;
+};
 const countryForCity = (value, language) => {
-  const normalized = String(value || "").trim().toLowerCase();
-  const country = TRAVEL_DESTINATION_CHOICES.find((item) => item.cities.some((city) => {
-    return city.toLowerCase() === normalized || cityLabel(city, language).toLowerCase() === normalized;
-  }));
-  return country ? { country: country.country, code: TRAVEL_COUNTRY_CODES[country.country] || "" } : null;
+  const match = findDestinationMatch(value, language);
+  return match ? { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city } : null;
 };
 
 const inferTravelContext = (mission = "") => {
   const text = String(mission).toLowerCase();
   const destinations = [
     ["New York", ["new york", "nyc", "뉴욕"]],
+    ["Los Angeles", ["los angeles", "l.a.", "로스앤젤레스"]],
+    ["Buenos Aires", ["buenos aires", "부에노스아이레스"]],
     ["Japan", ["japan", "tokyo", "일본", "도쿄"]],
     ["Madrid", ["madrid", "마드리드"]],
     ["Colombia", ["colombia", "bogota", "bogotá", "콜롬비아", "보고타"]],
@@ -239,32 +271,48 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     Object.entries(defaults).forEach(([name, value]) => { const field = form.elements.namedItem(name); if (field && !field.value) field.value = value; });
     const destinationInput = form.elements.namedItem("destination");
     if (destinationInput) {
-      const hasDetectedCountry = Boolean(destinationContext?.country);
-      const cityChoices = hasDetectedCountry
-        ? destinationContext.cities.map((city) => ({ city, label: cityLabel(city, language), country: destinationContext.country }))
-        : FEATURED_TRAVEL_CITIES.map((item) => ({ ...item, label: ko ? cityLabel(item.city, language) : item.en }));
-      destinationInput.readOnly = hasDetectedCountry;
+      destinationInput.readOnly = false;
       destinationInput.placeholder = ko
-        ? "뉴욕, LA, 파리, 도쿄, 마드리드, 런던, 시드니 또는 다른 도시"
-        : "NYC, LA, Paris, Tokyo, Madrid, London, Sydney or another city";
+        ? "파리, LA, 부에노스아이레스 또는 원하는 도시"
+        : "Paris, LA, Buenos Aires or any city";
       destinationInput.setAttribute("aria-label", ko ? "목적지" : "Destination");
-      const choices = document.createElement("div");
-      choices.className = "destination-choice-grid";
-      choices.setAttribute("role", "group");
-      choices.setAttribute("aria-label", hasDetectedCountry
-        ? (ko ? `${destinationContext.country} 도시 선택` : `Choose a city in ${destinationContext.country}`)
-        : (ko ? "인기 목적지 선택" : "Choose a popular destination"));
-      choices.innerHTML = cityChoices.map((item) => {
-        const value = cityLabel(item.city, language);
-        return `<button type="button" class="destination-choice" data-city="${esc(value)}" data-country="${esc(item.country)}" aria-pressed="${value === destinationInput.value}">${esc(item.label)}</button>`;
-      }).join("");
-      if (cityChoices.length) destinationInput.closest("label")?.append(choices);
-      choices.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-city]");
-        if (!button) return;
-        destinationInput.value = button.dataset.city;
-        choices.querySelectorAll("[data-city]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+      const hierarchy = document.createElement("div");
+      hierarchy.className = "destination-hierarchy";
+      hierarchy.innerHTML = `
+        <label><span>${ko ? "대륙" : "Continent"}</span><select data-destination-level="continent"><option value="">${ko ? "대륙 선택" : "Select a continent"}</option></select></label>
+        <label><span>${ko ? "국가" : "Country"}</span><select data-destination-level="country" disabled><option value="">${ko ? "국가 선택" : "Select a country"}</option></select></label>
+        <label><span>${ko ? "도시" : "City"}</span><select data-destination-level="city" disabled><option value="">${ko ? "도시 선택" : "Select a city"}</option></select></label>`;
+      destinationInput.closest("label")?.after(hierarchy);
+      const continentSelect = hierarchy.querySelector('[data-destination-level="continent"]');
+      const countrySelect = hierarchy.querySelector('[data-destination-level="country"]');
+      const citySelect = hierarchy.querySelector('[data-destination-level="city"]');
+      const continents = [...new Set(Object.values(CONTINENT_BY_COUNTRY))];
+      continentSelect.insertAdjacentHTML("beforeend", continents.map((continent) => `<option value="${esc(continent)}">${esc(ko ? CONTINENT_NAMES_KO[continent] || continent : continent)}</option>`).join(""));
+      const fillCountries = (continent, selected = "") => {
+        const countries = TRAVEL_DESTINATION_CHOICES.filter((item) => CONTINENT_BY_COUNTRY[item.country] === continent);
+        countrySelect.innerHTML = `<option value="">${ko ? "국가 선택" : "Select a country"}</option>${countries.map((item) => `<option value="${esc(item.country)}" ${item.country === selected ? "selected" : ""}>${esc(ko ? COUNTRY_NAMES_KO[item.country] || item.country : item.country)}</option>`).join("")}`;
+        countrySelect.disabled = !continent;
+      };
+      const fillCities = (country, selected = "") => {
+        const item = TRAVEL_DESTINATION_CHOICES.find((candidate) => candidate.country === country);
+        citySelect.innerHTML = `<option value="">${ko ? "도시 선택" : "Select a city"}</option>${(item?.cities || []).map((city) => `<option value="${esc(city)}" ${city === selected ? "selected" : ""}>${esc(cityLabel(city, language))}</option>`).join("")}`;
+        citySelect.disabled = !item;
+      };
+      const syncHierarchy = (value) => {
+        const match = findDestinationMatch(value, language);
+        if (!match) return;
+        const continent = CONTINENT_BY_COUNTRY[match.item.country] || "";
+        continentSelect.value = continent;
+        fillCountries(continent, match.item.country);
+        fillCities(match.item.country, match.city);
+      };
+      continentSelect.addEventListener("change", () => { fillCountries(continentSelect.value); fillCities(""); });
+      countrySelect.addEventListener("change", () => fillCities(countrySelect.value));
+      citySelect.addEventListener("change", () => {
+        if (citySelect.value) destinationInput.value = cityLabel(citySelect.value, language);
       });
+      destinationInput.addEventListener("input", () => syncHierarchy(destinationInput.value));
+      if (destinationInput.value) syncHierarchy(destinationInput.value);
     }
     form.elements.startDate.min = iso(today);
     form.elements.endDate.min = form.elements.startDate.value;
@@ -329,10 +377,11 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       if (current < steps.length - 1) { current += 1; render(); return; }
       const values = Object.fromEntries(new FormData(form).entries());
       if (travel) {
-        const selectedCountry = destinationContext?.country
-          ? { country: destinationContext.country, code: destinationContext.code || "" }
-          : countryForCity(values.destination, language);
+        const selectedCountry = countryForCity(values.destination, language) || (destinationContext?.country
+          ? { country: destinationContext.country, code: destinationContext.code || "", city: destinationContext.value }
+          : null);
         if (selectedCountry) {
+          values.destination = cityLabel(selectedCountry.city, language);
           values.destinationCountry = selectedCountry.country;
           values.destinationCountryCode = selectedCountry.code;
         }

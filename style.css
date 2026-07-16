@@ -216,6 +216,10 @@ a {
 .destination-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 4px; }
 .destination-choice { min-width: 0; min-height: 44px; border: 1px solid rgba(127,127,127,.35); border-radius: 14px; padding: 10px 12px; background: var(--surface-strong); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
 .destination-choice[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: var(--background, var(--surface)); }
+.destination-hierarchy { display: grid; gap: 10px; }
+.destination-hierarchy label { display: grid; gap: 7px; min-width: 0; font-weight: 600; }
+.destination-hierarchy select { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid rgba(127,127,127,.35); border-radius: 14px; padding: 14px 42px 14px 16px; background: var(--surface-strong); color: var(--text); font: inherit; cursor: pointer; }
+.destination-hierarchy select:disabled { opacity: .48; cursor: not-allowed; }
 .mission-followup-date-field { cursor: pointer; }
 .mission-followup-date-field input { cursor: pointer; }
 .profile-prefill-summary { display:grid; gap:10px; padding:16px; border:1px solid var(--border); border-radius:16px; background:var(--surface-strong); }

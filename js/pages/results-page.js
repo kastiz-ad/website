@@ -1043,7 +1043,20 @@ const airlineProfilesByCountry = {
   FR: [["Korean Air", "대한항공"], ["Air France", "에어프랑스"], ["Asiana Airlines", "아시아나항공"], ["KLM", "KLM 네덜란드항공"]],
   DE: [["Korean Air", "대한항공"], ["Lufthansa", "루프트한자"], ["Asiana Airlines", "아시아나항공"], ["Finnair", "핀에어"]],
   IT: [["Korean Air", "대한항공"], ["ITA Airways", "ITA 항공"], ["Asiana Airlines", "아시아나항공"], ["Lufthansa", "루프트한자"]],
-  MX: [["Korean Air", "대한항공"], ["Aeromexico", "아에로멕시코"], ["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"]]
+  MX: [["Korean Air", "대한항공"], ["Aeromexico", "아에로멕시코"], ["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"]],
+  AR: [["Korean Air", "대한항공"], ["Aerolineas Argentinas", "아르헨티나항공"], ["LATAM Airlines", "라탐항공"], ["American Airlines", "아메리칸항공"]],
+  BR: [["Korean Air", "대한항공"], ["LATAM Airlines", "라탐항공"], ["GOL Airlines", "골항공"], ["American Airlines", "아메리칸항공"]],
+  PE: [["Korean Air", "대한항공"], ["LATAM Airlines", "라탐항공"], ["Avianca", "아비앙카항공"], ["American Airlines", "아메리칸항공"]],
+  CL: [["Korean Air", "대한항공"], ["LATAM Airlines", "라탐항공"], ["American Airlines", "아메리칸항공"], ["Air Canada", "에어캐나다"]],
+  PT: [["Korean Air", "대한항공"], ["TAP Air Portugal", "TAP 포르투갈항공"], ["Lufthansa", "루프트한자"], ["Air France", "에어프랑스"]],
+  NL: [["KLM", "KLM 네덜란드항공"], ["Korean Air", "대한항공"], ["Lufthansa", "루프트한자"], ["Air France", "에어프랑스"]],
+  GR: [["Korean Air", "대한항공"], ["Aegean Airlines", "에게항공"], ["Turkish Airlines", "터키항공"], ["Lufthansa", "루프트한자"]],
+  AE: [["Emirates", "에미레이트항공"], ["Etihad Airways", "에티하드항공"], ["Korean Air", "대한항공"], ["Qatar Airways", "카타르항공"]],
+  IN: [["Air India", "에어인디아"], ["Korean Air", "대한항공"], ["Singapore Airlines", "싱가포르항공"], ["Thai Airways", "타이항공"]],
+  ID: [["Garuda Indonesia", "가루다인도네시아항공"], ["Korean Air", "대한항공"], ["Singapore Airlines", "싱가포르항공"], ["AirAsia", "에어아시아"]],
+  MY: [["Malaysia Airlines", "말레이시아항공"], ["Korean Air", "대한항공"], ["AirAsia", "에어아시아"], ["Singapore Airlines", "싱가포르항공"]],
+  NZ: [["Air New Zealand", "에어뉴질랜드"], ["Korean Air", "대한항공"], ["Qantas", "콴타스항공"], ["Singapore Airlines", "싱가포르항공"]],
+  ZA: [["South African Airways", "남아프리카항공"], ["Emirates", "에미레이트항공"], ["Qatar Airways", "카타르항공"], ["Ethiopian Airlines", "에티오피아항공"]]
 };
 
 const airlineNameKo = {
