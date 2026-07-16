@@ -140,17 +140,31 @@ const CONTINENT_BY_COUNTRY = {
   "South Africa": "Africa", Morocco: "Africa"
 };
 const CONTINENT_CODES = {
-  Africa: "DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW RE YT EH".split(" "),
+  Africa: "DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW RE YT EH SH".split(" "),
   Asia: "AF AM AZ BD BT BN KH CN GE IN ID JP KZ KG LA MY MV MN MM NP KP PK PH SG KR LK TJ TH TL TM UZ VN HK MO TW".split(" "),
   "Middle East": "BH CY IR IQ IL JO KW LB OM PS QA SA SY TR AE YE".split(" "),
-  Europe: "AL AD AT BY BE BA BG HR CZ DK EE FI FR DE GR HU IS IE IT XK LV LI LT LU MT MD MC ME NL MK NO PL PT RO RU SM RS SK SI ES SE CH UA GB VA FO GI GG IM JE AX".split(" "),
-  Oceania: "AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU NC PF GU AS MP CK NU TK WF".split(" "),
+  Europe: "AL AD AT BY BE BA BG HR CZ DK EE FI FR DE GR HU IS IE IT XK LV LI LT LU MT MD MC ME NL MK NO PL PT RO RU SM RS SK SI ES SE CH UA GB VA FO GI GG IM JE AX SJ".split(" "),
+  Oceania: "AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU NC PF GU AS MP CK NU TK WF CC CX NF PN UM".split(" "),
   "South America": "AR BO BR CL CO EC GY PY PE SR UY VE FK GF".split(" "),
   "Central America": "BZ CR SV GT HN NI PA".split(" "),
   Caribbean: "AG BS BB CU DM DO GD HT JM KN LC VC TT PR AW CW BQ SX KY TC VG VI AI MS GP MQ BL MF".split(" "),
-  "North America": "CA MX US GL BM PM".split(" ")
+  "North America": "CA MX US GL BM PM".split(" "),
+  Other: "AQ BV HM TF GS IO".split(" ")
 };
 const continentForCode = (code) => Object.entries(CONTINENT_CODES).find(([, codes]) => codes.includes(code))?.[0] || "Other";
+const buildStaticWorldwideCountries = () => {
+  const englishRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["en"], { type: "region" }) : null;
+  const koreanRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["ko"], { type: "region" }) : null;
+  const seen = new Set();
+  return Object.entries(CONTINENT_CODES).flatMap(([continent, codes]) => codes.map((code) => ({
+    country: englishRegions?.of(code) || code,
+    countryKo: koreanRegions?.of(code) || englishRegions?.of(code) || code,
+    code,
+    continent,
+    currency: "",
+    cities: []
+  }))).filter((item) => !seen.has(item.code) && seen.add(item.code)).sort((a, b) => a.country.localeCompare(b.country));
+};
 const CONTINENT_NAMES_KO = { "North America": "북아메리카", "Central America": "중미", Caribbean: "카리브해", "South America": "남아메리카", Europe: "유럽", Asia: "아시아", Oceania: "오세아니아", "Middle East": "중동", Africa: "아프리카", Other: "전 세계 / 기타" };
 const COUNTRY_NAMES_KO = { "United States": "미국", Canada: "캐나다", Mexico: "멕시코", Belize: "벨리즈", "Costa Rica": "코스타리카", "El Salvador": "엘살바도르", Guatemala: "과테말라", Honduras: "온두라스", Nicaragua: "니카라과", Panama: "파나마", Colombia: "콜롬비아", Argentina: "아르헨티나", Brazil: "브라질", Peru: "페루", Chile: "칠레", Spain: "스페인", France: "프랑스", Italy: "이탈리아", "United Kingdom": "영국", Germany: "독일", Portugal: "포르투갈", Netherlands: "네덜란드", Greece: "그리스", Japan: "일본", Thailand: "태국", Vietnam: "베트남", China: "중국", "South Korea": "대한민국", Singapore: "싱가포르", India: "인도", Indonesia: "인도네시아", Malaysia: "말레이시아", Australia: "호주", "New Zealand": "뉴질랜드", "United Arab Emirates": "아랍에미리트", Egypt: "이집트", "South Africa": "남아프리카공화국", Morocco: "모로코" };
 const CITY_NAMES_KO = {
@@ -231,6 +245,23 @@ const resolveWorldwideDestination = async (value, language) => {
   const query = String(value || "").trim();
   if (query.length < 2) return null;
   try {
+    const normalizedQuery = normalizeDestinationLookup(query).replaceAll(" ", "");
+    const countryAliases = { 필리핀: "PH", 콩고: "CG", 콩고공화국: "CG", 민주콩고: "CD", 콩고민주공화국: "CD", 남아프리카: "ZA", 남아공: "ZA", 캄보디아: "KH", 말라시아: "MY", 말레이시아: "MY", 대만: "TW", 타이완: "TW", 파푸아뉴기니: "PG", 엘살바도르: "SV", 살바도르: "SV" };
+    const countries = await loadWorldwideCountries();
+    const exactCountry = countries.find((item) => item.code === countryAliases[normalizedQuery]
+      || normalizeDestinationLookup(item.country).replaceAll(" ", "") === normalizedQuery
+      || normalizeDestinationLookup(item.countryKo).replaceAll(" ", "") === normalizedQuery);
+    if (exactCountry) {
+      return {
+        country: exactCountry.country,
+        code: exactCountry.code,
+        city: exactCountry.cities[0] || exactCountry.country,
+        continent: exactCountry.continent,
+        currency: exactCountry.currency,
+        latitude: exactCountry.latitude,
+        longitude: exactCountry.longitude
+      };
+    }
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&featuretype=city&q=${encodeURIComponent(query)}`, {
       headers: { "Accept-Language": language === "ko" ? "ko,en;q=0.8" : "en" }
     });
@@ -297,17 +328,19 @@ const loadCountryCities = (country) => {
 };
 const loadWorldwideCountries = () => {
   if (worldwideCountriesPromise) return worldwideCountriesPromise;
-  worldwideCountriesPromise = Promise.all([
+  const staticCountries = buildStaticWorldwideCountries();
+  worldwideCountriesPromise = Promise.allSettled([
     fetch("https://countriesnow.space/api/v0.1/countries/iso").then((response) => response.json()),
     fetch("https://countriesnow.space/api/v0.1/countries/currency").then((response) => response.json()),
     fetch("https://countriesnow.space/api/v0.1/countries/capital").then((response) => response.json()),
     fetch("https://countriesnow.space/api/v0.1/countries/positions").then((response) => response.json())
-  ]).then(([isoPayload, currencyPayload, capitalPayload, positionPayload]) => {
+  ]).then((results) => {
+    const [isoPayload, currencyPayload, capitalPayload, positionPayload] = results.map((result) => result.status === "fulfilled" ? result.value : { data: [] });
     const currencies = new Map((currencyPayload.data || []).map((item) => [item.iso2, item.currency]));
     const capitals = new Map((capitalPayload.data || []).map((item) => [item.iso2, item.capital]));
     const positions = new Map((positionPayload.data || []).map((item) => [item.iso2, item]));
     const koreanRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["ko"], { type: "region" }) : null;
-    const identities = new Map();
+    const identities = new Map(staticCountries.map((item) => [item.code, { name: item.country, code: item.code, countryKo: item.countryKo, continent: item.continent }]));
     (isoPayload.data || []).forEach((item) => identities.set(item.Iso2, { name: item.name, code: item.Iso2 }));
     (capitalPayload.data || []).forEach((item) => { if (item.iso2 && !identities.has(item.iso2)) identities.set(item.iso2, { name: item.name, code: item.iso2 }); });
     (currencyPayload.data || []).forEach((item) => { if (item.iso2 && !identities.has(item.iso2)) identities.set(item.iso2, { name: item.name, code: item.iso2 }); });
@@ -315,9 +348,9 @@ const loadWorldwideCountries = () => {
       const position = positions.get(item.code) || {};
       return {
         country: item.name,
-        countryKo: koreanRegions?.of(item.code) || item.name,
+        countryKo: item.countryKo || koreanRegions?.of(item.code) || item.name,
         code: item.code,
-        continent: CONTINENT_BY_COUNTRY[item.name] || continentForCode(item.code),
+        continent: item.continent || CONTINENT_BY_COUNTRY[item.name] || continentForCode(item.code),
         currency: currencies.get(item.code) || "",
         latitude: Number(position.lat),
         longitude: Number(position.long),
@@ -459,8 +492,8 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       const countrySelect = hierarchy.querySelector('[data-destination-level="country"]');
       const stateSelect = hierarchy.querySelector('[data-destination-level="state"]');
       const citySelect = hierarchy.querySelector('[data-destination-level="city"]');
-      let globalCountries = [];
-      const continents = [...new Set(Object.values(CONTINENT_BY_COUNTRY))];
+      let globalCountries = buildStaticWorldwideCountries();
+      const continents = [...new Set([...Object.values(CONTINENT_BY_COUNTRY), ...Object.keys(CONTINENT_CODES)])];
       continentSelect.insertAdjacentHTML("beforeend", continents.map((continent) => `<option value="${esc(continent)}">${esc(ko ? CONTINENT_NAMES_KO[continent] || continent : continent)}</option>`).join(""));
       const fillCountries = (continent, selected = "") => {
         const builtIn = TRAVEL_DESTINATION_CHOICES.filter((item) => CONTINENT_BY_COUNTRY[item.country] === continent).map((item) => ({ ...item, countryKo: COUNTRY_NAMES_KO[item.country] || item.country }));

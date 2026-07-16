@@ -7,6 +7,11 @@ const results = readFileSync(new URL("../js/pages/results-page.js", import.meta.
 
 assert.match(followup, /GT:\s*"GTQ"|Guatemala:\s*"GT"/);
 assert.match(followup, /"Central America":\s*"BZ CR SV GT HN NI PA"/);
+for (const code of ["PH", "CG", "CD", "ZA", "KH", "MY", "TW", "PG"]) {
+  assert.match(followup, new RegExp(`\\b${code}\\b`), `${code} must exist in the offline worldwide country catalog`);
+}
+assert.match(followup, /buildStaticWorldwideCountries/);
+assert.match(followup, /Promise\.allSettled/);
 assert.doesNotMatch(followup, /restcountries\.com\/v3/);
 assert.match(loading, /countriesnow\.space\/api\/v0\.1\/countries\/capital/);
 assert.match(loading, /open\.er-api\.com\/v6\/latest/);
