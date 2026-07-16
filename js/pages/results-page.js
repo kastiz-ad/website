@@ -912,13 +912,22 @@ const createBudgetCard = (budget) => {
   article.className = "mission-card is-wide";
   article.dataset.cardId = "budget";
 
+  const total = budget?.estimatedTotal || { currency: budget?.currency || "KRW", min: 0, max: 0 };
+  const tierRange = (minFactor, maxFactor) => ({
+    currency: total.currency || "KRW",
+    min: Math.round(Number(total.min || 0) * minFactor / 1000) * 1000,
+    max: Math.round(Number(total.max || 0) * maxFactor / 1000) * 1000
+  });
   const budgetRows = [
     ["flights", t("budgetFlights"), budget?.flights],
     ["hotel", t("budgetHotel"), budget?.hotel],
     ["food", t("budgetFood"), budget?.food],
     ["transport", t("budgetTransport"), budget?.transport],
     ["activities", t("budgetActivities"), budget?.activities],
-    ["estimatedTotal", t("estimatedTotal"), budget?.estimatedTotal]
+    ["estimatedTotal", t("estimatedTotal"), total],
+    ["budgetFriendlyTier", activeLanguage === "ko" ? "알뜰형 총예산" : "Budget-friendly total", tierRange(.72, .84)],
+    ["recommendedTier", activeLanguage === "ko" ? "추천 균형형 총예산" : "Recommended balanced total", total],
+    ["luxuryTier", activeLanguage === "ko" ? "럭셔리형 총예산" : "Luxury total", tierRange(1.45, 2.1)]
   ];
   const rows = budgetRows.map(([, label, range]) => makeOptionRow(label, formatRange(range))).join("");
 
@@ -2304,6 +2313,16 @@ makeRealityButton.addEventListener("click", () => {
       { label: activeLanguage === "ko" ? "호텔 설정" : "Hotel preference", value: hotel?.name || "" }
     ],
     onApprove: runApprovalSequence
+  });
+
+  const totalTiers = {
+    budgetFriendlyTier: { currency: estimatedTotal.currency, min: Math.round(estimatedTotal.min * .72 / 1000) * 1000, max: Math.round(estimatedTotal.max * .84 / 1000) * 1000 },
+    recommendedTier: estimatedTotal,
+    luxuryTier: { currency: estimatedTotal.currency, min: Math.round(estimatedTotal.min * 1.45 / 1000) * 1000, max: Math.round(estimatedTotal.max * 2.1 / 1000) * 1000 }
+  };
+  Object.entries(totalTiers).forEach(([key, range]) => {
+    const value = missionGrid.querySelector(`[data-card-id="budget"] [data-budget-key="${key}"] .option-value > span`);
+    if (value) value.textContent = formatRange(range);
   });
 });
 
