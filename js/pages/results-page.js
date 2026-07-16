@@ -1404,6 +1404,18 @@ const createWeatherForecastCard = (result) => {
   return createListCard({ id: "weather", title: t("weather"), label: provider ? (activeLanguage === "ko" ? "실시간 예보" : "Live forecast") : t("apiPlaceholder"), items, wide: true, editable: false });
 };
 
+const createPublicResourceCard = (result, category, title, label) => {
+  const provider = (result?.providerResults || []).find((item) => item.category === category);
+  if (!provider?.items?.length) return null;
+  const items = provider.items.map((item) => {
+    const url = String(item.url || "");
+    const safeUrl = /^https:\/\//i.test(url) ? url : "";
+    const text = [item.label, item.value].filter(Boolean).map(escapeSummaryText).join(" · ");
+    return safeUrl ? `<a href="${escapeSummaryText(safeUrl)}" target="_blank" rel="noopener noreferrer">${text}</a>` : text;
+  });
+  return createListCard({ id: category.replaceAll("_", "-"), title, label, items, wide: true, editable: false });
+};
+
 const createScheduleCard = (result) => {
   const schedule = result.schedule;
   if (!schedule?.startDate || !schedule?.endDate) return null;
@@ -1571,6 +1583,11 @@ const renderTravelMission = (result) => {
 
   missionGrid.appendChild(createExchangeBudgetCard(result));
 
+  const advisoryCard = createPublicResourceCard(result, "travel_advisory", activeLanguage === "ko" ? "공식 여행 안전 정보" : "Official Travel Advice", activeLanguage === "ko" ? "공식 자료" : "Official source");
+  if (advisoryCard) missionGrid.appendChild(advisoryCard);
+  const resourcesCard = createPublicResourceCard(result, "travel_resources", activeLanguage === "ko" ? "여행 전 추천 자료" : "Before You Go", activeLanguage === "ko" ? "무료 공개 자료" : "Free public resources");
+  if (resourcesCard) missionGrid.appendChild(resourcesCard);
+
 };
 
 const renderGeneralMission = (result) => {
@@ -1645,6 +1662,9 @@ const renderGeneralMission = (result) => {
     items: result.risks || [],
     wide: true
   }));
+
+  const learningResources = createPublicResourceCard(result, "learning_resources", activeLanguage === "ko" ? "추천 학습 자료" : "Recommended Learning Resources", activeLanguage === "ko" ? "무료 공개 자료" : "Free public resources");
+  if (learningResources) missionGrid.appendChild(learningResources);
 
   missionGrid.appendChild(createListCard({
     id: "information-sources",

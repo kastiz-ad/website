@@ -9,8 +9,8 @@ import { MISSION_PACKS } from "../js/providers/packs/mission-packs.js";
 import { SUPPORTED_COUNTRIES } from "../js/providers/catalog/countries.js";
 import { createMission } from "../js/engine/mission-creation.js";
 
-assert.equal(PROVIDER_DEFINITIONS.length,25);
-assert.equal(providerRegistry.list().length,25);
+assert.equal(PROVIDER_DEFINITIONS.length,28);
+assert.equal(providerRegistry.list().length,28);
 for(const connector of providerRegistry.list())for(const method of ["search","compare","availability","estimate","reserve","purchase","cancel","status","health","capabilities"])assert.equal(typeof connector[method],"function",`${connector.definition.id}.${method} must exist`);
 assert.equal(SUPPORTED_COUNTRIES.length,16);
 assert.ok(MISSION_PACKS.travel.capabilities.includes("flight.search"));
@@ -30,6 +30,15 @@ const overpass=createPublicConnector("openstreetmap_overpass");
 const places=await overpass.search({capability:"accommodation.public_places",latitude:35.6,longitude:139.6,fetchImpl:async()=>({ok:true,json:async()=>({elements:[{lat:35.6,lon:139.6,tags:{name:"Test Hotel",tourism:"hotel"}}]})})});
 assert.equal(places.status,CONNECTOR_STATUS.OK);
 assert.equal(places.data[0].kind,"hotel");
+
+const advice=createPublicConnector("govuk_travel_advice");
+const advisory=await advice.search({capability:"travel.advisory",slug:"madagascar",fetchImpl:async()=>({ok:true,json:async()=>({title:"Madagascar travel advice",description:"Official guidance",base_path:"/foreign-travel-advice/madagascar"})})});
+assert.equal(advisory.status,CONNECTOR_STATUS.OK);
+assert.equal(advisory.data[0].url,"https://www.gov.uk/foreign-travel-advice/madagascar");
+
+assert.equal((await providerRegistry.get("korea_tourism").search({capability:"tourism.search"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
+assert.equal((await providerRegistry.get("us_national_parks").search({capability:"tourism.search"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
+assert.equal((await providerRegistry.get("naver_shopping").search({capability:"product.search"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
 
 const booking=providerRegistry.get("booking_com");
 const placeholder=await booking.search({capability:"accommodation.search"});

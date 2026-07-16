@@ -30,6 +30,9 @@ const handlers=Object.freeze({
   },
   wikipedia:{
     search:request=>({url:`https://en.wikipedia.org/api/rest_v1/page/summary/${enc(request.topic||"")}`,cacheTtl:86400000,transform:data=>[{title:data.title,summary:data.extract,url:data.content_urls?.desktop?.page}]})
+  },
+  govuk_travel_advice:{
+    search:request=>({url:`https://www.gov.uk/api/content/foreign-travel-advice/${enc(request.slug||request.country||"")}`,cacheTtl:3600000,transform:data=>[{title:data.title,summary:data.description||"",updatedAt:data.public_updated_at||data.updated_at||"",url:`https://www.gov.uk${data.base_path||`/foreign-travel-advice/${request.slug||request.country||""}`}`}]})
   }
 });
 

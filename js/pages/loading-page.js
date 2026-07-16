@@ -321,6 +321,78 @@ const fetchWikipediaInfo = async (mission) => {
   }
 };
 
+const govUkCountrySlug = (country = "") => {
+  const aliases = { "United States": "usa", "South Korea": "south-korea", "North Korea": "north-korea", "Czech Republic": "czechia", "Côte d'Ivoire": "ivory-coast", "Democratic Republic of the Congo": "democratic-republic-of-the-congo", "Republic of the Congo": "republic-of-the-congo" };
+  return aliases[country] || String(country).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+};
+
+const fetchOfficialTravelAdvice = async (mission) => {
+  const country = mission?.countryProfile?.name || mission?.destination?.country || "";
+  if (!country) return fallbackProvider("GOV.UK Foreign Travel Advice", "travel_advisory", "Select a destination to check official advice.");
+  const slug = govUkCountrySlug(country);
+  try {
+    const data = await fetchJson(`https://www.gov.uk/api/content/foreign-travel-advice/${encodeURIComponent(slug)}`, { timeout: 7000, cacheTtl: 3600000 });
+    return {
+      provider: "GOV.UK Foreign Travel Advice",
+      category: "travel_advisory",
+      sourceStatus: "free_live_api",
+      liveData: Boolean(data?.title),
+      requiresKey: false,
+      requiresPartnerAccess: false,
+      items: [{ label: data?.title || `${country} travel advice`, value: data?.description || "Official entry, safety and local-law information", url: `https://www.gov.uk${data?.base_path || `/foreign-travel-advice/${slug}`}`, updatedAt: data?.public_updated_at || data?.updated_at || "" }],
+      attribution: "UK Foreign, Commonwealth & Development Office · Open Government Licence",
+      error: null
+    };
+  } catch (error) {
+    return { ...fallbackProvider("GOV.UK Foreign Travel Advice", "travel_advisory", "Open the official country advice before travel.", error.message), items: [{ label: `${country} official travel advice`, value: "Official guidance", url: `https://www.gov.uk/foreign-travel-advice/${slug}` }] };
+  }
+};
+
+const buildTravelResourceLinks = (mission) => {
+  const ko = mission?.language === "ko";
+  const city = mission?.destination?.city || mission?.countryProfile?.capital || "";
+  const country = mission?.countryProfile?.name || mission?.destination?.country || "";
+  const destination = [city, country].filter(Boolean).join(", ");
+  const query = encodeURIComponent(destination || "international travel");
+  return {
+    provider: "ONE Public Travel Resources",
+    category: "travel_resources",
+    sourceStatus: "free_public_links",
+    liveData: true,
+    requiresKey: false,
+    requiresPartnerAccess: false,
+    items: [
+      { label: ko ? `${destination} 여행 가이드 영상` : `${destination} travel guide videos`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+travel+guide+things+to+know` },
+      { label: ko ? `${destination} 출국 전 알아둘 점` : `Things to know before visiting ${destination}`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+before+you+go+local+tips` },
+      { label: ko ? "미국 국무부 여행경보" : "U.S. State Department travel advisories", value: ko ? "공식 여행경보 목록" : "Official advisory directory", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/" },
+      { label: ko ? "대한민국 재외공관" : "Korean embassies and consulates", value: ko ? "외교부 재외공관 목록" : "Official overseas missions directory", url: "https://overseas.mofa.go.kr/" },
+      { label: ko ? `${destination} 지하철·대중교통 지도` : `${destination} subway and transit map`, value: "OpenStreetMap", url: `https://www.openstreetmap.org/search?query=${encodeURIComponent(`${destination} subway station`)}` }
+    ],
+    error: null
+  };
+};
+
+const buildLearningResourceLinks = (mission) => {
+  const ko = mission?.language === "ko";
+  const subject = mission?.details?.subject || mission?.rawInput || "English learning";
+  const query = encodeURIComponent(subject);
+  return {
+    provider: "ONE Learning Resources",
+    category: "learning_resources",
+    sourceStatus: "free_public_links",
+    liveData: true,
+    requiresKey: false,
+    requiresPartnerAccess: false,
+    items: [
+      { label: ko ? "British Council 무료 영어 학습 자료" : "British Council free English resources", value: ko ? "공식 학습 자료" : "Official learning resources", url: "https://learnenglish.britishcouncil.org/" },
+      { label: ko ? `${subject} 추천 학습 영상` : `Recommended ${subject} learning videos`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+lesson+tutorial` },
+      { label: "Duolingo", value: ko ? "공식 학습 서비스" : "Official learning service", url: "https://www.duolingo.com/" },
+      { label: "HelloTalk", value: ko ? "언어교환 서비스 · 외부 앱" : "Language exchange service · external app", url: "https://www.hellotalk.com/" }
+    ],
+    error: null
+  };
+};
+
 const buildPrototypeProviderResults = (mission) => {
   const providers = Array.isArray(mission.providers) ? mission.providers : [];
 
@@ -351,8 +423,14 @@ const enrichMission = async (mission) => {
       () => fetchCurrency(mission),
       () => fetchCountryInfo(mission),
       () => fetchMapInfo(mission),
-      () => fetchLocalPlaces(mission)
+      () => fetchLocalPlaces(mission),
+      () => fetchOfficialTravelAdvice(mission),
+      () => Promise.resolve(buildTravelResourceLinks(mission))
     );
+  }
+
+  if (type === "tutoring" || type === "language_exchange") {
+    providerRequests.push(() => Promise.resolve(buildLearningResourceLinks(mission)));
   }
 
   if (type === "moving") {

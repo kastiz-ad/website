@@ -719,6 +719,15 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
   letter-spacing: 0.16em;
 }
 
+.is-locked-card .option-value a {
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+
 .mission-timeline {
   display: flex;
   align-items: center;
