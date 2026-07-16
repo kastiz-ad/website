@@ -81,6 +81,8 @@ const translations = {
     visa: "Visa",
     apiPlaceholder: "Prototype estimate",
     prototypeDisclosure: "Prototype · Live public data + estimated travel options",
+    flightEstimateNotice: "Estimated price range · not a live fare",
+    verifyLiveFares: "Check current fares",
     approvalProtectionTitle: "Approval Protection",
     approvalProtection:
       "Nothing will be booked, purchased, reserved, signed, or legally committed until you explicitly approve.",
@@ -145,6 +147,8 @@ const translations = {
     visa: "비자",
     apiPlaceholder: "프로토타입 예상 정보",
     prototypeDisclosure: "프로토타입 · 공개 실시간 데이터 + 여행 예상 정보",
+    flightEstimateNotice: "예상 가격 범위 · 실시간 운임 아님",
+    verifyLiveFares: "현재 운임 확인",
     approvalProtectionTitle: "승인 보호",
     approvalProtection:
       "사용자가 명확히 승인하기 전까지 예약, 구매, 결제, 서명, 법적 약속은 절대 진행되지 않습니다.",
@@ -875,7 +879,7 @@ const restaurantVenueProfiles = {
   ]
 };
 
-const createMissionCard = ({ id, title, label, value, reason, options, wide = false, editable = true }) => {
+const createMissionCard = ({ id, title, label, value, reason, options, supportingContent = "", wide = false, editable = true }) => {
   const article = document.createElement("article");
   article.className = "mission-card";
   article.dataset.cardId = id;
@@ -897,6 +901,7 @@ const createMissionCard = ({ id, title, label, value, reason, options, wide = fa
 
     <p class="recommendation-label">${t("reason")}</p>
     <p class="reason">${reason}</p>
+    ${supportingContent}
 
     ${makeOptionList(options)}
 
@@ -1379,7 +1384,6 @@ function adaptTravelResultToDestination(result) {
       category: index === 0 ? "recommended" : "alternative",
       estimatedPrice: priceFor(index),
       priceBasis: "prototype_market_estimate",
-      priceCheckedAt: "2026-07-16",
       reason: flightReasons[index]?.[0] || `Practical prototype flight option for ${city}.`,
       reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
     };
@@ -1546,6 +1550,16 @@ const renderTravelMission = (result) => {
   const flightPriceLabel = result.tripType === "one_way"
     ? (activeLanguage === "ko" ? "편도" : "one way")
     : (activeLanguage === "ko" ? "왕복" : "round trip");
+  const flightOrigin = result.followUp?.answers?.origin || result.origin || (activeLanguage === "ko" ? "서울" : "Seoul");
+  const flightDestination = result.destination?.city || result.destination?.country || result.display?.destination || "Japan";
+  const flightSchedule = result.schedule || {};
+  const liveFareQuery = [
+    `Flights from ${flightOrigin} to ${flightDestination}`,
+    flightSchedule.startDate || "",
+    result.tripType === "one_way" ? "one way" : `return ${flightSchedule.endDate || ""}`
+  ].filter(Boolean).join(" ");
+  const liveFareUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(liveFareQuery)}`;
+  const flightVerification = `<p class="flight-estimate-notice"><span>${t("flightEstimateNotice")}</span><a href="${liveFareUrl}" target="_blank" rel="noopener noreferrer">${t("verifyLiveFares")}</a></p>`;
   const transportBudget = result.budget?.transport || { currency: "KRW", min: 120000, max: 280000 };
   const transferPriceRanges = [
     { currency: transportBudget.currency || result.budget?.currency || "KRW", min: Math.round(transportBudget.min * .5), max: Math.round(transportBudget.max * .57) },
@@ -1580,6 +1594,7 @@ const renderTravelMission = (result) => {
         activeLanguage === "ko"
           ? recommendedFlight?.reasonKo || recommendedFlight?.reason || ""
           : recommendedFlight?.reason || "",
+      supportingContent: flightVerification,
       options: flightOptions,
       editable: true
     })

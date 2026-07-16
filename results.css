@@ -483,6 +483,8 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .selectable-recommendation .recommendation-value { width: 100%; display: flex; align-items: baseline; justify-content: center; gap: 12px; min-width: 0; }
 .recommended-name { min-width: 0; font-size: inherit; font-weight: 800; }
 .recommended-price { flex: 0 1 auto; color: var(--text-muted); font-size: 13px; line-height: 1.2; font-weight: 650; letter-spacing: -0.02em; white-space: nowrap; }
+.flight-estimate-notice { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px 14px; margin:12px 0 18px; color:var(--text-muted); font-size:12px; text-align:center; }
+.flight-estimate-notice a { color:var(--text); font-weight:700; text-decoration:underline; text-underline-offset:3px; }
 @media (max-width: 520px) { .selectable-recommendation .recommendation-value { flex-direction: column; align-items: center; flex-wrap: nowrap; gap: 4px; } .recommended-price { font-size: 11px; } }
 
 .alternative-picker { display: none; margin: 16px 0 4px; padding: 16px; border-radius: 18px; background: var(--chip); }
