@@ -8,6 +8,7 @@ const resultsHtml = readFileSync(new URL("../results.html", import.meta.url), "u
 const resultsCss = readFileSync(new URL("../results.css", import.meta.url), "utf8");
 const loadingHtml = readFileSync(new URL("../loading.html", import.meta.url), "utf8");
 const indexHtml = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const homeCss = readFileSync(new URL("../style.css", import.meta.url), "utf8");
 
 assert.match(followup, /GT:\s*"GTQ"|Guatemala:\s*"GT"/);
 assert.match(followup, /"Central America":\s*"BZ CR SV GT HN NI PA"/);
@@ -94,6 +95,8 @@ assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
 assert.match(indexHtml, /script\.js\?v=20260717-11/);
+assert.match(indexHtml, /style\.css\?v=20260717-18/);
+assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/);
 assert.match(loadingHtml, /loading\.js\?v=20260717-13/);
 assert.match(resultsHtml, /results\.js\?v=20260717-17/);
 assert.match(resultsHtml, /results\.css\?v=20260717-17/);
