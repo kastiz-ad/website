@@ -68,14 +68,24 @@ const reopenPrototypeMission = (reference) => {
 };
 
 const detectPrototypeReferenceInImage = async (file) => {
-  if (!file || typeof window.TextDetector !== "function" || typeof createImageBitmap !== "function") return "";
+  if (!file || typeof createImageBitmap !== "function") return "";
+  let bitmap;
   try {
-    const bitmap = await createImageBitmap(file);
-    const blocks = await new window.TextDetector().detect(bitmap);
-    bitmap.close?.();
-    return blocks.map((block) => block.rawValue || "").join(" ").toUpperCase().match(/ONE-DEMO-[A-Z0-9]{8}/)?.[0] || "";
+    bitmap = await createImageBitmap(file);
+    if (typeof window.BarcodeDetector === "function") {
+      const codes = await new window.BarcodeDetector({ formats: ["qr_code"] }).detect(bitmap);
+      const qrReference = codes.map((code) => code.rawValue || "").join(" ").toUpperCase().match(/ONE-DEMO-[A-Z0-9]{8}/)?.[0];
+      if (qrReference) return qrReference;
+    }
+    if (typeof window.TextDetector === "function") {
+      const blocks = await new window.TextDetector().detect(bitmap);
+      return blocks.map((block) => block.rawValue || "").join(" ").toUpperCase().match(/ONE-DEMO-[A-Z0-9]{8}/)?.[0] || "";
+    }
+    return "";
   } catch {
     return "";
+  } finally {
+    bitmap?.close?.();
   }
 };
 
@@ -1713,8 +1723,8 @@ imageUploadInput?.addEventListener("change", async () => {
     return;
   }
   announceMissionTool(
-    typeof window.TextDetector === "function" ? (selectedImageFiles.length === 1 ? "1 image attached. No saved reference was detected." : `${selectedImageFiles.length} images attached.`) : "Image attached. Copy the ONE-DEMO reference into the search box for lookup.",
-    typeof window.TextDetector === "function" ? `이미지 ${selectedImageFiles.length}개가 첨부되었습니다. 저장된 참조 번호를 찾지 못했습니다.` : "이미지가 첨부되었습니다. 조회하려면 ONE-DEMO 참조 번호를 검색창에 입력하세요."
+    typeof window.BarcodeDetector === "function" || typeof window.TextDetector === "function" ? (selectedImageFiles.length === 1 ? "1 image attached. No saved reference or QR code was detected." : `${selectedImageFiles.length} images attached.`) : "Image attached. Copy the ONE-DEMO reference into the search box for lookup.",
+    typeof window.BarcodeDetector === "function" || typeof window.TextDetector === "function" ? `이미지 ${selectedImageFiles.length}개가 첨부되었습니다. 저장된 참조 번호 또는 QR 코드를 찾지 못했습니다.` : "이미지가 첨부되었습니다. 조회하려면 ONE-DEMO 참조 번호를 검색창에 입력하세요."
   );
 });
 

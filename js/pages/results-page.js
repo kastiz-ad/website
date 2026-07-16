@@ -1997,10 +1997,13 @@ const buildExecutionSummary = () => {
     [ko ? "프로토타입 참조 번호" : "Prototype reference", reference, ko ? "실제 예약 번호가 아닙니다" : "This is not a real booking number", "is-wide is-reference"]
   ];
   const renderSummaryRow = ([label, value, detail, className = "", metadata = null]) => {
+    const qrMarkup = className.includes("is-reference")
+      ? `<img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&amp;format=png&amp;data=${encodeURIComponent(value)}" alt="${ko ? "프로토타입 참조 번호 QR 코드" : "Prototype reference QR code"}" width="220" height="220" loading="lazy"><small class="prototype-reference-qr-help">${ko ? "QR 이미지를 저장하거나 ONE의 사진 버튼으로 다시 불러오세요" : "Save this QR image or scan it later with ONE's picture button"}</small>`
+      : "";
     const valueMarkup = className.includes("is-schedule")
       ? `<span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(metadata?.start || "—")}</strong><i aria-hidden="true">→</i><strong>${escapeSummaryText(metadata?.end || "—")}</strong></span>`
       : `<span class="execution-summary-value">${escapeSummaryText(value)}</span>`;
-    return `<div class="execution-summary-item ${className}"><span class="execution-summary-label">${escapeSummaryText(label)}</span>${valueMarkup}<span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`;
+    return `<div class="execution-summary-item ${className}"><span class="execution-summary-label">${escapeSummaryText(label)}</span>${valueMarkup}${qrMarkup}<span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`;
   };
   executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(renderSummaryRow).join("")}</div><div class="all-in-slogan"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></div>`;
   savePrototypeMission(reference);

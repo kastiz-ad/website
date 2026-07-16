@@ -57,6 +57,9 @@ const home = readFileSync(new URL("../js/pages/home-page.js", import.meta.url), 
 assert.match(home, /reopenPrototypeMission/);
 assert.match(home, /detectPrototypeReferenceInImage/);
 assert.match(home, /TextDetector/);
+assert.match(home, /BarcodeDetector/);
+assert.match(results, /api\.qrserver\.com\/v1\/create-qr-code/);
+assert.match(results, /prototype-reference-qr/);
 assert.match(results, /GT:\s*\[\["Aeromexico"/);
 assert.match(results, /GT:\s*\[\[2300000, 3900000\]/);
 assert.match(results, /liveHotelNames/);
