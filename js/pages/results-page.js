@@ -1909,6 +1909,18 @@ const returnHome = () => {
   }, 420);
 };
 
+const properCaseLocation = (value) => String(value || "").trim().toLowerCase().replace(/(^|[\s-])([a-zà-öø-ÿ])/g, (_, separator, letter) => `${separator}${letter.toUpperCase()}`);
+
+const approvalMissionName = () => {
+  if (currentResult?.type === "travel") {
+    const destination = activeLanguage === "ko"
+      ? currentResult?.destination?.cityKo || currentResult?.destination?.countryKo || currentResult?.destination?.city || currentResult?.destination?.country
+      : currentResult?.destination?.city || currentResult?.destination?.country;
+    return properCaseLocation(destination);
+  }
+  return currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.rawInput || "";
+};
+
 const escapeSummaryText = (value) => String(value ?? "—").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 
 const selectedOptionIndex = (cardId) => {
@@ -2434,7 +2446,7 @@ makeRealityButton.addEventListener("click", () => {
   openApprovalInformationReview({
     language: activeLanguage,
     items: [
-      { label: activeLanguage === "ko" ? "미션" : "Mission", value: currentResult?.title?.[activeLanguage] || currentResult?.rawInput || "" },
+      { label: activeLanguage === "ko" ? "미션" : "Mission", value: approvalMissionName() },
       { label: activeLanguage === "ko" ? "여행 날짜" : "Travel dates", value: schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : "" },
       { label: activeLanguage === "ko" ? "항공편 설정" : "Flight preference", value: flight?.provider || "" },
       { label: activeLanguage === "ko" ? "호텔 설정" : "Hotel preference", value: hotel?.name || "" }
