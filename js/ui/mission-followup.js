@@ -528,17 +528,20 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       const matchSelect = hierarchy.querySelector('[data-destination-level="match"]');
       const clearDestinationMatches = () => {
         destinationCandidates = [];
+        hierarchy.classList.remove("has-destination-matches");
         matchField.hidden = true;
         matchSelect.innerHTML = `<option value="">${ko ? "필요한 경우 더 정확한 위치를 선택하세요" : "Choose a more specific place if needed"}</option>`;
       };
       const renderDestinationMatches = (matches) => {
         destinationCandidates = matches;
         if (matches.length <= 1) {
+          hierarchy.classList.remove("has-destination-matches");
           matchField.hidden = true;
           return;
         }
         matchSelect.innerHTML = `<option value="">${ko ? "자동 선택을 사용하거나 더 정확한 위치를 선택하세요" : "Use the automatic choice or select a more specific place"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
         matchField.hidden = false;
+        hierarchy.classList.add("has-destination-matches");
       };
       let globalCountries = buildStaticWorldwideCountries();
       const continents = [...new Set([...Object.values(CONTINENT_BY_COUNTRY), ...Object.keys(CONTINENT_CODES)])];
@@ -672,7 +675,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         });
         if (continentSelect.value) fillCountries(continentSelect.value, countrySelect.value);
       });
-      if (destinationInput.value) syncHierarchy(destinationInput.value);
+      if (destinationInput.value) destinationInput.dispatchEvent(new Event("input", { bubbles: true }));
     }
     form.elements.startDate.min = iso(today);
     form.elements.endDate.min = form.elements.startDate.value;
@@ -744,6 +747,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           const matchSelect = form.querySelector('[data-destination-level="match"]');
           matchSelect.innerHTML = `<option value="">${ko ? "자동 선택을 사용하거나 더 정확한 위치를 선택하세요" : "Use the automatic choice or select a more specific place"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
           matchField.hidden = false;
+          matchField.closest(".destination-hierarchy")?.classList.add("has-destination-matches");
           resolvedDestination = matches[0];
           error.textContent = "";
         }
