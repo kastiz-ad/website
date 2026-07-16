@@ -164,6 +164,40 @@ const countryForCity = (value, language) => {
   return match ? { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city } : null;
 };
 
+const resolveWorldwideDestination = async (value, language) => {
+  const local = countryForCity(value, language);
+  if (local) return local;
+  const query = String(value || "").trim();
+  if (query.length < 2) return null;
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&featuretype=city&q=${encodeURIComponent(query)}`, {
+      headers: { "Accept-Language": language === "ko" ? "ko,en;q=0.8" : "en" }
+    });
+    if (!response.ok) return null;
+    const [place] = await response.json();
+    if (!place?.address) return null;
+    const code = String(place.address.country_code || "").toUpperCase();
+    const city = place.address.city || place.address.town || place.address.village || place.address.municipality || String(place.display_name || "").split(",")[0] || query;
+    let country = place.address.country || "";
+    let continent = "";
+    let currency = "";
+    if (code) {
+      const countryResponse = await fetch(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}?fields=name,region,subregion,currencies`);
+      if (countryResponse.ok) {
+        const countryData = await countryResponse.json();
+        country = countryData?.name?.common || country;
+        continent = countryData?.region === "Americas"
+          ? (countryData?.subregion === "South America" ? "South America" : "North America")
+          : (countryData?.region === "Oceania" ? "Oceania" : countryData?.region || "");
+        currency = Object.keys(countryData?.currencies || {})[0] || "";
+      }
+    }
+    return { country, code, city, continent, currency };
+  } catch {
+    return null;
+  }
+};
+
 const inferTravelContext = (mission = "") => {
   const text = String(mission).toLowerCase();
   const destinations = [
@@ -232,6 +266,8 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   trackEvent("followup_opened", { page: "home", language, mission_category: type, demo_mode: demoMode });
   if (suggestedEntries.length) trackEvent("saved_profile_suggestion_shown", { page: "home", language, mission_category: type, demo_mode: demoMode });
   let current = 0;
+  let resolvedDestination = null;
+  let showResolvedDestination = () => {};
 
   dialog.innerHTML = `<form method="dialog" class="mission-followup-form" novalidate>
     <button class="schedule-modal-close" type="button" data-action="cancel" aria-label="${ko ? "닫기" : "Close"}">×</button>
@@ -305,13 +341,31 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         continentSelect.value = continent;
         fillCountries(continent, match.item.country);
         fillCities(match.item.country, match.city);
+        resolvedDestination = { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city };
       };
-      continentSelect.addEventListener("change", () => { fillCountries(continentSelect.value); fillCities(""); });
-      countrySelect.addEventListener("change", () => fillCities(countrySelect.value));
+      showResolvedDestination = (resolved) => {
+        if (!resolved) return;
+        const continent = resolved.continent || CONTINENT_BY_COUNTRY[resolved.country] || "";
+        if (continent && ![...continentSelect.options].some((option) => option.value === continent)) continentSelect.add(new Option(ko ? CONTINENT_NAMES_KO[continent] || continent : continent, continent));
+        continentSelect.value = continent;
+        fillCountries(continent);
+        if (resolved.country && ![...countrySelect.options].some((option) => option.value === resolved.country)) countrySelect.add(new Option(resolved.country, resolved.country));
+        countrySelect.disabled = false;
+        countrySelect.value = resolved.country;
+        fillCities(resolved.country);
+        if (resolved.city && ![...citySelect.options].some((option) => option.value === resolved.city)) citySelect.add(new Option(cityLabel(resolved.city, language), resolved.city));
+        citySelect.disabled = false;
+        citySelect.value = resolved.city;
+      };
+      continentSelect.addEventListener("change", () => { resolvedDestination = null; fillCountries(continentSelect.value); fillCities(""); });
+      countrySelect.addEventListener("change", () => { resolvedDestination = null; fillCities(countrySelect.value); });
       citySelect.addEventListener("change", () => {
-        if (citySelect.value) destinationInput.value = cityLabel(citySelect.value, language);
+        if (citySelect.value) {
+          destinationInput.value = cityLabel(citySelect.value, language);
+          resolvedDestination = countryForCity(citySelect.value, language) || { country: countrySelect.value, code: TRAVEL_COUNTRY_CODES[countrySelect.value] || "", city: citySelect.value };
+        }
       });
-      destinationInput.addEventListener("input", () => syncHierarchy(destinationInput.value));
+      destinationInput.addEventListener("input", () => { resolvedDestination = null; syncHierarchy(destinationInput.value); });
       if (destinationInput.value) syncHierarchy(destinationInput.value);
     }
     form.elements.startDate.min = iso(today);
@@ -364,7 +418,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     return true;
   };
 
-  form.addEventListener("click", (event) => {
+  form.addEventListener("click", async (event) => {
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (!action) return;
     if (action === "cancel") { trackEvent("followup_cancelled", { page: "home", language, mission_category: type }); dialog.close("cancel"); return; }
@@ -373,17 +427,30 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     if (action === "back") { trackEvent("followup_back_clicked", { page: "home", language, mission_category: type, step: String(current + 1) }); current = Math.max(0, current - 1); render(); return; }
     if (action === "next") {
       if (!validateStep()) return;
+      if (travel && current === 0 && !resolvedDestination) {
+        next.disabled = true;
+        next.textContent = ko ? "목적지 확인 중..." : "Checking destination...";
+        resolvedDestination = await resolveWorldwideDestination(form.elements.destination.value, language);
+        next.disabled = false;
+        if (resolvedDestination) {
+          form.elements.destination.value = cityLabel(resolvedDestination.city, language);
+          showResolvedDestination(resolvedDestination);
+        } else {
+          resolvedDestination = { country: ko ? "확인할 국가" : "Country to confirm", code: "", city: form.elements.destination.value };
+        }
+      }
       trackEvent("followup_step_completed", { page: "home", language, mission_category: type, step: String(current + 1) });
       if (current < steps.length - 1) { current += 1; render(); return; }
       const values = Object.fromEntries(new FormData(form).entries());
       if (travel) {
-        const selectedCountry = countryForCity(values.destination, language) || (destinationContext?.country
+        const selectedCountry = resolvedDestination || countryForCity(values.destination, language) || (destinationContext?.country
           ? { country: destinationContext.country, code: destinationContext.code || "", city: destinationContext.value }
           : null);
         if (selectedCountry) {
           values.destination = cityLabel(selectedCountry.city, language);
           values.destinationCountry = selectedCountry.country;
           values.destinationCountryCode = selectedCountry.code;
+          if (selectedCountry.currency) values.destinationCurrency = selectedCountry.currency;
         }
       }
       if (values.rememberPreferences === "on") {

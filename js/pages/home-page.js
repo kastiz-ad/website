@@ -1434,14 +1434,25 @@ const saveMission = (mission, schedule = null) => {
         code: selectedDestination.destinationCountryCode,
         name: selectedDestination.destinationCountry,
         nameKo: selectedDestination.destinationCountry,
-        currency: currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to || "USD",
+        currency: selectedDestination.destinationCurrency || currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to || "USD",
         capital: selectedDestination.destination,
         capitalKo: selectedDestination.destination
       };
       payload.exchangeRate = {
         ...payload.exchangeRate,
-        to: currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to
+        to: selectedDestination.destinationCurrency || currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to
       };
+    } else if (selectedDestination.destinationCountry) {
+      payload.country = "";
+      payload.countryProfile = {
+        code: "",
+        name: selectedDestination.destinationCountry,
+        nameKo: selectedDestination.destinationCountry,
+        currency: selectedDestination.destinationCurrency || "USD",
+        capital: selectedDestination.destination,
+        capitalKo: selectedDestination.destination
+      };
+      payload.exchangeRate = { ...payload.exchangeRate, to: selectedDestination.destinationCurrency || "USD" };
     }
   }
   payload.presentationMode = isPresentationMode();
