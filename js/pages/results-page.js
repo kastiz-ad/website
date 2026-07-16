@@ -2098,18 +2098,21 @@ const buildExecutionSummary = () => {
   const activitiesRange = currentResult.budget?.activities || {};
   const weatherItems = (findLiveProvider(currentResult, "weather")?.items || []).slice(0, 7).map((item) => [item.label || "", item.value || "", item.humidity || "", item.precipitation || ""]);
   const currencyItems = (findLiveProvider(currentResult, "currency")?.items || []).slice(0, 6).map((item) => [item.to || "", Number(item.rate ?? item.value) || 0]).filter(([to, rate]) => to && rate);
+  const portableCountry = ko
+    ? currentResult.destination?.countryKo || currentResult.destination?.country || ""
+    : currentResult.destination?.country || "";
+  const portableCity = ko
+    ? currentResult.destination?.cityKo || currentResult.destination?.city || ""
+    : currentResult.destination?.city || "";
+  const portableFlightName = flight ? getFlightName(flight) : "";
+  const portableHotelName = hotel ? getHotelName(hotel) : "";
   const portableResult = {
     p: 1, r: reference, l: activeLanguage,
-    d: [
-      currentResult.destination?.country || "",
-      currentResult.destination?.countryKo || currentResult.destination?.country || "",
-      currentResult.destination?.city || "",
-      currentResult.destination?.cityKo || currentResult.destination?.city || ""
-    ],
+    d: [portableCountry, "", portableCity, ""],
     s: [schedule.startDate || "", schedule.endDate || "", schedule.timePreference || "any"],
     t: currentResult.tripType || "round_trip",
-    f: flight ? [flight.provider || "", flight.providerKo || flight.provider || "", flight.estimatedPrice?.min || 0, flight.estimatedPrice?.max || 0] : [],
-    h: hotel ? [hotel.name || "", hotel.nameKo || hotel.name || "", hotel.estimatedNightlyPrice?.min || 0, hotel.estimatedNightlyPrice?.max || 0] : [],
+    f: flight ? [portableFlightName, "", flight.estimatedPrice?.min || 0, flight.estimatedPrice?.max || 0] : [],
+    h: hotel ? [portableHotelName, "", hotel.estimatedNightlyPrice?.min || 0, hotel.estimatedNightlyPrice?.max || 0] : [],
     x: localize(transfer) || "", n: selectedRestaurantNames,
     w: weatherItems, e: currencyItems, c: currentResult.exchangeRate?.to || currentResult.countryProfile?.currency || "USD",
     b: [foodRange.min || 0, foodRange.max || 0, transportRange.min || 0, transportRange.max || 0, activitiesRange.min || 0, activitiesRange.max || 0, totalRange.min || 0, totalRange.max || 0]
@@ -2133,7 +2136,7 @@ const buildExecutionSummary = () => {
   ];
   const renderSummaryRow = ([label, value, detail, className = "", metadata = null]) => {
     const qrMarkup = className.includes("is-reference")
-      ? `<a href="${escapeSummaryText(portableUrl)}" aria-label="${ko ? "QR 링크로 이 요약 다시 열기" : "Reopen this summary from the QR link"}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=600x600&amp;format=png&amp;ecc=L&amp;qzone=4&amp;data=${encodeURIComponent(portableUrl)}" alt="${ko ? "프로토타입 요약 링크 QR 코드" : "Prototype summary link QR code"}" width="260" height="260"></a><small class="prototype-reference-qr-help">${ko ? "휴대폰 카메라로 스캔하면 이 요약을 다시 열 수 있습니다" : "Scan with your phone camera to reopen this summary"}</small>`
+      ? `<a href="${escapeSummaryText(portableUrl)}" aria-label="${ko ? "QR 링크로 이 요약 다시 열기" : "Reopen this summary from the QR link"}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=900x900&amp;format=png&amp;ecc=L&amp;qzone=8&amp;data=${encodeURIComponent(portableUrl)}" alt="${ko ? "프로토타입 요약 링크 QR 코드" : "Prototype summary link QR code"}" width="320" height="320"></a><small class="prototype-reference-qr-help">${ko ? "휴대폰 카메라로 스캔하면 이 요약을 다시 열 수 있습니다" : "Scan with your phone camera to reopen this summary"}</small>`
       : "";
     const valueMarkup = className.includes("is-schedule")
       ? `<span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(metadata?.start || "—")}</strong><i aria-hidden="true">→</i><strong>${escapeSummaryText(metadata?.end || "—")}</strong></span>`
