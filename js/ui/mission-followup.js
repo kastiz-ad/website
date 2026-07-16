@@ -61,7 +61,7 @@ const TRAVEL_STEPS = [
   { title: ["When?", "언제 여행하시나요?"], fields: [["startDate", "Start date", "출국 날짜", "", "date"], ["endDate", "End date", "귀국 날짜", "", "date"]] },
   { title: ["Travelers", "여행 인원"], fields: [["adults", "Adults", "성인", "1", "number"], ["children", "Children", "어린이", "0", "number"]] },
   { title: ["We'll use your nearby airport", "현재 위치와 가까운 공항을 사용할게요"], fields: [["departure", "Departure airport (change if needed)", "출발 공항 (필요하면 변경)", "Current location", "text"]] },
-  { title: ["Budget and priorities", "예산과 우선순위"], fields: [["budget", "Total budget (optional)", "총예산 (선택 사항)", "Leave blank for budget, recommended and luxury estimates", "text"], ["priority", "Priority", "우선순위", "Balanced", "select"], ["preferences", "Optional preferences", "선호 사항", "Airline, hotel or itinerary preferences", "text"]] }
+  { title: ["Budget and preferences", "예산과 선호 조건"], fields: [["budget", "How much can you spend? (optional)", "총 예산은 얼마인가요? (선택 사항)", "Leave blank and ONE will compare different price ranges", "text"], ["priority", "What matters most?", "무엇을 가장 중요하게 보시나요?", "Best overall balance", "select"], ["preferences", "Anything else you prefer? (optional)", "추가로 원하는 조건이 있나요? (선택 사항)", "Airline, hotel or itinerary preferences", "text"]] }
 ];
 
 const esc = (value) => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
@@ -444,7 +444,7 @@ const getDialog = () => {
 
 const renderField = ([name, en, ko, placeholder, type], language, required = true) => {
   const label = language === "ko" ? ko : en;
-  if (type === "select") return `<label><span>${label}</span><select name="${name}" ${required ? "required" : ""}><option value="cheapest">${language === "ko" ? "최저가" : "Cheapest"}</option><option value="quality">${language === "ko" ? "최고 품질" : "Best quality"}</option><option value="fastest">${language === "ko" ? "최단 시간" : "Fastest"}</option><option value="balanced" selected>${language === "ko" ? "균형형" : "Balanced"}</option></select></label>`;
+  if (type === "select") return `<label><span>${label}</span><select name="${name}" ${required ? "required" : ""}><option value="cheapest">${language === "ko" ? "가격을 가장 중요하게" : "Lowest price"}</option><option value="quality">${language === "ko" ? "편안함과 품질을 중요하게" : "Comfort and quality"}</option><option value="fastest">${language === "ko" ? "이동 시간을 짧게" : "Shortest travel time"}</option><option value="balanced" selected>${language === "ko" ? "가격·품질·시간을 고르게" : "Best overall balance"}</option></select></label>`;
   const min = type === "number" ? ' min="0"' : "";
   const className = type === "date" ? ' class="mission-followup-date-field"' : "";
   return `<label${className}><span>${label}</span><input name="${name}" type="${type}" placeholder="${esc(placeholder)}"${min} ${required ? "required" : ""}></label>`;
