@@ -422,7 +422,10 @@ const inferTravelContext = (mission = "") => {
     return { country: countryMatch.country, code: TRAVEL_COUNTRY_CODES[countryMatch.country] || "", value: city || exactCity || countryMatch.cities[0], cities: countryMatch.cities };
   }
   if (exactCity) return { country: exactCity, value: exactCity, cities: [exactCity] };
-  const phrase = text.match(/(?:trip|travel|flight|vacation|holiday)\s+(?:to|in)\s+([a-z][a-z .'-]{1,40})/i)?.[1]
+  const prefixPhrase = text.match(/(?:trip|travel|flight|vacation|holiday)\s+(?:to|in)\s+([a-z][a-z .'-]{1,40})/i)?.[1];
+  const suffixPhrase = text.match(/^([a-z][a-z .'-]{1,40}?)\s+(?:trip|travel|flight|vacation|holiday)\b/i)?.[1];
+  const koreanPhrase = text.match(/^([가-힣a-z .'-]{2,40}?)\s*(?:여행|출장)(?:\s|$)/i)?.[1];
+  const phrase = (prefixPhrase || suffixPhrase || koreanPhrase)
     ?.replace(/\b(?:for|from|with|on)\b.*$/i, "").trim();
   return phrase ? { country: phrase, value: phrase.replace(/\b\w/g, (letter) => letter.toUpperCase()), cities: [] } : { country: "", value: "", cities: [] };
 };

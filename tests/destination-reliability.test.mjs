@@ -24,6 +24,8 @@ assert.match(followup, /Matching locations \(optional\)/);
 assert.ok(followup.indexOf('data-destination-matches hidden') < followup.indexOf('data-destination-level="continent"'), "matching locations must appear before the full destination hierarchy");
 assert.match(followup, /destinationInput\.dispatchEvent\(new Event\("input"/);
 assert.match(followup, /has-destination-matches/);
+assert.match(followup, /suffixPhrase/);
+assert.match(followup, /koreanPhrase/);
 assert.match(followup, /resolvedDestination = matches\[0\]/);
 assert.doesNotMatch(followup, /Several places share this name\. Choose the exact place and country\./);
 assert.match(followup, /showResolvedDestination\(matches\[0\]\)/);
