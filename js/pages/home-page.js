@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260717-3";
-import { openMissionFollowUp } from "../ui/mission-followup.js?v=20260717-6";
+import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mission-followup.js?v=20260717-7";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
@@ -1448,7 +1448,7 @@ const buildGeneralMission = (mission) => {
 
 const saveMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
-  const missionType = classifyMission(cleanMission);
+  const missionType = pendingFollowUp?.type || classifyMission(cleanMission);
   const payload = missionType === "travel"
     ? buildTravelMission(cleanMission)
     : buildGeneralMission(cleanMission);
@@ -1812,7 +1812,7 @@ scheduleForm?.addEventListener("submit", (event) => {
   startMission(pendingMissionText, schedule);
 });
 
-missionForm.addEventListener("submit", (event) => {
+missionForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const mission = normalizeMission(missionInput.value);
   if (!mission) { missionInput.focus(); return; }
@@ -1824,7 +1824,11 @@ missionForm.addEventListener("submit", (event) => {
     missionInput.reportValidity();
     return;
   }
-  const type = classifyMission(mission);
+  let type = classifyMission(mission);
+  if (type === "general_mission") {
+    const destinationMatches = await detectWorldwideTravelDestination(mission, activeLanguage);
+    if (destinationMatches.length) type = "travel";
+  }
   const openFollowUp = () => openMissionFollowUp({
     mission,
     type,

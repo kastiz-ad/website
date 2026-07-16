@@ -13,6 +13,8 @@ for (const code of ["PH", "CG", "CD", "ZA", "KH", "MY", "TW", "PG"]) {
 assert.match(followup, /buildStaticWorldwideCountries/);
 assert.match(followup, /Promise\.allSettled/);
 assert.match(followup, /searchWorldwideDestinations/);
+assert.match(followup, /export const detectWorldwideTravelDestination/);
+assert.match(followup, /item\.city, item\.country, item\.countryKo/);
 assert.match(followup, /dedupe=0&limit=25/);
 assert.match(followup, /data-destination-matches/);
 assert.match(followup, /destinationCandidateLabel/);
@@ -59,6 +61,8 @@ assert.match(results, /PROTOTYPE_MISSION_ARCHIVE_KEY/);
 assert.match(results, /savePrototypeMission\(reference\)/);
 assert.match(results, /requestedReference/);
 const home = readFileSync(new URL("../js/pages/home-page.js", import.meta.url), "utf8");
+assert.match(home, /await detectWorldwideTravelDestination\(mission, activeLanguage\)/);
+assert.match(home, /pendingFollowUp\?\.type \|\| classifyMission/);
 assert.match(home, /reopenPrototypeMission/);
 assert.match(home, /detectPrototypeReferenceInImage/);
 assert.match(home, /TextDetector/);

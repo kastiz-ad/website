@@ -299,7 +299,8 @@ const searchWorldwideDestinations = async (value, language) => {
           continent: countryData?.continent || "",
           currency: countryData?.currency || "",
           latitude: Number(place.lat),
-          longitude: Number(place.lon)
+          longitude: Number(place.lon),
+          aliases: Object.values(place.namedetails || {}).filter((name) => typeof name === "string")
         });
       });
     }
@@ -311,6 +312,16 @@ const searchWorldwideDestinations = async (value, language) => {
   } catch {
     return local ? [{ ...local, state: "" }] : [];
   }
+};
+
+export const detectWorldwideTravelDestination = async (value, language = "en") => {
+  const query = String(value || "").normalize("NFKC").trim();
+  if (!query || query.length > 60 || query.split(/\s+/).length > 5) return [];
+  const normalized = normalizeDestinationLookup(query).replaceAll(" ", "");
+  const matches = await searchWorldwideDestinations(query, language);
+  return matches.filter((item) => [item.city, item.country, item.countryKo, ...(item.aliases || [])]
+    .filter(Boolean)
+    .some((candidate) => normalizeDestinationLookup(candidate).replaceAll(" ", "") === normalized));
 };
 
 const resolveWorldwideDestination = async (value, language) => (await searchWorldwideDestinations(value, language))[0] || null;
@@ -428,7 +439,9 @@ const inferTravelContext = (mission = "") => {
   const koreanPhrase = text.match(/^([가-힣a-z .'-]{2,40}?)\s*(?:여행|출장)(?:\s|$)/i)?.[1];
   const phrase = (prefixPhrase || suffixPhrase || koreanPhrase)
     ?.replace(/\b(?:for|from|with|on)\b.*$/i, "").trim();
-  return phrase ? { country: phrase, value: phrase.replace(/\b\w/g, (letter) => letter.toUpperCase()), cities: [] } : { country: "", value: "", cities: [] };
+  const bareDestination = text.match(/^[a-z가-힣][a-z가-힣 .,'-]{1,58}$/i)?.[0]?.trim();
+  const inferred = phrase || bareDestination;
+  return inferred ? { country: inferred, value: inferred.replace(/\b\w/g, (letter) => letter.toUpperCase()), cities: [] } : { country: "", value: "", cities: [] };
 };
 
 const getDialog = () => {
