@@ -285,8 +285,14 @@ const fetchLocalPlaces = async (mission) => {
       `[out:json][timeout:12];nwr(around:8000,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"][name];out center 30;`,
       `[out:json][timeout:12];nwr(around:8000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"][name];out center 20;`
     ];
-    const placeResponses = await Promise.allSettled(placeQueries.map((query) => fetchJson(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 14000, retries: 0, cacheTtl: 86400000 })));
-    const elements = placeResponses.flatMap((response) => response.status === "fulfilled" ? response.value?.elements || [] : []);
+    const placeEndpoints = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
+    const elements = [];
+    for (const [index, query] of placeQueries.entries()) {
+      try {
+        const response = await fetchJson(`${placeEndpoints[index]}?data=${encodeURIComponent(query)}`, { timeout: 14000, retries: 0, cacheTtl: 86400000 });
+        elements.push(...(response?.elements || []));
+      } catch { /* One place category can fail without discarding the other category. */ }
+    }
     const seen = new Set();
     const normalize = (entry) => {
       const tags = entry.tags || {};

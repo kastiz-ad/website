@@ -47,7 +47,8 @@ assert.match(loading, /tourism~"hotel\|hostel\|guest_house\|motel\|apartment"/);
 assert.match(loading, /amenity~"restaurant\|cafe\|fast_food"/);
 assert.match(loading, /out center 30/);
 assert.match(loading, /out center 20/);
-assert.match(loading, /Promise\.allSettled\(placeQueries/);
+assert.match(loading, /for \(const \[index, query\] of placeQueries\.entries\(\)\)/);
+assert.match(loading, /overpass\.kumi\.systems/);
 assert.match(loading, /restaurants", city, country/);
 assert.match(loading, /OpenStreetMap Nominatim/);
 assert.match(loading, /hotels and accommodations/);
@@ -86,7 +87,7 @@ assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
 assert.match(indexHtml, /script\.js\?v=20260717-8/);
-assert.match(loadingHtml, /loading\.js\?v=20260717-9/);
+assert.match(loadingHtml, /loading\.js\?v=20260717-11/);
 assert.match(resultsHtml, /results\.js\?v=20260717-7/);
 
 console.log("destination reliability checks passed");
