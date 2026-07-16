@@ -100,7 +100,7 @@ assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/
 assert.match(homeCss, /max-height: calc\(100dvh - 24px\); margin: auto; border-radius: 24px/);
 assert.match(loadingHtml, /loading\.js\?v=20260717-20/);
 assert.match(resultsHtml, /results\.js\?v=20260717-29/);
-assert.match(resultsHtml, /results\.css\?v=20260717-29/);
+assert.match(resultsHtml, /results\.css\?v=20260717-31/);
 assert.match(resultsCss, /information-review-content li span\{[^}]*white-space:nowrap/);
 assert.match(resultsCss, /@media\(max-width:520px\)[\s\S]*information-review-content li\{display:flex/);
 assert.match(results, /currentResult\?\.portableShare === true \|\|/);
@@ -123,5 +123,6 @@ assert.doesNotMatch(results, /central hotel — provider confirmation required/)
 assert.match(results, /goalAliases = \{ la: cityName \|\| "Los Angeles"/);
 assert.match(resultsCss, /data-card-id="exchange-rate"[^}]*grid-template-rows: none; grid-auto-flow: row/);
 assert.match(resultsCss, /mission-understood-goal strong \{ font-size: clamp\(24px/);
+assert.match(resultsCss, /selectable-recommendation \.recommendation-value \{ flex-direction: column; align-items: center; flex-wrap: nowrap/);
 
 console.log("destination reliability checks passed");
