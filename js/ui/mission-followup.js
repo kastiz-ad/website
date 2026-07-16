@@ -116,6 +116,23 @@ const CITY_NAMES_KO = {
   Sydney: "시드니", Melbourne: "멜버른", Beijing: "베이징", Shanghai: "상하이", Seoul: "서울", Busan: "부산", Jeju: "제주"
 };
 const cityLabel = (city, language) => language === "ko" ? (CITY_NAMES_KO[city] || city) : city;
+const FEATURED_TRAVEL_CITIES = [
+  { city: "New York", en: "NYC", country: "United States" },
+  { city: "Los Angeles", en: "LA", country: "United States" },
+  { city: "Paris", en: "Paris", country: "France" },
+  { city: "Tokyo", en: "Tokyo", country: "Japan" },
+  { city: "Madrid", en: "Madrid", country: "Spain" },
+  { city: "London", en: "London", country: "United Kingdom" },
+  { city: "Sydney", en: "Sydney", country: "Australia" }
+];
+
+const countryForCity = (value, language) => {
+  const normalized = String(value || "").trim().toLowerCase();
+  const country = TRAVEL_DESTINATION_CHOICES.find((item) => item.cities.some((city) => {
+    return city.toLowerCase() === normalized || cityLabel(city, language).toLowerCase() === normalized;
+  }));
+  return country ? { country: country.country, code: TRAVEL_COUNTRY_CODES[country.country] || "" } : null;
+};
 
 const inferTravelContext = (mission = "") => {
   const text = String(mission).toLowerCase();
@@ -221,18 +238,27 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
     if (demoMode && !defaults.departure) defaults.departure = "Incheon International Airport (ICN)";
     Object.entries(defaults).forEach(([name, value]) => { const field = form.elements.namedItem(name); if (field && !field.value) field.value = value; });
     const destinationInput = form.elements.namedItem("destination");
-    if (destinationInput && destinationContext?.country) {
-      destinationInput.readOnly = true;
-      destinationInput.setAttribute("aria-label", ko ? "선택한 목적지" : "Selected destination");
+    if (destinationInput) {
+      const hasDetectedCountry = Boolean(destinationContext?.country);
+      const cityChoices = hasDetectedCountry
+        ? destinationContext.cities.map((city) => ({ city, label: cityLabel(city, language), country: destinationContext.country }))
+        : FEATURED_TRAVEL_CITIES.map((item) => ({ ...item, label: ko ? cityLabel(item.city, language) : item.en }));
+      destinationInput.readOnly = hasDetectedCountry;
+      destinationInput.placeholder = ko
+        ? "뉴욕, LA, 파리, 도쿄, 마드리드, 런던, 시드니 또는 다른 도시"
+        : "NYC, LA, Paris, Tokyo, Madrid, London, Sydney or another city";
+      destinationInput.setAttribute("aria-label", ko ? "목적지" : "Destination");
       const choices = document.createElement("div");
       choices.className = "destination-choice-grid";
       choices.setAttribute("role", "group");
-      choices.setAttribute("aria-label", ko ? `${destinationContext.country} 도시 선택` : `Choose a city in ${destinationContext.country}`);
-      choices.innerHTML = destinationContext.cities.map((city) => {
-        const label = cityLabel(city, language);
-        return `<button type="button" class="destination-choice" data-city="${esc(label)}" aria-pressed="${label === destinationInput.value}">${esc(label)}</button>`;
+      choices.setAttribute("aria-label", hasDetectedCountry
+        ? (ko ? `${destinationContext.country} 도시 선택` : `Choose a city in ${destinationContext.country}`)
+        : (ko ? "인기 목적지 선택" : "Choose a popular destination"));
+      choices.innerHTML = cityChoices.map((item) => {
+        const value = cityLabel(item.city, language);
+        return `<button type="button" class="destination-choice" data-city="${esc(value)}" data-country="${esc(item.country)}" aria-pressed="${value === destinationInput.value}">${esc(item.label)}</button>`;
       }).join("");
-      if (destinationContext.cities.length) destinationInput.closest("label")?.append(choices);
+      if (cityChoices.length) destinationInput.closest("label")?.append(choices);
       choices.addEventListener("click", (event) => {
         const button = event.target.closest("[data-city]");
         if (!button) return;
@@ -302,9 +328,14 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       trackEvent("followup_step_completed", { page: "home", language, mission_category: type, step: String(current + 1) });
       if (current < steps.length - 1) { current += 1; render(); return; }
       const values = Object.fromEntries(new FormData(form).entries());
-      if (travel && destinationContext?.country) {
-        values.destinationCountry = destinationContext.country;
-        values.destinationCountryCode = destinationContext.code || "";
+      if (travel) {
+        const selectedCountry = destinationContext?.country
+          ? { country: destinationContext.country, code: destinationContext.code || "" }
+          : countryForCity(values.destination, language);
+        if (selectedCountry) {
+          values.destinationCountry = selectedCountry.country;
+          values.destinationCountryCode = selectedCountry.code;
+        }
       }
       if (values.rememberPreferences === "on") {
         const missionId = `mission-${Date.now()}`;
