@@ -395,6 +395,7 @@ const loadWorldwideCountries = () => {
 const inferTravelContext = (mission = "") => {
   const text = String(mission).toLowerCase();
   const destinations = [
+    ["Surat", ["surat", "수라트"]],
     ["New York", ["new york", "nyc", "뉴욕"]],
     ["Los Angeles", ["los angeles", "l.a.", "로스앤젤레스", "엘에이"]],
     ["Washington, D.C.", ["washington dc", "washington d.c.", "워싱턴"]],

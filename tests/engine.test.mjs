@@ -11,6 +11,8 @@ import { DISCLOSURE_VERSION, DISCLOSURE_VERSION_KEY } from "../js/ui/disclosure.
 
 assert.equal(classifyMission("Plan my Japan trip"), "travel");
 assert.equal(classifyMission("일본 여행 계획해줘"), "travel");
+assert.equal(classifyMission("Surat"), "travel");
+assert.equal(classifyMission("수라트"), "travel");
 assert.equal(classifyMission("Buy the best laptop"), "shopping");
 assert.equal(classifyMission("Find me an English tutor."), "tutoring");
 assert.equal(classifyMission("Find me a trusted babysitter nearby."), "childcare");
