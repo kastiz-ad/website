@@ -797,8 +797,17 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .execution-summary-item.is-reference { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .execution-summary-item.is-reference > span { width: 100%; text-align: center; }
 .execution-summary-item.is-reference .execution-summary-value { color: #d4af37; font-size: clamp(22px, 4vw, 32px); font-weight: 900; letter-spacing: 0.025em; line-height: 1.2; }
-.prototype-reference-qr { display: block; width: min(220px, 72vw); height: auto; margin: 16px auto 8px; padding: 10px; border-radius: 16px; background: #fff; image-rendering: pixelated; }
+.prototype-reference-qr { display: block; width: min(280px, 82vw); height: auto; margin: 16px auto 8px; padding: 14px; border-radius: 8px; background: #fff; image-rendering: pixelated; }
 .prototype-reference-qr-help { display: block; max-width: 34rem; margin: 0 auto 8px; color: var(--text-muted); font-size: 11px; line-height: 1.45; text-align: center; }
+.portable-summary-view .mission-hero,
+.portable-summary-view .mission-timeline,
+.portable-summary-view .mission-understood,
+.portable-summary-view #missionGrid,
+.portable-summary-view #additionalServicesForm,
+.portable-summary-view .approval-header,
+.portable-summary-view #approvalList { display: none !important; }
+.portable-summary-view .mission-layout { padding-top: clamp(20px, 4vw, 44px); }
+.portable-summary-view #approvalPanel { margin-top: 0; }
 .execution-summary-item.is-schedule { text-align: center; }
 .schedule-summary-dates { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: clamp(14px, 5vw, 64px); font-size: clamp(17px, 3vw, 25px); }
 .schedule-summary-dates strong:first-child { text-align: right; }

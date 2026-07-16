@@ -2487,10 +2487,16 @@ renderApprovalList();
 enableCustomization();
 const requestedReference = new URLSearchParams(location.search).get("reference")?.toUpperCase();
 if (currentResult?.portableShare === true || /^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
+  document.body.classList.add("portable-summary-view");
   buildExecutionSummary();
+  const finalTitle = completionMessage.querySelector("h3");
+  if (finalTitle) finalTitle.textContent = localize(currentResult?.finalMessage) || t("finalMessage");
   completionMessage.hidden = false;
   bottomActions.hidden = true;
-  approvalPanel.hidden = true;
+  approvalPanel.hidden = false;
+  approvalList.hidden = true;
+  document.title = activeLanguage === "ko" ? "Kastiz ONE — 완료된 실행 요약" : "Kastiz ONE — Completed Summary";
+  window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
 }
 trackEvent("page_visit", { page: "results", language: activeLanguage });
 trackEvent("results_viewed", { page: "results", language: activeLanguage, mission_type: currentResult?.type });
