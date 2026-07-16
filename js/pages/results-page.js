@@ -99,7 +99,7 @@ const translations = {
     upgrade: "업그레이드",
     login: "로그인",
     missionReady: "미션 준비 완료",
-    preparedByOne: "ONE이 준비했습니다",
+    preparedByOne: "ONE 이 준비했습니다.",
     customize: "수정하기",
     makeItReality: "승인 후 실행",
     withOne: "ONE과 함께",
@@ -2258,15 +2258,13 @@ const enableCustomization = () => {
         const recommendation = card.querySelector(".selectable-recommendation");
         const recommendedDetail = card.querySelector(".option-list .selectable-option");
         const choosingRecommended = selectable === recommendation || selectable === recommendedDetail;
+        const chosen = choosingRecommended ? recommendedDetail : selectable;
         card.querySelectorAll(".selectable-option").forEach((option) => {
-          const selected = choosingRecommended
-            ? option === recommendation || option === recommendedDetail
-            : option === selectable;
+          const selected = option === recommendation || option === chosen;
           option.setAttribute("aria-pressed", String(selected));
           option.classList.toggle("is-excluded", !selected);
           option.querySelector(".option-key").textContent = selected ? "✓" : "+";
         });
-        const chosen = choosingRecommended ? recommendedDetail : selectable;
         const optionIndex = Number(chosen?.dataset.optionIndex || 0);
         const chosenName = chosen?.dataset.optionLabel ? decodeURIComponent(chosen.dataset.optionLabel) : chosen?.querySelector(".option-value strong")?.textContent;
         const chosenPrice = chosen?.querySelector(".option-value > span")?.textContent;

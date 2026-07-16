@@ -771,7 +771,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 :where(button,a,input,select,summary):focus-visible { outline: 3px solid color-mix(in srgb,var(--text) 75%,transparent); outline-offset: 3px; }
 
 @media (max-width: 720px) {
-  .mission-timeline { justify-content: flex-start; padding-bottom: 4px; }
+  .mission-timeline { justify-content: center; flex-wrap: wrap; padding-bottom: 4px; text-align: center; }
   .mission-timeline i { display: none; }
   .result-section-grid { grid-template-columns: 1fr; padding: 0 10px 10px; gap: 10px; }
   .result-section-grid > * { grid-column: 1 !important; }

@@ -98,8 +98,8 @@ assert.match(indexHtml, /script\.js\?v=20260717-20/);
 assert.match(indexHtml, /style\.css\?v=20260717-18/);
 assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/);
 assert.match(loadingHtml, /loading\.js\?v=20260717-20/);
-assert.match(resultsHtml, /results\.js\?v=20260717-20/);
-assert.match(resultsHtml, /results\.css\?v=20260717-17/);
+assert.match(resultsHtml, /results\.js\?v=20260717-22/);
+assert.match(resultsHtml, /results\.css\?v=20260717-22/);
 assert.match(resultsCss, /information-review-content li span\{[^}]*white-space:nowrap/);
 assert.match(resultsCss, /@media\(max-width:520px\)[\s\S]*information-review-content li\{display:flex/);
 assert.match(results, /currentResult\?\.portableShare === true \|\|/);
@@ -110,5 +110,8 @@ assert.match(resultsCss, /data-card-id="flights"[^}]*\.option-value[^}]*flex-wra
 assert.match(resultsCss, /completion-message > p[^}]*white-space: normal/);
 assert.match(home, /SE: "SEK"/);
 assert.doesNotMatch(loading, /exchangeRate\?\.to \|\| "JPY"/);
+assert.match(results, /preparedByOne: "ONE 이 준비했습니다\."/);
+assert.match(results, /const selected = option === recommendation \|\| option === chosen/);
+assert.match(resultsCss, /mission-timeline \{ justify-content: center; flex-wrap: wrap/);
 
 console.log("destination reliability checks passed");
