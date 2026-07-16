@@ -98,8 +98,8 @@ assert.match(indexHtml, /script\.js\?v=20260717-20/);
 assert.match(indexHtml, /style\.css\?v=20260717-18/);
 assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/);
 assert.match(loadingHtml, /loading\.js\?v=20260717-20/);
-assert.match(resultsHtml, /results\.js\?v=20260717-22/);
-assert.match(resultsHtml, /results\.css\?v=20260717-23/);
+assert.match(resultsHtml, /results\.js\?v=20260717-25/);
+assert.match(resultsHtml, /results\.css\?v=20260717-25/);
 assert.match(resultsCss, /information-review-content li span\{[^}]*white-space:nowrap/);
 assert.match(resultsCss, /@media\(max-width:520px\)[\s\S]*information-review-content li\{display:flex/);
 assert.match(results, /currentResult\?\.portableShare === true \|\|/);
@@ -114,5 +114,7 @@ assert.match(results, /preparedByOne: "ONE 이 준비했습니다\."/);
 assert.match(results, /const selected = option === recommendation \|\| option === chosen/);
 assert.match(resultsCss, /mission-timeline \{ justify-content: center; flex-wrap: wrap/);
 assert.match(resultsCss, /execution-summary-item \{[^}]*text-align: center/);
+assert.match(results, /<a class="all-in-slogan" href="index\.html"/);
+assert.match(results, /returnHomeNow: "HOME"/);
 
 console.log("destination reliability checks passed");

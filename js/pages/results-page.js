@@ -47,7 +47,7 @@ const translations = {
     missionApproved: "Mission Approved",
     oneIsWorking: "ONE is making it happen.",
     finalMessage: "ONE'D",
-    returnHomeNow: "Return Home Now",
+    returnHomeNow: "HOME",
     returningHome: "Returning to Home in {seconds} seconds...",
     partners: "Partners",
     business: "Business",
@@ -111,7 +111,7 @@ const translations = {
     missionApproved: "미션 승인 완료",
     oneIsWorking: "ONE이 실행하고 있습니다.",
     finalMessage: "ONE'D",
-    returnHomeNow: "지금 홈으로 돌아가기",
+    returnHomeNow: "HOME",
     returningHome: "{seconds}초 후 홈으로 돌아갑니다...",
     partners: "파트너",
     business: "비즈니스",
@@ -2097,7 +2097,7 @@ const buildExecutionSummary = () => {
       : `<span class="execution-summary-value">${escapeSummaryText(value)}</span>`;
     return `<div class="execution-summary-item ${className}"><span class="execution-summary-label">${escapeSummaryText(label)}</span>${valueMarkup}${qrMarkup}<span class="execution-summary-detail">${escapeSummaryText(detail)}</span></div>`;
   };
-  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(renderSummaryRow).join("")}</div><div class="all-in-slogan"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></div>`;
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${ko ? "승인된 실행 요약" : "Approved execution summary"}</h4><p>${ko ? "선택 항목을 실행 준비 상태로 정리했습니다. 실제 예약·결제·발권은 제공업체 최종 확인 후에만 완료됩니다." : "Selected items are prepared for execution. Actual booking, payment, and ticketing complete only after final provider confirmation."}</p><span class="execution-summary-status">${ko ? "프로토타입 · 준비 완료 · 실제 예약 아님" : "Prototype · Prepared · Not actually booked"}</span></div><div class="execution-summary-grid">${rows.map(renderSummaryRow).join("")}</div><a class="all-in-slogan" href="index.html" aria-label="${ko ? "홈으로 돌아가기" : "Return home"}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>`;
   savePrototypeMission(reference);
 };
 
