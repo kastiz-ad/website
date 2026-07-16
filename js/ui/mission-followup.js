@@ -247,6 +247,13 @@ const destinationCandidateLabel = (item, language) => {
   return `${place} — ${region}${country}`;
 };
 
+const KNOWN_AMBIGUOUS_DESTINATIONS = Object.freeze({
+  surat: [
+    { country: "India", countryKo: "인도", code: "IN", city: "Surat", state: "Gujarat", continent: "Asia", currency: "INR", latitude: 21.1702, longitude: 72.8311 },
+    { country: "France", countryKo: "프랑스", code: "FR", city: "Surat", state: "Puy-de-Dôme", continent: "Europe", currency: "EUR", latitude: 45.965, longitude: 3.255 }
+  ]
+});
+
 const searchWorldwideDestinations = async (value, language) => {
   const local = countryForCity(value, language);
   const query = String(value || "").trim();
@@ -259,6 +266,7 @@ const searchWorldwideDestinations = async (value, language) => {
       || normalizeDestinationLookup(item.country).replaceAll(" ", "") === normalizedQuery
       || normalizeDestinationLookup(item.countryKo).replaceAll(" ", "") === normalizedQuery);
     const candidates = [];
+    candidates.push(...(KNOWN_AMBIGUOUS_DESTINATIONS[normalizedQuery] || []));
     if (exactCountry) {
       candidates.push({
         country: exactCountry.country,
@@ -273,7 +281,7 @@ const searchWorldwideDestinations = async (value, language) => {
       });
     }
     if (local && !exactCountry) candidates.push({ ...local, state: "" });
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=10&q=${encodeURIComponent(query)}`, {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=25&q=${encodeURIComponent(query)}`, {
       headers: { "Accept-Language": language === "ko" ? "ko,en;q=0.8" : "en" }
     });
     if (response.ok) {
@@ -281,7 +289,7 @@ const searchWorldwideDestinations = async (value, language) => {
       places.filter((place) => place?.address).forEach((place) => {
         const code = String(place.address.country_code || "").toUpperCase();
         const countryData = countries.find((item) => item.code === code);
-        const city = place.address.city || place.address.town || place.address.village || place.address.municipality || place.address.county || String(place.display_name || "").split(",")[0] || query;
+        const city = place.namedetails?.name || place.address.city || place.address.town || place.address.village || place.address.municipality || place.address.county || String(place.display_name || "").split(",")[0] || query;
         candidates.push({
           country: countryData?.country || place.address.country || "",
           countryKo: countryData?.countryKo || "",
@@ -298,7 +306,8 @@ const searchWorldwideDestinations = async (value, language) => {
     return candidates
       .filter((item) => item.city && item.country)
       .filter((item, index, all) => all.findIndex((candidate) => destinationCandidateKey(candidate) === destinationCandidateKey(item)) === index)
-      .slice(0, 10);
+      .sort((a, b) => Number(normalizeDestinationLookup(b.city) === normalizeDestinationLookup(query)) - Number(normalizeDestinationLookup(a.city) === normalizeDestinationLookup(query)))
+      .slice(0, 12);
   } catch {
     return local ? [{ ...local, state: "" }] : [];
   }
@@ -652,9 +661,9 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           const matches = await searchWorldwideDestinations(typedValue, language);
           if (!matches.length || lookupSequence !== destinationLookupSequence || destinationInput.value !== typedValue) return;
           renderDestinationMatches(matches);
-          showResolvedDestination(matches[0]);
           if (matches.length === 1) {
             resolvedDestination = matches[0];
+            showResolvedDestination(matches[0]);
           }
         }, 450);
       });

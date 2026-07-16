@@ -13,10 +13,14 @@ for (const code of ["PH", "CG", "CD", "ZA", "KH", "MY", "TW", "PG"]) {
 assert.match(followup, /buildStaticWorldwideCountries/);
 assert.match(followup, /Promise\.allSettled/);
 assert.match(followup, /searchWorldwideDestinations/);
-assert.match(followup, /dedupe=0&limit=10/);
+assert.match(followup, /dedupe=0&limit=25/);
 assert.match(followup, /data-destination-matches/);
 assert.match(followup, /Several places share this name/);
 assert.match(followup, /destinationCandidateLabel/);
+assert.match(followup, /KNOWN_AMBIGUOUS_DESTINATIONS/);
+assert.match(followup, /country: "India"[\s\S]*city: "Surat"/);
+assert.match(followup, /country: "France"[\s\S]*city: "Surat"/);
+assert.doesNotMatch(followup, /renderDestinationMatches\(matches\);\s*showResolvedDestination\(matches\[0\]\);/);
 assert.match(followup, /showResolvedDestination\(matches\[0\]\)/);
 assert.match(followup, /stateSelect\.value = resolved\.state/);
 assert.match(followup, /fillCities\(resolved\.country, resolved\.city \|\| "", resolved\.state \|\| "", true\)/);
