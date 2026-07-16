@@ -1461,7 +1461,7 @@ function adaptTravelResultToDestination(result) {
 const createExchangeBudgetCard = (result) => {
   const provider = findLiveProvider(result, "currency");
   const localCode = result.exchangeRate?.from || result.budget?.currency || "KRW";
-  const destinationCode = result.exchangeRate?.to || result.countryProfile?.currency || "JPY";
+  const destinationCode = result.exchangeRate?.to || result.countryProfile?.currency || "USD";
   const total = result.budget?.estimatedTotal;
   const formatAmount = (amount, code) => new Intl.NumberFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", {
     style: "currency", currency: code, maximumFractionDigits: code === "KRW" ? 0 : 2

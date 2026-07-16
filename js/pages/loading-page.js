@@ -174,7 +174,7 @@ const fetchWeather = async (mission) => {
 
 const fetchCurrency = async (mission) => {
   const from = mission?.budget?.currency || "KRW";
-  const to = mission?.countryProfile?.currency || mission?.exchangeRate?.to || "JPY";
+  const to = mission?.countryProfile?.currency || mission?.exchangeRate?.to || "USD";
 
   if (from === to) {
     return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} → ${to}`, value: "Same currency" }], error: null };

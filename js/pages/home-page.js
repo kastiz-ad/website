@@ -1478,12 +1478,12 @@ const saveMission = (mission, schedule = null) => {
     };
     if (selectedDestination.destinationCountryCode) {
       payload.country = selectedDestination.destinationCountryCode;
-      const currencyByCountry = { JP: "JPY", ES: "EUR", US: "USD", CA: "CAD", FR: "EUR", IT: "EUR", GB: "GBP", DE: "EUR", AU: "AUD", TH: "THB", VN: "VND", CN: "CNY", KR: "KRW", CO: "COP", MX: "MXN", BZ: "BZD", CR: "CRC", SV: "USD", GT: "GTQ", HN: "HNL", NI: "NIO", PA: "PAB", SG: "SGD", AR: "ARS", BR: "BRL", PE: "PEN", CL: "CLP", PT: "EUR", NL: "EUR", GR: "EUR", AE: "AED", IN: "INR", ID: "IDR", MY: "MYR", NZ: "NZD", ZA: "ZAR", EG: "EGP", MA: "MAD" };
+      const currencyByCountry = { JP: "JPY", ES: "EUR", US: "USD", CA: "CAD", FR: "EUR", IT: "EUR", GB: "GBP", DE: "EUR", AU: "AUD", TH: "THB", VN: "VND", CN: "CNY", KR: "KRW", CO: "COP", MX: "MXN", BZ: "BZD", CR: "CRC", SV: "USD", GT: "GTQ", HN: "HNL", NI: "NIO", PA: "PAB", SG: "SGD", AR: "ARS", BR: "BRL", PE: "PEN", CL: "CLP", PT: "EUR", NL: "EUR", GR: "EUR", AE: "AED", IN: "INR", ID: "IDR", MY: "MYR", NZ: "NZD", ZA: "ZAR", EG: "EGP", MA: "MAD", SE: "SEK", NO: "NOK", DK: "DKK", FI: "EUR", IS: "ISK", CH: "CHF", PL: "PLN", CZ: "CZK", HU: "HUF", RO: "RON", BG: "BGN", HR: "EUR", BE: "EUR", AT: "EUR", IE: "EUR" };
       payload.countryProfile = countryProfiles[selectedDestination.destinationCountryCode] || {
         code: selectedDestination.destinationCountryCode,
         name: selectedDestination.destinationCountry,
         nameKo: selectedDestination.destinationCountry,
-        currency: selectedDestination.destinationCurrency || currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to || "USD",
+        currency: selectedDestination.destinationCurrency || currencyByCountry[selectedDestination.destinationCountryCode] || "USD",
         capital: selectedDestination.destination,
         capitalKo: selectedDestination.destination,
         continent: selectedDestination.destinationContinent || "",
@@ -1492,7 +1492,7 @@ const saveMission = (mission, schedule = null) => {
       };
       payload.exchangeRate = {
         ...payload.exchangeRate,
-        to: selectedDestination.destinationCurrency || currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to
+        to: selectedDestination.destinationCurrency || currencyByCountry[selectedDestination.destinationCountryCode] || "USD"
       };
     } else if (selectedDestination.destinationCountry) {
       payload.country = "";
