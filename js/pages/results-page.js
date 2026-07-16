@@ -1058,6 +1058,72 @@ const cityProfileOverride = (code, city) => {
   };
 };
 
+const cityRestaurantProfiles = {
+  "new york": [
+    ["The Modern", 4.6, 85000, 180000], ["Keens Steakhouse", 4.5, 90000, 190000],
+    ["Rubirosa", 4.6, 35000, 75000], ["Joe's Shanghai", 4.3, 25000, 60000]
+  ],
+  "los angeles": [
+    ["Bestia", 4.6, 65000, 140000], ["Republique", 4.6, 45000, 110000],
+    ["Guelaguetza", 4.5, 25000, 60000], ["Grand Central Market", 4.5, 18000, 45000]
+  ],
+  "washington, d.c.": [
+    ["Old Ebbitt Grill", 4.6, 45000, 95000], ["Le Diplomate", 4.6, 55000, 120000],
+    ["Founding Farmers", 4.4, 35000, 75000], ["Ben's Chili Bowl", 4.5, 15000, 35000]
+  ],
+  "san francisco": [
+    ["State Bird Provisions", 4.6, 70000, 150000], ["House of Prime Rib", 4.7, 85000, 170000],
+    ["Swan Oyster Depot", 4.6, 45000, 95000], ["Tartine Manufactory", 4.5, 25000, 60000]
+  ],
+  chicago: [
+    ["Girl & the Goat", 4.6, 60000, 130000], ["Bavette's Bar & Boeuf", 4.7, 90000, 190000],
+    ["Lou Malnati's", 4.5, 25000, 55000], ["Portillo's", 4.4, 15000, 35000]
+  ],
+  miami: [
+    ["Joe's Stone Crab", 4.5, 85000, 190000], ["Mandolin Aegean Bistro", 4.6, 50000, 110000],
+    ["Versailles", 4.5, 25000, 55000], ["La Sandwicherie", 4.6, 15000, 35000]
+  ],
+  madrid: [
+    ["Sobrino de Botin", 4.4, 55000, 120000], ["Casa Lucio", 4.3, 50000, 110000],
+    ["Sala de Despiece", 4.5, 45000, 95000], ["Chocolateria San Gines", 4.4, 12000, 30000]
+  ],
+  barcelona: [
+    ["Disfrutar", 4.8, 180000, 320000], ["Can Culleretes", 4.5, 40000, 85000],
+    ["El Xampanyet", 4.5, 30000, 65000], ["La Paradeta", 4.4, 30000, 70000]
+  ],
+  seville: [
+    ["El Rinconcillo", 4.4, 30000, 70000], ["Eslava", 4.6, 35000, 80000],
+    ["La Azotea", 4.5, 40000, 90000], ["Bodega Santa Cruz", 4.4, 18000, 45000]
+  ],
+  tokyo: [
+    ["Sushi Dai", 4.7, 45000, 95000], ["Ichiran Ramen", 4.5, 12000, 25000],
+    ["Gyukatsu Motomura", 4.6, 22000, 48000], ["Gonpachi", 4.3, 35000, 80000]
+  ],
+  osaka: [
+    ["Mizuno", 4.4, 15000, 35000], ["Kani Doraku Dotonbori", 4.3, 45000, 100000],
+    ["Ajinoya Honten", 4.5, 15000, 35000], ["Harukoma Sushi", 4.4, 25000, 60000]
+  ],
+  kyoto: [
+    ["Kikunoi Roan", 4.5, 100000, 220000], ["Omen Ginkaku-ji", 4.4, 18000, 40000],
+    ["Izuju Sushi", 4.3, 22000, 50000], ["Nishiki Warai", 4.3, 18000, 42000]
+  ]
+};
+
+const restaurantProfileForCity = (city) => {
+  const normalized = String(city || "").trim().toLowerCase();
+  const aliases = {
+    "뉴욕": "new york", "로스앤젤레스": "los angeles", "워싱턴 d.c.": "washington, d.c.",
+    "샌프란시스코": "san francisco", "시카고": "chicago", "마이애미": "miami",
+    "마드리드": "madrid", "바르셀로나": "barcelona", "세비야": "seville",
+    "도쿄": "tokyo", "오사카": "osaka", "교토": "kyoto"
+  };
+  const key = aliases[normalized] || normalized;
+  return cityRestaurantProfiles[key] || [
+    [`${city} Local Table`, 4.6, 30000, 75000], [`${city} Market Kitchen`, 4.5, 22000, 60000],
+    [`${city} Dining Room`, 4.4, 45000, 110000], [`${city} Neighborhood Cafe`, 4.5, 12000, 35000]
+  ];
+};
+
 function adaptTravelResultToDestination(result) {
   const code = result.country || result.countryProfile?.code || result.destination?.code;
   const profileCode = String(code || "global").toLowerCase();
@@ -1134,6 +1200,19 @@ function adaptTravelResultToDestination(result) {
     reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
     reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
+  const restaurants = restaurantProfileForCity(city).map(([name, rating, min, max], index) => ({
+    ...(result.restaurants?.[index] || {}),
+    id: `restaurant-${profileCode}-${index + 1}`,
+    type: name,
+    typeKo: name,
+    venueName: name,
+    venueNameKo: name,
+    rating,
+    estimatedPrice: { currency: "KRW", min, max },
+    recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,
+    recommendationKo: `${cityKo} 일정에 맞춘 프로토타입 식당 옵션입니다. 가격과 예약 가능 여부는 제공업체 최종 확인이 필요합니다.`,
+    editable: true
+  }));
   const startDate = result.schedule?.startDate;
   const endDate = result.schedule?.endDate;
   const tripNights = startDate && endDate
@@ -1146,7 +1225,12 @@ function adaptTravelResultToDestination(result) {
     min: Number(nightlyBudget.min || 0) * tripNights,
     max: Number(nightlyBudget.max || 0) * tripNights
   } : result.budget?.hotel;
-  const budgetParts = [flightsBudget, hotelBudget, result.budget?.food, result.budget?.transport, result.budget?.activities].filter(Boolean);
+  const foodBudget = {
+    currency: "KRW",
+    min: restaurants.reduce((sum, restaurant) => sum + Number(restaurant.estimatedPrice?.min || 0), 0),
+    max: restaurants.reduce((sum, restaurant) => sum + Number(restaurant.estimatedPrice?.max || 0), 0)
+  };
+  const budgetParts = [flightsBudget, hotelBudget, foodBudget, result.budget?.transport, result.budget?.activities].filter(Boolean);
   const estimatedTotal = {
     currency: budgetParts[0]?.currency || "KRW",
     min: budgetParts.reduce((sum, range) => sum + Number(range.min || 0), 0),
@@ -1157,7 +1241,8 @@ function adaptTravelResultToDestination(result) {
     ...result,
     flights,
     hotels,
-    budget: { ...result.budget, flights: flightsBudget, hotel: hotelBudget, estimatedTotal },
+    restaurants,
+    budget: { ...result.budget, flights: flightsBudget, hotel: hotelBudget, food: foodBudget, estimatedTotal },
     airportTransfer: {
       ...result.airportTransfer,
       recommended: { en: profile.transfer, ko: profile.transfer },
@@ -1358,8 +1443,10 @@ const renderTravelMission = (result) => {
         const price = formatRange(restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0]);
         const countryCode = result.country || result.countryProfile?.code || "JP";
         const venue = restaurantVenueProfiles[countryCode]?.[index];
-        const venueName = venue ? (activeLanguage === "ko" ? venue.ko : venue.en) : getRestaurantName(restaurant);
-        const rating = venue?.rating || (4.2 + ((index * 2) % 6) / 10).toFixed(1);
+        const venueName = activeLanguage === "ko"
+          ? restaurant.venueNameKo || restaurant.venueName || restaurant.typeKo || venue?.ko || restaurant.type
+          : restaurant.venueName || restaurant.type || venue?.en;
+        const rating = restaurant.rating || venue?.rating || (4.2 + ((index * 2) % 6) / 10).toFixed(1);
         return `<strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta">★ ${rating}<span aria-hidden="true"> · </span>${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}</small>`;
       }),
       itemDetails: restaurants.map((restaurant, index) => ({ price: restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0] })),
