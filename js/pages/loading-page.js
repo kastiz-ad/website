@@ -134,6 +134,11 @@ const getCoordinates = async (mission) => {
   const query = [mission?.destination?.city, mission?.countryProfile?.name || mission?.destination?.country].filter(Boolean).join(", ");
   if (query) {
     try {
+      const geocoded = await fetchJson(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=${mission?.language === "ko" ? "ko" : "en"}&format=json`, { timeout: 7000, cacheTtl: 86400000 });
+      const match = geocoded?.results?.[0];
+      if (Number.isFinite(Number(match?.latitude)) && Number.isFinite(Number(match?.longitude))) return { latitude: Number(match.latitude), longitude: Number(match.longitude) };
+    } catch { /* Continue to the secondary geocoder. */ }
+    try {
       const matches = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`, { timeout: 7000 });
       const place = Array.isArray(matches) ? matches[0] : null;
       if (place?.lat && place?.lon) return { latitude: Number(place.lat), longitude: Number(place.lon) };
@@ -275,29 +280,20 @@ const fetchLocalPlaces = async (mission) => {
   const country = mission?.countryProfile?.name || mission?.destination?.country || "";
   if (!city) return fallbackProvider("OpenStreetMap", "local_places", "Local place search requires a destination city.");
   try {
-    const language = mission.language === "ko" ? "ko,en" : "en";
-    const matches = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(`${city}, ${country}`)}`, { timeout: 7000 });
-    const place = Array.isArray(matches) ? matches[0] : null;
-    if (!place?.lat || !place?.lon) throw new Error("Destination coordinates unavailable");
-    const latitude = Number(place.lat);
-    const longitude = Number(place.lon);
-    const viewbox = `${longitude - 0.28},${latitude + 0.22},${longitude + 0.28},${latitude - 0.22}`;
-    await wait(350);
-    const hotels = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&bounded=1&viewbox=${encodeURIComponent(viewbox)}&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent("hotel")}`, { timeout: 8000 });
-    await wait(350);
-    const restaurants = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&bounded=1&viewbox=${encodeURIComponent(viewbox)}&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent("restaurant")}`, { timeout: 8000 });
+    const { latitude, longitude } = await getCoordinates(mission);
+    const query = `[out:json][timeout:15];(nwr(around:12000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"];nwr(around:12000,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"];nwr(around:12000,${latitude},${longitude})[public_transport];);out center 60;`;
+    const data = await fetchJson(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 12000, retries: 0, cacheTtl: 86400000 });
     const seen = new Set();
-    const normalize = (entry, kind) => {
-      const name = entry.namedetails?.[mission.language === "ko" ? "name:ko" : "name:en"] || entry.namedetails?.name || String(entry.display_name || "").split(",")[0];
-      return { label: name, value: entry.type || "", kind, cuisine: "", stars: "" };
+    const normalize = (entry) => {
+      const tags = entry.tags || {};
+      const kind = tags.tourism ? "hotel" : tags.amenity && /restaurant|cafe|fast_food/.test(tags.amenity) ? "restaurant" : "transport";
+      const name = tags[mission.language === "ko" ? "name:ko" : "name:en"] || tags.name;
+      return { label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", source: "OpenStreetMap" };
     };
-    const items = [
-      ...(Array.isArray(hotels) ? hotels.filter((entry) => entry.class === "tourism" || /hotel|hostel|guest_house/i.test(entry.type)).map((entry) => normalize(entry, "hotel")) : []),
-      ...(Array.isArray(restaurants) ? restaurants.filter((entry) => entry.class === "amenity" || /restaurant|cafe|fast_food/i.test(entry.type)).map((entry) => normalize(entry, "restaurant")) : [])
-    ].filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
-    return { provider: "OpenStreetMap Nominatim", category: "local_places", sourceStatus: "free_live_api", liveData: items.length > 0, requiresKey: false, requiresPartnerAccess: false, items, error: null };
+    const items = (data?.elements || []).map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
+    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: items.length > 0, requiresKey: false, requiresPartnerAccess: false, items, attribution: "© OpenStreetMap contributors", error: null };
   } catch (error) {
-    return fallbackProvider("OpenStreetMap Nominatim", "local_places", "Live hotel and restaurant names could not be loaded; prototype fallbacks are shown.", error.message);
+    return fallbackProvider("OpenStreetMap Overpass", "local_places", "Public hotel, restaurant and transport names could not be loaded; prototype fallbacks are shown.", error.message);
   }
 };
 
@@ -307,7 +303,8 @@ const fetchWikipediaInfo = async (mission) => {
   if (!topic) return fallbackProvider("Wikipedia", "destination_info", "Public knowledge adapter is ready.");
 
   try {
-    const data = await fetchJson(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
+    const wikiLanguage = mission?.language === "ko" ? "ko" : "en";
+    const data = await fetchJson(`https://${wikiLanguage}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
 
     return {
       provider: "Wikipedia",

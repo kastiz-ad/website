@@ -23,9 +23,12 @@ assert.match(followup, /fillCities\(resolved\.country, resolved\.city \|\| "", r
 assert.doesNotMatch(followup, /restcountries\.com\/v3/);
 assert.match(loading, /countriesnow\.space\/api\/v0\.1\/countries\/capital/);
 assert.match(loading, /open\.er-api\.com\/v6\/latest/);
-assert.match(loading, /bounded=1&viewbox=/);
-assert.match(loading, /encodeURIComponent\("hotel"\)/);
-assert.match(loading, /encodeURIComponent\("restaurant"\)/);
+assert.match(loading, /geocoding-api\.open-meteo\.com/);
+assert.match(loading, /overpass-api\.de\/api\/interpreter/);
+assert.match(loading, /nwr\(around:12000/);
+assert.doesNotMatch(loading, /bounded=1&viewbox=/);
+assert.match(loading, /tourism~"hotel\|hostel\|guest_house\|motel\|apartment"/);
+assert.match(loading, /amenity~"restaurant\|cafe\|fast_food"/);
 assert.match(results, /GT:\s*\[\["Aeromexico"/);
 assert.match(results, /GT:\s*\[\[2300000, 3900000\]/);
 assert.match(results, /liveHotelNames/);

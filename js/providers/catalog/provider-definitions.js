@@ -6,8 +6,11 @@ const d=(id,name,access,capabilities,actions=read,extra={})=>Object.freeze({id,n
 
 export const PROVIDER_DEFINITIONS=Object.freeze([
   d("open_meteo","Open-Meteo",ACCESS_LEVEL.PUBLIC_FREE,["weather.forecast"],read,{attribution:"Weather data by Open-Meteo; source models require attribution."}),
+  d("open_meteo_geocoding","Open-Meteo Geocoding",ACCESS_LEVEL.PUBLIC_FREE,["location.geocode"],read,{attribution:"Location data by GeoNames via Open-Meteo."}),
   d("openstreetmap_nominatim","OpenStreetMap Nominatim",ACCESS_LEVEL.PUBLIC_FREE,["location.geocode","transport.place_search"],read,{attribution:"© OpenStreetMap contributors",usageLimit:"Public endpoint: maximum 1 request/second; cache and identify requests."}),
+  d("openstreetmap_overpass","OpenStreetMap Overpass",ACCESS_LEVEL.PUBLIC_FREE,["accommodation.public_places","restaurant.public_places","transport.public_places"],read,{attribution:"© OpenStreetMap contributors",usageLimit:"Prototype-only public endpoint; bounded, cached queries only."}),
   d("frankfurter","Frankfurter",ACCESS_LEVEL.PUBLIC_FREE,["currency.exchange"],read),
+  d("exchange_rate_open","ExchangeRate-API Open Access",ACCESS_LEVEL.PUBLIC_FREE,["currency.exchange"],read),
   d("countries_now","CountriesNow",ACCESS_LEVEL.PUBLIC_FREE,["country.information"],read),
   d("wikipedia","Wikipedia",ACCESS_LEVEL.PUBLIC_FREE,["destination.information","knowledge.summary"],read,{attribution:"Wikipedia contributors"}),
   d("booking_com","Booking.com",ACCESS_LEVEL.PARTNERSHIP,["accommodation.search","accommodation.compare","accommodation.availability","accommodation.reserve"],full,{placeholderMessage:"Managed Affiliate contract, API token and affiliate ID required."}),

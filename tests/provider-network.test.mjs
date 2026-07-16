@@ -9,8 +9,8 @@ import { MISSION_PACKS } from "../js/providers/packs/mission-packs.js";
 import { SUPPORTED_COUNTRIES } from "../js/providers/catalog/countries.js";
 import { createMission } from "../js/engine/mission-creation.js";
 
-assert.equal(PROVIDER_DEFINITIONS.length,22);
-assert.equal(providerRegistry.list().length,22);
+assert.equal(PROVIDER_DEFINITIONS.length,25);
+assert.equal(providerRegistry.list().length,25);
 for(const connector of providerRegistry.list())for(const method of ["search","compare","availability","estimate","reserve","purchase","cancel","status","health","capabilities"])assert.equal(typeof connector[method],"function",`${connector.definition.id}.${method} must exist`);
 assert.equal(SUPPORTED_COUNTRIES.length,16);
 assert.ok(MISSION_PACKS.travel.capabilities.includes("flight.search"));
@@ -20,6 +20,16 @@ const weather=createPublicConnector("open_meteo");
 const live=await weather.search({capability:"weather.forecast",latitude:35.6,longitude:139.6,fetchImpl:async()=>({ok:true,json:async()=>({daily:{time:["2026-07-16"],temperature_2m_min:[20],temperature_2m_max:[29],precipitation_probability_max:[10],relative_humidity_2m_max:[68]}})})});
 assert.equal(live.status,CONNECTOR_STATUS.OK);
 assert.equal(live.live,true);
+
+const geocoder=createPublicConnector("open_meteo_geocoding");
+const geocoded=await geocoder.search({capability:"location.geocode",query:"Madagascar",language:"en",fetchImpl:async()=>({ok:true,json:async()=>({results:[{name:"Madagascar",country:"Madagascar",country_code:"MG",admin1:"",latitude:-18.7,longitude:46.8}]})})});
+assert.equal(geocoded.status,CONNECTOR_STATUS.OK);
+assert.equal(geocoded.data[0].countryCode,"MG");
+
+const overpass=createPublicConnector("openstreetmap_overpass");
+const places=await overpass.search({capability:"accommodation.public_places",latitude:35.6,longitude:139.6,fetchImpl:async()=>({ok:true,json:async()=>({elements:[{lat:35.6,lon:139.6,tags:{name:"Test Hotel",tourism:"hotel"}}]})})});
+assert.equal(places.status,CONNECTOR_STATUS.OK);
+assert.equal(places.data[0].kind,"hotel");
 
 const booking=providerRegistry.get("booking_com");
 const placeholder=await booking.search({capability:"accommodation.search"});
