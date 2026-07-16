@@ -1031,6 +1031,33 @@ const destinationPrototypeProfiles = {
   }
 };
 
+const cityProfileOverride = (code, city) => {
+  const normalized = String(city || "").trim().toLowerCase();
+  const primaryCities = {
+    US: ["new york", "뉴욕"], ES: ["madrid", "마드리드"],
+    JP: ["tokyo", "도쿄"], CO: ["bogotá", "bogota", "보고타"]
+  };
+  if (primaryCities[code]?.includes(normalized)) return null;
+  if (["los angeles", "로스앤젤레스", "la", "l.a."].includes(normalized)) {
+    return {
+      hotels: ["InterContinental Los Angeles Downtown", "Conrad Los Angeles", "citizenM Los Angeles Downtown", "Freehand Los Angeles"],
+      hotelPrices: [[260000, 520000], [420000, 760000], [190000, 360000], [150000, 310000]],
+      transfer: "LAX FlyAway bus, Metro connection, taxi, or licensed airport transfer"
+    };
+  }
+  const hotelPriceDefaults = {
+    US: [[220000, 480000], [350000, 680000], [170000, 340000], [120000, 270000]],
+    ES: [[180000, 390000], [280000, 560000], [140000, 300000], [100000, 230000]],
+    JP: [[170000, 380000], [280000, 580000], [130000, 270000], [90000, 190000]],
+    CO: [[130000, 300000], [220000, 470000], [100000, 240000], [70000, 170000]]
+  };
+  return {
+    hotels: [`${city} Central Hotel`, `${city} Grand Hotel`, `${city} City Stay`, `${city} Value Hotel`],
+    hotelPrices: hotelPriceDefaults[code] || [[160000, 360000], [260000, 520000], [120000, 280000], [90000, 210000]],
+    transfer: `Official airport rail, bus, taxi, or licensed transfer serving ${city}`
+  };
+};
+
 function adaptTravelResultToDestination(result) {
   const code = result.country || result.countryProfile?.code || result.destination?.code;
   const profileCode = String(code || "global").toLowerCase();
@@ -1051,12 +1078,14 @@ function adaptTravelResultToDestination(result) {
     MX: [[1900000, 3200000], [1850000, 3100000], [2000000, 3350000], [1800000, 3000000]]
   };
   const genericPrices = regionalFareRanges[code] || [[900000, 1900000], [850000, 1800000], [750000, 1650000], [950000, 2050000]];
-  const profile = destinationPrototypeProfiles[code] || {
+  const baseProfile = destinationPrototypeProfiles[code] || {
     airlines: ["Recommended full-service carrier", "Best connecting carrier", "Best-value carrier", "Flexible-fare carrier"],
     flightPrices: genericPrices,
     hotels: [`${city} Central Hotel`, `${city} International Hotel`, `${city} City Stay`, `${city} Value Hotel`],
     transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
   };
+  const cityOverride = cityProfileOverride(code, city);
+  const profile = cityOverride ? { ...baseProfile, ...cityOverride } : baseProfile;
   const flightReasons = [
     [`Best overall balance of schedule, comfort, service, and estimated price for ${city}.`, `${cityKo} 노선에서 일정, 편안함, 서비스와 예상 가격의 균형이 가장 좋습니다.`],
     [`Best service-focused alternative with dependable connections to ${city}.`, `${cityKo} 노선에서 서비스 품질과 연결 편의성이 좋은 대안입니다.`],
@@ -1099,14 +1128,36 @@ function adaptTravelResultToDestination(result) {
     name,
     nameKo: name,
     category: index === 0 ? "recommended" : index === 1 ? "premium" : index === 2 ? "value" : "budget",
+    estimatedNightlyPrice: profile.hotelPrices?.[index]
+      ? { currency: "KRW", min: profile.hotelPrices[index][0], max: profile.hotelPrices[index][1] }
+      : (result.hotels?.[index]?.estimatedNightlyPrice || result.hotels?.[0]?.estimatedNightlyPrice),
     reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
     reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
+  const startDate = result.schedule?.startDate;
+  const endDate = result.schedule?.endDate;
+  const tripNights = startDate && endDate
+    ? Math.max(1, Math.round((new Date(`${endDate}T00:00:00`) - new Date(`${startDate}T00:00:00`)) / 86400000))
+    : Math.max(1, Number(result.durationDays || 2) - 1);
+  const flightsBudget = flights[0]?.estimatedPrice || result.budget?.flights;
+  const nightlyBudget = hotels[0]?.estimatedNightlyPrice || result.budget?.hotel;
+  const hotelBudget = nightlyBudget ? {
+    currency: nightlyBudget.currency || "KRW",
+    min: Number(nightlyBudget.min || 0) * tripNights,
+    max: Number(nightlyBudget.max || 0) * tripNights
+  } : result.budget?.hotel;
+  const budgetParts = [flightsBudget, hotelBudget, result.budget?.food, result.budget?.transport, result.budget?.activities].filter(Boolean);
+  const estimatedTotal = {
+    currency: budgetParts[0]?.currency || "KRW",
+    min: budgetParts.reduce((sum, range) => sum + Number(range.min || 0), 0),
+    max: budgetParts.reduce((sum, range) => sum + Number(range.max || 0), 0)
+  };
 
   return {
     ...result,
     flights,
     hotels,
+    budget: { ...result.budget, flights: flightsBudget, hotel: hotelBudget, estimatedTotal },
     airportTransfer: {
       ...result.airportTransfer,
       recommended: { en: profile.transfer, ko: profile.transfer },
