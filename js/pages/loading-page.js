@@ -282,16 +282,20 @@ const fetchLocalPlaces = async (mission) => {
   try {
     const { latitude, longitude } = await getCoordinates(mission);
     const placeQueries = [
-      `[out:json][timeout:12];nwr(around:8000,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"][name];out center 30;`,
-      `[out:json][timeout:12];nwr(around:8000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"][name];out center 20;`
+      `[out:json][timeout:12];nwr(around:3500,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"][name];out center 30;`,
+      `[out:json][timeout:12];nwr(around:6000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"][name];out center 20;`
     ];
     const placeEndpoints = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
     const elements = [];
     for (const [index, query] of placeQueries.entries()) {
-      try {
-        const response = await fetchJson(`${placeEndpoints[index]}?data=${encodeURIComponent(query)}`, { timeout: 14000, retries: 0, cacheTtl: 86400000 });
-        elements.push(...(response?.elements || []));
-      } catch { /* One place category can fail without discarding the other category. */ }
+      for (let attempt = 0; attempt < placeEndpoints.length; attempt += 1) {
+        try {
+          const endpoint = placeEndpoints[(index + attempt) % placeEndpoints.length];
+          const response = await fetchJson(`${endpoint}?data=${encodeURIComponent(query)}`, { timeout: 14000, retries: 0, cacheTtl: 86400000 });
+          const matches = response?.elements || [];
+          if (matches.length) { elements.push(...matches); break; }
+        } catch { /* Try the alternate public instance for this category. */ }
+      }
     }
     const seen = new Set();
     const normalize = (entry) => {
@@ -302,8 +306,8 @@ const fetchLocalPlaces = async (mission) => {
     };
     const items = elements.map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
     if (items.filter((item) => item.kind === "restaurant").length < 4) {
-      const placeQuery = ["restaurants", city, country].filter(Boolean).join(" ");
-      const restaurantSearch = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&extratags=1&limit=12&q=${encodeURIComponent(placeQuery)}`, { timeout: 10000, retries: 0, cacheTtl: 86400000 }).catch(() => []);
+      const viewbox = `${longitude - .12},${latitude + .12},${longitude + .12},${latitude - .12}`;
+      const restaurantSearch = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&extratags=1&bounded=1&viewbox=${encodeURIComponent(viewbox)}&limit=12&q=restaurant`, { timeout: 10000, retries: 0, cacheTtl: 86400000 }).catch(() => []);
       (Array.isArray(restaurantSearch) ? restaurantSearch : []).forEach((place) => {
         const label = place.namedetails?.[mission.language === "ko" ? "name:ko" : "name:en"] || place.namedetails?.name || String(place.display_name || "").split(",")[0].trim();
         const key = `restaurant:${String(label).toLowerCase()}`;
@@ -313,8 +317,8 @@ const fetchLocalPlaces = async (mission) => {
       });
     }
     if (items.filter((item) => item.kind === "hotel").length < 5) {
-      const placeQuery = ["hotels and accommodations", city, country].filter(Boolean).join(" ");
-      const accommodationSearch = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&extratags=1&limit=15&q=${encodeURIComponent(placeQuery)}`, { timeout: 10000, retries: 0, cacheTtl: 86400000 }).catch(() => []);
+      const viewbox = `${longitude - .16},${latitude + .16},${longitude + .16},${latitude - .16}`;
+      const accommodationSearch = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&extratags=1&bounded=1&viewbox=${encodeURIComponent(viewbox)}&limit=15&q=hotel`, { timeout: 10000, retries: 0, cacheTtl: 86400000 }).catch(() => []);
       (Array.isArray(accommodationSearch) ? accommodationSearch : []).forEach((place) => {
         const label = place.namedetails?.[mission.language === "ko" ? "name:ko" : "name:en"] || place.namedetails?.name || String(place.display_name || "").split(",")[0].trim();
         const key = `hotel:${String(label).toLowerCase()}`;

@@ -271,7 +271,29 @@ const getPortableSharedResult = () => {
     const binary = atob(padded);
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
     const parsed = JSON.parse(new TextDecoder().decode(bytes));
-    return parsed?.portableShare === true && parsed?.type === "travel" ? parsed : null;
+    if (parsed?.p !== 1) return parsed?.portableShare === true && parsed?.type === "travel" ? parsed : null;
+    const [country = "", countryKo = "", city = "", cityKo = ""] = parsed.d || [];
+    const [startDate = "", endDate = "", timePreference = "any"] = parsed.s || [];
+    const [flightName = "", flightNameKo = "", flightMin = 0, flightMax = 0] = parsed.f || [];
+    const [hotelName = "", hotelNameKo = "", hotelMin = 0, hotelMax = 0] = parsed.h || [];
+    const [budgetMin = 0, budgetMax = 0] = parsed.b || [];
+    return {
+      portableShare: true, type: "travel", id: parsed.r, language: parsed.l || "en", country,
+      destination: { country, countryKo: countryKo || country, city, cityKo: cityKo || city },
+      display: {
+        title: parsed.l === "ko" ? `${countryKo || country} 여행` : `${country || city} Trip`,
+        destination: parsed.l === "ko" ? (countryKo || country) : country,
+        city: parsed.l === "ko" ? (cityKo || city) : city
+      },
+      schedule: { startDate, endDate, timePreference }, tripType: parsed.t || "round_trip",
+      flights: flightName ? [{ provider: flightName, providerKo: flightNameKo || flightName, estimatedPrice: { currency: "KRW", min: flightMin, max: flightMax }, recommended: true }] : [],
+      hotels: hotelName ? [{ name: hotelName, nameKo: hotelNameKo || hotelName, estimatedNightlyPrice: { currency: "KRW", min: hotelMin, max: hotelMax }, recommended: true }] : [],
+      airportTransfer: { recommended: parsed.x || "", options: parsed.x ? [parsed.x] : [] },
+      restaurants: (parsed.n || []).map((name) => ({ type: name, typeKo: name, venueName: name, venueNameKo: name })),
+      checklist: [],
+      budget: { currency: "KRW", flights: { currency: "KRW", min: flightMin, max: flightMax }, hotel: { currency: "KRW", min: hotelMin, max: hotelMax }, food: { currency: "KRW", min: 0, max: 0 }, transport: { currency: "KRW", min: 0, max: 0 }, activities: { currency: "KRW", min: 0, max: 0 }, estimatedTotal: { currency: "KRW", min: budgetMin, max: budgetMax } },
+      approvalRequired: true
+    };
   } catch {
     return null;
   }
@@ -2010,39 +2032,25 @@ const buildExecutionSummary = () => {
       ]
     : [[ko ? "편도 항공편" : "One-way flight", `${airlineName} · ${flightNumber}`, `${schedule.startDate || dateRange} · ${selectedTime} · ${formatRange(flight?.estimatedPrice)}`]];
   const reference = `ONE-DEMO-${String(currentResult.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
-  const selectedRestaurantRecords = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .selectable-option[aria-pressed="true"]')].map((button) => {
+  const selectedRestaurantNames = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .selectable-option[aria-pressed="true"]')].map((button) => {
     const restaurant = currentResult.restaurants?.[Number(button.dataset.optionIndex)] || {};
-    return {
-      type: restaurant.type || restaurant.venueName || button.querySelector(".restaurant-name")?.textContent?.trim() || "Restaurant",
-      typeKo: restaurant.typeKo || restaurant.venueNameKo || restaurant.type || "레스토랑",
-      venueName: restaurant.venueName || restaurant.type || "Restaurant",
-      venueNameKo: restaurant.venueNameKo || restaurant.typeKo || restaurant.venueName || restaurant.type || "레스토랑",
-      rating: restaurant.rating || null,
-      cuisine: restaurant.cuisine || "",
-      estimatedPrice: restaurant.estimatedPrice || null
-    };
-  });
+    return (ko ? restaurant.venueNameKo : restaurant.venueName) || restaurant.venueName || restaurant.type || button.querySelector(".restaurant-name")?.textContent?.trim() || "Restaurant";
+  }).filter(Boolean).slice(0, 6);
+  const totalRange = currentResult.budget?.estimatedTotal || {};
   const portableResult = {
-    portableShare: true,
-    type: "travel",
-    id: reference,
-    language: activeLanguage,
-    destination: {
-      country: currentResult.destination?.country || "",
-      countryKo: currentResult.destination?.countryKo || currentResult.destination?.country || "",
-      city: currentResult.destination?.city || "",
-      cityKo: currentResult.destination?.cityKo || currentResult.destination?.city || ""
-    },
-    display: { title: currentResult.display?.title || "", destination: currentResult.display?.destination || "", city: currentResult.display?.city || "" },
-    schedule,
-    tripType: currentResult.tripType || "round_trip",
-    flights: flight ? [{ provider: flight.provider, providerKo: flight.providerKo || flight.provider, estimatedPrice: flight.estimatedPrice, recommended: true }] : [],
-    hotels: hotel ? [{ name: hotel.name, nameKo: hotel.nameKo || hotel.name, estimatedNightlyPrice: hotel.estimatedNightlyPrice, recommended: true }] : [],
-    airportTransfer: { recommended: transfer || "", options: transfer ? [transfer] : [] },
-    restaurants: selectedRestaurantRecords,
-    checklist: [],
-    budget: currentResult.budget || { currency: "KRW" },
-    approvalRequired: true
+    p: 1, r: reference, l: activeLanguage,
+    d: [
+      currentResult.destination?.country || "",
+      currentResult.destination?.countryKo || currentResult.destination?.country || "",
+      currentResult.destination?.city || "",
+      currentResult.destination?.cityKo || currentResult.destination?.city || ""
+    ],
+    s: [schedule.startDate || "", schedule.endDate || "", schedule.timePreference || "any"],
+    t: currentResult.tripType || "round_trip",
+    f: flight ? [flight.provider || "", flight.providerKo || flight.provider || "", flight.estimatedPrice?.min || 0, flight.estimatedPrice?.max || 0] : [],
+    h: hotel ? [hotel.name || "", hotel.nameKo || hotel.name || "", hotel.estimatedNightlyPrice?.min || 0, hotel.estimatedNightlyPrice?.max || 0] : [],
+    x: localize(transfer) || "", n: selectedRestaurantNames,
+    b: [totalRange.min || 0, totalRange.max || 0]
   };
   const portableUrl = `${location.origin}${location.pathname}?reference=${encodeURIComponent(reference)}&share=${encodeURIComponent(encodePortableShare(portableResult))}`;
   const restaurantRows = restaurants.length
