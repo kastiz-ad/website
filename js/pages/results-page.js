@@ -1031,6 +1031,36 @@ const destinationPrototypeProfiles = {
   }
 };
 
+const airlineProfilesByCountry = {
+  KR: [["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Jeju Air", "제주항공"], ["T'way Air", "티웨이항공"]],
+  CN: [["Korean Air", "대한항공"], ["Air China", "중국국제항공"], ["China Eastern Airlines", "중국동방항공"], ["China Southern Airlines", "중국남방항공"]],
+  VN: [["Korean Air", "대한항공"], ["Vietnam Airlines", "베트남항공"], ["VietJet Air", "비엣젯항공"], ["Asiana Airlines", "아시아나항공"]],
+  TH: [["Korean Air", "대한항공"], ["Thai Airways", "타이항공"], ["Asiana Airlines", "아시아나항공"], ["AirAsia", "에어아시아"]],
+  SG: [["Singapore Airlines", "싱가포르항공"], ["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Scoot", "스쿠트항공"]],
+  AU: [["Korean Air", "대한항공"], ["Qantas", "콴타스항공"], ["Singapore Airlines", "싱가포르항공"], ["Cathay Pacific", "캐세이퍼시픽"]],
+  CA: [["Korean Air", "대한항공"], ["Air Canada", "에어캐나다"], ["Asiana Airlines", "아시아나항공"], ["WestJet", "웨스트젯"]],
+  GB: [["Korean Air", "대한항공"], ["British Airways", "영국항공"], ["Asiana Airlines", "아시아나항공"], ["Lufthansa", "루프트한자"]],
+  FR: [["Korean Air", "대한항공"], ["Air France", "에어프랑스"], ["Asiana Airlines", "아시아나항공"], ["KLM", "KLM 네덜란드항공"]],
+  DE: [["Korean Air", "대한항공"], ["Lufthansa", "루프트한자"], ["Asiana Airlines", "아시아나항공"], ["Finnair", "핀에어"]],
+  IT: [["Korean Air", "대한항공"], ["ITA Airways", "ITA 항공"], ["Asiana Airlines", "아시아나항공"], ["Lufthansa", "루프트한자"]],
+  MX: [["Korean Air", "대한항공"], ["Aeromexico", "아에로멕시코"], ["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"]]
+};
+
+const airlineNameKo = {
+  "Korean Air": "대한항공", "Asiana Airlines": "아시아나항공", "Jeju Air": "제주항공", "Japan Airlines": "일본항공",
+  "Delta Air Lines": "델타항공", "United Airlines": "유나이티드항공", "Iberia": "이베리아항공", "Lufthansa": "루프트한자",
+  "Air France": "에어프랑스", "Avianca": "아비앙카항공", "LATAM Airlines": "라탐항공", "American Airlines": "아메리칸항공"
+};
+
+const localizedVenueNames = {
+  "Bestia": "베스티아", "Republique": "레퓌블리크", "Guelaguetza": "겔라게차", "Grand Central Market": "그랜드 센트럴 마켓",
+  "The Modern": "더 모던", "Keens Steakhouse": "킨스 스테이크하우스", "Rubirosa": "루비로사", "Joe's Shanghai": "조스 상하이",
+  "Sushi Dai": "스시다이", "Ichiran Ramen": "이치란 라멘", "Gyukatsu Motomura": "규카츠 모토무라", "Gonpachi": "곤파치",
+  "Sobrino de Botin": "소브리노 데 보틴", "Casa Lucio": "카사 루시오", "Sala de Despiece": "살라 데 데스피에세", "Chocolateria San Gines": "쇼콜라테리아 산 히네스",
+  "InterContinental Los Angeles Downtown": "인터컨티넨탈 로스앤젤레스 다운타운", "Conrad Los Angeles": "콘래드 로스앤젤레스",
+  "citizenM Los Angeles Downtown": "시티즌M 로스앤젤레스 다운타운", "Freehand Los Angeles": "프리핸드 로스앤젤레스"
+};
+
 const cityProfileOverride = (code, city) => {
   const normalized = String(city || "").trim().toLowerCase();
   const primaryCities = {
@@ -1145,7 +1175,7 @@ function adaptTravelResultToDestination(result) {
   };
   const genericPrices = regionalFareRanges[code] || [[900000, 1900000], [850000, 1800000], [750000, 1650000], [950000, 2050000]];
   const baseProfile = destinationPrototypeProfiles[code] || {
-    airlines: ["Recommended full-service carrier", "Best connecting carrier", "Best-value carrier", "Flexible-fare carrier"],
+    airlines: airlineProfilesByCountry[code] || [["Korean Air", "대한항공"], ["Emirates", "에미레이트항공"], ["Qatar Airways", "카타르항공"], ["Lufthansa", "루프트한자"]],
     flightPrices: genericPrices,
     hotels: [`${city} Central Hotel`, `${city} International Hotel`, `${city} City Stay`, `${city} Value Hotel`],
     transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
@@ -1176,23 +1206,27 @@ function adaptTravelResultToDestination(result) {
       max: Math.round(range[1] * tripMultiplier * travelerCount / 10000) * 10000
     };
   };
-  const flights = profile.airlines.map((provider, index) => ({
-    ...(result.flights?.[index] || result.flights?.[0] || {}),
-    id: `flight-${profileCode}-${index + 1}`,
-    provider,
-    providerKo: provider,
-    category: index === 0 ? "recommended" : "alternative",
-    estimatedPrice: priceFor(index),
-    priceBasis: "prototype_market_estimate",
-    priceCheckedAt: "2026-07-16",
-    reason: flightReasons[index]?.[0] || `Practical prototype flight option for ${city}.`,
-    reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
-  }));
+  const flights = profile.airlines.map((providerEntry, index) => {
+    const provider = Array.isArray(providerEntry) ? providerEntry[0] : providerEntry;
+    const providerKo = Array.isArray(providerEntry) ? providerEntry[1] : (airlineNameKo[provider] || provider);
+    return {
+      ...(result.flights?.[index] || result.flights?.[0] || {}),
+      id: `flight-${profileCode}-${index + 1}`,
+      provider,
+      providerKo,
+      category: index === 0 ? "recommended" : "alternative",
+      estimatedPrice: priceFor(index),
+      priceBasis: "prototype_market_estimate",
+      priceCheckedAt: "2026-07-16",
+      reason: flightReasons[index]?.[0] || `Practical prototype flight option for ${city}.`,
+      reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
+    };
+  });
   const hotels = profile.hotels.map((name, index) => ({
     ...(result.hotels?.[index] || result.hotels?.[0] || {}),
     id: `hotel-${profileCode}-${index + 1}`,
     name,
-    nameKo: name,
+    nameKo: localizedVenueNames[name] || name,
     category: index === 0 ? "recommended" : index === 1 ? "premium" : index === 2 ? "value" : "budget",
     estimatedNightlyPrice: profile.hotelPrices?.[index]
       ? { currency: "KRW", min: profile.hotelPrices[index][0], max: profile.hotelPrices[index][1] }
@@ -1204,9 +1238,9 @@ function adaptTravelResultToDestination(result) {
     ...(result.restaurants?.[index] || {}),
     id: `restaurant-${profileCode}-${index + 1}`,
     type: name,
-    typeKo: name,
+    typeKo: localizedVenueNames[name] || name,
     venueName: name,
-    venueNameKo: name,
+    venueNameKo: localizedVenueNames[name] || name,
     rating,
     estimatedPrice: { currency: "KRW", min, max },
     recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,
@@ -1578,7 +1612,7 @@ const organizeProgressiveResults = () => {
     { title: activeLanguage === "ko" ? "1. 추천 계획" : "1. Recommended Plan", open: true, match: () => true },
     { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["weather", "exchange-rate", "visa", "checklist", "information-sources"]) },
     { title: activeLanguage === "ko" ? "3. 선택 개선" : "3. Optional Improvements", ids: new Set(["additional-services"]) },
-    { title: activeLanguage === "ko" ? "4. 승인" : "4. Approval", ids: new Set(["approval-protection"]) }
+    { title: activeLanguage === "ko" ? "4. 승인" : "4. Approval", open: true, ids: new Set(["approval-protection"]) }
   ];
   const details = groups.map((group) => {
     const element = document.createElement("details");
@@ -1596,7 +1630,9 @@ const organizeProgressiveResults = () => {
   details.forEach((detail) => detail.addEventListener("toggle", () => {
     detail.querySelector("summary span").textContent = detail.open ? "−" : "+";
   }));
-  details[0].querySelector("summary span").textContent = "−";
+  details.forEach((detail) => {
+    detail.querySelector("summary span").textContent = detail.open ? "−" : "+";
+  });
 };
 
 const renderMission = () => {
