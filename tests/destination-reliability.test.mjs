@@ -4,6 +4,9 @@ import { readFileSync } from "node:fs";
 const followup = readFileSync(new URL("../js/ui/mission-followup.js", import.meta.url), "utf8");
 const loading = readFileSync(new URL("../js/pages/loading-page.js", import.meta.url), "utf8");
 const results = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+const resultsHtml = readFileSync(new URL("../results.html", import.meta.url), "utf8");
+const loadingHtml = readFileSync(new URL("../loading.html", import.meta.url), "utf8");
+const indexHtml = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
 assert.match(followup, /GT:\s*"GTQ"|Guatemala:\s*"GT"/);
 assert.match(followup, /"Central America":\s*"BZ CR SV GT HN NI PA"/);
@@ -80,5 +83,8 @@ assert.match(results, /liveHotelNames/);
 assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.\.hotelFallbacks/);
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
+assert.match(indexHtml, /script\.js\?v=20260717-8/);
+assert.match(loadingHtml, /loading\.js\?v=20260717-7/);
+assert.match(resultsHtml, /results\.js\?v=20260717-5/);
 
 console.log("destination reliability checks passed");
