@@ -1332,9 +1332,9 @@ function adaptTravelResultToDestination(result) {
     reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
   const restaurantCandidates = liveRestaurantPlaces.length
-    ? liveRestaurantPlaces.map((place, index) => [place.label, null, [30000, 22000, 45000, 18000, 35000, 25000][index] || 25000, [75000, 60000, 110000, 50000, 85000, 65000][index] || 65000, place.cuisine])
+    ? liveRestaurantPlaces.map((place, index) => [place.label, null, [30000, 22000, 45000, 18000, 35000, 25000][index] || 25000, [75000, 60000, 110000, 50000, 85000, 65000][index] || 65000, place.cuisine, place.source])
     : restaurantProfileForCity(city);
-  const restaurants = restaurantCandidates.map(([name, rating, min, max, cuisine], index) => ({
+  const restaurants = restaurantCandidates.map(([name, rating, min, max, cuisine, source], index) => ({
     ...(result.restaurants?.[index] || {}),
     id: `restaurant-${profileCode}-${index + 1}`,
     type: name,
@@ -1343,6 +1343,7 @@ function adaptTravelResultToDestination(result) {
     venueNameKo: localizedVenueNames[name] || name,
     rating,
     cuisine: cuisine || "",
+    providerSource: source || "Prototype curated fallback",
     livePlaceName: Boolean(liveRestaurantPlaces.length),
     estimatedPrice: { currency: "KRW", min, max },
     recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,

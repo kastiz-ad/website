@@ -281,8 +281,8 @@ const fetchLocalPlaces = async (mission) => {
   if (!city) return fallbackProvider("OpenStreetMap", "local_places", "Local place search requires a destination city.");
   try {
     const { latitude, longitude } = await getCoordinates(mission);
-    const query = `[out:json][timeout:15];(nwr(around:12000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"];nwr(around:12000,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"];nwr(around:12000,${latitude},${longitude})[public_transport];);out center 60;`;
-    const data = await fetchJson(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 12000, retries: 0, cacheTtl: 86400000 });
+    const query = `[out:json][timeout:20];(nwr(around:12000,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"];nwr(around:12000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"];nwr(around:12000,${latitude},${longitude})[public_transport];);out center 160;`;
+    const data = await fetchJson(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 18000, retries: 0, cacheTtl: 86400000 });
     const seen = new Set();
     const normalize = (entry) => {
       const tags = entry.tags || {};
@@ -291,6 +291,17 @@ const fetchLocalPlaces = async (mission) => {
       return { label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", source: "OpenStreetMap" };
     };
     const items = (data?.elements || []).map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
+    if (items.filter((item) => item.kind === "restaurant").length < 4) {
+      const placeQuery = ["restaurants", city, country].filter(Boolean).join(" ");
+      const restaurantSearch = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&extratags=1&limit=12&q=${encodeURIComponent(placeQuery)}`, { timeout: 10000, retries: 0, cacheTtl: 86400000 }).catch(() => []);
+      (Array.isArray(restaurantSearch) ? restaurantSearch : []).forEach((place) => {
+        const label = place.namedetails?.[mission.language === "ko" ? "name:ko" : "name:en"] || place.namedetails?.name || String(place.display_name || "").split(",")[0].trim();
+        const key = `restaurant:${String(label).toLowerCase()}`;
+        if (!label || /^(restaurant|restaurants|cafe)$/i.test(label) || seen.has(key)) return;
+        seen.add(key);
+        items.push({ label, value: place.type || "restaurant", kind: "restaurant", cuisine: place.extratags?.cuisine || "", stars: "", source: "OpenStreetMap Nominatim" });
+      });
+    }
     return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: items.length > 0, requiresKey: false, requiresPartnerAccess: false, items, attribution: "© OpenStreetMap contributors", error: null };
   } catch (error) {
     return fallbackProvider("OpenStreetMap Overpass", "local_places", "Public hotel, restaurant and transport names could not be loaded; prototype fallbacks are shown.", error.message);
