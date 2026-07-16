@@ -104,6 +104,8 @@ const TRAVEL_DESTINATION_CHOICES = [
   { country: "South Korea", aliases: ["south korea", "korea", "대한민국", "한국"], cities: ["Seoul", "Busan", "Jeju", "Gyeongju", "Incheon", "Gangneung"] },
   { country: "Colombia", aliases: ["colombia", "콜롬비아"], cities: ["Bogotá", "Medellín", "Cartagena", "Cali", "Santa Marta", "Pereira"] },
   { country: "Mexico", aliases: ["mexico", "멕시코"], cities: ["Mexico City", "Cancún", "Los Cabos", "Oaxaca", "Guadalajara", "Puerto Vallarta"] },
+  { country: "Guatemala", aliases: ["guatemala", "과테말라"], cities: ["Guatemala City", "Antigua Guatemala", "Flores", "Quetzaltenango"] },
+  { country: "Panama", aliases: ["panama", "파나마"], cities: ["Panama City", "Bocas del Toro", "Boquete", "Colon"] },
   { country: "Singapore", aliases: ["singapore", "싱가포르"], cities: ["Singapore"] },
   { country: "Argentina", aliases: ["argentina", "아르헨티나"], cities: ["Buenos Aires", "Mendoza", "Cordoba", "Bariloche"] },
   { country: "Brazil", aliases: ["brazil", "브라질"], cities: ["Sao Paulo", "Rio de Janeiro", "Brasilia", "Salvador"] },
@@ -121,9 +123,9 @@ const TRAVEL_DESTINATION_CHOICES = [
   { country: "Egypt", aliases: ["egypt", "이집트"], cities: ["Cairo", "Luxor", "Alexandria", "Sharm El Sheikh"] },
   { country: "Morocco", aliases: ["morocco", "모로코"], cities: ["Marrakesh", "Casablanca", "Fes", "Rabat"] }
 ];
-const TRAVEL_COUNTRY_CODES = { Japan: "JP", Spain: "ES", "United States": "US", Canada: "CA", France: "FR", Italy: "IT", "United Kingdom": "GB", Germany: "DE", Australia: "AU", Thailand: "TH", Vietnam: "VN", China: "CN", "South Korea": "KR", Colombia: "CO", Mexico: "MX", Singapore: "SG", Argentina: "AR", Brazil: "BR", Peru: "PE", Chile: "CL", Portugal: "PT", Netherlands: "NL", Greece: "GR", "United Arab Emirates": "AE", India: "IN", Indonesia: "ID", Malaysia: "MY", "New Zealand": "NZ", "South Africa": "ZA", Egypt: "EG", Morocco: "MA" };
+const TRAVEL_COUNTRY_CODES = { Japan: "JP", Spain: "ES", "United States": "US", Canada: "CA", France: "FR", Italy: "IT", "United Kingdom": "GB", Germany: "DE", Australia: "AU", Thailand: "TH", Vietnam: "VN", China: "CN", "South Korea": "KR", Colombia: "CO", Mexico: "MX", Guatemala: "GT", Panama: "PA", Singapore: "SG", Argentina: "AR", Brazil: "BR", Peru: "PE", Chile: "CL", Portugal: "PT", Netherlands: "NL", Greece: "GR", "United Arab Emirates": "AE", India: "IN", Indonesia: "ID", Malaysia: "MY", "New Zealand": "NZ", "South Africa": "ZA", Egypt: "EG", Morocco: "MA" };
 const CONTINENT_BY_COUNTRY = {
-  "United States": "North America", Canada: "North America", Mexico: "North America",
+  "United States": "North America", Canada: "North America", Mexico: "North America", Guatemala: "North America", Panama: "North America",
   Colombia: "South America", Argentina: "South America", Brazil: "South America", Peru: "South America", Chile: "South America",
   Spain: "Europe", France: "Europe", Italy: "Europe", "United Kingdom": "Europe", Germany: "Europe", Portugal: "Europe", Netherlands: "Europe", Greece: "Europe",
   Japan: "Asia", Thailand: "Asia", Vietnam: "Asia", China: "Asia", "South Korea": "Asia", Singapore: "Asia", India: "Asia", Indonesia: "Asia", Malaysia: "Asia",
@@ -132,7 +134,7 @@ const CONTINENT_BY_COUNTRY = {
   "South Africa": "Africa", Morocco: "Africa"
 };
 const CONTINENT_NAMES_KO = { "North America": "북아메리카", "South America": "남아메리카", Europe: "유럽", Asia: "아시아", Oceania: "오세아니아", "Middle East": "중동", Africa: "아프리카" };
-const COUNTRY_NAMES_KO = { "United States": "미국", Canada: "캐나다", Mexico: "멕시코", Colombia: "콜롬비아", Argentina: "아르헨티나", Brazil: "브라질", Peru: "페루", Chile: "칠레", Spain: "스페인", France: "프랑스", Italy: "이탈리아", "United Kingdom": "영국", Germany: "독일", Portugal: "포르투갈", Netherlands: "네덜란드", Greece: "그리스", Japan: "일본", Thailand: "태국", Vietnam: "베트남", China: "중국", "South Korea": "대한민국", Singapore: "싱가포르", India: "인도", Indonesia: "인도네시아", Malaysia: "말레이시아", Australia: "호주", "New Zealand": "뉴질랜드", "United Arab Emirates": "아랍에미리트", Egypt: "이집트", "South Africa": "남아프리카공화국", Morocco: "모로코" };
+const COUNTRY_NAMES_KO = { "United States": "미국", Canada: "캐나다", Mexico: "멕시코", Guatemala: "과테말라", Panama: "파나마", Colombia: "콜롬비아", Argentina: "아르헨티나", Brazil: "브라질", Peru: "페루", Chile: "칠레", Spain: "스페인", France: "프랑스", Italy: "이탈리아", "United Kingdom": "영국", Germany: "독일", Portugal: "포르투갈", Netherlands: "네덜란드", Greece: "그리스", Japan: "일본", Thailand: "태국", Vietnam: "베트남", China: "중국", "South Korea": "대한민국", Singapore: "싱가포르", India: "인도", Indonesia: "인도네시아", Malaysia: "말레이시아", Australia: "호주", "New Zealand": "뉴질랜드", "United Arab Emirates": "아랍에미리트", Egypt: "이집트", "South Africa": "남아프리카공화국", Morocco: "모로코" };
 const CITY_NAMES_KO = {
   Madrid: "마드리드", Barcelona: "바르셀로나", Seville: "세비야", Valencia: "발렌시아", "Málaga": "말라가", Bilbao: "빌바오",
   "New York": "뉴욕", "Los Angeles": "로스앤젤레스", "Washington, D.C.": "워싱턴 D.C.", "San Francisco": "샌프란시스코", Chicago: "시카고", Miami: "마이애미",
@@ -140,7 +142,7 @@ const CITY_NAMES_KO = {
   Paris: "파리", London: "런던", Rome: "로마", Milan: "밀라노", Venice: "베네치아", Florence: "피렌체",
   Bangkok: "방콕", Phuket: "푸껫", Hanoi: "하노이", "Ho Chi Minh City": "호찌민", "Da Nang": "다낭", Singapore: "싱가포르",
   Sydney: "시드니", Melbourne: "멜버른", Beijing: "베이징", Shanghai: "상하이", Seoul: "서울", Busan: "부산", Jeju: "제주",
-  "Buenos Aires": "부에노스아이레스", Lima: "리마", "Sao Paulo": "상파울루", "Rio de Janeiro": "리우데자네이루", Bogota: "보고타", "Bogotá": "보고타",
+  "Buenos Aires": "부에노스아이레스", Lima: "리마", "Sao Paulo": "상파울루", "Rio de Janeiro": "리우데자네이루", Bogota: "보고타", "Bogotá": "보고타", "Guatemala City": "과테말라시티", "Panama City": "파나마시티",
   Berlin: "베를린", Munich: "뮌헨", Lisbon: "리스본", Amsterdam: "암스테르담", Athens: "아테네", Dubai: "두바이", Delhi: "델리", Bali: "발리",
   Auckland: "오클랜드", "Cape Town": "케이프타운", Cairo: "카이로", Marrakesh: "마라케시"
 };
@@ -149,7 +151,7 @@ const normalizeDestinationLookup = (value) => String(value || "").normalize("NFD
 const CITY_ALIASES = {
   nyc: "New York", la: "Los Angeles", "l.a.": "Los Angeles", "엘에이": "Los Angeles",
   washington: "Washington, D.C.", "washington dc": "Washington, D.C.", "washington d.c.": "Washington, D.C.", "워싱턴": "Washington, D.C.", "워싱턴 dc": "Washington, D.C.",
-  "sao paulo": "Sao Paulo", "são paulo": "Sao Paulo", bogota: "Bogotá", "buenos aires": "Buenos Aires"
+  "sao paulo": "Sao Paulo", "são paulo": "Sao Paulo", "상파울로": "Sao Paulo", "상파울루": "Sao Paulo", bogota: "Bogotá", "buenos aires": "Buenos Aires"
 };
 const findDestinationMatch = (value, language) => {
   const normalized = normalizeDestinationLookup(value);
@@ -209,6 +211,7 @@ const inferTravelContext = (mission = "") => {
     ["Los Angeles", ["los angeles", "l.a.", "로스앤젤레스", "엘에이"]],
     ["Washington, D.C.", ["washington dc", "washington d.c.", "워싱턴"]],
     ["Buenos Aires", ["buenos aires", "부에노스아이레스"]],
+    ["Sao Paulo", ["sao paulo", "são paulo", "상파울로", "상파울루"]],
     ["Japan", ["japan", "tokyo", "일본", "도쿄"]],
     ["Madrid", ["madrid", "마드리드"]],
     ["Colombia", ["colombia", "bogota", "bogotá", "콜롬비아", "보고타"]],
@@ -273,6 +276,8 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
   let current = 0;
   let resolvedDestination = null;
   let showResolvedDestination = () => {};
+  let destinationLookupTimer = 0;
+  let destinationLookupSequence = 0;
 
   dialog.innerHTML = `<form method="dialog" class="mission-followup-form" novalidate>
     <button class="schedule-modal-close" type="button" data-action="cancel" aria-label="${ko ? "닫기" : "Close"}">×</button>
@@ -370,7 +375,20 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           resolvedDestination = countryForCity(citySelect.value, language) || { country: countrySelect.value, code: TRAVEL_COUNTRY_CODES[countrySelect.value] || "", city: citySelect.value };
         }
       });
-      destinationInput.addEventListener("input", () => { resolvedDestination = null; syncHierarchy(destinationInput.value); });
+      destinationInput.addEventListener("input", () => {
+        resolvedDestination = null;
+        const typedValue = destinationInput.value;
+        syncHierarchy(typedValue);
+        if (resolvedDestination || typedValue.trim().length < 2) return;
+        window.clearTimeout(destinationLookupTimer);
+        const lookupSequence = ++destinationLookupSequence;
+        destinationLookupTimer = window.setTimeout(async () => {
+          const worldwideMatch = await resolveWorldwideDestination(typedValue, language);
+          if (!worldwideMatch || lookupSequence !== destinationLookupSequence || destinationInput.value !== typedValue) return;
+          resolvedDestination = worldwideMatch;
+          showResolvedDestination(worldwideMatch);
+        }, 450);
+      });
       if (destinationInput.value) syncHierarchy(destinationInput.value);
     }
     form.elements.startDate.min = iso(today);
