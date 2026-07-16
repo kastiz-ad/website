@@ -518,7 +518,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         <label><span>${ko ? "국가" : "Country"}</span><select data-destination-level="country" disabled><option value="">${ko ? "국가 선택" : "Select a country"}</option></select></label>
         <label><span>${ko ? "주 / 지역" : "State / Region"}</span><select data-destination-level="state" disabled><option value="">${ko ? "주 또는 지역 선택" : "Select a state or region"}</option></select></label>
         <label><span>${ko ? "도시" : "City"}</span><select data-destination-level="city" disabled><option value="">${ko ? "도시 선택" : "Select a city"}</option></select></label>
-        <label data-destination-matches hidden><span>${ko ? "일치하는 위치" : "Matching locations"}</span><select data-destination-level="match"><option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option></select></label>`;
+        <label data-destination-matches hidden><span>${ko ? "일치하는 위치 (선택 사항)" : "Matching locations (optional)"}</span><select data-destination-level="match"><option value="">${ko ? "필요한 경우 더 정확한 위치를 선택하세요" : "Choose a more specific place if needed"}</option></select></label>`;
       destinationInput.closest("label")?.after(hierarchy);
       const continentSelect = hierarchy.querySelector('[data-destination-level="continent"]');
       const countrySelect = hierarchy.querySelector('[data-destination-level="country"]');
@@ -529,7 +529,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       const clearDestinationMatches = () => {
         destinationCandidates = [];
         matchField.hidden = true;
-        matchSelect.innerHTML = `<option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option>`;
+        matchSelect.innerHTML = `<option value="">${ko ? "필요한 경우 더 정확한 위치를 선택하세요" : "Choose a more specific place if needed"}</option>`;
       };
       const renderDestinationMatches = (matches) => {
         destinationCandidates = matches;
@@ -537,7 +537,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           matchField.hidden = true;
           return;
         }
-        matchSelect.innerHTML = `<option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
+        matchSelect.innerHTML = `<option value="">${ko ? "자동 선택을 사용하거나 더 정확한 위치를 선택하세요" : "Use the automatic choice or select a more specific place"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
         matchField.hidden = false;
       };
       let globalCountries = buildStaticWorldwideCountries();
@@ -661,10 +661,8 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           const matches = await searchWorldwideDestinations(typedValue, language);
           if (!matches.length || lookupSequence !== destinationLookupSequence || destinationInput.value !== typedValue) return;
           renderDestinationMatches(matches);
-          if (matches.length === 1) {
-            resolvedDestination = matches[0];
-            showResolvedDestination(matches[0]);
-          }
+          resolvedDestination = matches[0];
+          if (matches.length === 1) showResolvedDestination(matches[0]);
         }, 450);
       });
       loadWorldwideCountries().then((countries) => {
@@ -744,14 +742,12 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           destinationCandidates = matches;
           const matchField = form.querySelector('[data-destination-matches]');
           const matchSelect = form.querySelector('[data-destination-level="match"]');
-          matchSelect.innerHTML = `<option value="">${ko ? "정확한 위치와 국가를 선택하세요" : "Choose the exact place and country"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
+          matchSelect.innerHTML = `<option value="">${ko ? "자동 선택을 사용하거나 더 정확한 위치를 선택하세요" : "Use the automatic choice or select a more specific place"}</option>${matches.map((item, index) => `<option value="${index}">${esc(destinationCandidateLabel(item, language))}</option>`).join("")}`;
           matchField.hidden = false;
-          error.textContent = ko ? "같은 이름의 위치가 여러 곳입니다. 정확한 위치와 국가를 선택하세요." : "Several places share this name. Choose the exact place and country.";
-          matchSelect.focus();
-          next.textContent = ko ? "계속" : "Continue";
-          return;
+          resolvedDestination = matches[0];
+          error.textContent = "";
         }
-        resolvedDestination = matches[0] || null;
+        resolvedDestination ||= matches[0] || null;
         if (resolvedDestination) {
           form.elements.destination.value = cityLabel(resolvedDestination.city, language);
           showResolvedDestination(resolvedDestination);
