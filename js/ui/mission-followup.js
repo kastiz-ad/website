@@ -104,7 +104,12 @@ const TRAVEL_DESTINATION_CHOICES = [
   { country: "South Korea", aliases: ["south korea", "korea", "대한민국", "한국"], cities: ["Seoul", "Busan", "Jeju", "Gyeongju", "Incheon", "Gangneung"] },
   { country: "Colombia", aliases: ["colombia", "콜롬비아"], cities: ["Bogotá", "Medellín", "Cartagena", "Cali", "Santa Marta", "Pereira"] },
   { country: "Mexico", aliases: ["mexico", "멕시코"], cities: ["Mexico City", "Cancún", "Los Cabos", "Oaxaca", "Guadalajara", "Puerto Vallarta"] },
+  { country: "Belize", aliases: ["belize", "벨리즈"], cities: ["Belize City", "Belmopan", "San Ignacio", "San Pedro"] },
+  { country: "Costa Rica", aliases: ["costa rica", "코스타리카"], cities: ["San Jose", "Liberia", "Limon", "La Fortuna"] },
+  { country: "El Salvador", aliases: ["el salvador", "salvador", "엘살바도르", "살바도르"], cities: ["San Salvador", "Santa Ana", "La Libertad", "Suchitoto"] },
   { country: "Guatemala", aliases: ["guatemala", "과테말라"], cities: ["Guatemala City", "Antigua Guatemala", "Flores", "Quetzaltenango"] },
+  { country: "Honduras", aliases: ["honduras", "온두라스"], cities: ["Tegucigalpa", "San Pedro Sula", "La Ceiba", "Roatan"] },
+  { country: "Nicaragua", aliases: ["nicaragua", "니카라과"], cities: ["Managua", "Granada", "Leon", "San Juan del Sur"] },
   { country: "Panama", aliases: ["panama", "파나마"], cities: ["Panama City", "Bocas del Toro", "Boquete", "Colon"] },
   { country: "Singapore", aliases: ["singapore", "싱가포르"], cities: ["Singapore"] },
   { country: "Argentina", aliases: ["argentina", "아르헨티나"], cities: ["Buenos Aires", "Mendoza", "Cordoba", "Bariloche"] },
@@ -123,9 +128,10 @@ const TRAVEL_DESTINATION_CHOICES = [
   { country: "Egypt", aliases: ["egypt", "이집트"], cities: ["Cairo", "Luxor", "Alexandria", "Sharm El Sheikh"] },
   { country: "Morocco", aliases: ["morocco", "모로코"], cities: ["Marrakesh", "Casablanca", "Fes", "Rabat"] }
 ];
-const TRAVEL_COUNTRY_CODES = { Japan: "JP", Spain: "ES", "United States": "US", Canada: "CA", France: "FR", Italy: "IT", "United Kingdom": "GB", Germany: "DE", Australia: "AU", Thailand: "TH", Vietnam: "VN", China: "CN", "South Korea": "KR", Colombia: "CO", Mexico: "MX", Guatemala: "GT", Panama: "PA", Singapore: "SG", Argentina: "AR", Brazil: "BR", Peru: "PE", Chile: "CL", Portugal: "PT", Netherlands: "NL", Greece: "GR", "United Arab Emirates": "AE", India: "IN", Indonesia: "ID", Malaysia: "MY", "New Zealand": "NZ", "South Africa": "ZA", Egypt: "EG", Morocco: "MA" };
+const TRAVEL_COUNTRY_CODES = { Japan: "JP", Spain: "ES", "United States": "US", Canada: "CA", France: "FR", Italy: "IT", "United Kingdom": "GB", Germany: "DE", Australia: "AU", Thailand: "TH", Vietnam: "VN", China: "CN", "South Korea": "KR", Colombia: "CO", Mexico: "MX", Belize: "BZ", "Costa Rica": "CR", "El Salvador": "SV", Guatemala: "GT", Honduras: "HN", Nicaragua: "NI", Panama: "PA", Singapore: "SG", Argentina: "AR", Brazil: "BR", Peru: "PE", Chile: "CL", Portugal: "PT", Netherlands: "NL", Greece: "GR", "United Arab Emirates": "AE", India: "IN", Indonesia: "ID", Malaysia: "MY", "New Zealand": "NZ", "South Africa": "ZA", Egypt: "EG", Morocco: "MA" };
 const CONTINENT_BY_COUNTRY = {
-  "United States": "North America", Canada: "North America", Mexico: "North America", Guatemala: "North America", Panama: "North America",
+  "United States": "North America", Canada: "North America", Mexico: "North America",
+  Belize: "Central America", "Costa Rica": "Central America", "El Salvador": "Central America", Guatemala: "Central America", Honduras: "Central America", Nicaragua: "Central America", Panama: "Central America",
   Colombia: "South America", Argentina: "South America", Brazil: "South America", Peru: "South America", Chile: "South America",
   Spain: "Europe", France: "Europe", Italy: "Europe", "United Kingdom": "Europe", Germany: "Europe", Portugal: "Europe", Netherlands: "Europe", Greece: "Europe",
   Japan: "Asia", Thailand: "Asia", Vietnam: "Asia", China: "Asia", "South Korea": "Asia", Singapore: "Asia", India: "Asia", Indonesia: "Asia", Malaysia: "Asia",
@@ -133,8 +139,8 @@ const CONTINENT_BY_COUNTRY = {
   "United Arab Emirates": "Middle East", Egypt: "Middle East",
   "South Africa": "Africa", Morocco: "Africa"
 };
-const CONTINENT_NAMES_KO = { "North America": "북아메리카", "South America": "남아메리카", Europe: "유럽", Asia: "아시아", Oceania: "오세아니아", "Middle East": "중동", Africa: "아프리카" };
-const COUNTRY_NAMES_KO = { "United States": "미국", Canada: "캐나다", Mexico: "멕시코", Guatemala: "과테말라", Panama: "파나마", Colombia: "콜롬비아", Argentina: "아르헨티나", Brazil: "브라질", Peru: "페루", Chile: "칠레", Spain: "스페인", France: "프랑스", Italy: "이탈리아", "United Kingdom": "영국", Germany: "독일", Portugal: "포르투갈", Netherlands: "네덜란드", Greece: "그리스", Japan: "일본", Thailand: "태국", Vietnam: "베트남", China: "중국", "South Korea": "대한민국", Singapore: "싱가포르", India: "인도", Indonesia: "인도네시아", Malaysia: "말레이시아", Australia: "호주", "New Zealand": "뉴질랜드", "United Arab Emirates": "아랍에미리트", Egypt: "이집트", "South Africa": "남아프리카공화국", Morocco: "모로코" };
+const CONTINENT_NAMES_KO = { "North America": "북아메리카", "Central America": "중미", Caribbean: "카리브해", "South America": "남아메리카", Europe: "유럽", Asia: "아시아", Oceania: "오세아니아", "Middle East": "중동", Africa: "아프리카" };
+const COUNTRY_NAMES_KO = { "United States": "미국", Canada: "캐나다", Mexico: "멕시코", Belize: "벨리즈", "Costa Rica": "코스타리카", "El Salvador": "엘살바도르", Guatemala: "과테말라", Honduras: "온두라스", Nicaragua: "니카라과", Panama: "파나마", Colombia: "콜롬비아", Argentina: "아르헨티나", Brazil: "브라질", Peru: "페루", Chile: "칠레", Spain: "스페인", France: "프랑스", Italy: "이탈리아", "United Kingdom": "영국", Germany: "독일", Portugal: "포르투갈", Netherlands: "네덜란드", Greece: "그리스", Japan: "일본", Thailand: "태국", Vietnam: "베트남", China: "중국", "South Korea": "대한민국", Singapore: "싱가포르", India: "인도", Indonesia: "인도네시아", Malaysia: "말레이시아", Australia: "호주", "New Zealand": "뉴질랜드", "United Arab Emirates": "아랍에미리트", Egypt: "이집트", "South Africa": "남아프리카공화국", Morocco: "모로코" };
 const CITY_NAMES_KO = {
   Madrid: "마드리드", Barcelona: "바르셀로나", Seville: "세비야", Valencia: "발렌시아", "Málaga": "말라가", Bilbao: "빌바오",
   "New York": "뉴욕", "Los Angeles": "로스앤젤레스", "Washington, D.C.": "워싱턴 D.C.", "San Francisco": "샌프란시스코", Chicago: "시카고", Miami: "마이애미",
@@ -142,7 +148,7 @@ const CITY_NAMES_KO = {
   Paris: "파리", London: "런던", Rome: "로마", Milan: "밀라노", Venice: "베네치아", Florence: "피렌체",
   Bangkok: "방콕", Phuket: "푸껫", Hanoi: "하노이", "Ho Chi Minh City": "호찌민", "Da Nang": "다낭", Singapore: "싱가포르",
   Sydney: "시드니", Melbourne: "멜버른", Beijing: "베이징", Shanghai: "상하이", Seoul: "서울", Busan: "부산", Jeju: "제주",
-  "Buenos Aires": "부에노스아이레스", Lima: "리마", "Sao Paulo": "상파울루", "Rio de Janeiro": "리우데자네이루", Bogota: "보고타", "Bogotá": "보고타", "Guatemala City": "과테말라시티", "Panama City": "파나마시티",
+  "Buenos Aires": "부에노스아이레스", Lima: "리마", "Sao Paulo": "상파울루", "Rio de Janeiro": "리우데자네이루", Bogota: "보고타", "Bogotá": "보고타", "Belize City": "벨리즈시티", "San Jose": "산호세", "San Salvador": "산살바도르", "Guatemala City": "과테말라시티", Tegucigalpa: "테구시갈파", Managua: "마나과", "Panama City": "파나마시티",
   Berlin: "베를린", Munich: "뮌헨", Lisbon: "리스본", Amsterdam: "암스테르담", Athens: "아테네", Dubai: "두바이", Delhi: "델리", Bali: "발리",
   Auckland: "오클랜드", "Cape Town": "케이프타운", Cairo: "카이로", Marrakesh: "마라케시"
 };
@@ -202,6 +208,28 @@ const resolveWorldwideDestination = async (value, language) => {
   } catch {
     return null;
   }
+};
+
+let worldwideCountriesPromise;
+const loadWorldwideCountries = () => {
+  if (worldwideCountriesPromise) return worldwideCountriesPromise;
+  worldwideCountriesPromise = fetch("https://restcountries.com/v3.1/all?fields=name,cca2,region,subregion,translations,currencies,capital")
+    .then((response) => response.ok ? response.json() : [])
+    .then((countries) => countries.map((country) => {
+      const continent = country.region === "Americas"
+        ? (country.subregion === "South America" ? "South America" : country.subregion === "Central America" ? "Central America" : country.subregion === "Caribbean" ? "Caribbean" : "North America")
+        : (country.region === "Oceania" ? "Oceania" : country.subregion === "Western Asia" ? "Middle East" : country.region || "Other");
+      return {
+        country: country.name?.common || "",
+        countryKo: country.translations?.kor?.common || country.name?.common || "",
+        code: country.cca2 || "",
+        continent,
+        currency: Object.keys(country.currencies || {})[0] || "",
+        cities: Array.isArray(country.capital) ? country.capital : []
+      };
+    }).filter((country) => country.country && country.continent).sort((a, b) => a.country.localeCompare(b.country)))
+    .catch(() => []);
+  return worldwideCountriesPromise;
 };
 
 const inferTravelContext = (mission = "") => {
@@ -332,15 +360,19 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       const continentSelect = hierarchy.querySelector('[data-destination-level="continent"]');
       const countrySelect = hierarchy.querySelector('[data-destination-level="country"]');
       const citySelect = hierarchy.querySelector('[data-destination-level="city"]');
+      let globalCountries = [];
       const continents = [...new Set(Object.values(CONTINENT_BY_COUNTRY))];
       continentSelect.insertAdjacentHTML("beforeend", continents.map((continent) => `<option value="${esc(continent)}">${esc(ko ? CONTINENT_NAMES_KO[continent] || continent : continent)}</option>`).join(""));
       const fillCountries = (continent, selected = "") => {
-        const countries = TRAVEL_DESTINATION_CHOICES.filter((item) => CONTINENT_BY_COUNTRY[item.country] === continent);
-        countrySelect.innerHTML = `<option value="">${ko ? "국가 선택" : "Select a country"}</option>${countries.map((item) => `<option value="${esc(item.country)}" ${item.country === selected ? "selected" : ""}>${esc(ko ? COUNTRY_NAMES_KO[item.country] || item.country : item.country)}</option>`).join("")}`;
+        const builtIn = TRAVEL_DESTINATION_CHOICES.filter((item) => CONTINENT_BY_COUNTRY[item.country] === continent).map((item) => ({ ...item, countryKo: COUNTRY_NAMES_KO[item.country] || item.country }));
+        const merged = [...builtIn, ...globalCountries.filter((item) => item.continent === continent)]
+          .filter((item, index, all) => all.findIndex((candidate) => candidate.country === item.country) === index)
+          .sort((a, b) => a.country.localeCompare(b.country));
+        countrySelect.innerHTML = `<option value="">${ko ? "국가 선택" : "Select a country"}</option>${merged.map((item) => `<option value="${esc(item.country)}" ${item.country === selected ? "selected" : ""}>${esc(ko ? item.countryKo || item.country : item.country)}</option>`).join("")}`;
         countrySelect.disabled = !continent;
       };
       const fillCities = (country, selected = "") => {
-        const item = TRAVEL_DESTINATION_CHOICES.find((candidate) => candidate.country === country);
+        const item = TRAVEL_DESTINATION_CHOICES.find((candidate) => candidate.country === country) || globalCountries.find((candidate) => candidate.country === country);
         citySelect.innerHTML = `<option value="">${ko ? "도시 선택" : "Select a city"}</option>${(item?.cities || []).map((city) => `<option value="${esc(city)}" ${city === selected ? "selected" : ""}>${esc(cityLabel(city, language))}</option>`).join("")}`;
         citySelect.disabled = !item;
       };
@@ -372,7 +404,8 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       citySelect.addEventListener("change", () => {
         if (citySelect.value) {
           destinationInput.value = cityLabel(citySelect.value, language);
-          resolvedDestination = countryForCity(citySelect.value, language) || { country: countrySelect.value, code: TRAVEL_COUNTRY_CODES[countrySelect.value] || "", city: citySelect.value };
+          const globalCountry = globalCountries.find((item) => item.country === countrySelect.value);
+          resolvedDestination = countryForCity(citySelect.value, language) || { country: countrySelect.value, code: globalCountry?.code || TRAVEL_COUNTRY_CODES[countrySelect.value] || "", city: citySelect.value, continent: globalCountry?.continent || continentSelect.value, currency: globalCountry?.currency || "" };
         }
       });
       destinationInput.addEventListener("input", () => {
@@ -388,6 +421,13 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           resolvedDestination = worldwideMatch;
           showResolvedDestination(worldwideMatch);
         }, 450);
+      });
+      loadWorldwideCountries().then((countries) => {
+        globalCountries = countries;
+        [...new Set(countries.map((country) => country.continent))].forEach((continent) => {
+          if (continent && ![...continentSelect.options].some((option) => option.value === continent)) continentSelect.add(new Option(ko ? CONTINENT_NAMES_KO[continent] || continent : continent, continent));
+        });
+        if (continentSelect.value) fillCountries(continentSelect.value, countrySelect.value);
       });
       if (destinationInput.value) syncHierarchy(destinationInput.value);
     }
