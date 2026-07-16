@@ -1779,7 +1779,20 @@ const renderGeneralMission = (result) => {
 const renderMissionUnderstanding = () => {
   if (!missionUnderstoodGoal || !missionUnderstoodItems) return;
   const ko = activeLanguage === "ko";
-  const title = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.rawInput || (ko ? "준비된 미션" : "Prepared mission");
+  const rawGoal = String(currentResult?.originalMission || currentResult?.rawInput || currentResult?.mission || "").trim();
+  const cleanedGoal = rawGoal.toLowerCase().replace(/\b(?:trip|travel|vacation|visit|to|in|plan|please)\b/gi, " ").replace(/(?:여행|출장|가줘|가고 싶어|계획해줘)/g, " ").replace(/\s+/g, " ").trim();
+  const countryName = ko ? currentResult?.destination?.countryKo || currentResult?.destination?.country : currentResult?.destination?.country;
+  const cityName = ko ? currentResult?.destination?.cityKo || currentResult?.destination?.city : currentResult?.destination?.city;
+  const goalAliases = { la: cityName || "Los Angeles", "l.a.": cityName || "Los Angeles", nyc: cityName || "New York", "new york city": cityName || "New York", korea: countryName || "South Korea", "south korea": countryName || "South Korea", usa: countryName || "United States", "u.s.a.": countryName || "United States", uk: countryName || "United Kingdom", "u.k.": countryName || "United Kingdom" };
+  const normalizedCountry = String(currentResult?.destination?.country || "").toLowerCase();
+  const normalizedCity = String(currentResult?.destination?.city || "").toLowerCase();
+  const normalizedTravelGoal = goalAliases[cleanedGoal]
+    || (cleanedGoal && normalizedCountry.includes(cleanedGoal) ? countryName : "")
+    || (cleanedGoal && normalizedCity.includes(cleanedGoal) ? cityName : "")
+    || cityName || countryName;
+  const title = currentResult?.type === "travel"
+    ? normalizedTravelGoal || (ko ? "여행" : "Trip")
+    : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "준비된 미션" : "Prepared mission");
   const prepared = currentResult?.type === "travel"
     ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
     : (ko ? ["추천 계획", "비교 선택지", "예산", "체크리스트"] : ["Recommended plan", "Compared options", "Budget", "Checklist"]);

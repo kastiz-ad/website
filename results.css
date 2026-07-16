@@ -756,7 +756,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .mission-understood h2 { margin: 0 0 18px; font-size: clamp(25px, 4vw, 38px); letter-spacing: -.045em; }
 .mission-understood-goal { display: grid; gap: 5px; margin: 0 0 20px; }
 .mission-understood-goal span,.mission-understood-time { color: var(--text-muted); font-size: 13px; }
-.mission-understood-goal strong { font-size: 18px; }
+.mission-understood-goal strong { font-size: clamp(24px, 4vw, 38px); line-height: 1.12; letter-spacing: -.035em; }
 .mission-understood-items { display: flex; flex-wrap: wrap; gap: 9px; }
 .mission-understood-items span { padding: 8px 11px; border-radius: 999px; background: var(--chip); font-size: 13px; font-weight: 650; }
 .mission-understood-time { margin: 18px 0 0; }
@@ -1081,7 +1081,7 @@ html[data-theme="light"] .all-in-one img { filter: invert(1); }
   .mission-card .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(var(--option-rows, 1), auto); grid-auto-flow: column; }
   .mission-card.is-locked-card .option-list { grid-template-columns: minmax(0, 1fr); }
   .mission-card[data-card-id="weather"] .option-list { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
-  .mission-card[data-card-id="exchange-rate"] .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mission-card[data-card-id="exchange-rate"] .option-list { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-flow: row; }
   .mission-card .option-row { min-width: 0; }
 }
 
