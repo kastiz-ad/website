@@ -248,6 +248,46 @@ const resolveWorldwideDestination = async (value, language) => {
 };
 
 let worldwideCountriesPromise;
+const countryCitiesCache = new Map();
+const countryStatesCache = new Map();
+const stateCitiesCache = new Map();
+const US_STATE_NAMES_KO = {
+  Alabama: "앨라배마", Alaska: "알래스카", Arizona: "애리조나", Arkansas: "아칸소", California: "캘리포니아", Colorado: "콜로라도", Connecticut: "코네티컷", Delaware: "델라웨어", Florida: "플로리다", Georgia: "조지아",
+  Hawaii: "하와이", Idaho: "아이다호", Illinois: "일리노이", Indiana: "인디애나", Iowa: "아이오와", Kansas: "캔자스", Kentucky: "켄터키", Louisiana: "루이지애나", Maine: "메인", Maryland: "메릴랜드",
+  Massachusetts: "매사추세츠", Michigan: "미시간", Minnesota: "미네소타", Mississippi: "미시시피", Missouri: "미주리", Montana: "몬태나", Nebraska: "네브래스카", Nevada: "네바다", "New Hampshire": "뉴햄프셔", "New Jersey": "뉴저지",
+  "New Mexico": "뉴멕시코", "New York": "뉴욕", "North Carolina": "노스캐롤라이나", "North Dakota": "노스다코타", Ohio: "오하이오", Oklahoma: "오클라호마", Oregon: "오리건", Pennsylvania: "펜실베이니아", "Rhode Island": "로드아일랜드", "South Carolina": "사우스캐롤라이나",
+  "South Dakota": "사우스다코타", Tennessee: "테네시", Texas: "텍사스", Utah: "유타", Vermont: "버몬트", Virginia: "버지니아", Washington: "워싱턴", "West Virginia": "웨스트버지니아", Wisconsin: "위스콘신", Wyoming: "와이오밍"
+};
+const loadCountryStates = (country) => {
+  if (!country) return Promise.resolve([]);
+  if (countryStatesCache.has(country)) return countryStatesCache.get(country);
+  const request = fetch(`https://countriesnow.space/api/v0.1/countries/states/q?country=${encodeURIComponent(country)}`)
+    .then((response) => response.ok ? response.json() : null)
+    .then((payload) => Array.isArray(payload?.data?.states) ? payload.data.states.map((state) => state.name).filter(Boolean) : [])
+    .catch(() => []);
+  countryStatesCache.set(country, request);
+  return request;
+};
+const loadStateCities = (country, state) => {
+  const key = `${country}|${state}`;
+  if (stateCitiesCache.has(key)) return stateCitiesCache.get(key);
+  const request = fetch(`https://countriesnow.space/api/v0.1/countries/state/cities/q?country=${encodeURIComponent(country)}&state=${encodeURIComponent(state)}`)
+    .then((response) => response.ok ? response.json() : null)
+    .then((payload) => Array.isArray(payload?.data) ? payload.data.filter(Boolean).sort((a, b) => a.localeCompare(b)) : [])
+    .catch(() => []);
+  stateCitiesCache.set(key, request);
+  return request;
+};
+const loadCountryCities = (country) => {
+  if (!country) return Promise.resolve([]);
+  if (countryCitiesCache.has(country)) return countryCitiesCache.get(country);
+  const request = fetch(`https://countriesnow.space/api/v0.1/countries/cities/q?country=${encodeURIComponent(country)}`)
+    .then((response) => response.ok ? response.json() : null)
+    .then((payload) => Array.isArray(payload?.data) ? payload.data.filter(Boolean).sort((a, b) => a.localeCompare(b)) : [])
+    .catch(() => []);
+  countryCitiesCache.set(country, request);
+  return request;
+};
 const loadWorldwideCountries = () => {
   if (worldwideCountriesPromise) return worldwideCountriesPromise;
   worldwideCountriesPromise = fetch("https://restcountries.com/v3.1/all?fields=name,cca2,region,subregion,translations,currencies,capital")
@@ -392,10 +432,12 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       hierarchy.innerHTML = `
         <label><span>${ko ? "대륙" : "Continent"}</span><select data-destination-level="continent"><option value="">${ko ? "대륙 선택" : "Select a continent"}</option></select></label>
         <label><span>${ko ? "국가" : "Country"}</span><select data-destination-level="country" disabled><option value="">${ko ? "국가 선택" : "Select a country"}</option></select></label>
+        <label><span>${ko ? "주 / 지역" : "State / Region"}</span><select data-destination-level="state" disabled><option value="">${ko ? "주 또는 지역 선택" : "Select a state or region"}</option></select></label>
         <label><span>${ko ? "도시" : "City"}</span><select data-destination-level="city" disabled><option value="">${ko ? "도시 선택" : "Select a city"}</option></select></label>`;
       destinationInput.closest("label")?.after(hierarchy);
       const continentSelect = hierarchy.querySelector('[data-destination-level="continent"]');
       const countrySelect = hierarchy.querySelector('[data-destination-level="country"]');
+      const stateSelect = hierarchy.querySelector('[data-destination-level="state"]');
       const citySelect = hierarchy.querySelector('[data-destination-level="city"]');
       let globalCountries = [];
       const continents = [...new Set(Object.values(CONTINENT_BY_COUNTRY))];
@@ -408,9 +450,22 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         countrySelect.innerHTML = `<option value="">${ko ? "국가 선택" : "Select a country"}</option>${merged.map((item) => `<option value="${esc(item.country)}" ${item.country === selected ? "selected" : ""}>${esc(ko ? item.countryKo || item.country : item.country)}</option>`).join("")}`;
         countrySelect.disabled = !continent;
       };
-      const fillCities = (country, selected = "") => {
+      const fillStates = async (country, selected = "") => {
+        stateSelect.innerHTML = `<option value="">${ko ? "주 또는 지역 불러오는 중..." : "Loading states or regions..."}</option>`;
+        stateSelect.disabled = true;
+        const states = await loadCountryStates(country);
+        if (countrySelect.value !== country) return [];
+        stateSelect.innerHTML = `<option value="">${states.length ? (ko ? "주 또는 지역 선택" : "Select a state or region") : (ko ? "지역 선택 필요 없음" : "No state selection needed")}</option>${states.map((state) => `<option value="${esc(state)}" ${state === selected ? "selected" : ""}>${esc(ko && country === "United States" ? US_STATE_NAMES_KO[state] || state : state)}</option>`).join("")}`;
+        stateSelect.disabled = !states.length;
+        return states;
+      };
+      const fillCities = (country, selected = "", state = "", loadAll = true) => {
         const item = TRAVEL_DESTINATION_CHOICES.find((candidate) => candidate.country === country) || globalCountries.find((candidate) => candidate.country === country);
-        citySelect.innerHTML = `<option value="">${ko ? "도시 선택" : "Select a city"}</option>${(item?.cities || []).map((city) => `<option value="${esc(city)}" ${city === selected ? "selected" : ""}>${esc(cityLabel(city, language))}</option>`).join("")}`;
+        const renderCityOptions = (cities) => {
+          const uniqueCities = [...new Set(cities)].sort((a, b) => a.localeCompare(b));
+          citySelect.innerHTML = `<option value="">${ko ? "도시 선택 또는 위에서 직접 검색" : "Select a city or search above"}</option>${uniqueCities.map((city) => `<option value="${esc(city)}" ${city === selected ? "selected" : ""}>${esc(cityLabel(city, language))}</option>`).join("")}`;
+        };
+        renderCityOptions(item?.cities || []);
         citySelect.disabled = !item;
         if (ko && item) {
           Promise.all(item.cities.map(async (city) => [city, await koreanCityLabel(city, country)])).then((labels) => {
@@ -421,14 +476,28 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
             });
           });
         }
+        if (item && loadAll) {
+          const cityRequest = state ? loadStateCities(country, state) : loadCountryCities(country);
+          cityRequest.then((allCities) => {
+            if (countrySelect.value !== country || !allCities.length) return;
+            if (state && stateSelect.value !== state) return;
+            const currentSelection = citySelect.value || selected;
+            renderCityOptions([...(item.cities || []), ...allCities]);
+            if (currentSelection && [...citySelect.options].some((option) => option.value === currentSelection)) citySelect.value = currentSelection;
+          });
+        }
       };
       const syncHierarchy = (value) => {
         const match = findDestinationMatch(value, language);
         if (!match) return;
         const continent = CONTINENT_BY_COUNTRY[match.item.country] || "";
+        const normalizedValue = normalizeDestinationLookup(value);
+        const countryOnly = match.item.aliases.some((alias) => normalizeDestinationLookup(alias) === normalizedValue);
         continentSelect.value = continent;
         fillCountries(continent, match.item.country);
-        fillCities(match.item.country, match.city);
+        fillCities(match.item.country, countryOnly ? "" : match.city, "", false);
+        fillStates(match.item.country).then((states) => { if (!states.length) fillCities(match.item.country, countryOnly ? "" : match.city); });
+        if (countryOnly) return;
         resolvedDestination = { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city };
       };
       showResolvedDestination = (resolved) => {
@@ -440,18 +509,28 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         if (resolved.country && ![...countrySelect.options].some((option) => option.value === resolved.country)) countrySelect.add(new Option(resolved.country, resolved.country));
         countrySelect.disabled = false;
         countrySelect.value = resolved.country;
-        fillCities(resolved.country);
+        fillCities(resolved.country, "", "", false);
+        fillStates(resolved.country).then((states) => { if (!states.length) fillCities(resolved.country); });
         if (resolved.city && ![...citySelect.options].some((option) => option.value === resolved.city)) citySelect.add(new Option(cityLabel(resolved.city, language), resolved.city));
         citySelect.disabled = false;
         citySelect.value = resolved.city;
       };
-      continentSelect.addEventListener("change", () => { resolvedDestination = null; fillCountries(continentSelect.value); fillCities(""); });
-      countrySelect.addEventListener("change", () => { resolvedDestination = null; fillCities(countrySelect.value); });
+      continentSelect.addEventListener("change", () => { resolvedDestination = null; fillCountries(continentSelect.value); stateSelect.innerHTML = `<option value="">${ko ? "주 또는 지역 선택" : "Select a state or region"}</option>`; stateSelect.disabled = true; fillCities(""); });
+      countrySelect.addEventListener("change", () => {
+        resolvedDestination = null;
+        const country = countrySelect.value;
+        fillCities(country, "", "", false);
+        fillStates(country).then((states) => { if (!states.length) fillCities(country); });
+      });
+      stateSelect.addEventListener("change", () => {
+        resolvedDestination = null;
+        fillCities(countrySelect.value, "", stateSelect.value, true);
+      });
       citySelect.addEventListener("change", () => {
         if (citySelect.value) {
           destinationInput.value = cityLabel(citySelect.value, language);
           const globalCountry = globalCountries.find((item) => item.country === countrySelect.value);
-          resolvedDestination = countryForCity(citySelect.value, language) || { country: countrySelect.value, code: globalCountry?.code || TRAVEL_COUNTRY_CODES[countrySelect.value] || "", city: citySelect.value, continent: globalCountry?.continent || continentSelect.value, currency: globalCountry?.currency || "" };
+          resolvedDestination = { country: countrySelect.value, code: globalCountry?.code || TRAVEL_COUNTRY_CODES[countrySelect.value] || "", city: citySelect.value, state: stateSelect.value || "", continent: globalCountry?.continent || continentSelect.value, currency: globalCountry?.currency || "" };
         }
       });
       destinationInput.addEventListener("input", () => {
