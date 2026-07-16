@@ -1,6 +1,6 @@
 const pack=(id,capabilities)=>Object.freeze({id,capabilities:Object.freeze(capabilities)});
 export const MISSION_PACKS=Object.freeze({
-  travel:pack("travel",["flight.search","accommodation.search","accommodation.public_places","restaurant.search","restaurant.public_places","transport.place_search","transport.public_places","weather.forecast","currency.exchange","country.information","destination.information","travel.advisory","tourism.search","travel.checklist"]),
+  travel:pack("travel",["flight.search","accommodation.search","accommodation.public_places","restaurant.search","restaurant.public_places","transport.place_search","transport.public_places","transport.directions","transport.public_transit","weather.forecast","currency.exchange","country.information","destination.information","travel.advisory","tourism.search","travel.checklist"]),
   entertainment:pack("entertainment",["event.search","movie.search","accommodation.search","restaurant.search","transport.place_search","calendar.schedule"]),
   shopping:pack("shopping",["product.search","product.compare","product.availability","delivery.estimate","warranty.information"]),
   services:pack("services",["service.search","service.compare","service.availability","service.estimate"]),

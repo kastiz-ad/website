@@ -30,7 +30,10 @@ export const PROVIDER_DEFINITIONS=Object.freeze([
   d("lotte_cinema","Lotte Cinema",ACCESS_LEVEL.PARTNERSHIP,["movie.search","movie.availability","movie.reserve","movie.purchase"],full),
   d("megabox","Megabox",ACCESS_LEVEL.PARTNERSHIP,["movie.search","movie.availability","movie.reserve","movie.purchase"],full),
   d("coupang","Coupang",ACCESS_LEVEL.PARTNERSHIP,["product.search","product.compare","product.availability","product.purchase"],full,{placeholderMessage:"Public seller APIs do not provide a general consumer shopping-search connector."}),
+  d("naver_maps","Naver Maps",ACCESS_LEVEL.API_KEY,["location.map","location.geocode","transport.directions","transport.public_transit"],read,{placeholderMessage:"Naver Cloud Maps application and server-side credentials are required."}),
+  d("naver_local","Naver Local Search",ACCESS_LEVEL.API_KEY,["restaurant.search","service.search","location.place_search"],read,{placeholderMessage:"Naver developer application and server-side client ID/secret are required; Local Search returns up to five results."}),
   d("naver_shopping","Naver Shopping Search",ACCESS_LEVEL.API_KEY,["product.search","product.compare","product.estimate"],read,{placeholderMessage:"Application registration and server-side client ID/secret are required."}),
+  d("naver_booking","Naver Booking",ACCESS_LEVEL.PARTNERSHIP,["restaurant.availability","restaurant.reserve","service.availability","service.reserve"],full,{placeholderMessage:"No general public reservation API is available. Use an approved Naver business/booking integration; explicit user approval remains required."}),
   d("soomgo","Soomgo",ACCESS_LEVEL.PARTNERSHIP,["service.search","service.compare","service.availability","tutor.search"],read),
   d("online_tutoring","Online Tutoring",ACCESS_LEVEL.PLACEHOLDER,["tutor.search","tutor.compare","tutor.availability","tutor.estimate"],read)
 ]);

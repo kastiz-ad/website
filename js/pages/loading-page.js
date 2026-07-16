@@ -354,6 +354,13 @@ const buildTravelResourceLinks = (mission) => {
   const country = mission?.countryProfile?.name || mission?.destination?.country || "";
   const destination = [city, country].filter(Boolean).join(", ");
   const query = encodeURIComponent(destination || "international travel");
+  const countryCode = String(mission?.countryProfile?.code || mission?.destination?.countryCode || "").toUpperCase();
+  const isKorea = countryCode === "KR" || /Korea|대한민국|한국/i.test(country);
+  const koreaResources = isKorea ? [
+    { label: ko ? `${destination} 네이버 지도·대중교통` : `${destination} Naver Map and public transit`, value: ko ? "버스·지하철·도보 경로" : "Bus, subway and walking routes", url: `https://map.naver.com/p/search/${encodeURIComponent(destination)}` },
+    { label: ko ? `${destination} 식당 예약 찾기` : `Find restaurant reservations in ${destination}`, value: ko ? "네이버 예약 검색 · 외부 서비스" : "Naver booking search · external service", url: `https://search.naver.com/search.naver?query=${encodeURIComponent(`${destination} 식당 네이버 예약`)}` },
+    { label: ko ? `${destination} 미용실·서비스 예약 찾기` : `Find salons and services in ${destination}`, value: ko ? "네이버 예약 검색 · 외부 서비스" : "Naver booking search · external service", url: `https://search.naver.com/search.naver?query=${encodeURIComponent(`${destination} 미용실 서비스 네이버 예약`)}` }
+  ] : [];
   return {
     provider: "ONE Public Travel Resources",
     category: "travel_resources",
@@ -366,7 +373,8 @@ const buildTravelResourceLinks = (mission) => {
       { label: ko ? `${destination} 출국 전 알아둘 점` : `Things to know before visiting ${destination}`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+before+you+go+local+tips` },
       { label: ko ? "미국 국무부 여행경보" : "U.S. State Department travel advisories", value: ko ? "공식 여행경보 목록" : "Official advisory directory", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/" },
       { label: ko ? "대한민국 재외공관" : "Korean embassies and consulates", value: ko ? "외교부 재외공관 목록" : "Official overseas missions directory", url: "https://overseas.mofa.go.kr/" },
-      { label: ko ? `${destination} 지하철·대중교통 지도` : `${destination} subway and transit map`, value: "OpenStreetMap", url: `https://www.openstreetmap.org/search?query=${encodeURIComponent(`${destination} subway station`)}` }
+      { label: ko ? `${destination} 지하철·대중교통 지도` : `${destination} subway and transit map`, value: "OpenStreetMap", url: `https://www.openstreetmap.org/search?query=${encodeURIComponent(`${destination} subway station`)}` },
+      ...koreaResources
     ],
     error: null
   };

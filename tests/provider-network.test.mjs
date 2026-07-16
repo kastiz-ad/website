@@ -9,8 +9,8 @@ import { MISSION_PACKS } from "../js/providers/packs/mission-packs.js";
 import { SUPPORTED_COUNTRIES } from "../js/providers/catalog/countries.js";
 import { createMission } from "../js/engine/mission-creation.js";
 
-assert.equal(PROVIDER_DEFINITIONS.length,28);
-assert.equal(providerRegistry.list().length,28);
+assert.equal(PROVIDER_DEFINITIONS.length,31);
+assert.equal(providerRegistry.list().length,31);
 for(const connector of providerRegistry.list())for(const method of ["search","compare","availability","estimate","reserve","purchase","cancel","status","health","capabilities"])assert.equal(typeof connector[method],"function",`${connector.definition.id}.${method} must exist`);
 assert.equal(SUPPORTED_COUNTRIES.length,16);
 assert.ok(MISSION_PACKS.travel.capabilities.includes("flight.search"));
@@ -39,6 +39,9 @@ assert.equal(advisory.data[0].url,"https://www.gov.uk/foreign-travel-advice/mada
 assert.equal((await providerRegistry.get("korea_tourism").search({capability:"tourism.search"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
 assert.equal((await providerRegistry.get("us_national_parks").search({capability:"tourism.search"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
 assert.equal((await providerRegistry.get("naver_shopping").search({capability:"product.search"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
+assert.equal((await providerRegistry.get("naver_maps").search({capability:"transport.directions"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
+assert.equal((await providerRegistry.get("naver_local").search({capability:"restaurant.search"})).status,CONNECTOR_STATUS.REQUIRES_KEY);
+assert.equal((await providerRegistry.get("naver_booking").reserve({capability:"restaurant.reserve"})).status,CONNECTOR_STATUS.APPROVAL_REQUIRED);
 
 const booking=providerRegistry.get("booking_com");
 const placeholder=await booking.search({capability:"accommodation.search"});

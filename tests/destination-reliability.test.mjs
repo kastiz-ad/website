@@ -33,6 +33,8 @@ assert.match(loading, /www\.gov\.uk\/api\/content\/foreign-travel-advice/);
 assert.match(loading, /youtube\.com\/results\?search_query/);
 assert.match(loading, /overseas\.mofa\.go\.kr/);
 assert.match(loading, /learnenglish\.britishcouncil\.org/);
+assert.match(loading, /map\.naver\.com\/p\/search/);
+assert.match(loading, /식당 네이버 예약/);
 assert.match(results, /createPublicResourceCard/);
 assert.match(results, /GT:\s*\[\["Aeromexico"/);
 assert.match(results, /GT:\s*\[\[2300000, 3900000\]/);
