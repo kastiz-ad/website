@@ -1059,6 +1059,28 @@ const airlineProfilesByCountry = {
   ZA: [["South African Airways", "남아프리카항공"], ["Emirates", "에미레이트항공"], ["Qatar Airways", "카타르항공"], ["Ethiopian Airlines", "에티오피아항공"]]
 };
 
+Object.assign(airlineProfilesByCountry, {
+  GT: [["Aeromexico", "아에로멕시코"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  BZ: [["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"], ["Copa Airlines", "코파항공"], ["Avianca", "아비앙카항공"]],
+  CR: [["Avianca", "아비앙카항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  SV: [["Avianca", "아비앙카항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  HN: [["Avianca", "아비앙카항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  NI: [["Avianca", "아비앙카항공"], ["Copa Airlines", "코파항공"], ["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"]],
+  PA: [["Copa Airlines", "코파항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Avianca", "아비앙카항공"]]
+});
+
+const airlineProfilesByContinent = {
+  "Central America": airlineProfilesByCountry.GT,
+  Caribbean: [["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"], ["Copa Airlines", "코파항공"], ["Avianca", "아비앙카항공"]],
+  "South America": [["LATAM Airlines", "라탐항공"], ["Avianca", "아비앙카항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  Europe: [["Lufthansa", "루프트한자"], ["Air France", "에어프랑스"], ["KLM", "KLM 네덜란드항공"], ["Turkish Airlines", "터키항공"]],
+  Africa: [["Ethiopian Airlines", "에티오피아항공"], ["Qatar Airways", "카타르항공"], ["Emirates", "에미레이트항공"], ["Turkish Airlines", "터키항공"]],
+  "Middle East": [["Emirates", "에미레이트항공"], ["Qatar Airways", "카타르항공"], ["Etihad Airways", "에티하드항공"], ["Turkish Airlines", "터키항공"]],
+  Oceania: [["Qantas", "콴타스항공"], ["Singapore Airlines", "싱가포르항공"], ["Cathay Pacific", "캐세이퍼시픽"], ["Air New Zealand", "에어뉴질랜드"]],
+  Asia: [["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Singapore Airlines", "싱가포르항공"], ["Cathay Pacific", "캐세이퍼시픽"]],
+  "North America": [["Korean Air", "대한항공"], ["Delta Air Lines", "델타항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"]]
+};
+
 const airlineNameKo = {
   "Korean Air": "대한항공", "Asiana Airlines": "아시아나항공", "Jeju Air": "제주항공", "Japan Airlines": "일본항공",
   "Delta Air Lines": "델타항공", "United Airlines": "유나이티드항공", "Iberia": "이베리아항공", "Lufthansa": "루프트한자",
@@ -1095,7 +1117,7 @@ const cityProfileOverride = (code, city) => {
     CO: [[130000, 300000], [220000, 470000], [100000, 240000], [70000, 170000]]
   };
   return {
-    hotels: [`${city} Central Hotel`, `${city} Grand Hotel`, `${city} City Stay`, `${city} Value Hotel`],
+    hotels: [`${city} central-area accommodation — live provider confirmation required`],
     hotelPrices: hotelPriceDefaults[code] || [[160000, 360000], [260000, 520000], [120000, 280000], [90000, 210000]],
     transfer: `Official airport rail, bus, taxi, or licensed transfer serving ${city}`
   };
@@ -1169,9 +1191,13 @@ const restaurantProfileForCity = (city) => {
 
 function adaptTravelResultToDestination(result) {
   const code = result.country || result.countryProfile?.code || result.destination?.code;
+  const continent = result.destination?.continent || result.countryProfile?.continent || "";
   const profileCode = String(code || "global").toLowerCase();
   const city = result.destination?.city || result.countryProfile?.capital || "the destination";
   const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
+  const livePlaces = findLiveProvider(result, "local_places");
+  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, 4);
+  const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, 6);
   const regionalFareRanges = {
     KR: [[90000, 220000], [100000, 250000], [70000, 190000], [120000, 280000]],
     CN: [[280000, 620000], [300000, 680000], [220000, 520000], [340000, 740000]],
@@ -1184,20 +1210,50 @@ function adaptTravelResultToDestination(result) {
     FR: [[1450000, 2550000], [1400000, 2450000], [1500000, 2600000], [1380000, 2400000]],
     DE: [[1400000, 2500000], [1350000, 2400000], [1450000, 2550000], [1330000, 2350000]],
     IT: [[1500000, 2700000], [1450000, 2600000], [1550000, 2750000], [1420000, 2500000]],
-    MX: [[1900000, 3200000], [1850000, 3100000], [2000000, 3350000], [1800000, 3000000]]
+    MX: [[1900000, 3200000], [1850000, 3100000], [2000000, 3350000], [1800000, 3000000]],
+    GT: [[2300000, 3900000], [2200000, 3700000], [2250000, 3800000], [2350000, 4000000]],
+    BZ: [[2400000, 4100000], [2300000, 3950000], [2350000, 4000000], [2450000, 4200000]],
+    CR: [[2200000, 3800000], [2150000, 3700000], [2250000, 3900000], [2300000, 3950000]],
+    SV: [[2250000, 3850000], [2150000, 3700000], [2200000, 3800000], [2300000, 3950000]],
+    HN: [[2300000, 3950000], [2200000, 3800000], [2250000, 3900000], [2350000, 4050000]],
+    NI: [[2300000, 4000000], [2200000, 3850000], [2250000, 3950000], [2350000, 4100000]],
+    PA: [[2150000, 3700000], [2200000, 3800000], [2250000, 3900000], [2100000, 3650000]]
   };
-  const genericPrices = regionalFareRanges[code] || [[900000, 1900000], [850000, 1800000], [750000, 1650000], [950000, 2050000]];
+  const fareRangesByContinent = {
+    "Central America": [[2200000, 4000000], [2150000, 3900000], [2250000, 4100000], [2300000, 4200000]],
+    Caribbean: [[2200000, 4100000], [2150000, 4000000], [2250000, 4200000], [2300000, 4300000]],
+    "South America": [[2100000, 3900000], [2050000, 3800000], [2150000, 4000000], [2200000, 4100000]],
+    Europe: [[1350000, 2700000], [1300000, 2600000], [1400000, 2750000], [1450000, 2850000]],
+    Africa: [[1600000, 3200000], [1550000, 3100000], [1650000, 3300000], [1700000, 3400000]],
+    "Middle East": [[1000000, 2200000], [1050000, 2300000], [1100000, 2400000], [1150000, 2500000]],
+    Oceania: [[1050000, 2400000], [1100000, 2500000], [1150000, 2600000], [1200000, 2700000]],
+    Asia: [[350000, 1300000], [380000, 1400000], [420000, 1500000], [450000, 1600000]],
+    "North America": [[1650000, 3100000], [1600000, 3000000], [1700000, 3200000], [1750000, 3300000]]
+  };
+  const genericPrices = regionalFareRanges[code] || fareRangesByContinent[continent] || [[1400000, 3000000], [1350000, 2900000], [1450000, 3100000], [1500000, 3200000]];
+  const nightlyRangesByContinent = {
+    "Central America": [[90000, 240000], [150000, 360000], [70000, 180000], [50000, 130000]],
+    Caribbean: [[140000, 380000], [240000, 600000], [100000, 280000], [70000, 190000]],
+    "South America": [[90000, 250000], [160000, 400000], [70000, 190000], [50000, 140000]],
+    Europe: [[160000, 420000], [280000, 700000], [120000, 320000], [90000, 240000]],
+    Africa: [[90000, 260000], [170000, 450000], [70000, 190000], [50000, 140000]],
+    "Middle East": [[150000, 420000], [300000, 850000], [110000, 300000], [80000, 220000]],
+    Oceania: [[170000, 450000], [300000, 750000], [130000, 340000], [100000, 260000]],
+    Asia: [[100000, 300000], [200000, 550000], [80000, 220000], [60000, 160000]],
+    "North America": [[170000, 480000], [320000, 800000], [130000, 360000], [90000, 260000]]
+  };
   const baseProfile = destinationPrototypeProfiles[code] || {
-    airlines: airlineProfilesByCountry[code] || [["Korean Air", "대한항공"], ["Emirates", "에미레이트항공"], ["Qatar Airways", "카타르항공"], ["Lufthansa", "루프트한자"]],
+    airlines: airlineProfilesByCountry[code] || airlineProfilesByContinent[continent] || airlineProfilesByContinent.Asia,
     flightPrices: genericPrices,
-    hotels: [`${city} Central Hotel`, `${city} International Hotel`, `${city} City Stay`, `${city} Value Hotel`],
+    hotels: liveHotelNames.length ? liveHotelNames : [`${city} accommodation — live provider confirmation required`],
+    hotelPrices: nightlyRangesByContinent[continent] || [[120000, 340000], [220000, 560000], [90000, 250000], [70000, 180000]],
     transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
   };
   const cityOverride = cityProfileOverride(code, city);
-  const profile = cityOverride ? { ...baseProfile, ...cityOverride } : baseProfile;
+  const profile = cityOverride ? { ...baseProfile, ...cityOverride, ...(liveHotelNames.length ? { hotels: liveHotelNames } : {}) } : baseProfile;
   const flightReasons = [
-    [`Best overall balance of schedule, comfort, service, and estimated price for ${city}.`, `${cityKo} 노선에서 일정, 편안함, 서비스와 예상 가격의 균형이 가장 좋습니다.`],
-    [`Best service-focused alternative with dependable connections to ${city}.`, `${cityKo} 노선에서 서비스 품질과 연결 편의성이 좋은 대안입니다.`],
+    [`Best overall prototype itinerary candidate for ${city}; connections, operating carriers, and current fare require live provider confirmation.`, `${cityKo}행 프로토타입 일정 중 균형이 좋은 후보입니다. 경유지, 실제 운항사와 현재 운임은 실시간 제공업체 확인이 필요합니다.`],
+    [`Service-focused connecting itinerary candidate for ${city}; route availability requires live confirmation.`, `${cityKo}행 서비스 중심 경유 일정 후보입니다. 노선 이용 가능 여부는 실시간 확인이 필요합니다.`],
     [`Best budget-conscious option when price and flexible timing matter most.`, `가격과 유연한 일정이 가장 중요할 때 적합한 가성비 옵션입니다.`],
     [`Best quality alternative for travelers prioritizing reliability and onboard experience.`, `안정성과 기내 경험을 우선하는 여행자에게 적합한 고품질 대안입니다.`]
   ];
@@ -1247,7 +1303,10 @@ function adaptTravelResultToDestination(result) {
     reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
     reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
-  const restaurants = restaurantProfileForCity(city).map(([name, rating, min, max], index) => ({
+  const restaurantCandidates = liveRestaurantPlaces.length
+    ? liveRestaurantPlaces.map((place, index) => [place.label, null, [30000, 22000, 45000, 18000, 35000, 25000][index] || 25000, [75000, 60000, 110000, 50000, 85000, 65000][index] || 65000, place.cuisine])
+    : restaurantProfileForCity(city);
+  const restaurants = restaurantCandidates.map(([name, rating, min, max, cuisine], index) => ({
     ...(result.restaurants?.[index] || {}),
     id: `restaurant-${profileCode}-${index + 1}`,
     type: name,
@@ -1255,6 +1314,8 @@ function adaptTravelResultToDestination(result) {
     venueName: name,
     venueNameKo: localizedVenueNames[name] || name,
     rating,
+    cuisine: cuisine || "",
+    livePlaceName: Boolean(liveRestaurantPlaces.length),
     estimatedPrice: { currency: "KRW", min, max },
     recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,
     recommendationKo: `${cityKo} 일정에 맞춘 프로토타입 식당 옵션입니다. 가격과 예약 가능 여부는 제공업체 최종 확인이 필요합니다.`,
@@ -1493,8 +1554,10 @@ const renderTravelMission = (result) => {
         const venueName = activeLanguage === "ko"
           ? restaurant.venueNameKo || restaurant.venueName || restaurant.typeKo || venue?.ko || restaurant.type
           : restaurant.venueName || restaurant.type || venue?.en;
-        const rating = restaurant.rating || venue?.rating || (4.2 + ((index * 2) % 6) / 10).toFixed(1);
-        return `<strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta">★ ${rating}<span aria-hidden="true"> · </span>${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}</small>`;
+        const rating = restaurant.rating || venue?.rating;
+        const cuisine = restaurant.cuisine ? String(restaurant.cuisine).replaceAll(";", " · ") : "";
+        const facts = [rating ? `★ ${rating}` : "", cuisine, `${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}`].filter(Boolean).join('<span aria-hidden="true"> · </span>');
+        return `<strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta">${facts}</small>`;
       }),
       itemDetails: restaurants.map((restaurant, index) => ({ price: restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0] })),
       wide: true,
@@ -1856,7 +1919,7 @@ const buildExecutionSummary = () => {
   const schedule = currentResult.schedule || {};
   const dateRange = schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : (ko ? "날짜 확인 필요" : "Dates pending");
   const timeLabels = ko ? { any: "시간 미정", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" } : { any: "Time to be confirmed", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
-  const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "Avianca": "AV", "Iberia": "IB", "LATAM Airlines": "LA" };
+  const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "American Airlines": "AA", "Avianca": "AV", "Aeromexico": "AM", "Copa Airlines": "CM", "Iberia": "IB", "LATAM Airlines": "LA", Lufthansa: "LH", "Air France": "AF", KLM: "KL", Emirates: "EK", "Qatar Airways": "QR", "Turkish Airlines": "TK" };
   const flightNumber = `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}`;
   const isRoundTrip = currentResult.tripType !== "one_way";
   const returnFlightNumber = `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}`;

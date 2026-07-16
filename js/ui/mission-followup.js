@@ -139,7 +139,19 @@ const CONTINENT_BY_COUNTRY = {
   "United Arab Emirates": "Middle East", Egypt: "Middle East",
   "South Africa": "Africa", Morocco: "Africa"
 };
-const CONTINENT_NAMES_KO = { "North America": "북아메리카", "Central America": "중미", Caribbean: "카리브해", "South America": "남아메리카", Europe: "유럽", Asia: "아시아", Oceania: "오세아니아", "Middle East": "중동", Africa: "아프리카" };
+const CONTINENT_CODES = {
+  Africa: "DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW RE YT EH".split(" "),
+  Asia: "AF AM AZ BD BT BN KH CN GE IN ID JP KZ KG LA MY MV MN MM NP KP PK PH SG KR LK TJ TH TL TM UZ VN HK MO TW".split(" "),
+  "Middle East": "BH CY IR IQ IL JO KW LB OM PS QA SA SY TR AE YE".split(" "),
+  Europe: "AL AD AT BY BE BA BG HR CZ DK EE FI FR DE GR HU IS IE IT XK LV LI LT LU MT MD MC ME NL MK NO PL PT RO RU SM RS SK SI ES SE CH UA GB VA FO GI GG IM JE AX".split(" "),
+  Oceania: "AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU NC PF GU AS MP CK NU TK WF".split(" "),
+  "South America": "AR BO BR CL CO EC GY PY PE SR UY VE FK GF".split(" "),
+  "Central America": "BZ CR SV GT HN NI PA".split(" "),
+  Caribbean: "AG BS BB CU DM DO GD HT JM KN LC VC TT PR AW CW BQ SX KY TC VG VI AI MS GP MQ BL MF".split(" "),
+  "North America": "CA MX US GL BM PM".split(" ")
+};
+const continentForCode = (code) => Object.entries(CONTINENT_CODES).find(([, codes]) => codes.includes(code))?.[0] || "Other";
+const CONTINENT_NAMES_KO = { "North America": "북아메리카", "Central America": "중미", Caribbean: "카리브해", "South America": "남아메리카", Europe: "유럽", Asia: "아시아", Oceania: "오세아니아", "Middle East": "중동", Africa: "아프리카", Other: "전 세계 / 기타" };
 const COUNTRY_NAMES_KO = { "United States": "미국", Canada: "캐나다", Mexico: "멕시코", Belize: "벨리즈", "Costa Rica": "코스타리카", "El Salvador": "엘살바도르", Guatemala: "과테말라", Honduras: "온두라스", Nicaragua: "니카라과", Panama: "파나마", Colombia: "콜롬비아", Argentina: "아르헨티나", Brazil: "브라질", Peru: "페루", Chile: "칠레", Spain: "스페인", France: "프랑스", Italy: "이탈리아", "United Kingdom": "영국", Germany: "독일", Portugal: "포르투갈", Netherlands: "네덜란드", Greece: "그리스", Japan: "일본", Thailand: "태국", Vietnam: "베트남", China: "중국", "South Korea": "대한민국", Singapore: "싱가포르", India: "인도", Indonesia: "인도네시아", Malaysia: "말레이시아", Australia: "호주", "New Zealand": "뉴질랜드", "United Arab Emirates": "아랍에미리트", Egypt: "이집트", "South Africa": "남아프리카공화국", Morocco: "모로코" };
 const CITY_NAMES_KO = {
   Madrid: "마드리드", Barcelona: "바르셀로나", Seville: "세비야", Valencia: "발렌시아", "Málaga": "말라가", Bilbao: "빌바오",
@@ -210,7 +222,7 @@ const findDestinationMatch = (value, language) => {
 };
 const countryForCity = (value, language) => {
   const match = findDestinationMatch(value, language);
-  return match ? { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city } : null;
+  return match ? { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city, continent: CONTINENT_BY_COUNTRY[match.item.country] || "" } : null;
 };
 
 const resolveWorldwideDestination = async (value, language) => {
@@ -231,17 +243,12 @@ const resolveWorldwideDestination = async (value, language) => {
     let continent = "";
     let currency = "";
     if (code) {
-      const countryResponse = await fetch(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}?fields=name,region,subregion,currencies`);
-      if (countryResponse.ok) {
-        const countryData = await countryResponse.json();
-        country = countryData?.name?.common || country;
-        continent = countryData?.region === "Americas"
-          ? (countryData?.subregion === "South America" ? "South America" : countryData?.subregion === "Central America" ? "Central America" : countryData?.subregion === "Caribbean" ? "Caribbean" : "North America")
-          : (countryData?.region === "Oceania" ? "Oceania" : countryData?.region || "");
-        currency = Object.keys(countryData?.currencies || {})[0] || "";
-      }
+      const countryData = (await loadWorldwideCountries()).find((item) => item.code === code);
+      country = countryData?.country || country;
+      continent = countryData?.continent || "";
+      currency = countryData?.currency || "";
     }
-    return { country, code, city, continent, currency };
+    return { country, code, city, continent, currency, latitude: Number(place.lat), longitude: Number(place.lon) };
   } catch {
     return null;
   }
@@ -290,21 +297,34 @@ const loadCountryCities = (country) => {
 };
 const loadWorldwideCountries = () => {
   if (worldwideCountriesPromise) return worldwideCountriesPromise;
-  worldwideCountriesPromise = fetch("https://restcountries.com/v3.1/all?fields=name,cca2,region,subregion,translations,currencies,capital")
-    .then((response) => response.ok ? response.json() : [])
-    .then((countries) => countries.map((country) => {
-      const continent = country.region === "Americas"
-        ? (country.subregion === "South America" ? "South America" : country.subregion === "Central America" ? "Central America" : country.subregion === "Caribbean" ? "Caribbean" : "North America")
-        : (country.region === "Oceania" ? "Oceania" : country.subregion === "Western Asia" ? "Middle East" : country.region || "Other");
+  worldwideCountriesPromise = Promise.all([
+    fetch("https://countriesnow.space/api/v0.1/countries/iso").then((response) => response.json()),
+    fetch("https://countriesnow.space/api/v0.1/countries/currency").then((response) => response.json()),
+    fetch("https://countriesnow.space/api/v0.1/countries/capital").then((response) => response.json()),
+    fetch("https://countriesnow.space/api/v0.1/countries/positions").then((response) => response.json())
+  ]).then(([isoPayload, currencyPayload, capitalPayload, positionPayload]) => {
+    const currencies = new Map((currencyPayload.data || []).map((item) => [item.iso2, item.currency]));
+    const capitals = new Map((capitalPayload.data || []).map((item) => [item.iso2, item.capital]));
+    const positions = new Map((positionPayload.data || []).map((item) => [item.iso2, item]));
+    const koreanRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["ko"], { type: "region" }) : null;
+    const identities = new Map();
+    (isoPayload.data || []).forEach((item) => identities.set(item.Iso2, { name: item.name, code: item.Iso2 }));
+    (capitalPayload.data || []).forEach((item) => { if (item.iso2 && !identities.has(item.iso2)) identities.set(item.iso2, { name: item.name, code: item.iso2 }); });
+    (currencyPayload.data || []).forEach((item) => { if (item.iso2 && !identities.has(item.iso2)) identities.set(item.iso2, { name: item.name, code: item.iso2 }); });
+    return [...identities.values()].map((item) => {
+      const position = positions.get(item.code) || {};
       return {
-        country: country.name?.common || "",
-        countryKo: country.translations?.kor?.common || country.name?.common || "",
-        code: country.cca2 || "",
-        continent,
-        currency: Object.keys(country.currencies || {})[0] || "",
-        cities: Array.isArray(country.capital) ? country.capital : []
+        country: item.name,
+        countryKo: koreanRegions?.of(item.code) || item.name,
+        code: item.code,
+        continent: CONTINENT_BY_COUNTRY[item.name] || continentForCode(item.code),
+        currency: currencies.get(item.code) || "",
+        latitude: Number(position.lat),
+        longitude: Number(position.long),
+        cities: capitals.get(item.code) ? [capitals.get(item.code)] : []
       };
-    }).filter((country) => country.country && country.continent).sort((a, b) => a.country.localeCompare(b.country)))
+    }).filter((country) => country.country && country.code).sort((a, b) => a.country.localeCompare(b.country));
+  })
     .catch(() => []);
   return worldwideCountriesPromise;
 };
@@ -498,7 +518,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         fillCities(match.item.country, countryOnly ? "" : match.city, "", false);
         fillStates(match.item.country).then((states) => { if (!states.length) fillCities(match.item.country, countryOnly ? "" : match.city); });
         if (countryOnly) return;
-        resolvedDestination = { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city };
+        resolvedDestination = { country: match.item.country, code: TRAVEL_COUNTRY_CODES[match.item.country] || "", city: match.city, continent };
       };
       showResolvedDestination = (resolved) => {
         if (!resolved) return;
@@ -639,6 +659,9 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
           values.destinationCountry = selectedCountry.country;
           values.destinationCountryCode = selectedCountry.code;
           if (selectedCountry.currency) values.destinationCurrency = selectedCountry.currency;
+          if (selectedCountry.continent) values.destinationContinent = selectedCountry.continent;
+          if (Number.isFinite(selectedCountry.latitude)) values.destinationLatitude = String(selectedCountry.latitude);
+          if (Number.isFinite(selectedCountry.longitude)) values.destinationLongitude = String(selectedCountry.longitude);
         }
       }
       if (values.rememberPreferences === "on") {

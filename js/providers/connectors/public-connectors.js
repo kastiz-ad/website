@@ -12,8 +12,8 @@ const handlers=Object.freeze({
   frankfurter:{
     search:request=>({url:`https://api.frankfurter.dev/v2/rate/${enc(request.from||"KRW")}/${enc(request.to||"USD")}`,transform:data=>[{from:data.base||request.from,to:data.quote||request.to,rate:Number(data.rate),date:data.date}]})
   },
-  rest_countries:{
-    search:request=>({url:`https://restcountries.com/v3.1/alpha/${enc(request.countryCode||"KR")}`,cacheTtl:86400000,transform:data=>(Array.isArray(data)?data:[]).map(country=>({name:country.name?.common,capital:country.capital?.[0],region:country.region,currencies:Object.keys(country.currencies||{}),languages:Object.values(country.languages||{})}))})
+  countries_now:{
+    search:request=>({url:`https://countriesnow.space/api/v0.1/countries/capital/q?country=${enc(request.countryName||request.countryCode||"South Korea")}`,cacheTtl:86400000,transform:payload=>payload?.data?[{name:payload.data.name,capital:payload.data.capital,code:payload.data.iso2}]:[]})
   },
   wikipedia:{
     search:request=>({url:`https://en.wikipedia.org/api/rest_v1/page/summary/${enc(request.topic||"")}`,cacheTtl:86400000,transform:data=>[{title:data.title,summary:data.extract,url:data.content_urls?.desktop?.page}]})

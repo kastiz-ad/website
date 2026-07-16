@@ -122,7 +122,7 @@ const loadingUi = {
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-const getCoordinates = (mission) => {
+const getCoordinates = async (mission) => {
   if (mission?.destination?.latitude && mission?.destination?.longitude) {
     return { latitude: mission.destination.latitude, longitude: mission.destination.longitude };
   }
@@ -131,12 +131,20 @@ const getCoordinates = (mission) => {
     return { latitude: mission.countryProfile.latitude, longitude: mission.countryProfile.longitude };
   }
 
+  const query = [mission?.destination?.city, mission?.countryProfile?.name || mission?.destination?.country].filter(Boolean).join(", ");
+  if (query) {
+    try {
+      const matches = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`, { timeout: 7000 });
+      const place = Array.isArray(matches) ? matches[0] : null;
+      if (place?.lat && place?.lon) return { latitude: Number(place.lat), longitude: Number(place.lon) };
+    } catch { /* Continue to safe fallback. */ }
+  }
   if (mission?.destination?.city === "Tokyo") return { latitude: 35.6762, longitude: 139.6503 };
   return { latitude: 37.5665, longitude: 126.978 };
 };
 
 const fetchWeather = async (mission) => {
-  const { latitude, longitude } = getCoordinates(mission);
+  const { latitude, longitude } = await getCoordinates(mission);
   const schedule = mission?.schedule;
   const scheduledDays = schedule?.startDate && schedule?.endDate
     ? Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1)
@@ -184,41 +192,60 @@ const fetchCurrency = async (mission) => {
       { label: `${from} → USD`, value: Number.isFinite(usdRate) ? String(usdRate) : "Unavailable", from, to: "USD", rate: usdRate }
     ], error: null };
   } catch (error) {
-    return fallbackProvider("Frankfurter", "currency", "Currency provider is ready. Live rates may be checked again before final execution.", error.message);
+    try {
+      const data = await fetchJson(`https://open.er-api.com/v6/latest/${encodeURIComponent(from)}`, { timeout: 7000 });
+      const rate = Number(data?.rates?.[to]);
+      const usdRate = Number(data?.rates?.USD);
+      if (!Number.isFinite(rate) || rate <= 0) throw new Error("Fallback rate unavailable");
+      return { provider: "ExchangeRate-API Open Access", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [
+        { label: `${from} → ${to}`, value: String(rate), from, to, rate },
+        { label: `${from} → USD`, value: Number.isFinite(usdRate) ? String(usdRate) : "Unavailable", from, to: "USD", rate: usdRate }
+      ], error: null };
+    } catch (fallbackError) {
+      return fallbackProvider("Currency providers", "currency", "Live exchange rate is unavailable and must be checked before approval.", `${error.message}; ${fallbackError.message}`);
+    }
   }
 };
 
 const fetchCountryInfo = async (mission) => {
   const countryCode = mission?.country || mission?.destination?.code;
+  const countryName = mission?.countryProfile?.name || mission?.destination?.country;
 
-  if (!countryCode) return fallbackProvider("REST Countries", "country", "Country profile adapter is ready.");
+  if (!countryCode && !countryName) return fallbackProvider("CountriesNow", "country", "Country profile adapter is ready.");
 
   try {
-    const data = await fetchJson(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(countryCode)}`);
-    const country = Array.isArray(data) ? data[0] : null;
+    const query = encodeURIComponent(countryName || countryCode);
+    const [capitalPayload, currencyPayload, positionPayload] = await Promise.all([
+      fetchJson(`https://countriesnow.space/api/v0.1/countries/capital/q?country=${query}`, { timeout: 7000 }),
+      fetchJson(`https://countriesnow.space/api/v0.1/countries/currency/q?country=${query}`, { timeout: 7000 }),
+      fetchJson(`https://countriesnow.space/api/v0.1/countries/positions/q?country=${query}`, { timeout: 7000 })
+    ]);
+    const country = capitalPayload?.data;
+    const currency = currencyPayload?.data?.currency;
+    const position = positionPayload?.data;
 
     return {
-      provider: "REST Countries",
+      provider: "CountriesNow",
       category: "country",
       sourceStatus: "free_live_api",
       liveData: Boolean(country),
       requiresKey: false,
       requiresPartnerAccess: false,
       items: country ? [
-        { label: "Country", value: country.name?.common || countryCode },
-        { label: "Capital", value: Array.isArray(country.capital) ? country.capital.join(", ") : "Unknown" },
-        { label: "Region", value: country.region || "Unknown" },
-        { label: "Currency", value: country.currencies ? Object.keys(country.currencies).join(", ") : "Unknown" }
+        { label: "Country", value: country.name || countryName || countryCode },
+        { label: "Capital", value: country.capital || "Unknown" },
+        { label: "Currency", value: currency || "Unknown" },
+        { label: "Position", value: position ? `${position.lat}, ${position.long}` : "Unknown" }
       ] : [],
       error: null
     };
   } catch (error) {
-    return fallbackProvider("REST Countries", "country", "Country profile adapter is ready.", error.message);
+    return fallbackProvider("CountriesNow", "country", "Country profile adapter is ready.", error.message);
   }
 };
 
 const fetchMapInfo = async (mission) => {
-  const query = mission?.destination?.city || mission?.countryProfile?.capital || mission?.countryProfile?.name || mission?.rawInput || "";
+  const query = [mission?.destination?.city || mission?.countryProfile?.capital, mission?.countryProfile?.name || mission?.destination?.country].filter(Boolean).join(", ") || mission?.rawInput || "";
 
   if (!query) return fallbackProvider("OpenStreetMap Nominatim", "maps", "Map provider interface is ready.");
 
@@ -240,6 +267,30 @@ const fetchMapInfo = async (mission) => {
     };
   } catch (error) {
     return fallbackProvider("OpenStreetMap Nominatim", "maps", "Map provider interface is ready.", error.message);
+  }
+};
+
+const fetchLocalPlaces = async (mission) => {
+  const city = mission?.destination?.city || mission?.countryProfile?.capital || "";
+  const country = mission?.countryProfile?.name || mission?.destination?.country || "";
+  if (!city) return fallbackProvider("OpenStreetMap", "local_places", "Local place search requires a destination city.");
+  try {
+    const language = mission.language === "ko" ? "ko,en" : "en";
+    const hotels = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent(`hotels in ${city}, ${country}`)}`, { timeout: 8000 });
+    await wait(350);
+    const restaurants = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&namedetails=1&limit=10&accept-language=${encodeURIComponent(language)}&q=${encodeURIComponent(`restaurants in ${city}, ${country}`)}`, { timeout: 8000 });
+    const seen = new Set();
+    const normalize = (entry, kind) => {
+      const name = entry.namedetails?.[mission.language === "ko" ? "name:ko" : "name:en"] || entry.namedetails?.name || String(entry.display_name || "").split(",")[0];
+      return { label: name, value: entry.type || "", kind, cuisine: "", stars: "" };
+    };
+    const items = [
+      ...(Array.isArray(hotels) ? hotels.filter((entry) => entry.class === "tourism" || /hotel|hostel|guest_house/i.test(entry.type)).map((entry) => normalize(entry, "hotel")) : []),
+      ...(Array.isArray(restaurants) ? restaurants.filter((entry) => entry.class === "amenity" || /restaurant|cafe|fast_food/i.test(entry.type)).map((entry) => normalize(entry, "restaurant")) : [])
+    ].filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
+    return { provider: "OpenStreetMap Nominatim", category: "local_places", sourceStatus: "free_live_api", liveData: items.length > 0, requiresKey: false, requiresPartnerAccess: false, items, error: null };
+  } catch (error) {
+    return fallbackProvider("OpenStreetMap Nominatim", "local_places", "Live hotel and restaurant names could not be loaded; prototype fallbacks are shown.", error.message);
   }
 };
 
@@ -295,7 +346,8 @@ const enrichMission = async (mission) => {
       () => fetchWeather(mission),
       () => fetchCurrency(mission),
       () => fetchCountryInfo(mission),
-      () => fetchMapInfo(mission)
+      () => fetchMapInfo(mission),
+      () => fetchLocalPlaces(mission)
     );
   }
 

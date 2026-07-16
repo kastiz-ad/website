@@ -1,7 +1,7 @@
 export const FREE_API_PROVIDERS = Object.freeze({
   weather: { name: "Open-Meteo", requiresKey: false },
   currency: { name: "Frankfurter", requiresKey: false },
-  country: { name: "REST Countries", requiresKey: false },
+  country: { name: "CountriesNow", requiresKey: false },
   maps: { name: "OpenStreetMap Nominatim", requiresKey: false },
   knowledge: { name: "Wikipedia", requiresKey: false }
 });

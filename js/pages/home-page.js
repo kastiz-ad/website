@@ -321,7 +321,7 @@ const providerCatalog = {
   travel: [
     createProvider("Open-Meteo", "weather", "free_live_api", true, false, false),
     createProvider("Frankfurter", "currency", "free_live_api", true, false, false),
-    createProvider("REST Countries", "country", "free_live_api", true, false, false),
+    createProvider("CountriesNow", "country", "free_live_api", true, false, false),
     createProvider("OpenStreetMap Nominatim", "maps", "free_live_api", true, false, false),
     createProvider("Wikipedia", "destination_info", "free_live_api", true, false, false),
     createProvider("Flight Provider Interface", "flights", "prototype_adapter", false, false, true),
@@ -344,7 +344,7 @@ const providerCatalog = {
     createProvider("Government Resources Interface", "documents", "prototype_adapter", false, false, false)
   ],
   moving: [
-    createProvider("REST Countries", "country", "free_live_api", true, false, false),
+    createProvider("CountriesNow", "country", "free_live_api", true, false, false),
     createProvider("Immigration Resource Interface", "visa", "prototype_adapter", false, false, true),
     createProvider("Housing Search Interface", "housing", "prototype_adapter", false, false, true),
     createProvider("Shipping Provider Interface", "shipping", "prototype_adapter", false, false, true)
@@ -1425,7 +1425,10 @@ const saveMission = (mission, schedule = null) => {
       country: selectedDestination.destinationCountry || payload.destination?.country,
       countryKo: selectedDestination.destinationCountry || payload.destination?.countryKo,
       city: selectedDestination.destination,
-      cityKo: selectedDestination.destination
+      cityKo: selectedDestination.destination,
+      continent: selectedDestination.destinationContinent || "",
+      latitude: Number(selectedDestination.destinationLatitude) || undefined,
+      longitude: Number(selectedDestination.destinationLongitude) || undefined
     };
     if (selectedDestination.destinationCountryCode) {
       payload.country = selectedDestination.destinationCountryCode;
@@ -1436,7 +1439,10 @@ const saveMission = (mission, schedule = null) => {
         nameKo: selectedDestination.destinationCountry,
         currency: selectedDestination.destinationCurrency || currencyByCountry[selectedDestination.destinationCountryCode] || payload.exchangeRate?.to || "USD",
         capital: selectedDestination.destination,
-        capitalKo: selectedDestination.destination
+        capitalKo: selectedDestination.destination,
+        continent: selectedDestination.destinationContinent || "",
+        latitude: Number(selectedDestination.destinationLatitude) || undefined,
+        longitude: Number(selectedDestination.destinationLongitude) || undefined
       };
       payload.exchangeRate = {
         ...payload.exchangeRate,
