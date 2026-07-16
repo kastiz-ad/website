@@ -256,7 +256,30 @@ const updateLocation = () => {
     : countryNamesByRegion[region] || t("unknownLocation");
 };
 
+const encodePortableShare = (value) => {
+  const bytes = new TextEncoder().encode(JSON.stringify(value));
+  let binary = "";
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "");
+};
+
+const getPortableSharedResult = () => {
+  try {
+    const encoded = new URLSearchParams(location.search).get("share");
+    if (!encoded || encoded.length > 12000) return null;
+    const padded = encoded.replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(encoded.length / 4) * 4, "=");
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    return parsed?.portableShare === true && parsed?.type === "travel" ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
 const getStoredResult = () => {
+  const sharedResult = getPortableSharedResult();
+  if (sharedResult) return sharedResult;
   try {
     const resultsRaw = sessionStorage.getItem(STORAGE_KEYS.results);
     const travelRaw = sessionStorage.getItem(STORAGE_KEYS.travelMission);
@@ -707,6 +730,12 @@ const normalizeStoredResult = (stored) => {
           t("approvalProtection")
       }
     };
+
+    if (stored.portableShare === true) {
+      result.executionSequence = { en: translations.en.executionSteps, ko: translations.ko.executionSteps };
+      result.finalMessage = { en: translations.en.finalMessage, ko: translations.ko.finalMessage };
+      return result;
+    }
 
     const weatherProvider = findLiveProvider(stored, "weather");
     const currencyProvider = findLiveProvider(stored, "currency");
@@ -1981,6 +2010,41 @@ const buildExecutionSummary = () => {
       ]
     : [[ko ? "편도 항공편" : "One-way flight", `${airlineName} · ${flightNumber}`, `${schedule.startDate || dateRange} · ${selectedTime} · ${formatRange(flight?.estimatedPrice)}`]];
   const reference = `ONE-DEMO-${String(currentResult.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
+  const selectedRestaurantRecords = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .selectable-option[aria-pressed="true"]')].map((button) => {
+    const restaurant = currentResult.restaurants?.[Number(button.dataset.optionIndex)] || {};
+    return {
+      type: restaurant.type || restaurant.venueName || button.querySelector(".restaurant-name")?.textContent?.trim() || "Restaurant",
+      typeKo: restaurant.typeKo || restaurant.venueNameKo || restaurant.type || "레스토랑",
+      venueName: restaurant.venueName || restaurant.type || "Restaurant",
+      venueNameKo: restaurant.venueNameKo || restaurant.typeKo || restaurant.venueName || restaurant.type || "레스토랑",
+      rating: restaurant.rating || null,
+      cuisine: restaurant.cuisine || "",
+      estimatedPrice: restaurant.estimatedPrice || null
+    };
+  });
+  const portableResult = {
+    portableShare: true,
+    type: "travel",
+    id: reference,
+    language: activeLanguage,
+    destination: {
+      country: currentResult.destination?.country || "",
+      countryKo: currentResult.destination?.countryKo || currentResult.destination?.country || "",
+      city: currentResult.destination?.city || "",
+      cityKo: currentResult.destination?.cityKo || currentResult.destination?.city || ""
+    },
+    display: { title: currentResult.display?.title || "", destination: currentResult.display?.destination || "", city: currentResult.display?.city || "" },
+    schedule,
+    tripType: currentResult.tripType || "round_trip",
+    flights: flight ? [{ provider: flight.provider, providerKo: flight.providerKo || flight.provider, estimatedPrice: flight.estimatedPrice, recommended: true }] : [],
+    hotels: hotel ? [{ name: hotel.name, nameKo: hotel.nameKo || hotel.name, estimatedNightlyPrice: hotel.estimatedNightlyPrice, recommended: true }] : [],
+    airportTransfer: { recommended: transfer || "", options: transfer ? [transfer] : [] },
+    restaurants: selectedRestaurantRecords,
+    checklist: [],
+    budget: currentResult.budget || { currency: "KRW" },
+    approvalRequired: true
+  };
+  const portableUrl = `${location.origin}${location.pathname}?reference=${encodeURIComponent(reference)}&share=${encodeURIComponent(encodePortableShare(portableResult))}`;
   const restaurantRows = restaurants.length
     ? restaurants.map((restaurant, index) => [
         ko ? `레스토랑 ${index + 1}` : `Restaurant ${index + 1}`,
@@ -1999,7 +2063,7 @@ const buildExecutionSummary = () => {
   ];
   const renderSummaryRow = ([label, value, detail, className = "", metadata = null]) => {
     const qrMarkup = className.includes("is-reference")
-      ? `<img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&amp;format=png&amp;data=${encodeURIComponent(value)}" alt="${ko ? "프로토타입 참조 번호 QR 코드" : "Prototype reference QR code"}" width="220" height="220" loading="lazy"><small class="prototype-reference-qr-help">${ko ? "QR 이미지를 저장하거나 ONE의 사진 버튼으로 다시 불러오세요" : "Save this QR image or scan it later with ONE's picture button"}</small>`
+      ? `<a href="${escapeSummaryText(portableUrl)}" aria-label="${ko ? "QR 링크로 이 요약 다시 열기" : "Reopen this summary from the QR link"}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&amp;format=png&amp;data=${encodeURIComponent(portableUrl)}" alt="${ko ? "프로토타입 요약 링크 QR 코드" : "Prototype summary link QR code"}" width="220" height="220" loading="lazy"></a><small class="prototype-reference-qr-help">${ko ? "휴대폰 카메라로 스캔하면 이 요약을 다시 열 수 있습니다" : "Scan with your phone camera to reopen this summary"}</small>`
       : "";
     const valueMarkup = className.includes("is-schedule")
       ? `<span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(metadata?.start || "—")}</strong><i aria-hidden="true">→</i><strong>${escapeSummaryText(metadata?.end || "—")}</strong></span>`

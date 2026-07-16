@@ -74,7 +74,15 @@ const detectPrototypeReferenceInImage = async (file) => {
     bitmap = await createImageBitmap(file);
     if (typeof window.BarcodeDetector === "function") {
       const codes = await new window.BarcodeDetector({ formats: ["qr_code"] }).detect(bitmap);
-      const qrReference = codes.map((code) => code.rawValue || "").join(" ").toUpperCase().match(/ONE-DEMO-[A-Z0-9]{8}/)?.[0];
+      const qrValues = codes.map((code) => code.rawValue || "").filter(Boolean);
+      const portableUrl = qrValues.find((value) => {
+        try {
+          const url = new URL(value);
+          return (url.hostname === "kastiz.com" || url.hostname.endsWith(".pages.dev")) && /\/results(?:\.html)?$/.test(url.pathname) && url.searchParams.has("share");
+        } catch { return false; }
+      });
+      if (portableUrl) return portableUrl;
+      const qrReference = qrValues.join(" ").toUpperCase().match(/ONE-DEMO-[A-Z0-9]{8}/)?.[0];
       if (qrReference) return qrReference;
     }
     if (typeof window.TextDetector === "function") {
@@ -1716,6 +1724,10 @@ imageUploadInput?.addEventListener("change", async () => {
   imageUploadButton.classList.toggle("is-active", selectedImageFiles.length > 0);
   const detectedReference = await detectPrototypeReferenceInImage(selectedImageFiles[0]);
   if (detectedReference) {
+    if (/^https:\/\//i.test(detectedReference)) {
+      location.href = detectedReference;
+      return;
+    }
     missionInput.value = detectedReference;
     syncInputState();
     if (reopenPrototypeMission(detectedReference)) return;
