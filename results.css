@@ -1040,7 +1040,7 @@ html[data-theme="light"] .all-in-one img { filter: invert(1); }
   text-align: center;
 }
 .schedule-result-value span,
-.schedule-result-time span { min-width: 0; }
+.schedule-result-time span { min-width: 0; white-space: nowrap; }
 .schedule-result-time {
   width: calc(50% - 5px);
   margin: 10px auto 0;
@@ -1048,7 +1048,7 @@ html[data-theme="light"] .all-in-one img { filter: invert(1); }
 
 @media (max-width: 520px) {
   .schedule-result-dates { gap: 8px; }
-  .schedule-result-value, .schedule-result-time { padding-inline: 8px; font-size: 11px; gap: 4px; }
+  .schedule-result-value, .schedule-result-time { padding-inline: 6px; font-size: 10px; gap: 3px; }
   .schedule-result-time { width: calc(50% - 4px); }
 }
 

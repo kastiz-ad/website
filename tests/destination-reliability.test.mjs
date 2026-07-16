@@ -95,9 +95,13 @@ assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
 assert.match(indexHtml, /script\.js\?v=20260717-11/);
 assert.match(loadingHtml, /loading\.js\?v=20260717-13/);
-assert.match(resultsHtml, /results\.js\?v=20260717-13/);
-assert.match(resultsHtml, /results\.css\?v=20260717-13/);
+assert.match(resultsHtml, /results\.js\?v=20260717-15/);
+assert.match(resultsHtml, /results\.css\?v=20260717-15/);
 assert.match(resultsCss, /information-review-content li span\{[^}]*white-space:nowrap/);
 assert.match(resultsCss, /@media\(max-width:520px\)[\s\S]*information-review-content li\{display:flex/);
+assert.match(results, /currentResult\?\.portableShare === true \|\|/);
+assert.match(results, /k: \(currentResult\.checklist \|\| \[\]\)/);
+assert.match(results, /w: weatherItems, e: currencyItems/);
+assert.match(results, /weekday: "short"/);
 
 console.log("destination reliability checks passed");

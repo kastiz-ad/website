@@ -276,7 +276,15 @@ const getPortableSharedResult = () => {
     const [startDate = "", endDate = "", timePreference = "any"] = parsed.s || [];
     const [flightName = "", flightNameKo = "", flightMin = 0, flightMax = 0] = parsed.f || [];
     const [hotelName = "", hotelNameKo = "", hotelMin = 0, hotelMax = 0] = parsed.h || [];
-    const [budgetMin = 0, budgetMax = 0] = parsed.b || [];
+    const budgetValues = parsed.b || [];
+    const [foodMin = 0, foodMax = 0, transportMin = 0, transportMax = 0, activitiesMin = 0, activitiesMax = 0, compactBudgetMin = 0, compactBudgetMax = 0] = budgetValues;
+    const budgetMin = budgetValues.length === 2 ? budgetValues[0] : compactBudgetMin;
+    const budgetMax = budgetValues.length === 2 ? budgetValues[1] : compactBudgetMax;
+    const savedFoodMin = budgetValues.length === 2 ? 0 : foodMin;
+    const savedFoodMax = budgetValues.length === 2 ? 0 : foodMax;
+    const providerResults = [];
+    if (parsed.w?.length) providerResults.push({ category: "weather", provider: "Open-Meteo", liveData: true, items: parsed.w.map(([label, value, humidity, precipitation]) => ({ label, value, humidity, precipitation })) });
+    if (parsed.e?.length) providerResults.push({ category: "currency", provider: "ExchangeRate API", liveData: true, items: parsed.e.map(([to, rate]) => ({ to, rate, value: rate })) });
     return {
       portableShare: true, type: "travel", id: parsed.r, language: parsed.l || "en", country,
       destination: { country, countryKo: countryKo || country, city, cityKo: cityKo || city },
@@ -290,8 +298,10 @@ const getPortableSharedResult = () => {
       hotels: hotelName ? [{ name: hotelName, nameKo: hotelNameKo || hotelName, estimatedNightlyPrice: { currency: "KRW", min: hotelMin, max: hotelMax }, recommended: true }] : [],
       airportTransfer: { recommended: parsed.x || "", options: parsed.x ? [parsed.x] : [] },
       restaurants: (parsed.n || []).map((name) => ({ type: name, typeKo: name, venueName: name, venueNameKo: name })),
-      checklist: [],
-      budget: { currency: "KRW", flights: { currency: "KRW", min: flightMin, max: flightMax }, hotel: { currency: "KRW", min: hotelMin, max: hotelMax }, food: { currency: "KRW", min: 0, max: 0 }, transport: { currency: "KRW", min: 0, max: 0 }, activities: { currency: "KRW", min: 0, max: 0 }, estimatedTotal: { currency: "KRW", min: budgetMin, max: budgetMax } },
+      checklist: (parsed.k || []).map((text) => ({ en: text, ko: text })), providerResults,
+      weather: { status: parsed.w?.length ? "live" : "prototype", message: { en: "Weather data saved with this summary", ko: "이 요약에 저장된 날씨 정보" } },
+      exchangeRate: { from: "KRW", to: parsed.c || "USD", status: parsed.e?.length ? "live" : "prototype", message: { en: "Currency data saved with this summary", ko: "이 요약에 저장된 환율 정보" } },
+      budget: { currency: "KRW", flights: { currency: "KRW", min: flightMin, max: flightMax }, hotel: { currency: "KRW", min: hotelMin, max: hotelMax }, food: { currency: "KRW", min: savedFoodMin, max: savedFoodMax }, transport: { currency: "KRW", min: transportMin, max: transportMax }, activities: { currency: "KRW", min: activitiesMin, max: activitiesMax }, estimatedTotal: { currency: "KRW", min: budgetMin, max: budgetMax } },
       approvalRequired: true
     };
   } catch {
@@ -1500,7 +1510,9 @@ const createScheduleCard = (result) => {
   const schedule = result.schedule;
   if (!schedule?.startDate || !schedule?.endDate) return null;
   const locale = activeLanguage === "ko" ? "ko-KR" : "en-US";
-  const formatDate = (value) => new Intl.DateTimeFormat(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(new Date(`${value}T00:00:00`));
+  const formatDate = (value) => new Intl.DateTimeFormat(locale, currentResult?.portableShare
+    ? { weekday: "short", year: "numeric", month: "short", day: "numeric" }
+    : { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(new Date(`${value}T00:00:00`));
   const timeLabels = activeLanguage === "ko"
     ? { any: "시간 무관", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" }
     : { any: "Any time / No preference", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
@@ -2037,6 +2049,11 @@ const buildExecutionSummary = () => {
     return (ko ? restaurant.venueNameKo : restaurant.venueName) || restaurant.venueName || restaurant.type || button.querySelector(".restaurant-name")?.textContent?.trim() || "Restaurant";
   }).filter(Boolean).slice(0, 6);
   const totalRange = currentResult.budget?.estimatedTotal || {};
+  const foodRange = currentResult.budget?.food || {};
+  const transportRange = currentResult.budget?.transport || {};
+  const activitiesRange = currentResult.budget?.activities || {};
+  const weatherItems = (findLiveProvider(currentResult, "weather")?.items || []).slice(0, 7).map((item) => [item.label || "", item.value || "", item.humidity || "", item.precipitation || ""]);
+  const currencyItems = (findLiveProvider(currentResult, "currency")?.items || []).slice(0, 6).map((item) => [item.to || "", Number(item.rate ?? item.value) || 0]).filter(([to, rate]) => to && rate);
   const portableResult = {
     p: 1, r: reference, l: activeLanguage,
     d: [
@@ -2050,7 +2067,9 @@ const buildExecutionSummary = () => {
     f: flight ? [flight.provider || "", flight.providerKo || flight.provider || "", flight.estimatedPrice?.min || 0, flight.estimatedPrice?.max || 0] : [],
     h: hotel ? [hotel.name || "", hotel.nameKo || hotel.name || "", hotel.estimatedNightlyPrice?.min || 0, hotel.estimatedNightlyPrice?.max || 0] : [],
     x: localize(transfer) || "", n: selectedRestaurantNames,
-    b: [totalRange.min || 0, totalRange.max || 0]
+    k: (currentResult.checklist || []).map((item) => localize(item)).filter(Boolean).slice(0, 8),
+    w: weatherItems, e: currencyItems, c: currentResult.exchangeRate?.to || currentResult.countryProfile?.currency || "USD",
+    b: [foodRange.min || 0, foodRange.max || 0, transportRange.min || 0, transportRange.max || 0, activitiesRange.min || 0, activitiesRange.max || 0, totalRange.min || 0, totalRange.max || 0]
   };
   const portableUrl = `${location.origin}${location.pathname}?reference=${encodeURIComponent(reference)}&share=${encodeURIComponent(encodePortableShare(portableResult))}`;
   const restaurantRows = restaurants.length
@@ -2426,7 +2445,7 @@ initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
 const requestedReference = new URLSearchParams(location.search).get("reference")?.toUpperCase();
-if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
+if (currentResult?.portableShare === true || /^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
   buildExecutionSummary();
   completionMessage.hidden = false;
   bottomActions.hidden = true;
