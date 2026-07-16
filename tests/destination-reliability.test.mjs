@@ -21,6 +21,7 @@ assert.match(followup, /country: "India"[\s\S]*city: "Surat"/);
 assert.match(followup, /country: "France"[\s\S]*city: "Surat"/);
 assert.doesNotMatch(followup, /renderDestinationMatches\(matches\);\s*showResolvedDestination\(matches\[0\]\);/);
 assert.match(followup, /Matching locations \(optional\)/);
+assert.ok(followup.indexOf('data-destination-matches hidden') < followup.indexOf('data-destination-level="continent"'), "matching locations must appear before the full destination hierarchy");
 assert.match(followup, /resolvedDestination = matches\[0\]/);
 assert.doesNotMatch(followup, /Several places share this name\. Choose the exact place and country\./);
 assert.match(followup, /showResolvedDestination\(matches\[0\]\)/);

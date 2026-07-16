@@ -514,11 +514,11 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
       const hierarchy = document.createElement("div");
       hierarchy.className = "destination-hierarchy";
       hierarchy.innerHTML = `
+        <label data-destination-matches hidden><span>${ko ? "일치하는 위치 (선택 사항)" : "Matching locations (optional)"}</span><select data-destination-level="match"><option value="">${ko ? "필요한 경우 더 정확한 위치를 선택하세요" : "Choose a more specific place if needed"}</option></select></label>
         <label><span>${ko ? "대륙" : "Continent"}</span><select data-destination-level="continent"><option value="">${ko ? "대륙 선택" : "Select a continent"}</option></select></label>
         <label><span>${ko ? "국가" : "Country"}</span><select data-destination-level="country" disabled><option value="">${ko ? "국가 선택" : "Select a country"}</option></select></label>
         <label><span>${ko ? "주 / 지역" : "State / Region"}</span><select data-destination-level="state" disabled><option value="">${ko ? "주 또는 지역 선택" : "Select a state or region"}</option></select></label>
-        <label><span>${ko ? "도시" : "City"}</span><select data-destination-level="city" disabled><option value="">${ko ? "도시 선택" : "Select a city"}</option></select></label>
-        <label data-destination-matches hidden><span>${ko ? "일치하는 위치 (선택 사항)" : "Matching locations (optional)"}</span><select data-destination-level="match"><option value="">${ko ? "필요한 경우 더 정확한 위치를 선택하세요" : "Choose a more specific place if needed"}</option></select></label>`;
+        <label><span>${ko ? "도시" : "City"}</span><select data-destination-level="city" disabled><option value="">${ko ? "도시 선택" : "Select a city"}</option></select></label>`;
       destinationInput.closest("label")?.after(hierarchy);
       const continentSelect = hierarchy.querySelector('[data-destination-level="continent"]');
       const countrySelect = hierarchy.querySelector('[data-destination-level="country"]');
