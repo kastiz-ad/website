@@ -146,7 +146,11 @@ const CITY_NAMES_KO = {
 };
 const cityLabel = (city, language) => language === "ko" ? (CITY_NAMES_KO[city] || city) : city;
 const normalizeDestinationLookup = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
-const CITY_ALIASES = { nyc: "New York", la: "Los Angeles", "l.a.": "Los Angeles", "sao paulo": "Sao Paulo", "são paulo": "Sao Paulo", bogota: "Bogotá", "buenos aires": "Buenos Aires" };
+const CITY_ALIASES = {
+  nyc: "New York", la: "Los Angeles", "l.a.": "Los Angeles", "엘에이": "Los Angeles",
+  washington: "Washington, D.C.", "washington dc": "Washington, D.C.", "washington d.c.": "Washington, D.C.", "워싱턴": "Washington, D.C.", "워싱턴 dc": "Washington, D.C.",
+  "sao paulo": "Sao Paulo", "são paulo": "Sao Paulo", bogota: "Bogotá", "buenos aires": "Buenos Aires"
+};
 const findDestinationMatch = (value, language) => {
   const normalized = normalizeDestinationLookup(value);
   const aliasCity = CITY_ALIASES[normalized];
@@ -202,7 +206,8 @@ const inferTravelContext = (mission = "") => {
   const text = String(mission).toLowerCase();
   const destinations = [
     ["New York", ["new york", "nyc", "뉴욕"]],
-    ["Los Angeles", ["los angeles", "l.a.", "로스앤젤레스"]],
+    ["Los Angeles", ["los angeles", "l.a.", "로스앤젤레스", "엘에이"]],
+    ["Washington, D.C.", ["washington dc", "washington d.c.", "워싱턴"]],
     ["Buenos Aires", ["buenos aires", "부에노스아이레스"]],
     ["Japan", ["japan", "tokyo", "일본", "도쿄"]],
     ["Madrid", ["madrid", "마드리드"]],
