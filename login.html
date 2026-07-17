@@ -21,9 +21,9 @@
     <main class="login-container">
       <section class="login-card" aria-labelledby="loginTitle">
         <div class="one-logo" aria-hidden="true"><img src="assets/one-final-circle.png" alt=""><strong>NE</strong></div>
-        <p class="account-status" data-i18n="status">EARLY ACCESS · ACCOUNTS NOT CONNECTED</p>
-        <h1 id="loginTitle" data-i18n="title">Early Access Login Coming Soon</h1>
-        <p data-i18n="copy">Account interfaces are being prepared. No account will be created and no password is collected on this prototype page.</p>
+        <p class="account-status" data-i18n="status">SECURE ACCOUNT ACCESS</p>
+        <h1 id="loginTitle" data-i18n="title">Sign in to Kastiz ONE</h1>
+        <p data-i18n="copy">Your missions and chosen preferences can be protected by your account.</p>
         <div class="providers" aria-label="Planned login providers">
           <button class="provider" type="button" data-provider="Email">Email</button>
           <button class="provider" type="button" data-provider="Google">Google</button>
@@ -31,6 +31,13 @@
           <button class="provider" type="button" data-provider="Kakao">Kakao</button>
         </div>
         <p class="provider-status" id="providerStatus" role="status" aria-live="polite"></p>
+        <form id="emailAuthForm" class="email-auth-form" hidden novalidate>
+          <label><span data-i18n="email">Email</span><input id="authEmail" type="email" autocomplete="email" maxlength="254" required></label>
+          <label><span data-i18n="password">Password</span><input id="authPassword" type="password" autocomplete="current-password" minlength="8" maxlength="128" required></label>
+          <label id="displayNameRow" hidden><span data-i18n="displayName">Display name</span><input id="authDisplayName" type="text" autocomplete="name" minlength="2" maxlength="80"></label>
+          <div class="email-auth-actions"><button type="submit" class="primary-button" data-i18n="signIn">Sign in</button><button type="button" data-auth-action="register" data-i18n="createAccount">Create account</button></div>
+          <button type="button" class="request-link" data-auth-action="reset" data-i18n="resetPassword">Reset password</button>
+        </form>
         <div class="account-actions">
           <a class="primary-button" href="early-access.html" data-i18n="waitlist">Join waitlist</a>
           <a class="request-link" href="early-access.html" data-i18n="request">Request early access</a>
@@ -45,6 +52,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="login.js?v=20260717-33"></script>
+  <script type="module" src="login.js?v=20260717-34"></script>
 </body>
 </html>

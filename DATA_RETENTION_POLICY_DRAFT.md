@@ -1,0 +1,3 @@
+# Data Retention Policy — Draft
+
+Requires qualified Korean/PIPA and international legal review before production. The service should retain active account data only while needed to provide the service; expired mission results should be removed on a configurable schedule; security audit metadata should be privacy-minimized and retained only for a documented security/legal period; deletion requests require recent authentication and revoke sessions/provider connections before deletion or justified anonymization. Payment-card data, CVV, identity-document scans, health data, child data, and provider secrets are outside ordinary V1 storage.

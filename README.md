@@ -6,9 +6,13 @@ Kastiz ONE is an early-access AI Mission Operating System and mission-orchestrat
 
 ONE prepares and explains mission options. It never books, buys, pays, reserves, signs, submits, shares personal data with a provider, or creates a legal obligation without explicit user approval. Current committed-action flows are simulations unless an authorized provider integration is explicitly identified.
 
+## Secure Backend V1
+
+The repository now includes a staging-ready Supabase Auth/PostgreSQL design, RLS migration, and Cloudflare Pages Functions API under `/api/v1`. It remains disabled until the environment variables are configured. No real provider execution is enabled, and no founder password is stored in source. See `SECURE_BACKEND_SETUP.md` and `SECURE_BACKEND_API.md`.
+
 ## Run locally
 
-Serve this directory with any static HTTP server and open `index.html`. Native ES modules do not reliably run from `file://` in all browsers.
+Run `npm install`, then `npx wrangler pages dev .`. A plain static server still supports the prototype UI, but secure account APIs require Pages Functions and configured Supabase staging credentials.
 
 ## Product routes
 

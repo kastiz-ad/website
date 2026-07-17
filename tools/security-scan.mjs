@@ -1,0 +1,4 @@
+import { readdir,readFile } from "node:fs/promises";import{join,relative}from"node:path";
+const root=new URL("..",import.meta.url).pathname.replace(/^\/(.:)/,"$1"),skip=new Set([".git","node_modules","logo-preview-black.png"]),hits=[];
+async function walk(dir){for(const entry of await readdir(dir,{withFileTypes:true})){if(skip.has(entry.name))continue;const path=join(dir,entry.name);if(entry.isDirectory())await walk(path);else if(/\.(js|mjs|html|json|md|sql|env|example)$/.test(entry.name)){const text=await readFile(path,"utf8");for(const [name,pattern] of [["private key",/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/],["Supabase service token",/eyJ[\w-]+\.[\w-]+\.[\w-]+/]])if(pattern.test(text))hits.push(`${name}: ${relative(root,path)}`);}}}
+await walk(root);if(hits.length){console.error(hits.join("\n"));process.exitCode=1}else console.log("Security scan passed: no private keys or JWT-like secrets found.");

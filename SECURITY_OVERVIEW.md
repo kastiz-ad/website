@@ -1,0 +1,3 @@
+# Security Overview — Draft
+
+Kastiz ONE V1 uses Supabase Auth, PostgreSQL RLS, verified server sessions, strict ownership queries, runtime validation, request-size limits, origin/CSRF checks, security headers, privacy-safe error responses, and expiring single-use approval records tied to immutable payload hashes. No live provider execution is enabled. This is not a certification or guarantee of legal compliance. Production requires credential provisioning, MFA for privileged users, rate-limit binding, monitored backups, penetration testing, dependency review, and a staging isolation test with two real test accounts.

@@ -323,3 +323,4 @@ form{
 }
 
 }
+.email-auth-form{display:grid;gap:14px;margin-top:18px}.email-auth-form[hidden]{display:none}.email-auth-form label{display:grid;gap:7px;text-align:left}.email-auth-form input{width:100%;box-sizing:border-box;border:1px solid var(--border,#d8d8d8);border-radius:14px;padding:14px;background:transparent;color:inherit;font:inherit}.email-auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.email-auth-actions button{min-height:48px;border-radius:999px;border:1px solid var(--border,#d8d8d8);font:inherit}.email-auth-actions .primary-button{display:grid;place-items:center;border:0;cursor:pointer}.email-auth-form button:disabled{opacity:.55;cursor:wait}
