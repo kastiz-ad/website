@@ -113,7 +113,8 @@ html[data-theme="light"] .logo img{filter:invert(1)}
     justify-content:center;
     gap:0;
     text-align:center;
-    margin-bottom:20px;
+    width:max-content;
+    margin:0 auto 20px;
 }
 .one-logo img{width:86px;height:86px;object-fit:contain}
 .one-logo strong{font-size:58px;line-height:1;font-weight:800;letter-spacing:-.09em}
@@ -313,6 +314,7 @@ form{
 
 .one-logo{
     transform:scale(.9);
+    transform-origin:center;
 }
 .light-logo{filter:invert(1)}
 

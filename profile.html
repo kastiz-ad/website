@@ -1,1 +1,56 @@
-<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Review and control information you choose to save for Kastiz ONE missions."><meta name="theme-color" content="#fff"><script>try{document.documentElement.dataset.theme=localStorage.getItem('kastiz-one-theme')||'light'}catch{}</script><title>Your Profile — Kastiz ONE</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="profile.css?v=20260715-1"></head><body><a class="skip" href="#profileMain">Skip to content</a><header class="profile-header"><a class="brand" href="index.html" aria-label="Kastiz ONE home"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></a><nav><a href="settings.html" data-copy="settings">Settings</a><a href="privacy.html" data-copy="privacy">Privacy</a><button id="profileLanguage" type="button">한국어</button></nav></header><main id="profileMain"><section class="profile-hero"><p class="eyebrow">KASTIZ ONE · <span data-copy="profile">PROFILE</span></p><h1 data-copy="title">Information you choose to save.</h1><p data-copy="intro">ONE remembers only what you choose to save. Non-sensitive preferences stay on this device in the current prototype.</p><span class="local-badge" data-copy="local">Device-local · Not account-synced</span></section><section class="memory-panel" aria-labelledby="memoryTitle"><div><h2 id="memoryTitle" data-copy="memory">Memory</h2><p data-copy="memoryCopy">ONE can remember information you choose to save so future missions require fewer steps.</p></div><label class="memory-switch"><input id="memoryEnabled" type="checkbox"><span data-copy="enabled">Memory enabled</span></label><div class="memory-actions"><button id="exportProfile" type="button" data-copy="export">Export profile summary</button><button id="clearProfile" type="button" class="danger" data-copy="clearAll">Clear all saved preferences</button></div><p id="profileStatus" role="status" aria-live="polite"></p></section><section id="profileCategories" class="profile-categories" aria-label="Saved preferences"></section><section class="profile-safety"><h2 data-copy="privacyMemory">Privacy and Memory</h2><p data-copy="safety">Passport, visa, national ID, payment, health, child and emergency-contact data are not stored here. Nothing is shared with a provider before review and explicit approval.</p><p><a href="PROFILE_PRIVACY.md" data-copy="details">Read profile privacy details</a></p></section></main><script type="module" src="js/pages/profile-page.js?v=20260715-1"></script></body></html>
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Review and control information you choose to save for Kastiz ONE missions.">
+  <meta name="theme-color" content="#fff">
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('kastiz-one-theme')||'light'}catch{}</script>
+  <title>Your Profile — Kastiz ONE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="profile.css?v=20260717-2">
+</head>
+<body>
+  <a class="skip" href="#profileMain">Skip to content</a>
+  <header class="profile-header">
+    <a class="brand" href="index.html" aria-label="Kastiz ONE home"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></a>
+    <nav><a href="settings.html" data-copy="settings">Settings</a><a href="privacy.html" data-copy="privacy">Privacy</a><button id="profileLanguage" type="button">한국어</button></nav>
+  </header>
+  <main id="profileMain">
+    <section class="profile-hero">
+      <p class="eyebrow">KASTIZ ONE · <span data-copy="profile">PROFILE</span></p>
+      <h1 data-copy="title">Information you choose to save.</h1>
+      <p data-copy="intro">ONE remembers only what you choose to save. Non-sensitive preferences stay on this device in the current prototype.</p>
+      <span class="local-badge" data-copy="local">Device-local · Not account-synced</span>
+    </section>
+    <form class="starter-profile" id="starterProfileForm">
+      <div class="starter-profile-head"><div><h2 data-copy="starterTitle">Help ONE understand you.</h2><p data-copy="starterCopy">Save optional preferences to make future missions faster and more personal.</p></div><span data-copy="optional">Optional</span></div>
+      <div class="starter-profile-grid">
+        <label><span data-copy="preferredName">Preferred name</span><input name="preferredName" maxlength="80" autocomplete="name"></label>
+        <label><span data-copy="cityRegion">City or region</span><input name="cityRegion" maxlength="120" autocomplete="address-level2"></label>
+        <label><span data-copy="languagePreference">Preferred language</span><input name="language" maxlength="80"></label>
+        <label><span data-copy="departureAirport">Usual departure airport</span><input name="departureAirport" maxlength="120"></label>
+        <label><span data-copy="airlines">Airline preferences</span><input name="airlines" maxlength="180"></label>
+        <label><span data-copy="hotelStyle">Hotel preferences</span><input name="hotelStyle" maxlength="180"></label>
+        <label><span data-copy="tripPace">Travel style</span><input name="tripPace" maxlength="120"></label>
+        <label><span data-copy="cuisines">Favorite cuisines</span><input name="cuisines" maxlength="180"></label>
+        <label><span data-copy="dislikedFoods">Foods you dislike</span><input name="dislikedFoods" maxlength="180"></label>
+        <label><span data-copy="dietaryPreferences">Dietary preferences</span><input name="dietaryPreferences" maxlength="180"></label>
+      </div>
+      <p class="starter-safety" data-copy="starterSafety">Do not enter a full address, payment information, passport, visa, health, child, password or emergency-contact data.</p>
+      <button class="save-profile" type="submit" data-copy="saveProfile">Save preferences</button>
+    </form>
+    <section class="memory-panel" aria-labelledby="memoryTitle">
+      <div><h2 id="memoryTitle" data-copy="memory">Memory</h2><p data-copy="memoryCopy">ONE can remember information you choose to save so future missions require fewer steps.</p></div>
+      <label class="memory-switch"><input id="memoryEnabled" type="checkbox"><span data-copy="enabled">Memory enabled</span></label>
+      <div class="memory-actions"><button id="exportProfile" type="button" data-copy="export">Export profile summary</button><button id="clearProfile" type="button" class="danger" data-copy="clearAll">Clear all saved preferences</button></div>
+      <p id="profileStatus" role="status" aria-live="polite"></p>
+    </section>
+    <section id="profileCategories" class="profile-categories" aria-label="Saved preferences"></section>
+    <section class="profile-safety"><h2 data-copy="privacyMemory">Privacy and Memory</h2><p data-copy="safety">Passport, visa, national ID, payment, health, child and emergency-contact data are not stored here. Nothing is shared with a provider before review and explicit approval.</p><p><a href="PROFILE_PRIVACY.md" data-copy="details">Read profile privacy details</a></p></section>
+  </main>
+  <script type="module" src="js/pages/profile-page.js?v=20260717-2"></script>
+</body>
+</html>

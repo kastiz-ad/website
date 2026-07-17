@@ -9,5 +9,9 @@ const providerStatus=document.getElementById("providerStatus");
 document.querySelectorAll("[data-provider]").forEach(button=>button.addEventListener("click",()=>{
   providerStatus.textContent=copy.providerPending.replace("{provider}",button.dataset.provider);
   trackEvent("login_provider_selected",{page:"login",language,provider:button.dataset.provider.toLowerCase(),status:"not_connected"});
+  const destination=new URL("profile.html",location.href);
+  destination.searchParams.set("mode","prototype");
+  destination.searchParams.set("provider",button.dataset.provider.toLowerCase());
+  location.href=destination.href;
 }));
 trackEvent("page_visit",{page:"login",language});

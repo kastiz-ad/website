@@ -9,6 +9,10 @@ const resultsCss = readFileSync(new URL("../results.css", import.meta.url), "utf
 const loadingHtml = readFileSync(new URL("../loading.html", import.meta.url), "utf8");
 const indexHtml = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const homeCss = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+const login = readFileSync(new URL("../login.js", import.meta.url), "utf8");
+const loginHtml = readFileSync(new URL("../login.html", import.meta.url), "utf8");
+const profileHtml = readFileSync(new URL("../profile.html", import.meta.url), "utf8");
+const profilePage = readFileSync(new URL("../js/pages/profile-page.js", import.meta.url), "utf8");
 
 assert.match(followup, /GT:\s*"GTQ"|Guatemala:\s*"GT"/);
 assert.match(followup, /"Central America":\s*"BZ CR SV GT HN NI PA"/);
@@ -147,5 +151,11 @@ assert.match(resultsCss, /\.execution-summary-head h4 \{[^}]*font-size: clamp\(2
 assert.match(resultsCss, /selectable-recommendation \.recommendation-value \{ flex-direction: column; align-items: center; flex-wrap: nowrap/);
 assert.match(results, /const properCaseLocation/);
 assert.match(results, /value: approvalMissionName\(\)/);
+assert.match(login, /new URL\("profile\.html",location\.href\)/);
+assert.doesNotMatch(loginHtml, /class="provider"[^>]*disabled/);
+assert.match(profileHtml, /id="starterProfileForm"/);
+assert.match(profileHtml, /Do not enter a full address, payment information, passport/);
+assert.match(profilePage, /setMemoryEnabled\(true\)/);
+assert.match(profilePage, /updatePreference\(category,key,value,"profile-onboarding"\)/);
 
 console.log("destination reliability checks passed");
