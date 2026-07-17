@@ -473,7 +473,8 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .mission-card[data-card-id="restaurants"] .selectable-option .option-value { min-width: 0; padding: 2px 34px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 4px; text-align: center; }
 .mission-card[data-card-id="restaurants"] .selectable-option:not(.is-excluded) .option-value { font-size: 14px; font-weight: 700; }
 .mission-card[data-card-id="restaurants"] .selectable-option .option-value strong { max-width: 100%; font-size: 14px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; }
-.restaurant-meta { display: block; max-width: 100%; color: var(--text-muted); font-size: 10px; font-weight: 650; line-height: 1.35; white-space: normal; }
+.restaurant-entry { display:inline; max-width:100%; text-align:center; }
+.restaurant-meta { display: inline; max-width: 100%; color: var(--text-muted); font-size: 10px; font-weight: 650; line-height: 1.35; white-space: normal; }
 .selectable-recommendation { position: relative; width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 15px; padding: 10px 45px; background: var(--chip); color: var(--text); text-align: center; cursor: pointer; }
 .selectable-recommendation .option-key { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-size: 12px; }
 .selectable-recommendation.is-excluded { opacity: .42; }
@@ -706,7 +707,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .completion-message h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: clamp(34px, 6vw, 56px);
   line-height: 1.02;
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -754,12 +755,13 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
   border-radius: 26px;
   background: var(--surface);
   box-shadow: var(--shadow-card);
+  text-align: center;
 }
 .mission-understood h2 { margin: 0 0 18px; font-size: clamp(25px, 4vw, 38px); letter-spacing: -.045em; }
 .mission-understood-goal { display: grid; gap: 5px; margin: 0 0 20px; }
 .mission-understood-goal span,.mission-understood-time { color: var(--text-muted); font-size: 13px; }
 .mission-understood-goal strong { font-size: clamp(24px, 4vw, 38px); line-height: 1.12; letter-spacing: -.035em; }
-.mission-understood-items { display: flex; flex-wrap: wrap; gap: 9px; }
+.mission-understood-items { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; }
 .mission-understood-items span { padding: 8px 11px; border-radius: 999px; background: var(--chip); font-size: 13px; font-weight: 650; }
 .mission-understood-time { margin: 18px 0 0; }
 
@@ -787,7 +789,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .execution-summary { width: 100%; margin: 28px 0 8px; text-align: left; }
 .execution-summary-head { margin-bottom: 14px; text-align: center; }
-.execution-summary-head h4 { margin: 0 0 7px; font-size: clamp(18px, 3vw, 30px); white-space: nowrap; }
+.execution-summary-head h4 { margin: 0 0 7px; font-size: clamp(21px, 3.2vw, 32px); white-space: nowrap; }
 .execution-summary-head p { margin: 0; color: var(--text-muted); font-size: clamp(6px, 1.25vw, 12px); line-height: 1.45; font-weight: 650; letter-spacing: -0.025em; white-space: nowrap; }
 .execution-summary-status { display: inline-flex; margin-top: 10px; padding: 7px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--chip); color: var(--text); font-size: 11px; font-weight: 750; white-space: nowrap; }
 .execution-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

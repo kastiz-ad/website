@@ -1286,7 +1286,7 @@ function adaptTravelResultToDestination(result) {
   const city = result.destination?.city || result.countryProfile?.capital || "the destination";
   const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
   const livePlaces = findLiveProvider(result, "local_places");
-  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, 5);
+  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, 6);
   const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, 6);
   const regionalFareRanges = {
     KR: [[90000, 220000], [100000, 250000], [70000, 190000], [120000, 280000]],
@@ -1348,7 +1348,8 @@ function adaptTravelResultToDestination(result) {
     `${city} Budget Hotel`,
     `${city} Flexible Stay`
   ];
-  profile.hotels = [...new Set([...liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks])].slice(0, 5);
+  const hotelPool = [...new Set([...liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks])];
+  profile.hotels = hotelPool.slice(0, hotelPool.length >= 6 ? 6 : 4);
   const flightReasons = [
     [`Best overall itinerary option for ${city}.`, `${cityKo}행 일정 중 전체 균형이 가장 좋은 옵션입니다.`],
     [`Service-focused itinerary option for ${city}.`, `${cityKo}행 서비스 중심 일정 옵션입니다.`],
@@ -1680,7 +1681,7 @@ const renderTravelMission = (result) => {
         const rating = restaurant.rating || venue?.rating;
         const cuisine = restaurant.cuisine ? String(restaurant.cuisine).replaceAll(";", " · ") : "";
         const facts = [rating ? `★ ${rating}` : "", cuisine, `${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}`].filter(Boolean).join('<span aria-hidden="true"> · </span>');
-        return `<strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta">${facts}</small>`;
+        return `<span class="restaurant-entry"><strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta"><span aria-hidden="true"> · </span>${facts}</small></span>`;
       }),
       itemDetails: restaurants.map((restaurant, index) => ({ price: restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0] })),
       wide: true,
