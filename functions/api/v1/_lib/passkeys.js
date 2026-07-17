@@ -1,0 +1,6 @@
+import { ApiError } from "./http.js";
+export const challengeBytes=()=>crypto.getRandomValues(new Uint8Array(32));
+export const challengeString=bytes=>btoa(String.fromCharCode(...bytes)).replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+export function assertChallenge(record,{challenge,purpose,now=Date.now()}){if(!record||record.consumed_at)throw new ApiError(409,"challenge_replayed","This device challenge is no longer valid.");if(record.challenge!==challenge||record.purpose!==purpose)throw new ApiError(403,"challenge_mismatch","Device challenge does not match this action.");if(new Date(record.expires_at).getTime()<=now)throw new ApiError(409,"challenge_expired","Device challenge expired. Try again.");}
+export function assertWebAuthnContext({expectedOrigin,actualOrigin,expectedRpId,actualRpId}){if(!expectedOrigin||actualOrigin!==expectedOrigin)throw new ApiError(403,"webauthn_origin_invalid","Device confirmation origin is invalid.");if(!expectedRpId||actualRpId!==expectedRpId)throw new ApiError(403,"webauthn_rp_invalid","Device confirmation site identity is invalid.");}
+export class WebAuthnVerifier{constructor(binding){this.binding=binding;}async verify(){if(!this.binding)throw new ApiError(503,"passkey_verifier_not_configured","Passkey verification service is not configured.");return this.binding.verify(...arguments);}}

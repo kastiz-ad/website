@@ -12,3 +12,7 @@ Base: `/api/v1`. JSON only. Authenticated sessions use Secure, HttpOnly, SameSit
 - `DELETE provider-connections/:id`
 
 Execution intentionally returns `provider_not_configured` until a real server-only adapter exists. It never fabricates a booking or payment.
+
+## ONE Pass
+
+Protected endpoints are under `/api/v1/one-pass`: status/create, Travel Profile, masked Identity Pass, loyalty references, payment references, provider connections, credentials/passkey challenges, privacy-safe activity, and export. Passport persistence, passkey verification, booking and payment remain disabled until their explicit server configuration is complete.

@@ -10,6 +10,8 @@ ONE prepares and explains mission options. It never books, buys, pays, reserves,
 
 The repository now includes a staging-ready Supabase Auth/PostgreSQL design, RLS migration, and Cloudflare Pages Functions API under `/api/v1`. It remains disabled until the environment variables are configured. No real provider execution is enabled, and no founder password is stored in source. See `SECURE_BACKEND_SETUP.md` and `SECURE_BACKEND_API.md`.
 
+ONE Pass adds a protected travel-profile, loyalty/payment reference, provider-handoff, passkey, Identity Vault, exact approval, and booking-coordinator architecture. Sensitive identity persistence, WebAuthn verification, real booking, and real payment fail closed until audited external services are configured. See `ONE_PASS_ARCHITECTURE.md` and `ONE_PASS_EXTERNAL_SETUP.md`.
+
 ## Run locally
 
 Run `npm install`, then `npx wrangler pages dev .`. A plain static server still supports the prototype UI, but secure account APIs require Pages Functions and configured Supabase staging credentials.
