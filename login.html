@@ -1,1 +1,50 @@
-<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Kastiz ONE early-access account access."><meta name="theme-color" content="#ffffff"><script>try{document.documentElement.dataset.theme=localStorage.getItem('kastiz-one-theme')||'light'}catch{}</script><title>Kastiz ONE — Early Access Login</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="login.css?v=20260714-30"></head><body><div class="page"><header class="topbar"><a class="logo" href="index.html" aria-label="Kastiz ONE home"><img src="assets/one-final-circle.png" alt=""><strong>NE</strong></a><nav><a href="pricing.html" data-i18n="pricing">Pricing</a><a href="settings.html" data-i18n="settings">Settings</a></nav></header><main class="login-container"><section class="login-card" aria-labelledby="loginTitle"><div class="one-logo" aria-hidden="true"><img src="assets/one-final-circle.png" alt=""><strong>NE</strong></div><p class="account-status" data-i18n="status">EARLY ACCESS · ACCOUNTS NOT CONNECTED</p><h1 id="loginTitle" data-i18n="title">Early Access Login Coming Soon</h1><p data-i18n="copy">Account interfaces are being prepared. No account will be created and no password is collected on this prototype page.</p><div class="providers" aria-label="Planned login providers"><button class="provider" type="button" disabled>Email</button><button class="provider" type="button" disabled>Google</button><button class="provider" type="button" disabled>Apple</button><button class="provider" type="button" disabled>Kakao</button></div><div class="account-actions"><a class="primary-button" href="early-access.html" data-i18n="waitlist">Join waitlist</a><a class="request-link" href="early-access.html" data-i18n="request">Request early access</a><a class="request-link" href="help.html" data-i18n="support">Contact support</a></div><div class="account-links"><a href="help.html#forgot-password" data-i18n="forgot">Forgot password placeholder</a><a href="privacy.html" data-i18n="privacy">Privacy request</a><a href="data-retention.html" data-i18n="deletion">Account deletion & data export</a><a href="settings.html" data-i18n="preferences">Mission history, notification, language & theme settings</a></div></section></main></div><script type="module" src="login.js?v=20260714-30"></script></body></html>
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Kastiz ONE early-access account access.">
+  <meta name="theme-color" content="#ffffff">
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('kastiz-one-theme')||'light'}catch{}</script>
+  <title>Kastiz ONE — Early Access Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css?v=20260717-32">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="logo" href="index.html" aria-label="Kastiz ONE home"><img src="assets/one-final-circle.png" alt=""><strong>NE</strong></a>
+      <nav><a href="pricing.html" data-i18n="pricing">Pricing</a><a href="settings.html" data-i18n="settings">Settings</a></nav>
+    </header>
+    <main class="login-container">
+      <section class="login-card" aria-labelledby="loginTitle">
+        <div class="one-logo" aria-hidden="true"><img src="assets/one-final-circle.png" alt=""><strong>NE</strong></div>
+        <p class="account-status" data-i18n="status">EARLY ACCESS · ACCOUNTS NOT CONNECTED</p>
+        <h1 id="loginTitle" data-i18n="title">Early Access Login Coming Soon</h1>
+        <p data-i18n="copy">Account interfaces are being prepared. No account will be created and no password is collected on this prototype page.</p>
+        <div class="providers" aria-label="Planned login providers">
+          <button class="provider" type="button" data-provider="Email">Email</button>
+          <button class="provider" type="button" data-provider="Google">Google</button>
+          <button class="provider" type="button" data-provider="Apple">Apple</button>
+          <button class="provider" type="button" data-provider="Kakao">Kakao</button>
+        </div>
+        <p class="provider-status" id="providerStatus" role="status" aria-live="polite"></p>
+        <div class="account-actions">
+          <a class="primary-button" href="early-access.html" data-i18n="waitlist">Join waitlist</a>
+          <a class="request-link" href="early-access.html" data-i18n="request">Request early access</a>
+          <a class="request-link" href="help.html" data-i18n="support">Contact support</a>
+        </div>
+        <div class="account-links">
+          <a href="help.html#forgot-password" data-i18n="forgot">Forgot password placeholder</a>
+          <a href="privacy.html" data-i18n="privacy">Privacy request</a>
+          <a href="data-retention.html" data-i18n="deletion">Account deletion &amp; data export</a>
+          <a href="settings.html" data-i18n="preferences">Mission history, notification, language &amp; theme settings</a>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="login.js?v=20260717-32"></script>
+</body>
+</html>

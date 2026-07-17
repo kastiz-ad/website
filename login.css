@@ -188,6 +188,7 @@ form{
 }
 
 .providers{
+    margin-top:28px;
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:14px;
@@ -205,6 +206,11 @@ form{
 
 .provider:hover{
     background:rgba(127,127,127,.08);
+}
+
+.provider:focus-visible{
+    outline:3px solid color-mix(in srgb,var(--text) 72%,transparent);
+    outline-offset:3px;
 }
 
 .provider:disabled{
@@ -266,6 +272,21 @@ form{
     line-height:1.45;
     text-decoration:none;
     -webkit-text-fill-color:var(--muted);
+}
+
+.provider-status{
+    min-height:42px;
+    margin:14px 0 0;
+    padding:10px 12px;
+    border-radius:12px;
+    background:color-mix(in srgb,var(--surface) 84%,var(--text) 6%);
+    color:var(--muted)!important;
+    font-size:12px;
+    line-height:1.45!important;
+}
+
+.provider-status:empty{
+    display:none;
 }
 
 .bottom-text{
