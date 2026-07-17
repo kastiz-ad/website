@@ -207,6 +207,67 @@ form{
     background:rgba(127,127,127,.08);
 }
 
+.provider:disabled{
+    cursor:not-allowed;
+    opacity:1;
+    color:var(--text);
+    background:color-mix(in srgb,var(--surface) 82%,var(--text) 8%);
+    -webkit-text-fill-color:var(--text);
+}
+
+.account-status{
+    margin-bottom:14px;
+    color:var(--muted);
+    font-size:11px!important;
+    font-weight:800;
+    letter-spacing:.12em;
+}
+
+.account-actions{
+    display:grid;
+    gap:10px;
+    margin-top:28px;
+}
+
+.account-actions .primary-button{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    -webkit-text-fill-color:var(--accentText);
+}
+
+.request-link{
+    min-height:48px;
+    border:1px solid var(--border);
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 16px;
+    text-align:center;
+    text-decoration:none;
+    color:var(--text);
+    font-weight:700;
+    -webkit-text-fill-color:var(--text);
+}
+
+.account-links{
+    margin-top:26px;
+    padding-top:22px;
+    border-top:1px solid var(--border);
+    display:grid;
+    gap:10px;
+}
+
+.account-links a{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.45;
+    text-decoration:none;
+    -webkit-text-fill-color:var(--muted);
+}
+
 .bottom-text{
     margin-top:32px;
     font-size:14px;
@@ -232,7 +293,7 @@ form{
 .one-logo{
     transform:scale(.9);
 }
-.account-status{font-size:11px!important;font-weight:800;letter-spacing:.12em;margin-bottom:14px}.account-actions{display:grid;gap:10px;margin-top:28px}.primary-button{text-decoration:none}.request-link{height:48px;border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--text);font-weight:700}.account-links{margin-top:26px;padding-top:22px;border-top:1px solid var(--border);display:grid;gap:10px}.account-links a{color:var(--muted);font-size:13px;text-decoration:none}.provider:disabled{cursor:not-allowed;opacity:.58}.light-logo{filter:invert(1)}
+.light-logo{filter:invert(1)}
 
 .login-card h1{
     font-size:28px;
