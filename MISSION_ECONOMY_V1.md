@@ -1,56 +1,30 @@
-# Subscription Platform and Mission Economy V1
+# Mission Economy V1
 
-## Mission Coin philosophy
+Status: **PROTOTYPE · NOT LIVE**. Billing, purchases, transfers, booking, payment, provider contact and external execution are disabled.
 
-Kastiz ONE sells prepared, completed missions—not searches or AI messages. Searching, planning, editing, refining, retrying, and changing providers, destinations, dates or budgets are free. `consumeCompletedMission` can deduct exactly one Mission Coin only when the mission status is `completed`, a completion reference exists, a balance exists, and the mission has not already consumed a coin.
+## Business rule
 
-## Wallet architecture
+Kastiz ONE sells successfully prepared missions, coordination, saved time and reduced mental load—not searches or revisions. Searching, classification, provider discovery, editing, changes to dates, locations, budgets, providers, participants or transportation, and itinerary rebuilding cost zero Mission Coins.
 
-`MissionWallet` supports personal, family, group, business and enterprise ownership. Balances are separated into monthly, purchased, bonus and promotional sources with explicit expiration rules and append-only history. Monthly allocations and bonuses are idempotent. Future gifting and transfers are modeled in the database ledger but are not enabled.
+One eligible, user-confirmed completed mission consumes exactly one Mission Coin. A coordinated family, group or business mission also consumes one coin total, never one coin per participant. The internal Mission Value Score records complexity for analysis only and never changes the V1 price.
 
-## Subscription architecture
+## Completion lifecycle
 
-The centralized catalog contains Free, ONE+, ONE Family, ONE Groups, ONE Business, ONE Enterprise and ONE Max. Allocation values are configuration, never embedded in charging logic. `configureSubscriptionCatalog` can override allocations and feature lists without a new frontend. Every entitlement uses feature flags.
+`MISSION_CREATED → CLASSIFYING → PLANNING → EDITING → PREPARING → ONE_READY → WAITING_FOR_APPROVAL → APPROVED_FOR_DEMO → READY_FOR_COMPLETION → USER_CONFIRMED_COMPLETE → MISSION_COMPLETED`
 
-Free defaults to five monthly Mission Coins. Other allocations intentionally remain configurable until commercial, operational and legal decisions are complete. Billing execution remains false.
+`READY_FOR_COMPLETION` requires sufficient context, ONE Pick and alternatives, domain preparation, and an approval-ready result. The user must choose **Mark Mission Complete** before the state can advance. Only `MISSION_COMPLETED` can emit `MISSION_COMPLETION_DEBIT`.
 
-## Family model
+Paused, cancelled, failed, archived and merely prepared missions consume no coin. A reopened completed mission retains the same version-history idempotency key and cannot charge again. A materially new mission gets a new version history and may consume one coin only after completing independently.
 
-ONE Family uses a shared wallet while preserving individual schedules, preferences and transportation. The Family Coordination Engine prepares shared calendar state, meeting-point status, arrival synchronization and Safe Return Home status. It cannot contact or reserve with providers.
+## Renewal and spending
 
-## Group model
-
-ONE Groups prepares attendance, shared itineraries, transportation and role coordination for communities. Group reservations remain preparation-only.
-
-## Business model
-
-ONE Business uses business workspaces, shared wallets and Owner, Manager, Employee and Guest roles. Approval, expense and administration capabilities are permissions, not duplicated pages.
-
-## Enterprise model
-
-ONE Enterprise supports an organization workspace, department hierarchy, corporate wallet architecture, SSO-ready metadata, audit-log architecture and future approval chains/integrations. No SSO, enterprise API or billing provider is connected in this sprint.
-
-## ONE Max
-
-ONE Max is the highest configurable personal tier. It exposes feature-flag architecture for priority generation, private memory, family coordination, future concierge/human assistance and onboarding. None of those future human or phone services are activated here.
-
-## Roles
-
-Supported roles are Owner, Administrator, Parent, Adult Member, Child, Employee, Manager, Guest and Viewer. Permissions are configurable. Default roles follow least privilege and are checked through one `can` function.
+Renewal, rollover caps and expiration remain configuration. Prototype spending order is: expiring promotional coins, monthly allocation, bonus coins, then purchased coins. Purchased coins are architected as non-expiring, but purchasing is disabled. Bonus and promotional expiration are configurable.
 
 ## Upgrade and downgrade
 
-Planning is never blocked. An empty wallet still permits review and displays a calm upgrade message only when continued mission preparation requires coins. Downgrades preserve mission history and Mission Memory; premium features become inactive rather than deleted.
+Planning is never interrupted. If an eligible mission reaches completion with no balance, it stays saved and reviewable and a calm upgrade state appears. No countdowns, fake scarcity or hidden work are used. Downgrades preserve mission history, receipts, Mission Memory and workspace data; premium actions become inactive at the configured effective date and over-limit workspaces are marked for adjustment rather than deleted.
 
-## Future billing
+## Security boundary
 
-Stripe, Apple, Google, KakaoPay, Naver Pay, PayPal and regional names exist only as inert adapter interfaces. Quote returns unavailable; checkout and subscription return blocked. `BILLING_EXECUTION_ENABLED` and the existing `paymentsEnabled` remain false. No payment identifiers or card fields are stored.
-
-## Mission analytics
-
-Aggregates cover completions, categories, planning time, coin usage, success, satisfaction and family/business coordination frequency. The aggregator returns no raw mission text or personal data.
-
-## Marketplace compatibility
-
-The wallet consumes a universal completion event after the existing Universal Mission Engine and approval boundaries. Provider type does not change coin behavior. Marketplace/provider integrations cannot deduct a coin directly.
+Browser balances are demo display only. Production balances, completion authorization, entitlement resolution and ledger writes must be server-authoritative, transactional and locked. Duplicate completion, replay, role escalation, wallet tampering and cross-workspace leakage must be rejected on the server.
 

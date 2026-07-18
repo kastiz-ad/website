@@ -142,27 +142,31 @@ These priorities protect time, decision quality and trust; they intentionally ex
 
 | Area | Score |
 |---|---:|
-| Business scalability | 94/100 |
-| Subscription architecture | 93/100 |
-| Mission economy | 95/100 |
-| Revenue flexibility | 92/100 |
-| Enterprise readiness | 86/100 |
-| Family coordination | 89/100 |
-| Business readiness | 88/100 |
-| Future-proofing | 94/100 |
-| Overall investment readiness | 91/100 |
+| Business Architecture | 96/100 |
+| Mission Economy | 97/100 |
+| Wallet Integrity | 95/100 |
+| Subscription Scalability | 96/100 |
+| Family Readiness | 93/100 |
+| Group Readiness | 93/100 |
+| Business Readiness | 92/100 |
+| Enterprise Readiness | 90/100 |
+| ONE Max Readiness | 91/100 |
+| Entitlement Architecture | 96/100 |
+| Role Security | 94/100 |
+| Revenue Flexibility | 94/100 |
+| Alpha Readiness | 89/100 |
 
 ### Remaining Mission Economy blockers
 
 **Critical**
 
 1. Complete Korean business registration, tax, consumer-law, refund and subscription-renewal review before selling anything.
-2. Implement server-side transactional wallet consumption with database locking and idempotency before real accounts receive coins.
+2. Implement the documented server-side transactional wallet consumption with row locking and idempotency before real accounts receive coins. The current engine and schema are architecture, not a live balance authority.
 3. Complete payment-security design and independent security review before connecting any billing provider.
 
 **High**
 
-4. Validate tier prices, allocations, expiry rules and promotional terms through founder-approved commercial configuration.
+4. Validate tier prices, ONE Family/Groups/Max/Business/Enterprise allocations, rollover, expiry and promotional terms through founder-approved commercial configuration. No invented public pricing was added.
 5. Add authenticated workspace invitation, removal and role-change workflows with audit events.
 6. Add subscription lifecycle webhooks only after selecting a payment processor and defining reconciliation operations.
 7. Test family/child permissions and consent with specialist privacy and child-safety review.
