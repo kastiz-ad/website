@@ -1,0 +1,9 @@
+export const ONE_INTELLIGENCE_ENABLED=true;
+export const INTELLIGENCE_EXTERNAL_INTEGRATIONS_ENABLED=false;
+export const SUGGESTION_TYPES=Object.freeze(["UNFINISHED_TASK","UPCOMING_PREPARATION","FAMILY_COORDINATION","WORK_ASSISTANCE","TRAVEL_PREPARATION","DINING_RECOMMENDATION","SCHEDULE_COORDINATION","WEATHER_ADJUSTMENT","TRAFFIC_WARNING","REMINDER_PREPARATION","FOLLOW_UP","NEW_EXPERIENCE","HEALTHCARE_LOGISTICS","EDUCATION_SUPPORT","CHURCH_OR_COMMUNITY","RETURN_HOME","MISSION_CONTINUATION"]);
+export const CONFIDENCE_STATES=Object.freeze(["LOW","MEDIUM","HIGH"]);
+export const CONTEXT_STATES=Object.freeze(["LIVE","ESTIMATED","DEMO","UNAVAILABLE"]);
+export const SUGGESTION_STATES=Object.freeze(["LOADING","AVAILABLE","ACCEPTED","DISMISSED","EXPIRED","NO_SUGGESTION","ERROR"]);
+export const PRIORITY_ORDER=Object.freeze(["SAFETY_CRITICAL","TIME_SENSITIVE_UNFINISHED","UPCOMING_PREPARATION","SCHEDULE_CONFLICT","FAMILY_COORDINATION","WORK_ASSISTANCE","TRAVEL_PREPARATION","FOLLOW_UP","EXPERIENCE_RECOMMENDATION","DINING_VARIETY","GENERAL_INSPIRATION"]);
+export const DEFAULT_INTELLIGENCE_SETTINGS=Object.freeze({enabled:true,frequency:"BALANCED",categories:Object.freeze({work:true,family:true,travel:true,dining:true,education:true,churchCommunity:false,healthcareLogistics:false}),useCalendarContext:false,useMissionMemory:true,useLocationContext:false,useLiveIntelligence:false,allowCrossMissionLearning:false,learningPaused:false});
+export const INTELLIGENCE_STORAGE_KEYS=Object.freeze({settings:"kastiz-one-intelligence-settings",patterns:"kastiz-one-intelligence-patterns",feedback:"kastiz-one-intelligence-feedback",session:"kastiz-one-intelligence-session"});

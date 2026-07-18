@@ -1,4 +1,5 @@
 import { openConsentSettings, trackEvent } from "./js/analytics.js";
+import { mountSuggestionSettings } from "./js/intelligence/suggestion-settings.js";
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -257,3 +258,5 @@ updateTexts();
 updateLocation();
 document.getElementById("privacyChoicesButton")?.addEventListener("click", openConsentSettings);
 trackEvent("page_view", { page: "settings", language });
+document.getElementById("intelligenceSettingsCopy").textContent=language==="ko"?"승인한 활동에서 ONE이 학습하고 조용히 제안하는 방식을 관리합니다.":"Control quiet suggestions and learning from approved activity.";
+mountSuggestionSettings({container:document.getElementById("intelligenceSettings"),language});

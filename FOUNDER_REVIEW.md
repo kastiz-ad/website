@@ -181,3 +181,27 @@ These priorities protect time, decision quality and trust; they intentionally ex
 
 11. Design future gifting and transfer policy only after fraud and consumer-protection analysis.
 12. Refine architecture-demo copy after founder and investor testing.
+
+## ONE Intelligence Layer V1 review
+
+| Area | Score |
+|---|---:|
+| Intelligence Architecture | 95/100 |
+| Behavior Understanding | 90/100 |
+| Suggestion Relevance | 88/100 |
+| Diversity | 92/100 |
+| Privacy | 96/100 |
+| Non-Creepy Experience | 96/100 |
+| Family Coordination Intelligence | 89/100 |
+| Work Assistance | 90/100 |
+| User Control | 94/100 |
+| Homepage Integration | 93/100 |
+| Alpha Readiness | 86/100 |
+
+### Remaining Intelligence blockers
+
+**Critical:** production server-authoritative consent, membership, retention and deletion; independent privacy/security and child-data review; verified context adapters before any LIVE label.
+
+**High:** authenticated per-pattern view/removal, measured confidence calibration, real cooldown evaluation, native Korean editorial review and physical-device assistive-technology testing.
+
+**Medium:** usefulness experiments measuring reduced repeated planning and unfinished work without engagement manipulation; broader category-safe demo fixtures; transparent source freshness.
