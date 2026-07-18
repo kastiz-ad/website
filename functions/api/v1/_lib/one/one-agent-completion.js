@@ -1,0 +1,1 @@
+export function verifyCompletion(mission,evidence=[]){const met=mission.completionConditions.map(condition=>({condition,met:evidence.includes(condition)}));const complete=met.length>0&&met.every(item=>item.met);return{complete,state:complete?"COMPLETED":"READY_TO_COMPLETE",missionCoinEligible:complete,missionCoinConsumed:false,evidence:met};}

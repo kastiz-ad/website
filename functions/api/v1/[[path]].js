@@ -5,6 +5,7 @@ import { currentUser, resetPassword, sessionHeaders, signIn, signUp } from "./_l
 import { audit, db, trustedDb } from "./_lib/database.js";
 import { approvalDecision, approvalRequest, body, consent, emailPassword, missionCreate, preference, profileUpdate, registration, ValidationError } from "./_lib/schemas.js";
 import { assertExecutable, payloadHash } from "./_lib/approval.js";
+import { runOneCoreAgent } from "./_lib/one/one-core-agent.js";
 
 const parts = request => new URL(request.url).pathname.replace(/^\/api\/v1\/?/, "").split("/").filter(Boolean);
 const one = rows => Array.isArray(rows) ? rows[0] || null : rows;
@@ -25,6 +26,13 @@ async function route(context, cfg) {
   }
 
   const user = await currentUser(request, cfg);
+  if (group === "one-agent" && id === "missions" && request.method === "POST") {
+    await rateLimit(context, "one-agent", 10);
+    const data=await request.json();
+    if(!data?.userRequest||typeof data.userRequest!=="string"||data.userRequest.length>4000)throw new ValidationError([{path:"userRequest",code:"invalid_length"}]);
+    const workspace=data.workspace||{id:`personal-${user.id}`,memberIds:[user.id]};
+    return json(await runOneCoreAgent({...data,accountId:user.id,workspace},cfg.oneAgentEnv));
+  }
   if (group === "me") {
     if (!id && request.method === "GET") return json({ id:user.id,email:user.email,emailVerified:Boolean(user.email_confirmed_at) });
     if (id === "profile" && request.method === "GET") return json({ profile:one(await db(cfg,user,"profiles",{query:`id=eq.${user.id}&select=id,display_name,preferred_language,timezone,created_at,updated_at`})) });

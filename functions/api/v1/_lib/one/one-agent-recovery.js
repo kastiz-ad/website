@@ -1,0 +1,1 @@
+export function recoverMission({failure,successfulSteps=[],alternatives=[]}){return Object.freeze({state:"RECOVERING",failure:String(failure?.message||failure||"Unknown failure"),preservedSteps:[...successfulSteps],preparedAlternative:alternatives[0]||null,newApprovalRequired:Boolean(alternatives[0]?.materialChange),hiddenErrors:false});}

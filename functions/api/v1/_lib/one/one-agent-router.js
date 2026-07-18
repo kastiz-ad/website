@@ -1,0 +1,1 @@
+export function routeModel(complexity={}){const score=(complexity.tasks||0)+(complexity.providers||0)*2+(complexity.highRisk?5:0);return score>=12?{tier:"STRONG_REASONING",reasoningEffort:"high"}:score>=6?{tier:"BALANCED",reasoningEffort:"medium"}:{tier:"FAST",reasoningEffort:"low"};}
