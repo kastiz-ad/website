@@ -57,7 +57,7 @@ const translations = {
     terms: "Terms",
     settings: "Settings",
     unknownLocation: "Unknown Location",
-    recommended: "Recommended:",
+    recommended: "⭐ ONE Pick",
     reason: "Reason:",
     otherOptions: "Other options:",
     modify: "Modify",
@@ -123,8 +123,8 @@ const translations = {
     terms: "약관",
     settings: "설정",
     unknownLocation: "알 수 없는 위치",
-    recommended: "추천:",
-    reason: "추천 이유:",
+    recommended: "⭐ ONE Pick",
+    reason: "선정 이유:",
     otherOptions: "다른 옵션:",
     modify: "수정",
     editing: "수정 중",
@@ -1589,7 +1589,7 @@ const renderTravelMission = (result) => {
     createMissionCard({
       id: "flights",
       title: activeLanguage === "ko" ? "항공권" : "Flights",
-      label: activeLanguage === "ko" ? "추천" : "Recommended",
+      label: "⭐ ONE Pick",
       value: `<span class="recommended-name">${getFlightName(recommendedFlight)}</span><span class="recommended-price">${formatRange(recommendedFlight?.estimatedPrice)} · ${flightPriceLabel}</span>`,
       reason:
         activeLanguage === "ko"
@@ -1610,7 +1610,7 @@ const renderTravelMission = (result) => {
     createMissionCard({
       id: "hotel",
       title: activeLanguage === "ko" ? "호텔" : "Hotel",
-      label: activeLanguage === "ko" ? "추천" : "Recommended",
+      label: "⭐ ONE Pick",
       value: `<span class="recommended-name">${getHotelName(recommendedHotel)}</span><span class="recommended-price">${formatRange(recommendedHotel?.estimatedNightlyPrice)} / ${activeLanguage === "ko" ? "1박" : "night"}</span>`,
       reason:
         activeLanguage === "ko"
@@ -1625,7 +1625,7 @@ const renderTravelMission = (result) => {
     createMissionCard({
       id: "airport-transfer",
       title: activeLanguage === "ko" ? "공항 이동" : "Airport Transfer",
-      label: activeLanguage === "ko" ? "추천" : "Recommended",
+      label: "⭐ ONE Pick",
       value: localize(transfer?.recommended),
       reason: localize(transfer?.reason),
       options: (transfer?.options || []).map((option, index) => {
@@ -1814,7 +1814,7 @@ const renderMissionUnderstanding = () => {
     : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "준비된 미션" : "Prepared mission");
   const prepared = currentResult?.type === "travel"
     ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
-    : (ko ? ["추천 계획", "비교 선택지", "예산", "체크리스트"] : ["Recommended plan", "Compared options", "Budget", "Checklist"]);
+    : ["⭐ ONE Pick", ko ? "비교 선택지" : "Compared options", ko ? "예산" : "Budget", ko ? "체크리스트" : "Checklist"];
   missionUnderstoodGoal.innerHTML = `<span>${ko ? "목표" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
   missionUnderstoodItems.innerHTML = prepared.map((item) => `<span>✓ ${item}</span>`).join("");
   const heading = document.getElementById("missionUnderstoodTitle");
@@ -1831,7 +1831,7 @@ const organizeProgressiveResults = () => {
   const nodes = [...missionGrid.children];
   const nodeIds = new Set(nodes.map((node) => node.dataset?.cardId || (node.id === "additionalServicesForm" ? "additional-services" : "")));
   const groups = [
-    { title: activeLanguage === "ko" ? "1. 추천 계획" : "1. Recommended Plan", open: true, match: () => true },
+    { title: "1. ⭐ ONE Pick", open: true, match: () => true },
     { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["visa", "checklist", "information-sources"]) },
     { title: activeLanguage === "ko" ? "3. 날씨" : "3. Weather", ids: new Set(["weather"]) },
     { title: activeLanguage === "ko" ? "4. 환율" : "4. Currency", ids: new Set(["exchange-rate"]) },
@@ -2385,8 +2385,8 @@ const enableCustomization = () => {
       const airlineOptions = ["Korean Air", "Asiana Airlines", "Delta Air Lines", "American Airlines", "United Airlines", "Japan Airlines"];
       const hotelOptions = ["Four Seasons", "Rosewood", "Atlantis", "Lotte", "Shilla", "Le Méridien", "Sofitel", "Hyatt", "InterContinental", "JW Marriott", "Hilton", "APA Hotel"];
       const generalOptions = activeLanguage === "ko"
-        ? ["추천 옵션", "예산 중심", "품질 중심", "가까운 위치", "프리미엄"]
-        : ["Recommended", "Budget", "Best quality", "Nearest", "Premium"];
+        ? ["⭐ ONE Pick", "예산 중심", "품질 중심", "가까운 위치", "프리미엄"]
+        : ["⭐ ONE Pick", "Budget", "Best quality", "Nearest", "Premium"];
       const options = cardId === "flights" ? airlineOptions : cardId === "hotel" ? hotelOptions : generalOptions;
       picker.innerHTML = options.map((option) => `<button class="alternative-choice" type="button">${option}</button>`).join("");
     }

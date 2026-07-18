@@ -32,7 +32,7 @@ const approvalMessages = {
 
 const loadingMessages = {
   en: {
-    general_mission: ["Understanding your mission...", "Finding trusted options...", "Checking live data...", "Preparing recommendations...", "Turning your idea into reality..."],
+    general_mission: ["Understanding your mission...", "Finding trusted options...", "Checking live data...", "Preparing your ONE Pick...", "Turning your idea into reality..."],
     travel: ["Understanding your travel mission...", "Checking weather...", "Checking exchange rates...", "Preparing flight options...", "Preparing hotel options...", "Preparing your travel checklist..."],
     shopping: ["Understanding your shopping mission...", "Comparing products...", "Checking price options...", "Preparing best-value choices...", "Preparing your buying checklist..."],
     housing: ["Understanding your housing mission...", "Preparing area options...", "Checking budget assumptions...", "Preparing contract checklist...", "Preparing housing recommendations..."],
@@ -48,7 +48,7 @@ const loadingMessages = {
     lifestyle: ["Understanding your lifestyle mission...", "Preparing vendors...", "Preparing timeline...", "Preparing budget options...", "Preparing reservation checklist..."]
   },
   ko: {
-    general_mission: ["미션을 이해하고 있어요...", "신뢰할 수 있는 선택지를 찾고 있어요...", "실시간 데이터를 확인하고 있어요...", "추천 결과를 준비하고 있어요...", "당신의 아이디어를 현실로 만들고 있어요..."],
+    general_mission: ["미션을 이해하고 있어요...", "신뢰할 수 있는 선택지를 찾고 있어요...", "실시간 데이터를 확인하고 있어요...", "ONE Pick을 준비하고 있어요...", "당신의 아이디어를 현실로 만들고 있어요..."],
     travel: ["여행 미션을 이해하고 있어요...", "날씨를 확인하고 있어요...", "환율을 확인하고 있어요...", "항공권 옵션을 준비하고 있어요...", "숙소 옵션을 준비하고 있어요...", "여행 체크리스트를 준비하고 있어요..."],
     shopping: ["쇼핑 미션을 이해하고 있어요...", "제품을 비교하고 있어요...", "가격 옵션을 확인하고 있어요...", "가성비 좋은 선택지를 준비하고 있어요...", "구매 체크리스트를 준비하고 있어요..."],
     housing: ["주거 미션을 이해하고 있어요...", "지역 후보를 준비하고 있어요...", "예산 가정을 확인하고 있어요...", "계약 체크리스트를 준비하고 있어요...", "주거 추천 결과를 준비하고 있어요..."],

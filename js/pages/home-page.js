@@ -795,7 +795,7 @@ const buildRecommendations = (type) => {
 
   return [{
     id: "recommended-plan",
-    title: missionText("Recommended plan", "추천 플랜"),
+    title: "⭐ ONE Pick",
     summary: map[type] || map.general_mission,
     priority: "Balanced",
     editable: true,

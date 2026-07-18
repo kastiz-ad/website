@@ -1,0 +1,9 @@
+begin;
+create table public.mission_memories(id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,mission_id uuid not null references public.missions(id) on delete cascade,one_pick_reference text,selected_option_reference text,budget numeric(14,2),actual_price numeric(14,2),currency char(3),safe_preferences jsonb not null default '{}' check(pg_column_size(safe_preferences)<=16384),skipped_items text[] not null default '{}',mission_rating integer check(mission_rating between 1 and 5),created_at timestamptz not null default now(),deleted_at timestamptz,unique(user_id,mission_id));
+create table public.provider_trust_snapshots(id uuid primary key default gen_random_uuid(),provider text not null,source_reference text not null,verified_at timestamptz not null,reliability numeric(5,2),refund_quality numeric(5,2),price_accuracy numeric(5,2),review_confidence numeric(5,2),support_quality numeric(5,2),availability_freshness numeric(5,2),created_at timestamptz not null default now(),check(reliability between 0 and 100),check(refund_quality between 0 and 100),check(price_accuracy between 0 and 100),check(review_confidence between 0 and 100),check(support_quality between 0 and 100),check(availability_freshness between 0 and 100));
+create index mission_memories_user_idx on public.mission_memories(user_id,created_at desc) where deleted_at is null;create index provider_trust_latest_idx on public.provider_trust_snapshots(provider,verified_at desc);
+alter table public.mission_memories enable row level security;alter table public.provider_trust_snapshots enable row level security;
+create policy mission_memory_owner_select on public.mission_memories for select using(user_id=auth.uid());
+revoke insert,update,delete on public.mission_memories from authenticated;grant select on public.mission_memories to authenticated;
+revoke all on public.provider_trust_snapshots from anon,authenticated;
+commit;
