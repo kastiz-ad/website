@@ -97,3 +97,43 @@ Every item above either saves time, removes a decision, or increases trust. Real
 12. Measure pack completion and plan-switch rates after consented founder testing.
 
 These priorities protect time, decision quality and trust; they intentionally exclude unrelated feature expansion.
+
+## V4 Universal Mission Engine review
+
+| Area | Score |
+|---|---:|
+| Architecture | 94/100 |
+| Scalability | 92/100 |
+| Provider Expansion | 91/100 |
+| Mission Classification | 87/100 |
+| ONE Pick | 92/100 |
+| Transparency | 96/100 |
+| Live Intelligence | 82/100 |
+| Preparation Quality | 89/100 |
+| Overall Readiness | 88/100 |
+
+### Remaining Universal Mission blockers
+
+**Critical**
+
+1. Replace rule-only classification with a measured server-side classifier plus deterministic safety fallback before broad Alpha traffic.
+2. Connect only authorized, source-attributed providers; current provider records remain structured demo data.
+3. Add mandatory freshness and consequence checks before any provider handoff or future execution.
+
+**High**
+
+4. Add provider-type validation schemas for optional fields while preserving the universal base schema.
+5. Add live holiday, closure, transit, traffic and hours adapters with regional coverage and source timestamps.
+6. Run independent healthcare, legal and financial safety review before exposing those missions beyond controlled demos.
+7. Complete native Korean review for provider-specific terminology.
+
+**Medium**
+
+8. Measure classifier confusion and provide a low-friction clarification only when confidence is genuinely low.
+9. Add authenticated receipt persistence and consented memory across universal provider types.
+10. Expand configuration fixtures for childcare, senior care and automotive preparation.
+
+**Low**
+
+11. Add founder-only tooling to inspect provider configuration validity.
+12. Measure decisions removed, app switches avoided and time saved in Alpha testing.
