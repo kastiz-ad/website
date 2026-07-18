@@ -1,5 +1,6 @@
 import { fetchJson } from "../engine/providers.js?v=20260711-1";
 import { trackEvent } from "../analytics.js";
+import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -19,7 +20,7 @@ const loadingMessage = document.getElementById("loadingMessage");
 const progressBar = document.getElementById("progressBar");
 const loadingSteps = Array.from(document.querySelectorAll(".loading-step"));
 
-const fallbackLanguage = localStorage.getItem(STORAGE_KEYS.language) || "en";
+const fallbackLanguage = normalizeInterfaceLocale(localStorage.getItem(STORAGE_KEYS.language) || navigator.language);
 const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || "light";
 
 root.setAttribute("data-theme", savedTheme);
@@ -27,7 +28,8 @@ root.setAttribute("lang", fallbackLanguage);
 
 const approvalMessages = {
   en: "Nothing will be booked, purchased, reserved, signed, submitted, paid for, or legally committed until you approve.",
-  ko: "사용자가 승인하기 전에는 예약, 결제, 구매, 서명, 제출 또는 법적 약속이 진행되지 않습니다."
+  ko: "사용자가 승인하기 전에는 예약, 결제, 구매, 서명, 제출 또는 법적 약속이 진행되지 않습니다.",
+  es: "Nada se reserva, compra, paga, envía, firma ni comparte con un proveedor sin tu aprobación explícita."
 };
 
 const loadingMessages = {
@@ -64,6 +66,8 @@ const loadingMessages = {
     lifestyle: ["라이프스타일 미션을 이해하고 있어요...", "업체 후보를 준비하고 있어요...", "일정을 준비하고 있어요...", "예산 옵션을 준비하고 있어요...", "예약 체크리스트를 준비하고 있어요..."]
   }
 };
+
+loadingMessages.es = Object.fromEntries(Object.keys(loadingMessages.en).map(key => [key, ["Entendiendo tu misión...", "Revisando información disponible...", "Comparando opciones...", "Preparando ONE Pick...", "Organizando tu misión..."]]));
 
 const fallbackProvider = (provider, category, message, error = null) => ({
   provider,
@@ -117,7 +121,8 @@ const loadingUi = {
   ko: {
     title: "ONE이 미션을 준비하고 있어요...",
     steps: ["목표 이해하기", "실시간 정보 수집하기", "선택지 비교하기", "미션 정리하기", "거의 준비 완료"]
-  }
+  },
+  es: { title: "ONE está preparando tu misión...", steps: ["Entendiendo tu objetivo", "Recopilando información", "Comparando opciones", "Organizando tu misión", "Casi listo"] }
 };
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -524,14 +529,14 @@ const runLoadingSequence = async () => {
     return;
   }
 
-  const language = mission.language === "ko" ? "ko" : "en";
+  const language = normalizeInterfaceLocale(mission.interfaceLocale || mission.language || fallbackLanguage);
   trackEvent("loading_started", { mission_type: mission.type, language, page: "loading" });
   const messages = loadingMessages[language][mission.type] || loadingMessages[language].general_mission;
   const subtext = language === "ko" ? approvalMessages.ko : approvalMessages.en;
 
   const loadingTitle = document.getElementById("loadingTitle");
   if (loadingTitle) loadingTitle.textContent = loadingUi[language].title;
-  document.title = language === "ko" ? "Kastiz ONE — 미션 준비 중" : "Kastiz ONE — Preparing Mission";
+  document.title = language === "ko" ? "Kastiz ONE — 미션 준비 중" : language === "es" ? "Kastiz ONE — Preparando misión" : "Kastiz ONE — Preparing Mission";
   loadingSteps.forEach((step, index) => {
     const label = step.querySelector("strong");
     if (label) label.textContent = loadingUi[language].steps[index] || "";

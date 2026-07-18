@@ -1,5 +1,9 @@
 # ONE Core Agent V1
 
+## Global language and cost addendum
+
+The agent builds separate interface, conversation, content, region, currency, time-zone, provider, and payment properties. OpenAI generates natively in the conversation language. Model routing and cost governance are server-only and configurable; duplicate, budget, and global-disable controls fail closed. Live-provider tools disclose source, freshness, confidence, authentication, approval, and execution truth. Payment, booking, taxi dispatch, contact, and submission remain disabled.
+
 ONE Core Agent is Kastiz ONE's protected, mission-centered cognitive and orchestration layer. It accepts a natural request, minimized context and authorized workspace state, then returns a validated mission contract. It selects professional roles internally, decomposes the outcome, chooses truthful tools, prepares useful work, identifies approval boundaries, and defines completion by outcome.
 
 The existing Intelligence Layer supplies only consent-approved supporting context. UME V4, Mission Economy and approval protection remain intact. The agent never exposes specialist complexity or an OpenAI model identity to end users.

@@ -1,5 +1,27 @@
 # Founder Review — ONE Experience Engine V2
 
+## Global language, tools, and cost addendum review
+
+| Area | Score |
+|---|---:|
+| English interface readiness | 94/100 |
+| Korean interface readiness | 92/100 |
+| Spanish interface readiness | 78/100 |
+| Global conversation-language readiness | 87/100 |
+| Mixed-language understanding | 88/100 |
+| Locale architecture | 93/100 |
+| Natural English | 94/100 |
+| Natural Korean | 90/100 |
+| Natural Spanish | 85/100 |
+| Cost governance | 91/100 |
+| Model routing | 92/100 |
+| Korea place-search readiness | 48/100 |
+| Korea route/ETA readiness | 32/100 |
+| Taxi execution readiness | 10/100 |
+| Payment architecture readiness | 42/100 |
+
+Spanish core-journey resources and architecture are implemented, but full-page native-speaker and visual review remains before production. Other blockers: durable distributed budgets/rate limits, verified OpenAI prices and invoice reconciliation, provider credentials/contracts, route/transit/taxi verification, payment legal/security/refund operations, high-stakes specialist review, and staging penetration/accessibility testing. No production execution is enabled.
+
 ## Scores
 
 | Area | Score |

@@ -1,5 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
+import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -27,7 +28,7 @@ const STORAGE_KEYS = {
   results: "kastiz-one-results"
 };
 
-const supportedLanguages = ["en", "ko"];
+const supportedLanguages = OFFICIAL_LOCALES;
 const supportedThemes = ["light", "gray", "midnight"];
 
 const translations = {
@@ -165,6 +166,8 @@ const translations = {
   }
 };
 
+translations.es = localeSection("es", "results");
+
 const countryNamesByRegion = {
   KR: "South Korea",
   US: "United States",
@@ -203,7 +206,7 @@ const getTheme = () => {
 };
 
 const t = (key) => {
-  return translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
+  return localeSection(activeLanguage, "results")[key] ?? translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
 };
 
 const localize = (value) => {
@@ -216,7 +219,7 @@ const formatKRW = (value) => {
 
   return activeLanguage === "ko"
     ? `${Math.round(value / 10000).toLocaleString("ko-KR")}만 원`
-    : `₩${value.toLocaleString("en-US")}`;
+    : activeLanguage === "es" ? `${value.toLocaleString("es-ES")} KRW` : `₩${value.toLocaleString("en-US")}`;
 };
 
 const formatRange = (range) => {

@@ -1,5 +1,6 @@
 import { openConsentSettings, trackEvent } from "./js/analytics.js";
 import { mountSuggestionSettings } from "./js/intelligence/suggestion-settings.js";
+import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "./js/i18n/locale-registry.js";
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -24,7 +25,7 @@ const executionStyleSelect = document.getElementById("executionStyleSelect");
 const locationText = document.getElementById("locationText");
 
 const supportedThemes = ["light", "gray", "midnight"];
-const supportedLanguages = ["en", "ko"];
+const supportedLanguages = OFFICIAL_LOCALES;
 
 const translations = {
   en: {
@@ -129,12 +130,14 @@ const countries = {
   GB: "United Kingdom"
 };
 
+translations.es = { ...localeSection("es", "home"), settings: "Configuración", settingsTitle: "Controla cómo trabaja ONE para ti.", appearance: "Apariencia", appearanceCopy: "Elige el modo visual de Kastiz ONE.", language: "Idioma", languageCopy: "Elige el idioma de la interfaz.", approvalProtection: "Protección de aprobación", approvalProtectionCopy: localeSection("es", "results").approvalProtection, approvalRequired: "Se requiere aprobación", missionMemory: "Memoria de misiones", missionMemoryCopy: "Conserva la última misión entre páginas.", profileMemory: "Perfil y memoria", profileMemoryCopy: "Revisa, exporta, pausa o elimina la información que decidiste guardar.", reviewProfile: "Revisar información guardada", privacyChoices: "Opciones de privacidad", privacyChoicesCopy: "Revisa las preferencias y el consentimiento de analítica.", manageConsent: "Gestionar consentimiento", clearMission: "Borrar misión actual", executionStyle: "Estilo de ejecución", executionStyleCopy: "Elige la estrategia de recomendaciones.", balanced: "Equilibrado", premium: "Mejor calidad", saving: "Ahorrar dinero", speed: "Más rápido" };
+
 let language =
   localStorage.getItem(STORAGE_KEYS.language) ||
-  (navigator.language.startsWith("ko") ? "ko" : "en");
+  normalizeInterfaceLocale(navigator.language);
 
 function t(key) {
-  return translations[language][key];
+  return translations[language]?.[key] ?? translations.en[key];
 }
 
 function updateTexts() {

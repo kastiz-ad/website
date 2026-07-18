@@ -4,7 +4,8 @@ import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mis
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
-import { mountSuggestionCard } from "../intelligence/suggestion-card.js";
+import { mountSuggestionCard } from "../intelligence/suggestion-card.js?v=20260719-language-v1";
+import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -99,7 +100,7 @@ const detectPrototypeReferenceInImage = async (file) => {
   }
 };
 
-const supportedLanguages = ["en", "ko"];
+const supportedLanguages = OFFICIAL_LOCALES;
 const supportedThemes = ["light", "gray", "midnight"];
 
 const translations = {
@@ -245,6 +246,8 @@ const translations = {
     ]
   }
 };
+
+translations.es = localeSection("es", "home");
 
 const countryNamesByRegion = {
   KR: "South Korea",
@@ -495,7 +498,7 @@ let selectedImageFiles = [];
 
 const getBrowserLanguage = () => {
   const browserLanguage = navigator.language || navigator.userLanguage || "en";
-  return browserLanguage.toLowerCase().startsWith("ko") ? "ko" : "en";
+  return normalizeInterfaceLocale(browserLanguage);
 };
 
 const getSavedLanguage = () => {
@@ -521,7 +524,7 @@ const getInitialLanguage = () => {
 };
 
 const getTranslation = (key) => {
-  return translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
+  return localeSection(activeLanguage, "home")[key] ?? translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
 };
 
 const setMetaThemeColor = (theme) => {
@@ -540,7 +543,7 @@ const updateThemeControls = () => {
   const themeLabels = getTranslation("themes");
   const currentTheme = root.getAttribute("data-theme") || "light";
 
-  themeControlText.textContent = activeLanguage === "ko" ? "테마" : "Theme";
+  themeControlText.textContent = getTranslation("themeLabel");
 
   document.querySelectorAll("[data-theme-option]").forEach((button) => {
     const value = button.getAttribute("data-theme-option");
@@ -581,7 +584,7 @@ const updateLocation = () => {
   ).matches;
 
   locationText.textContent = usesPhoneFooter
-    ? (activeLanguage === "ko" ? "대한민국" : "South Korea")
+    ? (activeLanguage === "ko" ? "대한민국" : activeLanguage === "es" ? "Corea del Sur" : "South Korea")
     : countryNamesByRegion[region] || getTranslation("unknownLocation");
 };
 
@@ -669,7 +672,9 @@ const createMissionId = (type) => {
 };
 
 const detectInputLanguage = (mission) => {
-  return /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(mission) ? "ko" : activeLanguage;
+  if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/u.test(mission)) return "ko";
+  if (/[¿¡ñáéíóú]/i.test(mission)) return "es";
+  return activeLanguage;
 };
 
 const detectMissionType = (mission) => {

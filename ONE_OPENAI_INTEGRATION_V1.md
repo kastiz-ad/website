@@ -1,5 +1,7 @@
 # ONE OpenAI Integration V1
 
+OpenAI is ONE's protected cognition and native-language engine, not the visible product identity. The Responses API receives minimized context and a language profile; users never provide OpenAI credentials. The model router selects configurable lightweight, standard, advanced-reasoning, or safety-review tiers. Cost governance estimates usage before requests and enforces duplicate, budget, token, tool, retry, timeout, alert, and global-disable controls. Web research supplements planning but is not transaction confirmation.
+
 The protected runner uses the official server-side OpenAI SDK and Responses API. The default is `gpt-5.6-terra`, the balanced intelligence/cost option in current official model guidance; configuration can route more complex missions separately. The consumer ChatGPT website/subscription is unrelated. Required server variables are listed in `.env.example`; never place a key in HTML, browser JavaScript, localStorage or sessionStorage.
 
 ## Local DEMO mode
