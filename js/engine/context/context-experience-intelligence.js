@@ -1,5 +1,6 @@
-import { buildExperienceIntelligence as buildLegacyExperienceIntelligence, selectNovelExperiences } from "../experience-intelligence/experience-intelligence-engine.js";
+import { buildExperienceIntelligence as buildLegacyExperienceIntelligence } from "../experience-intelligence/experience-intelligence-engine.js";
 import { buildMissionContext } from "./mission-context-intelligence.js";
+import { generateExperience } from "../experience-generator/one-experience-generator.js";
 
 const COPY = {
   en: { title: "ONE Recommendation", opening: "Here is the plan I recommend for this moment.", why: "Why this fits", local: "I kept this nearby first, so more of your time goes into the experience—not transit.", wider: "I balanced travel time, comfort and flexibility before recommending this plan.", lead: "Ask ONE to change, remove or add anything before approval." },
@@ -12,19 +13,24 @@ export function buildContextualExperienceIntelligence(input = {}) {
   const legacy = buildLegacyExperienceIntelligence({ ...input, language });
   const context = input.context || buildMissionContext(input.mission || input.goal, input);
   const copy = COPY[language];
-  const activities = selectNovelExperiences(input);
-  const recommendation = activities[0];
+  const generated = generateExperience({ ...input, context, provider: input.provider || "OPENAI" });
+  const activities = generated.onePick.activities;
+  const recommendation = `${generated.onePick.location} · ${activities[0]}`;
   const explanation = context.nearbyFirst ? copy.local : copy.wider;
-  const alternatives = activities.slice(1, 4);
+  const alternatives = generated.alternatives;
   const command = (activity, replace = false) => language === "ko" ? `${activity}${replace ? "으로 바꿔줘" : "을 계획에 넣어줘"}` : language === "es" ? `${replace ? "Cambia a" : "Añade"} ${activity}` : `${replace ? "Switch to" : "Add"} ${activity}`;
   return {
     ...legacy, title: copy.title, opening: copy.opening, whyLabel: copy.why,
-    insights: [explanation, ...legacy.insights.slice(1, 3)],
+    insights: [generated.onePick.story, explanation, `${language === "ko" ? "비 오는 날 대안" : language === "es" ? "Plan de lluvia" : "Rain plan"}: ${generated.onePick.rainPlan}`],
     choices: [{ text: recommendation, command: command(recommendation), kind: "one-pick" }, ...alternatives.map((activity) => ({ text: activity, command: command(activity, true), kind: "alternative" }))],
     lead: copy.lead, recommendation, explanation,
-    suggestedImprovements: [explanation, ...legacy.insights.slice(1, 3)],
+    suggestedImprovements: [explanation, `${language === "ko" ? "비 오는 날 대안" : language === "es" ? "Plan de lluvia" : "Rain plan"}: ${generated.onePick.rainPlan}`],
     alternativeExperiences: alternatives,
-    foodExperiences: context.relationship.value === "couple" ? ["chef tasting", "neighborhood favorite", "dessert stop", "late café"] : ["local specialty", "market tasting", "neighborhood favorite", "casual café"],
+    foodExperiences: generated.onePick.foods,
+    generatedExperience: generated,
+    timeline: generated.onePick.timeline,
+    rainPlan: generated.onePick.rainPlan,
+    story: generated.onePick.story,
     context, mapModel: context.map
   };
 }
