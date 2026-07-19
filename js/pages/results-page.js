@@ -2,7 +2,8 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
-import { buildExperienceIntelligence } from "../engine/experience-intelligence/experience-intelligence-engine.js?v=20260720-korean-date-fix";
+import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js";
+import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 
 const root = document.documentElement;
@@ -1557,7 +1558,7 @@ const createScheduleCard = (result) => {
   return article;
 };
 
-const renderTravelMission = (result) => {
+const renderTravelMission = (result, missionContext) => {
   const recommendedFlight = result.flights?.[0];
   const recommendedHotel = result.hotels?.[0];
   const transfer = result.airportTransfer;
@@ -1600,7 +1601,7 @@ const renderTravelMission = (result) => {
       index, label: getFlightName(flight), reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason, price: flight.estimatedPrice
     }));
 
-  missionGrid.appendChild(
+  if (!isDomesticContext(missionContext) || missionContext.destination.id === "jeju") missionGrid.appendChild(
     createMissionCard({
       id: "flights",
       title: activeLanguage === "ko" ? "항공권" : "Flights",
@@ -1636,7 +1637,7 @@ const renderTravelMission = (result) => {
     })
   );
 
-  missionGrid.appendChild(
+  if (!isDomesticContext(missionContext)) missionGrid.appendChild(
     createMissionCard({
       id: "airport-transfer",
       title: activeLanguage === "ko" ? "공항 이동" : "Airport Transfer",
@@ -1651,6 +1652,18 @@ const renderTravelMission = (result) => {
         const price = transferPriceRanges[index] || transferPriceRanges[0];
         return makeOptionRow(localize(option), `${types[index] || types[0]} · ${formatRange(price)}`, { index, label: localize(option), reason: reasons[index] || reasons[0], price });
       }),
+      editable: true
+    })
+  );
+
+  if (isDomesticContext(missionContext)) missionGrid.appendChild(
+    createMissionCard({
+      id: "local-transport",
+      title: activeLanguage === "ko" ? "이동" : activeLanguage === "es" ? "Transporte" : "Getting Around",
+      label: "⭐ ONE Pick",
+      value: missionContext.transport.slice(0, 2).join(" · "),
+      reason: activeLanguage === "ko" ? "거리와 이동 시간을 기준으로 가장 자연스러운 동선을 먼저 골랐어요." : activeLanguage === "es" ? "Elegí la ruta más natural según la distancia y el tiempo." : "ONE picked the most natural route for the distance and available time.",
+      options: missionContext.transport.map((option, index) => makeOptionRow(option, "", { index, label: option })),
       editable: true
     })
   );
@@ -1679,7 +1692,7 @@ const renderTravelMission = (result) => {
   );
 
   missionGrid.querySelector('[data-card-id="visa-legacy"]')?.remove();
-  missionGrid.appendChild(createVisaVerificationCard(result));
+  if (!isDomesticContext(missionContext)) missionGrid.appendChild(createVisaVerificationCard(result));
 
   missionGrid.appendChild(
     createListCard({
@@ -1813,6 +1826,7 @@ const renderGeneralMission = (result) => {
 const renderMissionUnderstanding = () => {
   if (!missionUnderstoodGoal || !missionUnderstoodItems) return;
   const ko = activeLanguage === "ko";
+  const es = activeLanguage === "es";
   const rawGoal = String(currentResult?.originalMission || currentResult?.rawInput || currentResult?.mission || "").trim();
   const cleanedGoal = rawGoal.toLowerCase().replace(/\b(?:trip|travel|vacation|visit|to|in|plan|please)\b/gi, " ").replace(/(?:여행|출장|가줘|가고 싶어|계획해줘)/g, " ").replace(/\s+/g, " ").trim();
   const countryName = ko ? currentResult?.destination?.countryKo || currentResult?.destination?.country : currentResult?.destination?.country;
@@ -1828,16 +1842,16 @@ const renderMissionUnderstanding = () => {
     ? normalizedTravelGoal || (ko ? "여행" : "Trip")
     : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "준비된 미션" : "Prepared mission");
   const prepared = currentResult?.type === "travel"
-    ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
-    : ["⭐ ONE Pick", ko ? "비교 선택지" : "Compared options", ko ? "예산" : "Budget", ko ? "체크리스트" : "Checklist"];
-  missionUnderstoodGoal.innerHTML = `<span>${ko ? "목표" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
+    ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : es ? ["Vuelos", "Hotel", "Transporte", "Clima", "Presupuesto", "Lista"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
+    : ["⭐ ONE Pick", ko ? "비교 선택지" : es ? "Opciones comparadas" : "Compared options", ko ? "예산" : es ? "Presupuesto" : "Budget", ko ? "체크리스트" : es ? "Lista" : "Checklist"];
+  missionUnderstoodGoal.innerHTML = `<span>${ko ? "목표" : es ? "Objetivo" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
   missionUnderstoodItems.innerHTML = prepared.map((item) => `<span>✓ ${item}</span>`).join("");
   const heading = document.getElementById("missionUnderstoodTitle");
   const summary = document.querySelector("#missionUnderstood .eyebrow");
   const timing = document.querySelector("#missionUnderstood .mission-understood-time");
-  if (heading) heading.textContent = ko ? "ONE이 미션을 이해했습니다." : "ONE understood your mission.";
-  if (summary) summary.textContent = ko ? "미션 요약" : "Mission Summary";
-  if (timing) timing.textContent = ko ? "1분 이내에 준비했습니다." : "Prepared in under a minute.";
+  if (heading) heading.textContent = ko ? "이렇게 준비했어요." : es ? "Esto es lo que preparé para ti." : "Here’s what I prepared for you.";
+  if (summary) summary.textContent = ko ? "미션 요약" : es ? "Resumen de la misión" : "Mission Summary";
+  if (timing) timing.textContent = ko ? "1분 이내에 준비했습니다." : es ? "Preparado en menos de un minuto." : "Prepared in under a minute.";
   const stages = ko ? { mission: "미션", planning: "계획", review: "검토", approval: "승인", execution: "실행", complete: "완료" } : { mission: "Mission", planning: "Planning", review: "Review", approval: "Approval", execution: "Execution", complete: "Complete" };
   document.querySelectorAll("[data-stage]").forEach((item) => { item.textContent = stages[item.dataset.stage] || item.textContent; });
 };
@@ -1876,9 +1890,20 @@ const organizeProgressiveResults = () => {
 
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
+  const schedule = currentResult.schedule || {};
+  const start = schedule.startDate ? new Date(schedule.startDate) : null;
+  const end = schedule.endDate ? new Date(schedule.endDate) : null;
+  const durationDays = start && end && !Number.isNaN(start.valueOf()) && !Number.isNaN(end.valueOf()) ? Math.max(1, Math.round((end - start) / 86400000) + 1) : 1;
+  currentResult.missionContext = buildMissionContext(currentResult.rawInput || currentResult.mission || currentResult.display?.title || "", {
+    language: activeLanguage,
+    destination: currentResult.destination?.city || currentResult.destination?.country || currentResult.display?.destination,
+    currentLocation: currentResult.followUp?.answers?.origin || currentResult.origin || "Seoul",
+    durationDays,
+    budget: currentResult.budget?.total
+  });
 
   if (currentResult.type === "travel") {
-    renderTravelMission(currentResult);
+    renderTravelMission(currentResult, currentResult.missionContext);
   } else {
     renderGeneralMission(currentResult);
   }
@@ -1896,7 +1921,7 @@ const renderPathwayOpportunities = () => {
   const goal = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.mission || currentResult?.goal || "";
   const memoryEnabled = missionMemoryEnabled();
   const previousExperiences = memoryEnabled ? readMissionMemories().flatMap((row) => row.preferences || row.favoriteLocations || []).map(String) : [];
-  const review = buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences});
+  const review = buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences,context:currentResult?.missionContext});
   pathwayOpportunityTitle.textContent = review.title;
   experienceReviewOpening.textContent = review.opening;
   experienceReviewLabel.textContent = review.whyLabel;
