@@ -13,3 +13,5 @@ ONE Core Agent is Kastiz ONE's protected, mission-centered cognitive and orchest
 The existing Intelligence Layer supplies only consent-approved supporting context. UME V4, Mission Economy and approval protection remain intact. The agent never exposes specialist complexity or an OpenAI model identity to end users.
 
 V1 modes are `LIVE` only when the protected server API is configured, `DEMO` for complete structured fixtures, and `LIMITED` when model or quality validation fails. External execution is disabled.
+
+Life Pathway V1 adds long-horizon outcome planning, ranked alternatives, milestones, readiness, prepared actions, progress and recovery. Supported intelligence providers are OpenAI, founder-only Gemini demo, and deterministic DEMO.

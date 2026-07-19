@@ -1,0 +1,1 @@
+export function detectEligibilityGaps(context={}){const required=["nationality","age"];if(["STUDY_ABROAD","WORKING_HOLIDAY","CULINARY_CAREER","RELOCATION"].includes(context.type))required.push("destination");return required.filter(key=>context[key]==null||context[key]==="").map(key=>({field:key,status:"INFORMATION_REQUIRED",blocksExternalCommitment:true}));}

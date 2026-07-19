@@ -2,6 +2,7 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
+import { buildLifePathway } from "../engine/pathway/life-pathway-engine.js";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -19,6 +20,9 @@ const addServiceButton = document.getElementById("addServiceButton");
 const additionalServiceList = document.getElementById("additionalServiceList");
 const additionalServicesForm = document.getElementById("additionalServicesForm");
 const revisionStatus = document.getElementById("revisionStatus");
+const pathwayOpportunityPanel = document.getElementById("pathwayOpportunityPanel");
+const pathwayOpportunityTitle = document.getElementById("pathwayOpportunityTitle");
+const pathwayOpportunityList = document.getElementById("pathwayOpportunityList");
 const missionUnderstoodGoal = document.getElementById("missionUnderstoodGoal");
 const missionUnderstoodItems = document.getElementById("missionUnderstoodItems");
 
@@ -1840,7 +1844,7 @@ const organizeProgressiveResults = () => {
     { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["visa", "checklist", "information-sources"]) },
     { title: activeLanguage === "ko" ? "3. 날씨" : "3. Weather", ids: new Set(["weather"]) },
     { title: activeLanguage === "ko" ? "4. 환율" : "4. Currency", ids: new Set(["exchange-rate"]) },
-    { title: activeLanguage === "ko" ? "5. 미션 수정" : activeLanguage === "es" ? "5. Revisión" : "5. Revision", ids: new Set(["additional-services"]) },
+    { title: activeLanguage === "ko" ? "5. 미션 수정" : activeLanguage === "es" ? "5. Revisión" : "5. Revision", ids: new Set(["pathway-opportunities", "additional-services"]) },
     { title: activeLanguage === "ko" ? "6. 승인" : "6. Approval", open: true, ids: new Set(["approval-protection"]) }
   ].filter((group) => !group.ids || [...group.ids].some((id) => nodeIds.has(id)));
   const details = groups.map((group) => {
@@ -1873,10 +1877,29 @@ const renderMission = () => {
     renderGeneralMission(currentResult);
   }
 
+  renderPathwayOpportunities();
+  missionGrid.appendChild(pathwayOpportunityPanel);
   missionGrid.appendChild(additionalServicesForm);
   missionGrid.appendChild(createApprovalCard(currentResult));
   renderMissionUnderstanding();
   organizeProgressiveResults();
+};
+
+const renderPathwayOpportunities = () => {
+  if (!pathwayOpportunityPanel || !pathwayOpportunityList) return;
+  const goal = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.mission || currentResult?.goal || "";
+  const pathway = buildLifePathway({goal,language:activeLanguage,provider:"DEMO"});
+  pathwayOpportunityTitle.textContent = pathway.suggestions.title;
+  pathwayOpportunityList.replaceChildren(...pathway.suggestions.items.map((suggestion) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "pathway-opportunity-action";
+    button.dataset.revisionCommand = suggestion.command;
+    button.setAttribute("role", "listitem");
+    button.textContent = suggestion.text;
+    return button;
+  }));
+  pathwayOpportunityPanel.hidden = false;
 };
 
 const initializeOptionSelections = () => {
@@ -2445,6 +2468,13 @@ additionalServiceInput?.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const pathwayAction = event.target.closest(".pathway-opportunity-action");
+  if (pathwayAction && additionalServiceInput) {
+    additionalServiceInput.value = pathwayAction.dataset.revisionCommand || pathwayAction.textContent.trim();
+    additionalServiceInput.focus();
+    pathwayOpportunityPanel.querySelectorAll(".pathway-opportunity-action").forEach((button) => button.setAttribute("aria-pressed", String(button === pathwayAction)));
+    return;
+  }
   const uploadButton = event.target.closest(".document-upload-button");
   if (uploadButton) {
     const type = uploadButton.dataset.documentType;

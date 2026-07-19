@@ -812,6 +812,11 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .portable-summary-view #approvalPanel { margin-top: 0; }
 
 .revision-command{margin-top:clamp(28px,5vw,64px)}
+.pathway-opportunities{margin-top:clamp(28px,5vw,64px)}
+.pathway-opportunities .card-title{text-align:center;max-width:none}
+.pathway-opportunity-list{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:18px}
+.pathway-opportunity-action{max-width:100%;padding:11px 16px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+.pathway-opportunity-action[aria-pressed="true"]{background:var(--text);color:var(--background,#fff)}
 .revision-command .card-title{max-width:none;text-align:center}
 .revision-command .additional-service-entry{align-items:stretch}
 .revision-command textarea{box-sizing:border-box;min-width:0;min-height:64px;resize:vertical;width:100%;padding:16px 18px;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--text);font:inherit;line-height:1.4}
@@ -823,7 +828,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .revision-summary h3{text-align:center}
 .revision-summary p{margin:8px 0}
 .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-@media(max-width:640px){.revision-command .additional-service-entry{display:grid;grid-template-columns:minmax(0,1fr) 58px}.revision-command textarea{min-height:72px;padding:14px}.revision-command #addServiceButton{min-width:58px}}
+@media(max-width:640px){.revision-command .additional-service-entry{display:grid;grid-template-columns:minmax(0,1fr) 58px}.revision-command textarea{min-height:72px;padding:14px}.revision-command #addServiceButton{min-width:58px}.pathway-opportunity-list{display:grid;grid-template-columns:1fr;width:100%}.pathway-opportunity-action{width:100%;border-radius:18px}}
 .execution-summary-item.is-schedule { text-align: center; }
 .schedule-summary-dates { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: clamp(14px, 5vw, 64px); font-size: clamp(17px, 3vw, 25px); }
 .schedule-summary-dates strong:first-child { text-align: right; }

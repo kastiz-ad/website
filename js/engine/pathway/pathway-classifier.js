@@ -1,0 +1,2 @@
+const patterns=[[/sushi|sashimi|chef|culinary|요리|초밥/i,"CULINARY_CAREER"],[/working holiday|워킹\s*홀리데이/i,"WORKING_HOLIDAY"],[/study.*abroad|language.*overseas|유학|어학연수/i,"STUDY_ABROAD"],[/tutor|academy|english learning|영어|학원|과외/i,"EDUCATION"],[/relocat|move overseas|이주|이민/i,"RELOCATION"],[/career|profession|직업|커리어/i,"CAREER"]];
+export function classifyPathway(input=""){return patterns.find(([pattern])=>pattern.test(input))?.[1]||"CAREER";}
