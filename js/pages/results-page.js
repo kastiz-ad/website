@@ -1,6 +1,7 @@
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
+import { reviseMission } from "../engine/revision/mission-revision-engine.js";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -17,6 +18,7 @@ const additionalServiceInput = document.getElementById("additionalServiceInput")
 const addServiceButton = document.getElementById("addServiceButton");
 const additionalServiceList = document.getElementById("additionalServiceList");
 const additionalServicesForm = document.getElementById("additionalServicesForm");
+const revisionStatus = document.getElementById("revisionStatus");
 const missionUnderstoodGoal = document.getElementById("missionUnderstoodGoal");
 const missionUnderstoodItems = document.getElementById("missionUnderstoodItems");
 
@@ -1838,7 +1840,7 @@ const organizeProgressiveResults = () => {
     { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["visa", "checklist", "information-sources"]) },
     { title: activeLanguage === "ko" ? "3. 날씨" : "3. Weather", ids: new Set(["weather"]) },
     { title: activeLanguage === "ko" ? "4. 환율" : "4. Currency", ids: new Set(["exchange-rate"]) },
-    { title: activeLanguage === "ko" ? "5. 선택 개선" : "5. Optional Improvements", ids: new Set(["additional-services"]) },
+    { title: activeLanguage === "ko" ? "5. 미션 수정" : activeLanguage === "es" ? "5. Revisión" : "5. Revision", ids: new Set(["additional-services"]) },
     { title: activeLanguage === "ko" ? "6. 승인" : "6. Approval", open: true, ids: new Set(["approval-protection"]) }
   ].filter((group) => !group.ids || [...group.ids].some((id) => nodeIds.has(id)));
   const details = groups.map((group) => {
@@ -2401,31 +2403,45 @@ const enableCustomization = () => {
   });
 };
 
-const addAdditionalService = () => {
+const applyRevisionCommand = async () => {
   const value = additionalServiceInput?.value.trim();
   if (!value || !additionalServiceList) return;
-  trackEvent("customize_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: "custom-services", success: true });
-  const option = document.createElement("button");
-  option.className = "option-row selectable-option";
-  option.type = "button";
-  option.setAttribute("aria-pressed", "true");
-  const check = document.createElement("span");
-  check.className = "option-key";
-  check.textContent = "✓";
-  const label = document.createElement("span");
-  label.className = "option-value";
-  label.textContent = value;
-  option.append(check, label);
-  additionalServiceList.appendChild(option);
-  const saved = JSON.parse(sessionStorage.getItem("kastiz-one-custom-services") || "[]");
-  sessionStorage.setItem("kastiz-one-custom-services", JSON.stringify([...saved, value]));
-  additionalServiceInput.value = "";
-  additionalServiceInput.focus();
+  addServiceButton.disabled = true;
+  addServiceButton.setAttribute("aria-busy", "true");
+  if (revisionStatus) revisionStatus.textContent = t("revisionLoading");
+  await new Promise((resolve) => window.setTimeout(resolve, 120));
+  try {
+    const result = reviseMission(currentResult, value, { language: activeLanguage, provider: "OPENAI" });
+    currentResult = result.mission;
+    sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+    sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+    const sections = [[result.summary.added, result.diff.added], [result.summary.changed, result.diff.changed], [result.summary.removed, result.diff.removed], [result.summary.verify, result.diff.needsVerification]];
+    additionalServiceList.innerHTML = `<h3>${result.summary.title}</h3>${sections.filter(([,items])=>items.length).map(([label,items])=>`<p><strong>${label}:</strong> ${items.map(escapeSummaryText).join(", ")}</p>`).join("")}<p><strong>${result.summary.approval}:</strong> ${escapeSummaryText(result.diff.approval)}</p>`;
+    if (revisionStatus) revisionStatus.textContent = t("revisionComplete");
+    trackEvent("mission_revision_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", revision_type: result.intent.type, approval_invalidated: result.impact.material, provider: "OPENAI" });
+    additionalServiceInput.value = "";
+    additionalServiceInput.focus();
+  } catch {
+    if (revisionStatus) revisionStatus.textContent = t("revisionError");
+  } finally {
+    addServiceButton.disabled = false;
+    addServiceButton.removeAttribute("aria-busy");
+  }
+};
+
+const addAdditionalService = () => {
+  return applyRevisionCommand();
 };
 
 additionalServicesForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   addAdditionalService();
+});
+additionalServiceInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    additionalServicesForm.requestSubmit();
+  }
 });
 
 document.addEventListener("click", (event) => {

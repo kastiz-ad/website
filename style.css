@@ -1808,18 +1808,3 @@ html[data-theme="light"] .one-symbol {
 .login-modal-actions { display: grid; gap: 10px; margin-top: 18px; }
 .login-modal-actions a { text-align: center; color: inherit; }
 /* ONE Intelligence Layer: quiet secondary assistant row */
-.one-suggestion-row[hidden]{display:none!important}
-.one-suggestion-row{box-sizing:border-box;width:min(680px,calc(100vw - 36px));min-height:42px;margin:18px auto 0;padding:7px 9px 7px 14px;display:flex;align-items:center;gap:10px;border:1px solid color-mix(in srgb,var(--text-color,#111) 13%,transparent);border-radius:14px;background:color-mix(in srgb,var(--surface-color,#fff) 82%,transparent);color:var(--muted-color,#707070);font-size:12px;line-height:1.35;box-shadow:none;transition:opacity .18s ease}
-.one-suggestion-row[data-state="dismissed"]{opacity:0}
-.one-suggestion-text{min-width:0;flex:1;text-align:left}
-.one-suggestion-why{position:relative;flex:0 0 auto}
-.one-suggestion-why summary{cursor:pointer;list-style:none;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
-.one-suggestion-why summary::-webkit-details-marker{display:none}
-.one-suggestion-why p{position:absolute;z-index:12;right:0;top:calc(100% + 8px);width:min(300px,calc(100vw - 44px));margin:0;padding:12px;border:1px solid color-mix(in srgb,currentColor 18%,transparent);border-radius:12px;background:var(--surface-color,#fff);color:var(--text-color,#111);box-shadow:0 12px 35px rgba(0,0,0,.12)}
-.one-suggestion-why small{display:block;margin-top:5px;color:var(--muted-color,#777)}
-.one-suggestion-actions{display:flex;flex:0 0 auto;gap:5px}
-.one-suggestion-actions button{width:32px;height:32px;min-width:32px;min-height:32px;padding:0;border:1px solid color-mix(in srgb,currentColor 15%,transparent);border-radius:10px;background:transparent;color:inherit;font:700 15px/1 inherit;cursor:pointer}
-.one-suggestion-actions button[data-suggestion-accept]{color:#56806a}
-.one-suggestion-actions button[data-suggestion-dismiss]{color:#9a6666}
-.one-suggestion-actions button:focus-visible,.one-suggestion-why summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}
-@media(max-width:600px){.one-suggestion-row{width:min(100% - 28px,520px);flex-wrap:wrap;padding:8px 9px 8px 12px}.one-suggestion-text{flex-basis:calc(100% - 86px)}.one-suggestion-why{order:3;margin-left:0}.one-suggestion-actions{margin-left:auto}}

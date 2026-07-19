@@ -4,7 +4,6 @@ import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mis
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
-import { mountSuggestionCard } from "../intelligence/suggestion-card.js?v=20260719-language-v1";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 
 const root = document.documentElement;
@@ -40,7 +39,6 @@ const scheduleStartDateValue = document.getElementById("scheduleStartDateValue")
 const scheduleEndDateValue = document.getElementById("scheduleEndDateValue");
 const scheduleTimePreference = document.getElementById("scheduleTimePreference");
 const scheduleSummary = document.getElementById("scheduleSummary");
-const oneSuggestionRow = document.getElementById("oneSuggestionRow");
 let pendingMissionText = "";
 let pendingFollowUp = null;
 
@@ -1901,17 +1899,5 @@ trackEvent("page_visit", { page: "home", language: getInitialLanguage() });
 trackEvent("homepage_loaded", { page: "home", language: getInitialLanguage() });
 setLanguage(getInitialLanguage());
 syncInputState();
-const unmountSuggestionCard = mountSuggestionCard({
-  container: oneSuggestionRow,
-  language: activeLanguage,
-  track: trackEvent,
-  onPrepare: (prompt) => {
-    missionInput.value = prompt;
-    syncInputState();
-    missionInput.focus();
-    missionForm.requestSubmit();
-  }
-});
-window.addEventListener("pagehide", unmountSuggestionCard, { once: true });
 
 

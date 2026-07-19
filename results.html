@@ -60,17 +60,17 @@
 
       <section class="mission-grid" id="missionGrid" aria-label="Prepared mission plan"></section>
 
-      <form class="additional-services mission-card is-full" id="additionalServicesForm">
+      <form class="revision-command mission-card is-full" id="additionalServicesForm" aria-labelledby="revisionCommandTitle">
         <div class="card-top">
-          <h2 class="card-title" data-i18n="additionalServices">Customize Services</h2>
-          <span class="card-label" data-i18n="optional">Optional</span>
+          <h2 class="card-title" id="revisionCommandTitle" data-i18n="revisionTitle">Anything you’d like ONE to change or add?</h2>
         </div>
-        <p class="reason" data-i18n="additionalServicesHelp">Add or request a new destination, flight, tutor subject, language, or any other service.</p>
         <div class="additional-service-entry">
-          <input id="additionalServiceInput" type="text" data-i18n-placeholder="additionalServicesPlaceholder" placeholder="Example: Add a flight to LAX" />
-          <button id="addServiceButton" type="submit" data-i18n="addService">Add</button>
+          <label class="visually-hidden" for="additionalServiceInput" data-i18n="revisionLabel">Mission revision command</label>
+          <textarea id="additionalServiceInput" rows="2" data-i18n-placeholder="revisionPlaceholder" placeholder="Add a musical, reduce the budget, change the hotel area…"></textarea>
+          <button id="addServiceButton" type="submit" data-i18n="revisionSend" aria-label="Send revision">→</button>
         </div>
-        <div class="option-list" id="additionalServiceList"></div>
+        <p class="revision-status" id="revisionStatus" role="status" aria-live="polite"></p>
+        <div class="revision-summary" id="additionalServiceList" aria-live="polite"></div>
       </form>
 
       <section class="bottom-actions" id="bottomActions" aria-label="Mission actions">

@@ -1,0 +1,2 @@
+import{detectMissionGaps}from"./mission-gap-detector.js";import{hasRepetitiveDays}from"./mission-experience-planner.js";
+export function validateMissionCompleteness(mission={}){const gaps=detectMissionGaps(mission),repetitive=hasRepetitiveDays(mission.timeline||[]),placeholders=JSON.stringify(mission).match(/\b(?:todo|tbd|placeholder|generic activity)\b/gi)||[],valid=!gaps.length&&!repetitive&&!placeholders.length;return{valid,gaps,repetitive,placeholders:[...new Set(placeholders)],mode:valid?"COMPLETE":"LIMITED",retryRecommended:!valid};}

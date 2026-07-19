@@ -1,0 +1,12 @@
+const category=(id,domain,{approval=false,live=false,tags=[]}={})=>Object.freeze({id,domain,approvalRequired:approval,liveDataRequired:live,tags:Object.freeze(tags)});
+const definitions={
+ travelCore:["destination-research","travel-documents","entry-requirements","flights","rail","bus","rental-car","airport-transfer","hotel","alternative-accommodation","ground-transportation","local-transit","taxi","walking","route-eta","weather","currency","payment-method","exchange-planning","mobile-data-esim","insurance","packing","luggage","emergency-preparation","return-journey"],
+ travelExperience:["landmarks","sightseeing","museums","art-galleries","parks","gardens","zoos-aquariums","observation-decks","boat-river","beaches","nature","hiking","neighborhood-exploration","architecture","historical-sites","religious-sites","local-markets","shopping","souvenirs","photography","seasonal-activities","festivals","food-experiences","cafes","desserts","bars","rooftops","jazz","live-music","musicals","theater","cinema","comedy","sports","nightlife","clubs","family-activities","children-activities","romantic-activities","relaxation","spa","wellness","free-time","rest-recovery"],
+ workBusiness:["meetings","presentation","documents","email","calendar","business-transportation","workspace","connectivity","client-dinner","expense-preparation","follow-up","receipts","business-attire","time-zone-coordination"],
+ family:["shared-availability","child-requirements","elderly-requirements","accessibility","meal-preferences","transportation-differences","rest-requirements","safety","emergency-contacts","return-home-coordination"]
+};
+const live=new Set(["flights","rail","bus","rental-car","airport-transfer","hotel","alternative-accommodation","local-transit","taxi","route-eta","weather","currency","entry-requirements","musicals","theater","sports","festivals"]),approval=new Set(["flights","rail","bus","rental-car","airport-transfer","hotel","alternative-accommodation","taxi","musicals","theater","sports","client-dinner"]);
+export const MISSION_CATEGORY_REGISTRY=Object.freeze(Object.fromEntries(Object.entries(definitions).flatMap(([domain,items])=>items.map(id=>[id,category(id,domain,{live:live.has(id),approval:approval.has(id),tags:id.split("-")} )]))));
+export const MISSION_CATEGORY_COUNT=Object.keys(MISSION_CATEGORY_REGISTRY).length;
+export const PACING_PROFILES=Object.freeze(["RELAXED","BALANCED","ACTIVE","INTENSIVE","FAMILY","ROMANTIC","BUSINESS","NIGHTLIFE"]);
+export function getMissionCategory(id){return MISSION_CATEGORY_REGISTRY[id]||null;}
