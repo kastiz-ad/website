@@ -1839,6 +1839,8 @@ const renderGeneratedExperienceMission = (result) => {
   const generated = currentExperienceReview.generatedExperience;
   const one = generated.onePick;
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const disclosure = document.querySelector(".prototype-disclosure");
+  if (disclosure) disclosure.textContent = local("Prototype · personalized experience plan · no booking made", "프로토타입 · 맞춤 경험 계획 · 실제 예약 아님", "Prototipo · experiencia personalizada · sin reservas");
 
   missionGrid.appendChild(createMissionCard({
     id: "generated-one-pick",
@@ -1899,10 +1901,12 @@ const renderMissionUnderstanding = () => {
     || (cleanedGoal && normalizedCountry.includes(cleanedGoal) ? countryName : "")
     || (cleanedGoal && normalizedCity.includes(cleanedGoal) ? cityName : "")
     || cityName || countryName;
-  const title = currentResult?.type === "travel"
+  const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
+  const title = experienceMission
+    ? rawGoal
+    : currentResult?.type === "travel"
     ? normalizedTravelGoal || (ko ? "여행" : "Trip")
     : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "준비된 미션" : "Prepared mission");
-  const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
   const prepared = experienceMission
     ? (ko ? ["맞춤 경험", "시간별 일정", "음식", "이동", "날씨 대안"] : es ? ["Experiencia", "Horario", "Comida", "Transporte", "Plan alternativo"] : ["Experience", "Timeline", "Food", "Transportation", "Weather backup"])
     : currentResult?.type === "travel"
@@ -2038,7 +2042,14 @@ const initializeOptionSelections = () => {
 };
 
 const renderApprovalList = () => {
-  const steps = currentResult?.executionSequence?.[activeLanguage] || t("executionSteps");
+  const experienceSteps = activeLanguage === "ko"
+    ? ["선택한 경험 정리 중...", "시간별 일정 준비 중...", "음식과 이동 선택 반영 중...", "날씨 대안 확인 중...", "미션을 최종 준비 중..."]
+    : activeLanguage === "es"
+      ? ["Organizando la experiencia elegida...", "Preparando el horario...", "Aplicando comida y transporte...", "Comprobando el plan climático...", "Finalizando la misión..."]
+      : ["Organizing your selected experience...", "Preparing the timeline...", "Applying food and transportation choices...", "Checking the weather backup...", "Finalizing your mission..."];
+  const steps = isExperienceMission(currentResult, currentResult?.missionContext)
+    ? experienceSteps
+    : currentResult?.executionSequence?.[activeLanguage] || t("executionSteps");
 
   approvalList.innerHTML = steps
     .map((step) => {
@@ -2061,9 +2072,35 @@ const returnHome = () => {
   }, 420);
 };
 
+const buildExperienceExecutionSummary = () => {
+  const review = currentExperienceReview;
+  const experience = review?.generatedExperience?.onePick;
+  if (!executionSummary || !experience) return;
+  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const reference = `ONE-DEMO-${String(currentResult?.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
+  const row = (label, value, detail = "", wide = false) => `<div class="execution-summary-item${wide ? " is-wide" : ""}"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span>${detail ? `<span class="execution-summary-detail">${escapeSummaryText(detail)}</span>` : ""}</div>`;
+  const timeline = experience.timeline.map((item) => `${item.time} · ${item.title}`).join(" / ");
+  const foods = experience.foods.join(" · ");
+  const alternatives = (review.generatedExperience.alternatives || []).join(" · ");
+  const rows = [
+    row(local("Your experience", "당신을 위한 경험", "Tu experiencia"), review.recommendation, experience.reasoning, true),
+    row(local("Timeline", "시간별 일정", "Horario"), timeline, "", true),
+    row(local("Food", "음식과 디저트", "Comida"), foods),
+    row(local("Transportation", "이동 방법", "Transporte"), experience.transportation),
+    row(local("Weather backup", "날씨 대안", "Alternativa climática"), experience.rainPlan),
+    row(local("Other ideas", "다른 선택지", "Otras ideas"), alternatives),
+    row(local("Prototype reference", "프로토타입 참조 번호", "Referencia del prototipo"), reference, local("Not a booking number", "실제 예약 번호가 아닙니다", "No es un número de reserva"), true)
+  ];
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${local("Approved experience summary", "승인된 경험 요약", "Resumen de experiencia aprobado")}</h4><p>${local("Your selected experience is organized and ready to use. No booking, payment, or provider contact has occurred.", "선택한 경험을 바로 사용할 수 있도록 정리했습니다. 예약, 결제 또는 제공업체 연락은 진행되지 않았습니다.", "Tu experiencia está organizada y lista. No se realizó ninguna reserva, pago ni contacto con proveedores.")}</p><span class="execution-summary-status">${local("Prototype · Plan ready · Nothing booked", "프로토타입 · 계획 준비 완료 · 실제 예약 아님", "Prototipo · Plan listo · Sin reservas")}</span></div><div class="execution-summary-grid">${rows.join("")}</div><a class="all-in-slogan" href="index.html" aria-label="${local("Return home", "홈으로 돌아가기", "Volver al inicio")}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>`;
+  savePrototypeMission(reference);
+};
+
 const properCaseLocation = (value) => String(value || "").trim().toLowerCase().replace(/(^|[\s-])([a-zà-öø-ÿ])/g, (_, separator, letter) => `${separator}${letter.toUpperCase()}`);
 
 const approvalMissionName = () => {
+  if (isExperienceMission(currentResult, currentResult?.missionContext)) {
+    return currentResult?.originalMission || currentResult?.rawInput || currentResult?.mission || currentResult?.title?.[activeLanguage] || currentResult?.title?.en || "";
+  }
   if (currentResult?.type === "travel") {
     const destination = activeLanguage === "ko"
       ? currentResult?.destination?.cityKo || currentResult?.destination?.countryKo || currentResult?.destination?.city || currentResult?.destination?.country
@@ -2199,7 +2236,12 @@ const updateTravelBudgetFromSelections = () => {
 };
 
 const buildExecutionSummary = () => {
-  if (!executionSummary || currentResult?.type !== "travel") return;
+  if (!executionSummary) return;
+  if (isExperienceMission(currentResult, currentResult?.missionContext)) {
+    buildExperienceExecutionSummary();
+    return;
+  }
+  if (currentResult?.type !== "travel") return;
   const ko = activeLanguage === "ko";
   const flightIndex = selectedOptionIndex("flights");
   const flight = currentResult.flights?.[flightIndex] || currentResult.flights?.[0];
@@ -2618,14 +2660,26 @@ makeRealityButton.addEventListener("click", () => {
   const schedule = currentResult?.schedule || {};
   const flight = currentResult?.flights?.find?.((item) => item.recommended) || currentResult?.flights?.[0];
   const hotel = currentResult?.hotels?.find?.((item) => item.recommended) || currentResult?.hotels?.[0];
+  const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
+  const experience = currentExperienceReview?.generatedExperience?.onePick;
+  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const reviewItems = experienceMission && experience
+    ? [
+        { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
+        { label: "ONE Pick", value: currentExperienceReview.recommendation },
+        { label: local("Timeline", "시간별 일정", "Horario"), value: experience.timeline.map((item) => `${item.time} · ${item.title}`).join(" / ") },
+        { label: local("Transportation", "이동 방법", "Transporte"), value: experience.transportation },
+        { label: local("Weather backup", "날씨 대안", "Alternativa climática"), value: experience.rainPlan }
+      ]
+    : [
+        { label: activeLanguage === "ko" ? "미션" : "Mission", value: approvalMissionName() },
+        { label: activeLanguage === "ko" ? "여행 날짜" : "Travel dates", value: schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : "" },
+        { label: activeLanguage === "ko" ? "항공편 설정" : "Flight preference", value: flight?.provider || "" },
+        { label: activeLanguage === "ko" ? "호텔 설정" : "Hotel preference", value: hotel?.name || "" }
+      ];
   openApprovalInformationReview({
     language: activeLanguage,
-    items: [
-      { label: activeLanguage === "ko" ? "미션" : "Mission", value: approvalMissionName() },
-      { label: activeLanguage === "ko" ? "여행 날짜" : "Travel dates", value: schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : "" },
-      { label: activeLanguage === "ko" ? "항공편 설정" : "Flight preference", value: flight?.provider || "" },
-      { label: activeLanguage === "ko" ? "호텔 설정" : "Hotel preference", value: hotel?.name || "" }
-    ],
+    items: reviewItems,
     onApprove: runApprovalSequence
   });
 

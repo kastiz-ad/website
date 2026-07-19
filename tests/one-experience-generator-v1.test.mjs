@@ -52,4 +52,8 @@ test("dating and outing missions render the generated experience before revision
   assert.match(source, /generated-food/);
   assert.match(source, /generated-rain-plan/);
   assert.match(source, /insertBefore\(pathwayOpportunityPanel/);
+  assert.match(source, /buildExperienceExecutionSummary/);
+  assert.match(source, /Approved experience summary/);
+  assert.match(source, /experienceMission && experience/);
+  assert.match(source, /Prototype · personalized experience plan · no booking made/);
 });
