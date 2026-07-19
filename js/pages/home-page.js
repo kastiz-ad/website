@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
-import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mission-followup.js?v=20260720-korean-date-fix";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260720-korean-date-fix";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
@@ -1852,22 +1852,21 @@ missionForm.addEventListener("submit", async (event) => {
     const destinationMatches = await detectWorldwideTravelDestination(mission, activeLanguage);
     if (destinationMatches.length) type = "travel";
   }
-  const openFollowUp = () => openMissionFollowUp({
-    mission,
-    type,
-    language: activeLanguage,
-    demoMode: isPresentationMode(),
-    restoreFocusTo: missionInput,
-    onComplete: (followUp) => {
-      pendingFollowUp = followUp;
-      startMission(mission, followUp.schedule || null);
-    }
-  });
+  const startOneFirstPass = () => {
+    pendingFollowUp = {
+      type,
+      answers: {},
+      schedule: null,
+      skipped: true,
+      source: "one_first_pass"
+    };
+    startMission(mission, null);
+  };
   ensureDisclosureAcknowledged({
     language: activeLanguage,
     restoreFocusTo: missionInput,
-    onAcknowledge: openFollowUp,
-    onCancel: () => { missionInput.value = mission; syncInputState(); }
+    onAcknowledge: startOneFirstPass,
+    onCancel: () => { pendingFollowUp = null; missionInput.value = mission; syncInputState(); }
   });
 });
 
