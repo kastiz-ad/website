@@ -1,0 +1,28 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { EXPERIENCE_LIBRARY, EMOTIONS, SHOPPING_MODES, buildExperienceIntelligence, inferEmotionProfile, selectNovelExperiences } from "../js/engine/experience-intelligence/experience-intelligence-engine.js";
+
+assert.ok(EXPERIENCE_LIBRARY.length >= 150, "experience library should provide broad variety");
+assert.ok(EMOTIONS.includes("romance") && EMOTIONS.includes("growth"));
+assert.ok(SHOPPING_MODES.includes("Luxury") && SHOPPING_MODES.includes("Local crafts"));
+assert.equal(inferEmotionProfile({mission:"anniversary trip with my girlfriend"})[0].emotion,"romance");
+assert.ok(inferEmotionProfile({mission:"family trip with children"}).some(x=>x.emotion==="family"));
+assert.deepEqual(selectNovelExperiences({mission:"New York couple trip"}).slice(0,2),["Broadway show","jazz club"]);
+assert.ok(!selectNovelExperiences({mission:"New York trip",previousExperiences:["Broadway show"]}).includes("Broadway show"));
+const en=buildExperienceIntelligence({mission:"New York anniversary trip",language:"en",memoryEnabled:true,previousExperiences:["Broadway show"]});
+assert.ok(en.opening && en.insights.length>=3 && en.choices.length>=6);
+assert.ok(en.insights.some(x=>x.includes("used before")));
+assert.ok(en.choices.every(x=>x.text && x.command));
+const ko=buildExperienceIntelligence({mission:"아이들과 서울 여행",language:"ko"});
+assert.match(ko.opening,/미션 전체/);
+const es=buildExperienceIntelligence({mission:"viaje a París",language:"es"});
+assert.match(es.opening,/Revisé/);
+const html=await readFile(new URL("../results.html",import.meta.url),"utf8");
+const js=await readFile(new URL("../js/pages/results-page.js",import.meta.url),"utf8");
+const home=await readFile(new URL("../index.html",import.meta.url),"utf8");
+assert.ok(html.indexOf("pathwayOpportunityPanel") < html.indexOf("additionalServicesForm"));
+assert.ok(html.indexOf("additionalServicesForm") < html.indexOf("bottomActions"));
+assert.match(html,/id="revisionLead"/);
+assert.match(js,/buildExperienceIntelligence/);
+assert.doesNotMatch(home,/suggestion-row|homepage-recommendations|experience-review/);
+console.log("experience intelligence v1: ok");

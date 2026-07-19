@@ -2,7 +2,8 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
-import { buildLifePathway } from "../engine/pathway/life-pathway-engine.js";
+import { buildExperienceIntelligence } from "../engine/experience-intelligence/experience-intelligence-engine.js";
+import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -23,6 +24,11 @@ const revisionStatus = document.getElementById("revisionStatus");
 const pathwayOpportunityPanel = document.getElementById("pathwayOpportunityPanel");
 const pathwayOpportunityTitle = document.getElementById("pathwayOpportunityTitle");
 const pathwayOpportunityList = document.getElementById("pathwayOpportunityList");
+const experienceReviewOpening = document.getElementById("experienceReviewOpening");
+const experienceReviewLabel = document.getElementById("experienceReviewLabel");
+const experienceReviewInsights = document.getElementById("experienceReviewInsights");
+const experienceReviewConfidence = document.getElementById("experienceReviewConfidence");
+const revisionLead = document.getElementById("revisionLead");
 const missionUnderstoodGoal = document.getElementById("missionUnderstoodGoal");
 const missionUnderstoodItems = document.getElementById("missionUnderstoodItems");
 
@@ -1888,9 +1894,16 @@ const renderMission = () => {
 const renderPathwayOpportunities = () => {
   if (!pathwayOpportunityPanel || !pathwayOpportunityList) return;
   const goal = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.mission || currentResult?.goal || "";
-  const pathway = buildLifePathway({goal,language:activeLanguage,provider:"DEMO"});
-  pathwayOpportunityTitle.textContent = pathway.suggestions.title;
-  pathwayOpportunityList.replaceChildren(...pathway.suggestions.items.map((suggestion) => {
+  const memoryEnabled = missionMemoryEnabled();
+  const previousExperiences = memoryEnabled ? readMissionMemories().flatMap((row) => row.preferences || row.favoriteLocations || []).map(String) : [];
+  const review = buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences});
+  pathwayOpportunityTitle.textContent = review.title;
+  experienceReviewOpening.textContent = review.opening;
+  experienceReviewLabel.textContent = review.whyLabel;
+  experienceReviewInsights.replaceChildren(...review.insights.map((insight)=>{const item=document.createElement("li");item.textContent=insight;return item;}));
+  experienceReviewConfidence.textContent = review.confidence;
+  revisionLead.textContent = review.lead;
+  pathwayOpportunityList.replaceChildren(...review.choices.map((suggestion) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "pathway-opportunity-action";
