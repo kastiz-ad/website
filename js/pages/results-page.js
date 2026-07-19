@@ -2,7 +2,7 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
-import { buildExperienceIntelligence } from "../engine/experience-intelligence/experience-intelligence-engine.js";
+import { buildExperienceIntelligence } from "../engine/experience-intelligence/experience-intelligence-engine.js?v=20260720-korean-date-fix";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 
 const root = document.documentElement;

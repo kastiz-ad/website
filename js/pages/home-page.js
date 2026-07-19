@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
-import { classifyMission } from "../engine/mission-classification.js?v=20260717-3";
-import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mission-followup.js?v=20260717-8";
+import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
+import { detectWorldwideTravelDestination, openMissionFollowUp } from "../ui/mission-followup.js?v=20260720-korean-date-fix";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
@@ -340,8 +340,8 @@ const missionKeywordMap = {
   },
   lifestyle: {
     subtype: "lifestyle_planning",
-    en: ["wedding", "restaurant", "event", "birthday", "party", "gym", "trainer"],
-    ko: ["결혼식", "식당", "이벤트", "생일", "파티", "헬스장", "트레이너"]
+    en: ["wedding", "restaurant", "event", "birthday", "party", "gym", "trainer", "date", "girlfriend", "boyfriend", "couple", "anniversary"],
+    ko: ["결혼식", "식당", "이벤트", "생일", "파티", "헬스장", "트레이너", "데이트", "여친", "여자친구", "남친", "남자친구", "커플", "기념일"]
   }
 };
 
@@ -1692,6 +1692,11 @@ document.addEventListener("keydown", (event) => {
 });
 
 missionInput.addEventListener("input", syncInputState);
+missionInput.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" || event.isComposing || event.repeat) return;
+  event.preventDefault();
+  missionForm.requestSubmit();
+});
 const moveEmptyCaretToStart = () => {
   if (!missionInput.value && typeof missionInput.setSelectionRange === "function") {
     missionInput.setSelectionRange(0, 0);

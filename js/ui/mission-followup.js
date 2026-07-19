@@ -50,6 +50,13 @@ const CATEGORY_FIELDS = Object.freeze({
     ["format", "Online or nearby", "온라인 또는 근거리", "Online / Nearby", "text"],
     ["schedule", "Preferred schedule", "선호 일정", "Weekend afternoons", "text"]
   ],
+  lifestyle: [
+    ["occasion", "What are you planning?", "어떤 시간을 계획하고 있나요?", "Weekend date, anniversary, celebration", "text"],
+    ["area", "Preferred area", "선호 지역", "Leave blank and ONE will suggest an area", "text"],
+    ["date", "Preferred date", "희망 날짜", "", "date"],
+    ["budget", "How much can you spend?", "예산은 어느 정도인가요?", "모르면 비워두세요. ONE이 여러 가격대를 비교할게요.", "text"],
+    ["preferences", "What would make it special?", "어떤 분위기를 원하시나요?", "Romantic, fun, relaxing, adventurous", "text"]
+  ],
   general_mission: [
     ["outcome", "What outcome would make this successful?", "어떤 결과가 나오면 성공인가요?", "Desired outcome", "text"],
     ["constraints", "What timing, budget or limits should ONE respect?", "ONE이 지켜야 할 일정, 예산 또는 제한은 무엇인가요?", "Optional", "text"]

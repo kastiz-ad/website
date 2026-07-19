@@ -13,7 +13,7 @@ const RULES = {
   language_exchange: /language[ -]?exchange|conversation partner|언어[ -]?교환|회화 파트너|언어교환 파트너/i,
   education: /course|class|teacher|school|education|lesson|수업|선생님|학교|교육/i,
   government_services: /government service|public office|certificate|permit|정부 서비스|민원|증명서|허가/i,
-  lifestyle: /wedding|event|restaurant|reservation|결혼식|행사|레스토랑|예약/i
+  lifestyle: /wedding|event|restaurant|reservation|date\s*(?:night|plan)?|weekend\s*date|girlfriend|boyfriend|couple|anniversary|결혼식|행사|레스토랑|예약|데이트|주말\s*데이트|여친|여자친구|남친|남자친구|커플|기념일/i
 };
 
 export function normalizeMissionText(value = "") {

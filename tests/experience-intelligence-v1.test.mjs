@@ -15,6 +15,7 @@ assert.ok(en.insights.some(x=>x.includes("used before")));
 assert.ok(en.choices.every(x=>x.text && x.command));
 const ko=buildExperienceIntelligence({mission:"아이들과 서울 여행",language:"ko"});
 assert.match(ko.opening,/미션 전체/);
+assert.match(ko.choices[0].text,/한복 체험/);
 const es=buildExperienceIntelligence({mission:"viaje a París",language:"es"});
 assert.match(es.opening,/Revisé/);
 const html=await readFile(new URL("../results.html",import.meta.url),"utf8");
