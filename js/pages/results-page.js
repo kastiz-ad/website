@@ -207,6 +207,7 @@ const countryNamesByRegion = {
 
 let activeLanguage = "en";
 let currentResult = null;
+let currentExperienceReview = null;
 
 const getLanguage = () => {
   const saved = localStorage.getItem(STORAGE_KEYS.language);
@@ -1823,6 +1824,66 @@ const renderGeneralMission = (result) => {
 
 };
 
+const isExperienceMission = (result, context) => {
+  const mission = String(result?.originalMission || result?.rawInput || result?.mission || "");
+  return context?.purpose?.value === "romance" || /date|데이트|기념일|anniversary|weekend.{0,12}(?:plan|outing)|주말.{0,12}(?:데이트|나들이|여행)|hangout|나들이|salida romántica|cita/i.test(mission);
+};
+
+const renderGeneratedExperienceMission = (result) => {
+  const mission = result?.originalMission || result?.rawInput || result?.mission || (activeLanguage === "ko" ? "새로운 경험" : "New experience");
+  missionTitle.textContent = mission;
+  missionGrid.innerHTML = "";
+  const memoryEnabled = missionMemoryEnabled();
+  const previousExperiences = memoryEnabled ? readMissionMemories().flatMap((row) => row.preferences || row.favoriteLocations || []).map(String) : [];
+  currentExperienceReview = buildExperienceIntelligence({ mission, goal: mission, language: activeLanguage, budget: result?.budget?.total, memoryEnabled, previousExperiences, context: result.missionContext });
+  const generated = currentExperienceReview.generatedExperience;
+  const one = generated.onePick;
+  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+
+  missionGrid.appendChild(createMissionCard({
+    id: "generated-one-pick",
+    title: local("Your experience", "당신을 위한 경험", "Tu experiencia"),
+    label: "⭐ ONE Pick",
+    value: currentExperienceReview.recommendation,
+    reason: one.reasoning,
+    options: generated.alternatives.map((alternative, index) => makeOptionRow(alternative, "", { index, label: alternative })),
+    editable: true
+  }));
+  missionGrid.appendChild(createListCard({
+    id: "generated-timeline",
+    title: local("The story of your day", "하루의 이야기", "La historia del día"),
+    label: local("Created for you", "맞춤 구성", "Creado para ti"),
+    items: one.timeline.map((item) => `${item.time} · ${item.title}`),
+    wide: true,
+    editable: true
+  }));
+  missionGrid.appendChild(createListCard({
+    id: "generated-food",
+    title: local("Food moments", "음식과 디저트", "Momentos gastronómicos"),
+    label: local("Balanced variety", "다양하게 구성", "Variedad equilibrada"),
+    items: one.foods,
+    wide: true,
+    editable: true
+  }));
+  missionGrid.appendChild(createMissionCard({
+    id: "generated-transport",
+    title: local("Getting around", "이동 방법", "Cómo moverse"),
+    label: "ONE Pick",
+    value: one.transportation,
+    reason: result.missionContext.nearbyFirst ? local("Less transit, more time together.", "이동은 줄이고 함께하는 시간을 늘렸어요.", "Menos traslado y más tiempo juntos.") : local("Balanced for distance and time.", "거리와 시간을 함께 고려했어요.", "Equilibrado según distancia y tiempo."),
+    options: result.missionContext.transport.map((option, index) => makeOptionRow(option, "", { index, label: option })),
+    editable: true
+  }));
+  missionGrid.appendChild(createListCard({
+    id: "generated-rain-plan",
+    title: local("If the weather changes", "비가 오거나 날씨가 바뀌면", "Si cambia el clima"),
+    label: local("Backup ready", "대안 준비", "Alternativa lista"),
+    items: [one.rainPlan],
+    wide: true,
+    editable: true
+  }));
+};
+
 const renderMissionUnderstanding = () => {
   if (!missionUnderstoodGoal || !missionUnderstoodItems) return;
   const ko = activeLanguage === "ko";
@@ -1841,7 +1902,10 @@ const renderMissionUnderstanding = () => {
   const title = currentResult?.type === "travel"
     ? normalizedTravelGoal || (ko ? "여행" : "Trip")
     : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "준비된 미션" : "Prepared mission");
-  const prepared = currentResult?.type === "travel"
+  const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
+  const prepared = experienceMission
+    ? (ko ? ["맞춤 경험", "시간별 일정", "음식", "이동", "날씨 대안"] : es ? ["Experiencia", "Horario", "Comida", "Transporte", "Plan alternativo"] : ["Experience", "Timeline", "Food", "Transportation", "Weather backup"])
+    : currentResult?.type === "travel"
     ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : es ? ["Vuelos", "Hotel", "Transporte", "Clima", "Presupuesto", "Lista"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
     : ["⭐ ONE Pick", ko ? "비교 선택지" : es ? "Opciones comparadas" : "Compared options", ko ? "예산" : es ? "Presupuesto" : "Budget", ko ? "체크리스트" : es ? "Lista" : "Checklist"];
   missionUnderstoodGoal.innerHTML = `<span>${ko ? "목표" : es ? "Objetivo" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
@@ -1864,7 +1928,7 @@ const organizeProgressiveResults = () => {
     { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["visa", "checklist", "information-sources"]) },
     { title: activeLanguage === "ko" ? "3. 날씨" : "3. Weather", ids: new Set(["weather"]) },
     { title: activeLanguage === "ko" ? "4. 환율" : "4. Currency", ids: new Set(["exchange-rate"]) },
-    { title: activeLanguage === "ko" ? "5. 미션 수정" : activeLanguage === "es" ? "5. Revisión" : "5. Revision", ids: new Set(["pathway-opportunities", "additional-services"]) },
+    { title: activeLanguage === "ko" ? "5. 미션 수정" : activeLanguage === "es" ? "5. Revisión" : "5. Revision", ids: new Set(["additional-services"]) },
     { title: activeLanguage === "ko" ? "6. 승인" : "6. Approval", open: true, ids: new Set(["approval-protection"]) }
   ].filter((group) => !group.ids || [...group.ids].some((id) => nodeIds.has(id)));
   const details = groups.map((group) => {
@@ -1890,6 +1954,7 @@ const organizeProgressiveResults = () => {
 
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
+  currentExperienceReview = null;
   const schedule = currentResult.schedule || {};
   const start = schedule.startDate ? new Date(schedule.startDate) : null;
   const end = schedule.endDate ? new Date(schedule.endDate) : null;
@@ -1902,14 +1967,16 @@ const renderMission = () => {
     budget: currentResult.budget?.total
   });
 
-  if (currentResult.type === "travel") {
+  if (isExperienceMission(currentResult, currentResult.missionContext)) {
+    renderGeneratedExperienceMission(currentResult);
+  } else if (currentResult.type === "travel") {
     renderTravelMission(currentResult, currentResult.missionContext);
   } else {
     renderGeneralMission(currentResult);
   }
 
   renderPathwayOpportunities();
-  missionGrid.appendChild(pathwayOpportunityPanel);
+  missionGrid.insertBefore(pathwayOpportunityPanel, missionGrid.firstChild);
   missionGrid.appendChild(additionalServicesForm);
   missionGrid.appendChild(createApprovalCard(currentResult));
   renderMissionUnderstanding();
@@ -1921,7 +1988,7 @@ const renderPathwayOpportunities = () => {
   const goal = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.mission || currentResult?.goal || "";
   const memoryEnabled = missionMemoryEnabled();
   const previousExperiences = memoryEnabled ? readMissionMemories().flatMap((row) => row.preferences || row.favoriteLocations || []).map(String) : [];
-  const review = buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences,context:currentResult?.missionContext});
+  const review = currentExperienceReview || buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences,context:currentResult?.missionContext});
   pathwayOpportunityTitle.textContent = review.title;
   experienceReviewOpening.textContent = review.opening;
   experienceReviewLabel.textContent = review.whyLabel;

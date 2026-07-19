@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { EXPERIENCE_INGREDIENTS, ingredientCount } from "../js/engine/experience-generator/experience-ingredient-library.js";
 import { generateExperience } from "../js/engine/experience-generator/one-experience-generator.js";
 import { buildMissionContext } from "../js/engine/context/mission-context-intelligence.js";
@@ -41,4 +42,14 @@ test("vault records contain no raw mission, preference or personal text", () => 
   const record = safeExperienceVaultRecord({ ...result, completedAt: "2026-07-20T00:00:00Z", outcome: "completed" });
   assert.deepEqual(Object.keys(record), ["signature", "ingredientIds", "completedAt", "outcome"]);
   assert.doesNotMatch(JSON.stringify(record), /private raw mission|girlfriend|여친/i);
+});
+
+test("dating and outing missions render the generated experience before revision and approval", async () => {
+  const source = await readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(source, /isExperienceMission/);
+  assert.match(source, /renderGeneratedExperienceMission/);
+  assert.match(source, /generated-timeline/);
+  assert.match(source, /generated-food/);
+  assert.match(source, /generated-rain-plan/);
+  assert.match(source, /insertBefore\(pathwayOpportunityPanel/);
 });
