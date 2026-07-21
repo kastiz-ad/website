@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
-import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260720-korean-date-fix";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-worldwide-trilingual-2";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
@@ -1870,8 +1870,8 @@ missionForm.addEventListener("submit", async (event) => {
   }
   let type = classifyMission(mission);
   pendingDetectedDestination = resolveWorldDestination(mission);
-  if (type === "general_mission") {
-    const destinationMatches = pendingDetectedDestination ? [] : await detectWorldwideTravelDestination(mission, activeLanguage);
+  if (!pendingDetectedDestination && (type === "travel" || type === "general_mission")) {
+    const destinationMatches = await detectWorldwideTravelDestination(mission, activeLanguage);
     if (!pendingDetectedDestination && destinationMatches.length) {
       const detected = destinationMatches[0];
       pendingDetectedDestination = {
@@ -1886,7 +1886,7 @@ missionForm.addEventListener("submit", async (event) => {
         longitude: detected.longitude
       };
     }
-    if (pendingDetectedDestination || destinationMatches.length) type = "travel";
+    if (destinationMatches.length) type = "travel";
   }
   const startOneFirstPass = () => {
     pendingFollowUp = {

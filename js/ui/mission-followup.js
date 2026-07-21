@@ -162,10 +162,12 @@ const continentForCode = (code) => Object.entries(CONTINENT_CODES).find(([, code
 const buildStaticWorldwideCountries = () => {
   const englishRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["en"], { type: "region" }) : null;
   const koreanRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["ko"], { type: "region" }) : null;
+  const spanishRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["es"], { type: "region" }) : null;
   const seen = new Set();
   return Object.entries(CONTINENT_CODES).flatMap(([continent, codes]) => codes.map((code) => ({
     country: englishRegions?.of(code) || code,
     countryKo: koreanRegions?.of(code) || englishRegions?.of(code) || code,
+    countryEs: spanishRegions?.of(code) || englishRegions?.of(code) || code,
     code,
     continent,
     currency: "",
@@ -250,7 +252,7 @@ const destinationCandidateKey = (item) => [item.city, item.state, item.code].map
 const destinationCandidateLabel = (item, language) => {
   const place = cityLabel(item.city || item.country, language);
   const region = item.state ? `${item.state}, ` : "";
-  const country = language === "ko" ? (item.countryKo || item.country) : item.country;
+  const country = language === "ko" ? (item.countryKo || item.country) : language === "es" ? (item.countryEs || item.country) : item.country;
   return `${place} — ${region}${country}`;
 };
 
@@ -271,13 +273,15 @@ const searchWorldwideDestinations = async (value, language) => {
     const countries = await loadWorldwideCountries();
     const exactCountry = countries.find((item) => item.code === countryAliases[normalizedQuery]
       || normalizeDestinationLookup(item.country).replaceAll(" ", "") === normalizedQuery
-      || normalizeDestinationLookup(item.countryKo).replaceAll(" ", "") === normalizedQuery);
+      || normalizeDestinationLookup(item.countryKo).replaceAll(" ", "") === normalizedQuery
+      || normalizeDestinationLookup(item.countryEs).replaceAll(" ", "") === normalizedQuery);
     const candidates = [];
     candidates.push(...(KNOWN_AMBIGUOUS_DESTINATIONS[normalizedQuery] || []));
     if (exactCountry) {
       candidates.push({
         country: exactCountry.country,
         countryKo: exactCountry.countryKo,
+        countryEs: exactCountry.countryEs,
         code: exactCountry.code,
         city: exactCountry.cities[0] || exactCountry.country,
         state: "",
@@ -288,11 +292,16 @@ const searchWorldwideDestinations = async (value, language) => {
       });
     }
     if (local && !exactCountry) candidates.push({ ...local, state: "" });
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=25&q=${encodeURIComponent(query)}`, {
-      headers: { "Accept-Language": language === "ko" ? "ko,en;q=0.8" : "en" }
-    });
-    if (response.ok) {
-      const places = await response.json();
+    const searchLanguage = ["ko", "es"].includes(language) ? language : "en";
+    const [nominatimResult, openMeteoResult] = await Promise.allSettled([
+      fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=25&q=${encodeURIComponent(query)}`, {
+        headers: { "Accept-Language": `${searchLanguage},en;q=0.8` }
+      }).then((response) => response.ok ? response.json() : []),
+      fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=25&language=${searchLanguage}&format=json`)
+        .then((response) => response.ok ? response.json() : { results: [] })
+    ]);
+    const places = nominatimResult.status === "fulfilled" ? nominatimResult.value : [];
+    if (Array.isArray(places)) {
       places.filter((place) => place?.address).forEach((place) => {
         const code = String(place.address.country_code || "").toUpperCase();
         const countryData = countries.find((item) => item.code === code);
@@ -300,6 +309,7 @@ const searchWorldwideDestinations = async (value, language) => {
         candidates.push({
           country: countryData?.country || place.address.country || "",
           countryKo: countryData?.countryKo || "",
+          countryEs: countryData?.countryEs || "",
           code,
           city,
           state: place.address.state || place.address.province || place.address.region || place.address.county || "",
@@ -311,6 +321,24 @@ const searchWorldwideDestinations = async (value, language) => {
         });
       });
     }
+    const openMeteoPlaces = openMeteoResult.status === "fulfilled" && Array.isArray(openMeteoResult.value?.results) ? openMeteoResult.value.results : [];
+    openMeteoPlaces.forEach((place) => {
+      const code = String(place.country_code || "").toUpperCase();
+      const countryData = countries.find((item) => item.code === code);
+      candidates.push({
+        country: countryData?.country || place.country || "",
+        countryKo: countryData?.countryKo || "",
+        countryEs: countryData?.countryEs || "",
+        code,
+        city: place.name || query,
+        state: place.admin1 || place.admin2 || "",
+        continent: countryData?.continent || continentForCode(code),
+        currency: countryData?.currency || "",
+        latitude: Number(place.latitude),
+        longitude: Number(place.longitude),
+        aliases: [place.name, place.country, place.admin1, place.admin2].filter(Boolean)
+      });
+    });
     return candidates
       .filter((item) => item.city && item.country)
       .filter((item, index, all) => all.findIndex((candidate) => destinationCandidateKey(candidate) === destinationCandidateKey(item)) === index)
@@ -321,14 +349,39 @@ const searchWorldwideDestinations = async (value, language) => {
   }
 };
 
-export const detectWorldwideTravelDestination = async (value, language = "en") => {
-  const query = String(value || "").normalize("NFKC").trim();
-  if (!query || query.length > 60 || query.split(/\s+/).length > 5) return [];
-  const normalized = normalizeDestinationLookup(query).replaceAll(" ", "");
-  const matches = await searchWorldwideDestinations(query, language);
-  return matches.filter((item) => [item.city, item.country, item.countryKo, ...(item.aliases || [])]
+const destinationQueriesFromMission = (value) => {
+  const source = String(value || "").normalize("NFKC").trim();
+  const candidates = [
+    source.match(/(?:trip|travel|flight|vacation|holiday|business trip)\s+(?:to|in)\s+([^,;!?]{2,48})/i)?.[1],
+    source.match(/^([^,;!?]{2,48}?)\s+(?:trip|travel|flight|vacation|holiday|business trip)\b/i)?.[1],
+    source.match(/(?:viaje|viajar|vacaciones|vuelo|luna de miel)\s+(?:a|en)\s+([^,;!?]{2,48})/i)?.[1],
+    source.match(/^([^,;!?]{2,48}?)\s+(?:viaje|vacaciones|vuelo|luna de miel)\b/i)?.[1],
+    source.match(/^([^,;!?]{2,48}?)\s*(?:여행|출장|휴가|신혼여행)(?:\s|$)/i)?.[1],
+    source
+  ];
+  return [...new Set(candidates
     .filter(Boolean)
-    .some((candidate) => normalizeDestinationLookup(candidate).replaceAll(" ", "") === normalized));
+    .map((candidate) => candidate.replace(/\b(?:for|from|with|on|por|desde|con|durante)\b.*$/i, "").trim())
+    .filter((candidate) => candidate.length >= 2 && candidate.length <= 60 && candidate.split(/\s+/).length <= 6))];
+};
+
+export const detectWorldwideTravelDestination = async (value, language = "en") => {
+  for (const query of destinationQueriesFromMission(value)) {
+    const normalized = normalizeDestinationLookup(query).replaceAll(" ", "");
+    const matches = await searchWorldwideDestinations(query, language);
+    const exact = matches.filter((item) => [item.city, item.country, item.countryKo, item.countryEs, ...(item.aliases || [])]
+      .filter(Boolean)
+      .some((candidate) => normalizeDestinationLookup(candidate).replaceAll(" ", "") === normalized));
+    if (exact.length) {
+      const countryQuery = exact.some((item) => [item.country, item.countryKo, item.countryEs]
+        .filter(Boolean)
+        .some((country) => normalizeDestinationLookup(country).replaceAll(" ", "") === normalized));
+      if (!countryQuery) return exact;
+      const capital = exact.find((item) => normalizeDestinationLookup(item.city).replaceAll(" ", "") !== normalized && !(item.aliases || []).length);
+      return capital ? [capital, ...exact.filter((item) => item !== capital)] : exact;
+    }
+  }
+  return [];
 };
 
 const resolveWorldwideDestination = async (value, language) => (await searchWorldwideDestinations(value, language))[0] || null;
@@ -388,6 +441,7 @@ const loadWorldwideCountries = () => {
     const capitals = new Map((capitalPayload.data || []).map((item) => [item.iso2, item.capital]));
     const positions = new Map((positionPayload.data || []).map((item) => [item.iso2, item]));
     const koreanRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["ko"], { type: "region" }) : null;
+    const spanishRegions = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["es"], { type: "region" }) : null;
     const identities = new Map(staticCountries.map((item) => [item.code, { name: item.country, code: item.code, countryKo: item.countryKo, continent: item.continent }]));
     (isoPayload.data || []).forEach((item) => identities.set(item.Iso2, { name: item.name, code: item.Iso2 }));
     (capitalPayload.data || []).forEach((item) => { if (item.iso2 && !identities.has(item.iso2)) identities.set(item.iso2, { name: item.name, code: item.iso2 }); });
@@ -397,6 +451,7 @@ const loadWorldwideCountries = () => {
       return {
         country: item.name,
         countryKo: item.countryKo || koreanRegions?.of(item.code) || item.name,
+        countryEs: item.countryEs || spanishRegions?.of(item.code) || item.name,
         code: item.code,
         continent: item.continent || CONTINENT_BY_COUNTRY[item.name] || continentForCode(item.code),
         currency: currencies.get(item.code) || "",
@@ -443,8 +498,10 @@ const inferTravelContext = (mission = "") => {
   if (exactCity) return { country: exactCity, value: exactCity, cities: [exactCity] };
   const prefixPhrase = text.match(/(?:trip|travel|flight|vacation|holiday)\s+(?:to|in)\s+([a-z][a-z .'-]{1,40})/i)?.[1];
   const suffixPhrase = text.match(/^([a-z][a-z .'-]{1,40}?)\s+(?:trip|travel|flight|vacation|holiday)\b/i)?.[1];
+  const spanishPrefixPhrase = text.match(/(?:viaje|viajar|vacaciones|vuelo)\s+(?:a|en)\s+([a-záéíóúüñ][a-záéíóúüñ .'-]{1,40})/i)?.[1];
+  const spanishSuffixPhrase = text.match(/^([a-záéíóúüñ][a-záéíóúüñ .'-]{1,40}?)\s+(?:viaje|vacaciones|vuelo)\b/i)?.[1];
   const koreanPhrase = text.match(/^([가-힣a-z .'-]{2,40}?)\s*(?:여행|출장)(?:\s|$)/i)?.[1];
-  const phrase = (prefixPhrase || suffixPhrase || koreanPhrase)
+  const phrase = (prefixPhrase || suffixPhrase || spanishPrefixPhrase || spanishSuffixPhrase || koreanPhrase)
     ?.replace(/\b(?:for|from|with|on)\b.*$/i, "").trim();
   const bareDestination = text.match(/^[a-z가-힣][a-z가-힣 .,'-]{1,58}$/i)?.[0]?.trim();
   const inferred = phrase || bareDestination;
@@ -578,7 +635,7 @@ export function openMissionFollowUp({ mission, type, language = "en", demoMode =
         const merged = [...builtIn, ...globalCountries.filter((item) => item.continent === continent)]
           .filter((item, index, all) => all.findIndex((candidate) => candidate.country === item.country) === index)
           .sort((a, b) => a.country.localeCompare(b.country));
-        countrySelect.innerHTML = `<option value="">${ko ? "국가 선택" : "Select a country"}</option>${merged.map((item) => `<option value="${esc(item.country)}" ${item.country === selected ? "selected" : ""}>${esc(ko ? item.countryKo || item.country : item.country)}</option>`).join("")}`;
+        countrySelect.innerHTML = `<option value="">${ko ? "국가 선택" : language === "es" ? "Selecciona un país" : "Select a country"}</option>${merged.map((item) => `<option value="${esc(item.country)}" ${item.country === selected ? "selected" : ""}>${esc(ko ? item.countryKo || item.country : language === "es" ? item.countryEs || item.country : item.country)}</option>`).join("")}`;
         countrySelect.disabled = !continent;
       };
       const fillStates = async (country, selected = "") => {
