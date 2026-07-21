@@ -1,4 +1,4 @@
-import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js";
+import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js?v=20260722-experience-expansion";
 import { buildExperienceVault } from "./experience-vault.js";
 
 const hash = (value) => [...String(value)].reduce((total, character) => Math.imul(total ^ character.charCodeAt(0), 16777619) >>> 0, 2166136261);
@@ -69,6 +69,11 @@ export function generateExperience(input = {}) {
   const ingredientIds = [location, mood, transport, ...activities, ...foods].filter(Boolean).map((item) => item.id);
   const signature = `ONE-XP-${hash(ingredientIds.join("|")) .toString(36).toUpperCase()}`;
   const timelineIngredients = [foods[0], activities[0], activities[1], foods[1], activities[2]].filter(Boolean);
+  const broadAlternatives = cluster
+    ? [...clusterActivities.slice(1), ...SEOUL_EXPERIENCE_CLUSTERS.filter((item) => item.id !== cluster.id).flatMap((item) => byId(EXPERIENCE_INGREDIENTS.activities, item.activities).slice(0, 2))]
+      .filter((item, index, list) => item && !activities.slice(0, 1).some((chosen) => chosen.id === item.id) && list.findIndex((other) => other.id === item.id) === index)
+      .slice(0, 12)
+    : activities.slice(1);
   return Object.freeze({
     engine: "ONE_EXPERIENCE_GENERATOR_V1",
     source: input.modelOutput ? "MODEL_GENERATED" : "DETERMINISTIC_PREVIEW",
@@ -85,7 +90,7 @@ export function generateExperience(input = {}) {
       budget: input.budget ? { status: "USER_LIMIT", amount: input.budget } : { status: "ESTIMATED_AFTER_SELECTION", amount: null },
       reasoning: language === "ko" ? (context.nearbyFirst ? "가까운 곳부터 이어 이동은 줄이고 함께하는 시간을 늘렸어요." : "이동, 휴식, 음식과 특별한 순간의 균형을 맞췄어요.") : language === "es" ? (context.nearbyFirst ? "Priorizamos lugares cercanos para compartir más y desplazarnos menos." : "La secuencia equilibra movimiento, descanso, comida y un recuerdo especial.") : context.nearbyFirst ? "Nearby-first pacing leaves more time for shared moments and less time in transit." : "The sequence balances movement, rest, food and one distinctive memory anchor."
     }),
-    alternatives: Object.freeze((cluster ? clusterActivities.slice(1) : activities.slice(1)).map((item) => label(item.id, language))),
+    alternatives: Object.freeze(broadAlternatives.map((item) => label(item.id, language))),
     experienceCluster: cluster?.id || null,
     prompt: buildExperienceGenerationPrompt({ ...input, context }),
     combinatorialLibrarySize: Object.values(EXPERIENCE_INGREDIENTS).reduce((total, list) => total * list.length, 1),

@@ -2,7 +2,7 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
-import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js";
+import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-experience-expansion";
 import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 

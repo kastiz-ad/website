@@ -1,6 +1,6 @@
 import { buildExperienceIntelligence as buildLegacyExperienceIntelligence } from "../experience-intelligence/experience-intelligence-engine.js";
 import { buildMissionContext } from "./mission-context-intelligence.js";
-import { generateExperience } from "../experience-generator/one-experience-generator.js";
+import { generateExperience } from "../experience-generator/one-experience-generator.js?v=20260722-experience-expansion";
 
 const COPY = {
   en: { title: "ONE Recommendation", opening: "Here is the plan I recommend for this moment.", why: "Why this fits", local: "I kept this nearby first, so more of your time goes into the experience—not transit.", wider: "I balanced travel time, comfort and flexibility before recommending this plan.", lead: "Ask ONE to change, remove or add anything before approval." },
