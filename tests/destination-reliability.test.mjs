@@ -102,7 +102,7 @@ assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
 assert.match(indexHtml, /script\.js\?v=20260722-place-intelligence-v8/);
-assert.match(indexHtml, /style\.css\?v=20260717-30/);
+assert.match(indexHtml, /style\.css\?v=20260722-theme-logo-1/);
 assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/);
 assert.match(homeCss, /max-height: calc\(100dvh - 24px\); margin: auto; border-radius: 24px/);
 assert.match(loadingHtml, /loading\.js\?v=20260722-place-intelligence-v5/);

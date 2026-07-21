@@ -1821,4 +1821,22 @@ html[data-theme="light"] .one-symbol {
 }
 .login-modal-actions { display: grid; gap: 10px; margin-top: 18px; }
 .login-modal-actions a { text-align: center; color: inherit; }
+
+/* Keep the official O legible when the live theme changes. These final rules
+   intentionally override earlier responsive filters. */
+html[data-theme="light"] .one-symbol,
+html[data-theme="light"] .header-mini-symbol {
+  filter: invert(1) drop-shadow(0 0 .65px currentColor) !important;
+}
+
+html[data-theme="gray"] .one-symbol,
+html[data-theme="midnight"] .one-symbol {
+  filter: drop-shadow(0 0 .65px currentColor) !important;
+}
+
+html[data-theme="gray"] .header-mini-symbol,
+html[data-theme="midnight"] .header-mini-symbol {
+  filter: none !important;
+}
+
 /* ONE Intelligence Layer: quiet secondary assistant row */
