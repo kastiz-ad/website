@@ -81,5 +81,8 @@ test("dating and outing missions render the generated experience before revision
   assert.match(source, /p: 2/);
   assert.match(source, /prototype-reference-qr/);
   assert.match(source, /experienceMission && experience/);
+  assert.match(source, /selectionMode: "multiple"/);
+  assert.match(source, /multiple-choice-card/);
+  assert.match(source, /alternative !== currentExperienceReview\.recommendation/);
   assert.match(source, /Prototype · personalized experience plan · no booking made/);
 });

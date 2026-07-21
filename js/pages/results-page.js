@@ -913,11 +913,11 @@ const restaurantVenueProfiles = {
   ]
 };
 
-const createMissionCard = ({ id, title, label, value, reason, options, supportingContent = "", wide = false, editable = true }) => {
+const createMissionCard = ({ id, title, label, value, reason, options, supportingContent = "", wide = false, editable = true, selectionMode = "exclusive" }) => {
   const article = document.createElement("article");
   article.className = "mission-card";
   article.dataset.cardId = id;
-  if (editable) article.classList.add("exclusive-choice-card");
+  if (editable) article.classList.add(selectionMode === "multiple" ? "multiple-choice-card" : "exclusive-choice-card");
 
   if (wide) {
     article.classList.add("is-wide");
@@ -1866,8 +1866,11 @@ const renderGeneratedExperienceMission = (result) => {
     label: "⭐ ONE Pick",
     value: currentExperienceReview.recommendation,
     reason: one.reasoning,
-    options: generated.alternatives.map((alternative, index) => makeOptionRow(alternative, "", { index, label: alternative, selected: false })),
-    editable: true
+    options: generated.alternatives
+      .filter((alternative) => alternative !== currentExperienceReview.recommendation)
+      .map((alternative, index) => makeOptionRow(alternative, "", { index, label: alternative, selected: false })),
+    editable: true,
+    selectionMode: "multiple"
   }));
   missionGrid.appendChild(createListCard({
     id: "generated-timeline",
@@ -2526,6 +2529,12 @@ const enableCustomization = () => {
     if (selectable) {
       const card = selectable.closest(".mission-card");
       trackEvent("option_selected", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: card?.dataset.cardId });
+      if (card?.classList.contains("multiple-choice-card") && selectable.classList.contains("selectable-recommendation")) {
+        selectable.setAttribute("aria-pressed", "true");
+        selectable.classList.remove("is-excluded");
+        selectable.querySelector(".option-key").textContent = "\u2713";
+        return;
+      }
       const exclusive = card?.classList.contains("exclusive-choice-card") && !card.classList.contains("is-editing");
       if (exclusive) {
         const recommendation = card.querySelector(".selectable-recommendation");
