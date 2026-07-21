@@ -1843,6 +1843,7 @@ const renderGeneralMission = (result) => {
 
 const isExperienceMission = (result, context) => {
   const mission = String(result?.originalMission || result?.rawInput || result?.mission || "");
+  if (context?.providerEligibility?.experience === false || context?.requiresInternationalTravel) return false;
   return context?.purpose?.value === "romance" || /date|데이트|기념일|anniversary|weekend.{0,12}(?:plan|outing)|주말.{0,12}(?:데이트|나들이|여행)|hangout|나들이|salida romántica|cita/i.test(mission);
 };
 
@@ -1983,6 +1984,8 @@ const renderMission = () => {
   currentResult.missionContext = buildMissionContext(currentResult.rawInput || currentResult.mission || currentResult.display?.title || "", {
     language: activeLanguage,
     destination: currentResult.destination?.city || currentResult.destination?.country || currentResult.display?.destination,
+    destinationCountryCode: currentResult.destination?.countryCode || currentResult.countryProfile?.code || currentResult.country,
+    country: currentResult.countryProfile?.code || currentResult.country,
     currentLocation: currentResult.followUp?.answers?.origin || currentResult.origin || "Seoul",
     durationDays,
     budget: currentResult.budget?.total
