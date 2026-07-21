@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildMissionContext } from "../js/engine/context/mission-context-intelligence.js";
 import { generateExperience } from "../js/engine/experience-generator/one-experience-generator.js";
+import { readFile } from "node:fs/promises";
 
 test("local couple date disables international-only providers", () => {
   const context = buildMissionContext("여친 주말 데이트", { currentLocation: "Seoul", language: "ko" });
@@ -44,4 +45,11 @@ test("approval remains required and external execution remains disabled", () => 
   const context = buildMissionContext("서울 데이트", { currentLocation: "Seoul" });
   const generated = generateExperience({ mission: "서울 데이트", context });
   assert.deepEqual(generated.approval, { required: true, approved: false, externalExecution: false });
+});
+
+test("travel results use destination-locked travel recommendations, not the generic experience generator", async () => {
+  const source = await readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(source, /Travel options prepared specifically for/);
+  assert.match(source, /Every displayed travel option is restricted to the detected destination/);
+  assert.match(source, /const review = experienceMission/);
 });
