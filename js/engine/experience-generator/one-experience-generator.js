@@ -1,4 +1,4 @@
-import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js?v=20260722-experience-expansion-2";
+import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js?v=20260722-experience-expansion-3";
 import { buildExperienceVault } from "./experience-vault.js";
 
 const hash = (value) => [...String(value)].reduce((total, character) => Math.imul(total ^ character.charCodeAt(0), 16777619) >>> 0, 2166136261);
@@ -28,8 +28,9 @@ const LABELS = {
   }
 };
 const label = (id, language = "en") => LABELS[language]?.[id] || String(id || "").replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-const timeSlots = ["10:30", "12:00", "14:00", "16:30", "18:30", "20:30"];
+const timeSlots = ["10:30", "12:30", "14:30", "17:00", "19:00", "20:30"];
 const MAX_VISIBLE_ACTIVITY_ALTERNATIVES = 12;
+const INDOOR_RAIN_PRIORITY = ["lotte-aquarium", "coex-aquarium", "coex-starfield-library", "myeongdong-shopping", "seongsu-cafe-hopping", "ikseondong-hanok-cafe", "traditional-tea", "board-game-cafe", "escape-room", "pottery", "photo-booth"];
 const byId = (items, ids) => ids.map((id) => items.find((item) => item.id === id)).filter(Boolean);
 const isSeoulExperience = (input, context) => /(?:seoul|서울|데이트|여친|남친|couple|date)/i.test(`${input.mission || ""} ${context.destination?.id || ""} ${context.relationship?.value || ""}`);
 const rotate = (items, offset) => items.length ? items.map((_, index) => items[(index + offset) % items.length]) : [];
@@ -65,11 +66,13 @@ export function generateExperience(input = {}) {
   const mood = pick(EXPERIENCE_INGREDIENTS.moods, wanted, seed, generationIndex, vault);
   const allowedTransport = EXPERIENCE_INGREDIENTS.transport.filter((item) => (context.transport || []).some((mode) => String(mode).toLowerCase().includes(item.id.toLowerCase())));
   const transport = pick(allowedTransport.length ? allowedTransport : EXPERIENCE_INGREDIENTS.transport, wanted, seed, generationIndex, vault);
-  const rainActivity = (clusterActivities.find((item) => item.tags.includes("rain") || item.tags.includes("indoor")) || EXPERIENCE_INGREDIENTS.activities.find((item) => item.tags.includes("rain"))) &&
-    (clusterActivities.find((item) => (item.tags.includes("rain") || item.tags.includes("indoor")) && !activities.some((chosen) => chosen.id === item.id)) || EXPERIENCE_INGREDIENTS.activities.find((item) => item.tags.includes("rain") && !activities.some((chosen) => chosen.id === item.id)));
+  const rainCandidates = byId(EXPERIENCE_INGREDIENTS.activities, INDOOR_RAIN_PRIORITY);
+  const rainActivity = rainCandidates.find((item) => cluster?.activities.includes(item.id) && !activities.some((chosen) => chosen.id === item.id))
+    || rainCandidates.find((item) => cluster?.activities.includes(item.id))
+    || rainCandidates.find((item) => !activities.some((chosen) => chosen.id === item.id));
   const ingredientIds = [location, mood, transport, ...activities, ...foods].filter(Boolean).map((item) => item.id);
   const signature = `ONE-XP-${hash(ingredientIds.join("|")) .toString(36).toUpperCase()}`;
-  const timelineIngredients = [foods[0], activities[0], activities[1], foods[1], activities[2]].filter(Boolean);
+  const timelineIngredients = [activities[0], foods[0], activities[1], activities[2], foods[1]].filter(Boolean);
   const broadAlternatives = cluster
     ? [...clusterActivities.slice(1), ...SEOUL_EXPERIENCE_CLUSTERS.filter((item) => item.id !== cluster.id).flatMap((item) => byId(EXPERIENCE_INGREDIENTS.activities, item.activities).slice(0, 2))]
       .filter((item, index, list) => item && !activities.slice(0, 1).some((chosen) => chosen.id === item.id) && list.findIndex((other) => other.id === item.id) === index)

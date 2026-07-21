@@ -2,7 +2,7 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
-import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-experience-expansion-2";
+import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-experience-expansion-3";
 import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 
@@ -292,6 +292,22 @@ const getPortableSharedResult = () => {
     const binary = atob(padded);
     const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
     const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    if (parsed?.p === 2) {
+      const [recommendation = "", reasoning = "", transportation = "", rainPlan = ""] = parsed.q || [];
+      const timeline = (parsed.t || []).map(([time, title, type]) => ({ time, title, type }));
+      const missionLabel = parsed.l === "ko" ? "저장된 맞춤 경험" : parsed.l === "es" ? "Experiencia personalizada guardada" : "Saved personalized experience";
+      return {
+        portableShare: true, type: "experience", id: parsed.r, language: parsed.l || "en",
+        originalMission: missionLabel,
+        missionContext: { purpose: { value: "romance" }, destination: { id: "Seoul" }, transport: [] },
+        portableExperienceData: {
+          recommendation,
+          onePick: { reasoning, transportation, rainPlan, timeline, foods: parsed.f || [] },
+          alternatives: parsed.a || []
+        },
+        approvalRequired: true
+      };
+    }
     if (parsed?.p !== 1) return parsed?.portableShare === true && parsed?.type === "travel" ? parsed : null;
     const [country = "", countryKo = "", city = "", cityKo = ""] = parsed.d || [];
     const [startDate = "", endDate = "", timePreference = "any"] = parsed.s || [];
@@ -2075,24 +2091,29 @@ const returnHome = () => {
 
 const buildExperienceExecutionSummary = () => {
   const review = currentExperienceReview;
-  const experience = review?.generatedExperience?.onePick;
+  const portable = currentResult?.portableExperienceData;
+  const experience = portable?.onePick || review?.generatedExperience?.onePick;
   if (!executionSummary || !experience) return;
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
-  const reference = `ONE-DEMO-${String(currentResult?.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
+  const reference = String(currentResult?.id || "").startsWith("ONE-DEMO-") ? currentResult.id : `ONE-DEMO-${String(currentResult?.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
   const row = (label, value, detail = "", wide = false) => `<div class="execution-summary-item${wide ? " is-wide" : ""}"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span>${detail ? `<span class="execution-summary-detail">${escapeSummaryText(detail)}</span>` : ""}</div>`;
   const timeline = experience.timeline.map((item) => `${item.time} · ${item.title}`).join(" / ");
   const foods = experience.foods.join(" · ");
-  const alternatives = (review.generatedExperience.alternatives || []).join(" · ");
+  const recommendation = portable?.recommendation || review.recommendation;
+  const alternativeItems = portable?.alternatives || review.generatedExperience.alternatives || [];
+  const alternatives = alternativeItems.join(" · ");
+  const portableResult = { p: 2, r: reference, l: activeLanguage, q: [recommendation, experience.reasoning, experience.transportation, experience.rainPlan], t: experience.timeline.map((item) => [item.time, item.title, item.type]), f: experience.foods, a: alternativeItems };
+  const portableUrl = `${location.origin}${location.pathname}?share=${encodeURIComponent(encodePortableShare(portableResult))}`;
+  const qrMarkup = `<div class="execution-summary-item is-wide is-reference"><span class="execution-summary-label">${local("Prototype reference", "프로토타입 참조 번호", "Referencia del prototipo")}</span><span class="execution-summary-value">${escapeSummaryText(reference)}</span><a href="${escapeSummaryText(portableUrl)}" aria-label="${local("Reopen this summary from the QR link", "QR 링크로 이 요약 다시 열기", "Volver a abrir este resumen desde el QR")}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=900x900&amp;format=png&amp;ecc=L&amp;qzone=8&amp;data=${encodeURIComponent(portableUrl)}" alt="${local("Prototype summary QR code", "프로토타입 요약 QR 코드", "Código QR del resumen")}" width="320" height="320"></a><small class="prototype-reference-qr-help">${local("Scan with your phone camera to reopen this summary", "휴대폰 카메라로 스캔하면 이 요약을 다시 열 수 있습니다", "Escanea con la cámara para volver a abrir el resumen")}</small><span class="execution-summary-detail">${local("Not a booking number", "실제 예약 번호가 아닙니다", "No es un número de reserva")}</span></div>`;
   const rows = [
-    row(local("Your experience", "당신을 위한 경험", "Tu experiencia"), review.recommendation, experience.reasoning, true),
+    row(local("Your experience", "당신을 위한 경험", "Tu experiencia"), recommendation, experience.reasoning, true),
     row(local("Timeline", "시간별 일정", "Horario"), timeline, "", true),
     row(local("Food", "음식과 디저트", "Comida"), foods),
     row(local("Transportation", "이동 방법", "Transporte"), experience.transportation),
     row(local("Weather backup", "날씨 대안", "Alternativa climática"), experience.rainPlan),
-    row(local("Other ideas", "다른 선택지", "Otras ideas"), alternatives),
-    row(local("Prototype reference", "프로토타입 참조 번호", "Referencia del prototipo"), reference, local("Not a booking number", "실제 예약 번호가 아닙니다", "No es un número de reserva"), true)
+    row(local("Other ideas", "다른 선택지", "Otras ideas"), alternatives)
   ];
-  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${local("Approved experience summary", "승인된 경험 요약", "Resumen de experiencia aprobado")}</h4><p>${local("Your selected experience is organized and ready to use. No booking, payment, or provider contact has occurred.", "선택한 경험을 바로 사용할 수 있도록 정리했습니다. 예약, 결제 또는 제공업체 연락은 진행되지 않았습니다.", "Tu experiencia está organizada y lista. No se realizó ninguna reserva, pago ni contacto con proveedores.")}</p><span class="execution-summary-status">${local("Prototype · Plan ready · Nothing booked", "프로토타입 · 계획 준비 완료 · 실제 예약 아님", "Prototipo · Plan listo · Sin reservas")}</span></div><div class="execution-summary-grid">${rows.join("")}</div><a class="all-in-slogan" href="index.html" aria-label="${local("Return home", "홈으로 돌아가기", "Volver al inicio")}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>`;
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${local("Approved experience summary", "승인된 경험 요약", "Resumen de experiencia aprobado")}</h4><p>${local("Your selected experience is organized and ready to use. No booking, payment, or provider contact has occurred.", "선택한 경험을 바로 사용할 수 있도록 정리했습니다. 예약, 결제 또는 제공업체 연락은 진행되지 않았습니다.", "Tu experiencia está organizada y lista. No se realizó ninguna reserva, pago ni contacto con proveedores.")}</p><span class="execution-summary-status">${local("Prototype · Plan ready · Nothing booked", "프로토타입 · 계획 준비 완료 · 실제 예약 아님", "Prototipo · Plan listo · Sin reservas")}</span></div><div class="execution-summary-grid">${rows.join("")}${qrMarkup}</div><a class="all-in-slogan" href="index.html" aria-label="${local("Return home", "홈으로 돌아가기", "Volver al inicio")}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>`;
   savePrototypeMission(reference);
 };
 

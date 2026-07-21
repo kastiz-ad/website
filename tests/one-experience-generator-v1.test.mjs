@@ -33,6 +33,9 @@ test("Seoul date results stay inside one compatible activity group", () => {
   result.ingredientIds.filter((id) => EXPERIENCE_INGREDIENTS.activities.some((item) => item.id === id)).forEach((id) => assert.ok(cluster.activities.includes(id), id));
   assert.equal(result.alternatives.length, 12);
   assert.equal(result.visibleAlternativeLimit, 12);
+  const foodTimes = result.onePick.timeline.filter((item) => item.type === "food").map((item) => item.time);
+  assert.deepEqual(foodTimes, ["12:30", "19:00"]);
+  assert.doesNotMatch(result.onePick.rainPlan, /^VR(?:\s|$)/i);
 });
 
 test("the same request can create ten distinct high-quality compositions", () => {
@@ -75,6 +78,8 @@ test("dating and outing missions render the generated experience before revision
   assert.match(source, /insertBefore\(pathwayOpportunityPanel/);
   assert.match(source, /buildExperienceExecutionSummary/);
   assert.match(source, /Approved experience summary/);
+  assert.match(source, /p: 2/);
+  assert.match(source, /prototype-reference-qr/);
   assert.match(source, /experienceMission && experience/);
   assert.match(source, /Prototype · personalized experience plan · no booking made/);
 });
