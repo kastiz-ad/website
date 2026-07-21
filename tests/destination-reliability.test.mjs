@@ -106,7 +106,7 @@ assert.match(loadingHtml, /loading\.js\?v=20260719-language-v1/);
 assert.match(resultsHtml, /results\.js\?v=20260722-experience-expansion-4/);
 assert.match(resultsHtml, /location\.replace\(u\.href\)/);
 assert.match(resultsHtml, /no-cache, no-store, must-revalidate/);
-assert.match(resultsHtml, /results\.css\?v=20260717-46/);
+assert.match(resultsHtml, /results\.css\?v=20260722-selected-contrast/);
 assert.match(resultsCss, /information-review-content li span\{[^}]*white-space:nowrap/);
 assert.match(resultsCss, /@media\(max-width:520px\)[\s\S]*information-review-content li\{display:flex/);
 assert.match(results, /currentResult\?\.portableShare === true \|\|/);
