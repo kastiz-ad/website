@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
-import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-place-intelligence-v1";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-place-intelligence-v5";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
@@ -43,6 +43,7 @@ const scheduleSummary = document.getElementById("scheduleSummary");
 let pendingMissionText = "";
 let pendingFollowUp = null;
 let pendingDetectedDestination = null;
+let pendingDestinationMatches = [];
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -1586,6 +1587,72 @@ const startMission = (mission, schedule = null) => {
   }, 360);
 };
 
+const destinationFlag = (code = "") => String(code).toUpperCase().replace(/[A-Z]/g, (letter) => String.fromCodePoint(127397 + letter.charCodeAt(0)));
+const MISSION_AMBIGUITIES = Object.freeze([
+  { aliases: ["paris", "parís", "\uD30C\uB9AC"], places: [
+    { city: "Paris", state: "Île-de-France", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 48.8566, longitude: 2.3522 },
+    { city: "Paris", state: "Texas", country: "United States", code: "US", continent: "North America", currency: "USD", latitude: 33.6609, longitude: -95.5555 },
+    { city: "Paris", state: "Ontario", country: "Canada", code: "CA", continent: "North America", currency: "CAD", latitude: 43.194, longitude: -80.3845 }
+  ]},
+  { aliases: ["london", "londres", "\uB7F0\uB358"], places: [
+    { city: "London", state: "England", country: "United Kingdom", code: "GB", continent: "Europe", currency: "GBP", latitude: 51.5074, longitude: -0.1278 },
+    { city: "London", state: "Ontario", country: "Canada", code: "CA", continent: "North America", currency: "CAD", latitude: 42.9849, longitude: -81.2453 }
+  ]},
+  { aliases: ["surat", "\uC218\uB77C\uD2B8"], places: [
+    { city: "Surat", state: "Gujarat", country: "India", code: "IN", continent: "Asia", currency: "INR", latitude: 21.1702, longitude: 72.8311 },
+    { city: "Surat", state: "Puy-de-Dôme", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 45.965, longitude: 3.255 }
+  ]},
+  { aliases: ["santiago", "\uC0B0\uD2F0\uC544\uACE0"], places: [
+    { city: "Santiago", state: "Santiago Metropolitan Region", country: "Chile", code: "CL", continent: "South America", currency: "CLP", latitude: -33.4489, longitude: -70.6693 },
+    { city: "Santiago de Compostela", state: "Galicia", country: "Spain", code: "ES", continent: "Europe", currency: "EUR", latitude: 42.8782, longitude: -8.5448 },
+    { city: "Santiago de los Caballeros", state: "Santiago", country: "Dominican Republic", code: "DO", continent: "North America", currency: "DOP", latitude: 19.4517, longitude: -70.697 }
+  ]}
+]);
+const missionAmbiguityMatches = (mission) => {
+  const normalized = String(mission || "").normalize("NFKC").toLocaleLowerCase();
+  const entry = MISSION_AMBIGUITIES.find(({ aliases }) => aliases.some((alias) => normalized.includes(alias)));
+  if (!entry) return [];
+  const explicitlyQualified = entry.places.some((place) => [place.country, place.state].filter(Boolean).some((qualifier) => normalized.includes(qualifier.toLocaleLowerCase())));
+  return explicitlyQualified ? [] : entry.places;
+};
+const destinationDisplayName = (place) => {
+  const country = activeLanguage === "ko" ? (place.countryKo || place.country) : activeLanguage === "es" ? (place.countryEs || place.country) : place.country;
+  return [place.city, place.state, country].filter(Boolean).join(", ");
+};
+const openDestinationChoice = (mission, schedule) => {
+  let dialog = document.getElementById("destinationChoiceModal");
+  if (!dialog) {
+    dialog = document.createElement("dialog");
+    dialog.id = "destinationChoiceModal";
+    dialog.className = "schedule-modal destination-choice-modal";
+    document.body.append(dialog);
+  }
+  const heading = activeLanguage === "ko" ? "어느 목적지를 말씀하셨나요?" : activeLanguage === "es" ? "¿Qué destino quisiste decir?" : "Which destination did you mean?";
+  const detail = activeLanguage === "ko" ? "계획을 시작하기 전에 정확한 위치를 선택하세요." : activeLanguage === "es" ? "Elige la ubicación exacta antes de preparar el plan." : "Choose the exact location before ONE prepares the plan.";
+  dialog.innerHTML = `<div class="schedule-modal-card destination-choice-card"><button type="button" class="schedule-modal-close" data-close aria-label="Close">×</button><p class="login-modal-kicker">KASTIZ ONE</p><h2>${heading}</h2><p>${detail}</p><div class="destination-choice-list">${pendingDestinationMatches.map((place, index) => `<button type="button" data-destination-index="${index}"><strong>${destinationFlag(place.code)} ${destinationDisplayName(place)}</strong>${place.description ? `<span>${place.description}</span>` : ""}</button>`).join("")}</div></div>`;
+  dialog.querySelector("[data-close]")?.addEventListener("click", () => dialog.close());
+  dialog.querySelectorAll("[data-destination-index]").forEach((button) => button.addEventListener("click", () => {
+    const place = pendingDestinationMatches[Number(button.dataset.destinationIndex)];
+    if (!place) return;
+    pendingDetectedDestination = {
+      id: String(place.city || place.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),
+      city: place.city,
+      country: place.country,
+      countryCode: place.code,
+      continent: place.continent,
+      currency: place.currency,
+      state: place.state,
+      latitude: place.latitude,
+      longitude: place.longitude
+    };
+    pendingDestinationMatches = [];
+    dialog.close();
+    startMission(mission, schedule);
+  }));
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+};
+
 const syncInputState = () => {
   missionForm.querySelector(".search-box").classList.toggle("has-value", missionInput.value.trim().length > 0);
 
@@ -1853,6 +1920,10 @@ scheduleForm?.addEventListener("submit", (event) => {
     schedule_used: true
   });
   scheduleModal.close();
+  if (pendingDestinationMatches.length > 1) {
+    openDestinationChoice(pendingMissionText, schedule);
+    return;
+  }
   startMission(pendingMissionText, schedule);
 });
 
@@ -1869,10 +1940,14 @@ missionForm.addEventListener("submit", async (event) => {
     return;
   }
   let type = classifyMission(mission);
+  pendingDestinationMatches = [];
   pendingDetectedDestination = resolveWorldDestination(mission);
-  if (!pendingDetectedDestination && (type === "travel" || type === "general_mission")) {
-    const destinationMatches = await detectWorldwideTravelDestination(mission, activeLanguage);
-    if (!pendingDetectedDestination && destinationMatches.length) {
+  if (type === "travel" || type === "general_mission") {
+    const destinationMatches = missionAmbiguityMatches(mission).length
+      ? missionAmbiguityMatches(mission)
+      : await detectWorldwideTravelDestination(mission, activeLanguage);
+    if (destinationMatches.length) {
+      pendingDestinationMatches = destinationMatches;
       const detected = destinationMatches[0];
       pendingDetectedDestination = {
         id: String(detected.city || detected.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),

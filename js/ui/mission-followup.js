@@ -287,6 +287,15 @@ const KNOWN_AMBIGUOUS_DESTINATIONS = Object.freeze({
     { country: "United States", code: "US", city: "Springfield", state: "Oregon", continent: "North America", currency: "USD", latitude: 44.0462, longitude: -123.022, importance: 0.44 }
   ]
 });
+const AMBIGUOUS_DESTINATION_ALIASES = Object.freeze({
+  "수라트": "surat",
+  "산티아고": "santiago",
+  "파리": "paris",
+  "parís": "paris",
+  "런던": "london",
+  "londres": "london",
+  "스프링필드": "springfield"
+});
 
 const searchWorldwideDestinations = async (value, language) => {
   const local = countryForCity(value, language);
@@ -301,7 +310,9 @@ const searchWorldwideDestinations = async (value, language) => {
       || normalizeDestinationLookup(item.countryKo).replaceAll(" ", "") === normalizedQuery
       || normalizeDestinationLookup(item.countryEs).replaceAll(" ", "") === normalizedQuery);
     const candidates = [];
-    candidates.push(...(KNOWN_AMBIGUOUS_DESTINATIONS[normalizedQuery] || []));
+    const ambiguityKey = AMBIGUOUS_DESTINATION_ALIASES[normalizedQuery] || normalizedQuery;
+    const knownAmbiguousCandidates = KNOWN_AMBIGUOUS_DESTINATIONS[ambiguityKey] || [];
+    candidates.push(...knownAmbiguousCandidates);
     if (exactCountry) {
       candidates.push({
         country: exactCountry.country,
@@ -317,6 +328,9 @@ const searchWorldwideDestinations = async (value, language) => {
       });
     }
     if (local && !exactCountry) candidates.push({ ...local, state: "" });
+    if (knownAmbiguousCandidates.length > 1) {
+      return decidePlaceResolution(ambiguityKey, knownAmbiguousCandidates).candidates.slice(0, 12);
+    }
     const searchLanguage = ["ko", "es"].includes(language) ? language : "en";
     const [nominatimResult, openMeteoResult] = await Promise.allSettled([
       fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=25&q=${encodeURIComponent(query)}`, {
@@ -398,10 +412,11 @@ const destinationQueriesFromMission = (value) => {
 export const detectWorldwideTravelDestination = async (value, language = "en") => {
   for (const query of destinationQueriesFromMission(value)) {
     const normalized = normalizeDestinationLookup(query).replaceAll(" ", "");
+    const ambiguityKey = AMBIGUOUS_DESTINATION_ALIASES[normalized] || normalized;
     const matches = await searchWorldwideDestinations(query, language);
     const exact = matches.filter((item) => [item.city, item.country, item.countryKo, item.countryEs, ...(item.aliases || [])]
       .filter(Boolean)
-      .some((candidate) => normalizeDestinationLookup(candidate).replaceAll(" ", "") === normalized)
+      .some((candidate) => [normalized, ambiguityKey].includes(normalizeDestinationLookup(candidate).replaceAll(" ", "")))
       || [item.city, item.country, item.countryKo, item.countryEs]
         .filter(Boolean)
         .some((_, index, values) => index > 0 && normalizeDestinationLookup(`${values[0]} ${values[index]}`).replaceAll(" ", "") === normalized));
