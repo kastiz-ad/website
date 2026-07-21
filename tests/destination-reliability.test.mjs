@@ -21,6 +21,8 @@ for (const code of ["PH", "CG", "CD", "ZA", "KH", "MY", "TW", "PG"]) {
 }
 assert.match(followup, /buildStaticWorldwideCountries/);
 assert.match(followup, /Promise\.allSettled/);
+assert.match(followup, /fetchJsonWithTimeout/);
+assert.match(followup, /controller\.abort\(\)/);
 assert.match(followup, /searchWorldwideDestinations/);
 assert.match(followup, /export const detectWorldwideTravelDestination/);
 assert.match(followup, /item\.city, item\.country, item\.countryKo/);
@@ -81,7 +83,9 @@ assert.match(results, /PROTOTYPE_MISSION_ARCHIVE_KEY/);
 assert.match(results, /savePrototypeMission\(reference\)/);
 assert.match(results, /requestedReference/);
 const home = readFileSync(new URL("../js/pages/home-page.js", import.meta.url), "utf8");
-assert.match(home, /await detectWorldwideTravelDestination\(mission, activeLanguage\)/);
+assert.match(home, /detectWorldwideTravelDestination\(mission, activeLanguage\)\.catch/);
+assert.match(home, /Promise\.race/);
+assert.match(home, /setTimeout\(\(\) => resolve\(\[\]\), 4200\)/);
 assert.match(home, /const classifiedType = classifyMission/);
 assert.match(home, /destinationTravelIntent/);
 assert.match(home, /reopenPrototypeMission/);
@@ -101,7 +105,7 @@ assert.match(results, /liveHotelNames/);
 assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.\.hotelFallbacks/);
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: source \|\| "Prototype curated fallback"/);
-assert.match(indexHtml, /script\.js\?v=20260722-place-intelligence-v8/);
+assert.match(indexHtml, /script\.js\?v=20260722-mobile-country-fallback-1/);
 assert.match(indexHtml, /style\.css\?v=20260722-theme-logo-1/);
 assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/);
 assert.match(homeCss, /max-height: calc\(100dvh - 24px\); margin: auto; border-radius: 24px/);

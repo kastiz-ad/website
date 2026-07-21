@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
-import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-place-intelligence-v5";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-mobile-country-fallback-1";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
@@ -1943,9 +1943,13 @@ missionForm.addEventListener("submit", async (event) => {
   pendingDestinationMatches = [];
   pendingDetectedDestination = resolveWorldDestination(mission);
   if (type === "travel" || type === "general_mission") {
-    const destinationMatches = missionAmbiguityMatches(mission).length
-      ? missionAmbiguityMatches(mission)
-      : await detectWorldwideTravelDestination(mission, activeLanguage);
+    const knownAmbiguityMatches = missionAmbiguityMatches(mission);
+    const destinationMatches = knownAmbiguityMatches.length
+      ? knownAmbiguityMatches
+      : await Promise.race([
+        detectWorldwideTravelDestination(mission, activeLanguage).catch(() => []),
+        new Promise((resolve) => setTimeout(() => resolve([]), 4200))
+      ]);
     if (destinationMatches.length) {
       pendingDestinationMatches = destinationMatches;
       const detected = destinationMatches[0];

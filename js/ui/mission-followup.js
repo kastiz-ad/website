@@ -333,11 +333,10 @@ const searchWorldwideDestinations = async (value, language) => {
     }
     const searchLanguage = ["ko", "es"].includes(language) ? language : "en";
     const [nominatimResult, openMeteoResult] = await Promise.allSettled([
-      fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=25&q=${encodeURIComponent(query)}`, {
+      fetchJsonWithTimeout(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&dedupe=0&limit=25&q=${encodeURIComponent(query)}`, [], {
         headers: { "Accept-Language": `${searchLanguage},en;q=0.8` }
-      }).then((response) => response.ok ? response.json() : []),
-      fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=25&language=${searchLanguage}&format=json`)
-        .then((response) => response.ok ? response.json() : { results: [] })
+      }),
+      fetchJsonWithTimeout(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=25&language=${searchLanguage}&format=json`, { results: [] })
     ]);
     const places = nominatimResult.status === "fulfilled" ? nominatimResult.value : [];
     if (Array.isArray(places)) {
@@ -438,6 +437,18 @@ let worldwideCountriesPromise;
 const countryCitiesCache = new Map();
 const countryStatesCache = new Map();
 const stateCitiesCache = new Map();
+const fetchJsonWithTimeout = async (url, fallback, options = {}, timeoutMs = 2800) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    return response.ok ? await response.json() : fallback;
+  } catch {
+    return fallback;
+  } finally {
+    clearTimeout(timer);
+  }
+};
 const US_STATE_NAMES_KO = {
   Alabama: "앨라배마", Alaska: "알래스카", Arizona: "애리조나", Arkansas: "아칸소", California: "캘리포니아", Colorado: "콜로라도", Connecticut: "코네티컷", Delaware: "델라웨어", Florida: "플로리다", Georgia: "조지아",
   Hawaii: "하와이", Idaho: "아이다호", Illinois: "일리노이", Indiana: "인디애나", Iowa: "아이오와", Kansas: "캔자스", Kentucky: "켄터키", Louisiana: "루이지애나", Maine: "메인", Maryland: "메릴랜드",
@@ -479,10 +490,10 @@ const loadWorldwideCountries = () => {
   if (worldwideCountriesPromise) return worldwideCountriesPromise;
   const staticCountries = buildStaticWorldwideCountries();
   worldwideCountriesPromise = Promise.allSettled([
-    fetch("https://countriesnow.space/api/v0.1/countries/iso").then((response) => response.json()),
-    fetch("https://countriesnow.space/api/v0.1/countries/currency").then((response) => response.json()),
-    fetch("https://countriesnow.space/api/v0.1/countries/capital").then((response) => response.json()),
-    fetch("https://countriesnow.space/api/v0.1/countries/positions").then((response) => response.json())
+    fetchJsonWithTimeout("https://countriesnow.space/api/v0.1/countries/iso", { data: [] }),
+    fetchJsonWithTimeout("https://countriesnow.space/api/v0.1/countries/currency", { data: [] }),
+    fetchJsonWithTimeout("https://countriesnow.space/api/v0.1/countries/capital", { data: [] }),
+    fetchJsonWithTimeout("https://countriesnow.space/api/v0.1/countries/positions", { data: [] })
   ]).then((results) => {
     const [isoPayload, currencyPayload, capitalPayload, positionPayload] = results.map((result) => result.status === "fulfilled" ? result.value : { data: [] });
     const currencies = new Map((currencyPayload.data || []).map((item) => [item.iso2, item.currency]));
