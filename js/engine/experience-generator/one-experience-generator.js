@@ -1,4 +1,4 @@
-import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js?v=20260722-experience-expansion-3";
+import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js?v=20260722-experience-expansion-4";
 import { buildExperienceVault } from "./experience-vault.js";
 
 const hash = (value) => [...String(value)].reduce((total, character) => Math.imul(total ^ character.charCodeAt(0), 16777619) >>> 0, 2166136261);
