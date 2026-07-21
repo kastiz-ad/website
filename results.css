@@ -493,7 +493,17 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .alternative-picker-title { margin: 0 0 12px; font-size: 13px; font-weight: 750; color: var(--text-muted); }
 .alternative-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .alternative-choice { border: 1px solid var(--border); border-radius: 999px; padding: 9px 12px; background: var(--surface); color: var(--text); font: inherit; font-size: 13px; cursor: pointer; }
-.alternative-choice.is-selected { background: var(--accent); color: var(--accent-text); }
+.alternative-choice.is-selected {
+  background: var(--accent);
+  color: var(--accent-text) !important;
+  border-color: var(--accent);
+  font-weight: 800;
+}
+.alternative-choice.is-selected * { color: inherit !important; }
+.alternative-choice.is-selected:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 3px;
+}
 
 .option-key {
   color: var(--text-soft);
