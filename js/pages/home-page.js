@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
-import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-worldwide-trilingual-2";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-place-intelligence-v1";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
