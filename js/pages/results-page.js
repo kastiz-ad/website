@@ -2,8 +2,8 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
-import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-experience-expansion-4";
-import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js";
+import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
+import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js?v=20260722-context-v2";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 
 const root = document.documentElement;
@@ -2009,10 +2009,32 @@ const renderMission = () => {
 
 const renderPathwayOpportunities = () => {
   if (!pathwayOpportunityPanel || !pathwayOpportunityList) return;
+  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
   const goal = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.mission || currentResult?.goal || "";
   const memoryEnabled = missionMemoryEnabled();
   const previousExperiences = memoryEnabled ? readMissionMemories().flatMap((row) => row.preferences || row.favoriteLocations || []).map(String) : [];
-  const review = currentExperienceReview || buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences,context:currentResult?.missionContext});
+  const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
+  const destinationName = activeLanguage === "ko"
+    ? currentResult?.destination?.cityKo || currentResult?.destination?.countryKo || currentResult?.missionContext?.destination?.city
+    : currentResult?.destination?.city || currentResult?.destination?.country || currentResult?.missionContext?.destination?.city;
+  const recommendedFlight = currentResult?.flights?.[0];
+  const recommendedHotel = currentResult?.hotels?.[0];
+  const travelReview = {
+    title: local("ONE Recommendation", "ONE 추천", "Recomendación de ONE"),
+    opening: local(`Travel options prepared specifically for ${destinationName || "your destination"}.`, `${destinationName || "목적지"}에 맞는 여행 선택지만 준비했어요.`, `Opciones preparadas específicamente para ${destinationName || "tu destino"}.`),
+    whyLabel: local("Why this fits", "이 선택이 잘 맞는 이유", "Por qué encaja"),
+    insights: [
+      activeLanguage === "ko" ? recommendedFlight?.reasonKo || recommendedFlight?.reason : recommendedFlight?.reason,
+      activeLanguage === "ko" ? recommendedHotel?.reasonKo || recommendedHotel?.reason : recommendedHotel?.reason,
+      local("Every displayed travel option is restricted to the detected destination.", "표시되는 여행 선택지는 감지된 목적지로 제한됩니다.", "Todas las opciones se limitan al destino detectado.")
+    ].filter(Boolean),
+    confidence: local("Destination locked", "목적지 고정", "Destino fijado"),
+    lead: local("Use Modify to compare destination-appropriate options before approval.", "승인 전에 수정에서 목적지에 맞는 선택지를 비교할 수 있어요.", "Usa Modificar para comparar opciones antes de aprobar."),
+    choices: [recommendedFlight && { text: getFlightName(recommendedFlight), command: local("Compare flight options", "항공편 선택지 비교", "Comparar vuelos") }, recommendedHotel && { text: getHotelName(recommendedHotel), command: local("Compare hotel options", "호텔 선택지 비교", "Comparar hoteles") }].filter(Boolean)
+  };
+  const review = experienceMission
+    ? (currentExperienceReview || buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences,context:currentResult?.missionContext}))
+    : travelReview;
   pathwayOpportunityTitle.textContent = review.title;
   experienceReviewOpening.textContent = review.opening;
   experienceReviewLabel.textContent = review.whyLabel;
