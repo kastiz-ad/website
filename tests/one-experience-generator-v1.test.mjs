@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { EXPERIENCE_INGREDIENTS, ingredientCount } from "../js/engine/experience-generator/experience-ingredient-library.js";
+import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "../js/engine/experience-generator/experience-ingredient-library.js";
 import { generateExperience } from "../js/engine/experience-generator/one-experience-generator.js";
 import { buildMissionContext } from "../js/engine/context/mission-context-intelligence.js";
 import { safeExperienceVaultRecord } from "../js/engine/experience-generator/experience-vault.js";
@@ -12,6 +12,26 @@ test("experience library stores ingredients rather than predefined plans", () =>
   assert.ok(ingredientCount() >= 80);
   assert.deepEqual(Object.keys(EXPERIENCE_INGREDIENTS), ["locations", "activities", "foods", "moods", "transport", "durations"]);
   assert.equal(Object.values(EXPERIENCE_INGREDIENTS).flat().some((item) => "itinerary" in item || "scenario" in item), false);
+});
+
+test("Seoul experience library includes broad fun choices and coherent compatibility groups", () => {
+  const activityIds = new Set(EXPERIENCE_INGREDIENTS.activities.map((item) => item.id));
+  assert.ok(EXPERIENCE_INGREDIENTS.activities.length >= 50);
+  ["han-river-ramen", "lotte-aquarium", "seoul-sky", "hongdae-street-date", "myeongdong-shopping", "gangnam-cafe-date"].forEach((id) => assert.ok(activityIds.has(id), id));
+  assert.ok(SEOUL_EXPERIENCE_CLUSTERS.length >= 8);
+  SEOUL_EXPERIENCE_CLUSTERS.forEach((cluster) => {
+    assert.ok(cluster.activities.length >= 5);
+    assert.ok(cluster.foods.length >= 3);
+    cluster.activities.forEach((id) => assert.ok(activityIds.has(id), `${cluster.id}:${id}`));
+  });
+});
+
+test("Seoul date results stay inside one compatible activity group", () => {
+  const result = generateExperience({ mission: "Seoul weekend date", context, generationIndex: 4, language: "en" });
+  const cluster = SEOUL_EXPERIENCE_CLUSTERS.find((item) => item.id === result.experienceCluster);
+  assert.ok(cluster);
+  result.ingredientIds.filter((id) => EXPERIENCE_INGREDIENTS.activities.some((item) => item.id === id)).forEach((id) => assert.ok(cluster.activities.includes(id), id));
+  assert.ok(result.alternatives.length >= 4);
 });
 
 test("the same request can create ten distinct high-quality compositions", () => {
