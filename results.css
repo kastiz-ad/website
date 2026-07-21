@@ -823,10 +823,12 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .portable-summary-view .mission-understood,
 .portable-summary-view #missionGrid,
 .portable-summary-view #additionalServicesForm,
+.portable-summary-view #bottomActions,
 .portable-summary-view .approval-header,
 .portable-summary-view #approvalList { display: none !important; }
 .portable-summary-view .mission-layout { padding-top: clamp(20px, 4vw, 44px); }
 .portable-summary-view #approvalPanel { margin-top: 0; }
+.portable-summary-view #bottomActions[hidden] { display: none !important; }
 
 .revision-command{margin-top:clamp(28px,5vw,64px)}
 .pathway-opportunities{margin-top:clamp(28px,5vw,64px)}

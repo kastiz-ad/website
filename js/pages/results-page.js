@@ -1842,6 +1842,7 @@ const renderGeneralMission = (result) => {
 };
 
 const isExperienceMission = (result, context) => {
+  if (result?.type === "experience" || result?.portableExperienceData) return true;
   const mission = String(result?.originalMission || result?.rawInput || result?.mission || "");
   if (context?.providerEligibility?.experience === false || context?.requiresInternationalTravel) return false;
   return context?.purpose?.value === "romance" || /date|데이트|기념일|anniversary|weekend.{0,12}(?:plan|outing)|주말.{0,12}(?:데이트|나들이|여행)|hangout|나들이|salida romántica|cita/i.test(mission);
@@ -2132,7 +2133,10 @@ const buildExperienceExecutionSummary = () => {
   const timeline = experience.timeline.map((item) => `${item.time} · ${item.title}`).join(" / ");
   const foods = experience.foods.join(" · ");
   const recommendation = portable?.recommendation || review.recommendation;
-  const alternativeItems = portable?.alternatives || review.generatedExperience.alternatives || [];
+  const selectedAlternatives = [...missionGrid.querySelectorAll('[data-card-id="generated-one-pick"] .option-list .selectable-option[aria-pressed="true"]')]
+    .map((option) => option.dataset.optionLabel ? decodeURIComponent(option.dataset.optionLabel) : option.querySelector(".option-value strong")?.textContent)
+    .filter(Boolean);
+  const alternativeItems = portable?.alternatives || selectedAlternatives;
   const alternatives = alternativeItems.join(" · ");
   const portableResult = { p: 2, r: reference, l: activeLanguage, q: [recommendation, experience.reasoning, experience.transportation, experience.rainPlan], t: experience.timeline.map((item) => [item.time, item.title, item.type]), f: experience.foods, a: alternativeItems };
   const portableUrl = `${location.origin}${location.pathname}?share=${encodeURIComponent(encodePortableShare(portableResult))}`;
