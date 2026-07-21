@@ -5,6 +5,7 @@ import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
+import { detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -41,6 +42,7 @@ const scheduleTimePreference = document.getElementById("scheduleTimePreference")
 const scheduleSummary = document.getElementById("scheduleSummary");
 let pendingMissionText = "";
 let pendingFollowUp = null;
+let pendingDetectedDestination = null;
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -1462,7 +1464,12 @@ const buildGeneralMission = (mission) => {
 
 const saveMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
-  const missionType = pendingFollowUp?.type || classifyMission(cleanMission);
+  const classifiedType = classifyMission(cleanMission);
+  const destinationTravelIntent = Boolean(pendingDetectedDestination)
+    && /travel|trip|vacation|honeymoon|flight|hotel|airport|viaje|viajar|vacaciones|luna de miel|vuelo|aeropuerto/i.test(cleanMission);
+  const missionType = pendingFollowUp?.type === "travel" || classifiedType === "travel" || destinationTravelIntent
+    ? "travel"
+    : pendingFollowUp?.type || classifiedType;
   const payload = missionType === "travel"
     ? buildTravelMission(cleanMission)
     : buildGeneralMission(cleanMission);
@@ -1470,7 +1477,18 @@ const saveMission = (mission, schedule = null) => {
   payload.aiMode = aiModeEnabled;
   payload.schedule = schedule;
   payload.followUp = pendingFollowUp;
-  const selectedDestination = pendingFollowUp?.answers;
+  payload.interfaceLanguage = activeLanguage;
+  payload.missionLanguage = detectMissionLanguage(cleanMission).value;
+  const selectedDestination = pendingFollowUp?.answers || (pendingDetectedDestination ? {
+    destination: pendingDetectedDestination.city,
+    destinationCountry: pendingDetectedDestination.country,
+    destinationCountryCode: pendingDetectedDestination.countryCode || pendingDetectedDestination.code,
+    destinationCurrency: pendingDetectedDestination.currency,
+    destinationContinent: pendingDetectedDestination.continent,
+    destinationLatitude: pendingDetectedDestination.latitude,
+    destinationLongitude: pendingDetectedDestination.longitude,
+    destinationState: pendingDetectedDestination.state
+  } : null);
   if (payload.type === "travel" && selectedDestination?.destination) {
     payload.destination = {
       ...payload.destination,
@@ -1479,6 +1497,8 @@ const saveMission = (mission, schedule = null) => {
       city: selectedDestination.destination,
       cityKo: selectedDestination.destination,
       continent: selectedDestination.destinationContinent || "",
+      state: selectedDestination.destinationState || "",
+      countryCode: selectedDestination.destinationCountryCode || "",
       latitude: Number(selectedDestination.destinationLatitude) || undefined,
       longitude: Number(selectedDestination.destinationLongitude) || undefined
     };
@@ -1538,6 +1558,7 @@ const saveMission = (mission, schedule = null) => {
 
   sessionStorage.removeItem(STORAGE_KEYS.results);
   sessionStorage.removeItem(STORAGE_KEYS.enrichedMission);
+  pendingDetectedDestination = null;
   sessionStorage.removeItem(STORAGE_KEYS.executionState);
 
   return payload;
@@ -1848,9 +1869,24 @@ missionForm.addEventListener("submit", async (event) => {
     return;
   }
   let type = classifyMission(mission);
+  pendingDetectedDestination = resolveWorldDestination(mission);
   if (type === "general_mission") {
-    const destinationMatches = await detectWorldwideTravelDestination(mission, activeLanguage);
-    if (destinationMatches.length) type = "travel";
+    const destinationMatches = pendingDetectedDestination ? [] : await detectWorldwideTravelDestination(mission, activeLanguage);
+    if (!pendingDetectedDestination && destinationMatches.length) {
+      const detected = destinationMatches[0];
+      pendingDetectedDestination = {
+        id: String(detected.city || detected.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),
+        city: detected.city,
+        country: detected.country,
+        countryCode: detected.code,
+        continent: detected.continent,
+        currency: detected.currency,
+        state: detected.state,
+        latitude: detected.latitude,
+        longitude: detected.longitude
+      };
+    }
+    if (pendingDetectedDestination || destinationMatches.length) type = "travel";
   }
   const startOneFirstPass = () => {
     pendingFollowUp = {

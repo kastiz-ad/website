@@ -22,5 +22,6 @@ export function normalizeMissionText(value = "") {
 
 export function classifyMission(value) {
   const text = normalizeMissionText(value);
+  if (/viaje|viajar|vacaciones|luna de miel|vuelo|aeropuerto/i.test(text)) return "travel";
   return Object.entries(RULES).find(([, pattern]) => pattern.test(text))?.[0] || "general_mission";
 }

@@ -1,3 +1,5 @@
+import { detectMissionLanguage, normalizeResolvedDestination, resolveWorldDestination } from "../world/world-intelligence-engine.js";
+
 const text = (value) => String(value || "").normalize("NFKC").trim();
 
 const LOCATIONS = [
@@ -47,6 +49,18 @@ const slug = (value) => text(value).toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/
 
 const resolveDestination = (missionSource, options, origin) => {
   const explicit = text(options.destination);
+  const worldwide = resolveWorldDestination(`${explicit} ${missionSource}`);
+  if (worldwide) return { ...normalizeResolvedDestination(worldwide), specified: true, confidence: 0.99 };
+  const resolvedMetadata = normalizeResolvedDestination(options.resolvedDestination || {}, {
+    city: explicit,
+    country: text(options.destinationCountry || options.country),
+    countryCode: text(options.destinationCountryCode || options.country),
+    continent: text(options.destinationContinent),
+    currency: text(options.destinationCurrency)
+  });
+  if (resolvedMetadata.city && !/confirm|확인|unspecified/i.test(resolvedMetadata.city)) {
+    return { ...resolvedMetadata, specified: true, confidence: 0.995 };
+  }
   const known = findLocation(explicit) || findLocation(missionSource);
   if (known) return { ...known, specified: true, confidence: 0.98 };
   const country = findCountry(explicit) || findCountry(missionSource);
@@ -68,7 +82,9 @@ const inferDuration = (source, options) => {
 const classifyDistance = ({ origin, destination, durationDays, source }) => {
   if (/relocat|immigra|이주|이민/i.test(source) || durationDays >= 30) return "LONG_TERM";
   if (!destination.specified || destination.id === origin.id) return "LOCAL_CITY";
-  if (origin.country !== destination.country) return "INTERNATIONAL";
+  const originCountry = String(origin.countryCode || origin.country || "").toUpperCase();
+  const destinationCountry = String(destination.countryCode || destination.country || "").toUpperCase();
+  if (originCountry !== destinationCountry) return "INTERNATIONAL";
   if (destination.id === "incheon" && origin.id === "seoul") return "LOCAL_METRO";
   if (durationDays <= 1) return "DAY_TRIP";
   if (durationDays <= 3) return "WEEKEND";
@@ -108,7 +124,9 @@ const providerEligibility = ({ distance, source, durationDays }) => {
 export function buildMissionContext(rawInput, options = {}) {
   const mission = text(rawInput);
   const source = `${mission} ${text(options.goal)} ${text(options.relationship)}`.trim();
-  const language = ["en", "ko", "es"].includes(options.language) ? options.language : /[가-힣]/.test(source) ? "ko" : "en";
+  const interfaceLanguage = ["en", "ko", "es"].includes(options.language) ? options.language : "en";
+  const missionLanguage = detectMissionLanguage(source);
+  const language = missionLanguage.value;
   const relationship = infer(source, RELATIONSHIPS, "unspecified");
   const purpose = infer(source, PURPOSES, "general");
   const origin = findLocation(options.currentLocation) || LOCATIONS[0];
@@ -119,9 +137,9 @@ export function buildMissionContext(rawInput, options = {}) {
   const eligibility = providerEligibility({ distance: distanceClass, source, durationDays });
   const suppress = scope === "international" ? [] : ["airport", "passport", "embassy", "immigration", "departure-guide"];
   const context = {
-    version: "MISSION_CONTEXT_INTELLIGENCE_V2", language,
+    version: "WORLD_INTELLIGENCE_ENGINE_V10", language, interfaceLanguage, missionLanguage,
     origin: Object.freeze({ id: origin.id, city: origin.city, country: origin.country }),
-    destination: Object.freeze({ id: destination.id, city: destination.city, country: destination.country, specified: destination.specified, confidence: destination.confidence }),
+    destination: Object.freeze({ id: destination.id, city: destination.city, country: destination.countryCode || destination.country, countryName: destination.country || "", countryCode: destination.countryCode || destination.country, continent: destination.continent || "", currency: destination.currency || "", state: destination.state || "", district: destination.district || "", neighborhood: destination.neighborhood || "", specified: destination.specified, confidence: destination.confidence }),
     relationship, relationshipProfile: Object.freeze(relationshipProfile(relationship.value)), purpose, durationDays,
     availableTime: text(options.availableTime) || (durationDays === 1 ? "one-day" : `${durationDays}-days`), season: text(options.season) || "current", weather: text(options.weather) || "check-current",
     budget: options.budget || null, distanceClass, scope, transport: Object.freeze([...destination.transport]),
