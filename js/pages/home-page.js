@@ -1865,7 +1865,14 @@ missionForm.addEventListener("submit", async (event) => {
   ensureDisclosureAcknowledged({
     language: activeLanguage,
     restoreFocusTo: missionInput,
-    onAcknowledge: startOneFirstPass,
+    onAcknowledge: () => {
+      if (type === "travel") {
+        pendingFollowUp = null;
+        openScheduleModal(mission);
+        return;
+      }
+      startOneFirstPass();
+    },
     onCancel: () => { pendingFollowUp = null; missionInput.value = mission; syncInputState(); }
   });
 });
