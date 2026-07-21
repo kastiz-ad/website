@@ -102,7 +102,7 @@ assert.match(indexHtml, /script\.js\?v=20260720-no-outcome-popup/);
 assert.match(indexHtml, /style\.css\?v=20260717-30/);
 assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/);
 assert.match(homeCss, /max-height: calc\(100dvh - 24px\); margin: auto; border-radius: 24px/);
-assert.match(loadingHtml, /loading\.js\?v=20260719-language-v1/);
+assert.match(loadingHtml, /loading\.js\?v=20260722-location-restore/);
 assert.match(resultsHtml, /results\.js\?v=20260722-context-v2/);
 assert.match(resultsHtml, /location\.replace\(u\.href\)/);
 assert.match(resultsHtml, /no-cache, no-store, must-revalidate/);
