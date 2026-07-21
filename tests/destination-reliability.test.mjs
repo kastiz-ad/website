@@ -152,7 +152,7 @@ assert.doesNotMatch(results, /central hotel — provider confirmation required/)
 assert.match(results, /goalAliases = \{ la: cityName \|\| "Los Angeles"/);
 assert.match(resultsCss, /data-card-id="exchange-rate"[^}]*grid-template-rows: none; grid-auto-flow: row/);
 assert.match(resultsCss, /mission-understood-goal strong \{ font-size: clamp\(24px/);
-assert.match(results, /\.slice\(0, 6\);\n  const liveRestaurantPlaces/);
+assert.match(results, /\.slice\(0, 6\);\r?\n  const liveRestaurantPlaces/);
 assert.match(results, /profile\.hotels = hotelPool\.slice\(0, hotelPool\.length >= 6 \? 6 : 4\)/);
 assert.match(results, /class="restaurant-entry"/);
 assert.match(resultsCss, /\.mission-understood \{[\s\S]*?text-align: center;/);
