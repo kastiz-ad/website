@@ -32,7 +32,8 @@ const timeSlots = ["10:30", "12:30", "14:30", "17:00", "19:00", "20:30"];
 const MAX_VISIBLE_ACTIVITY_ALTERNATIVES = 12;
 const INDOOR_RAIN_PRIORITY = ["lotte-aquarium", "coex-aquarium", "coex-starfield-library", "myeongdong-shopping", "seongsu-cafe-hopping", "ikseondong-hanok-cafe", "traditional-tea", "board-game-cafe", "escape-room", "pottery", "photo-booth"];
 const byId = (items, ids) => ids.map((id) => items.find((item) => item.id === id)).filter(Boolean);
-const isSeoulExperience = (input, context) => /(?:seoul|서울|데이트|여친|남친|couple|date)/i.test(`${input.mission || ""} ${context.destination?.id || ""} ${context.relationship?.value || ""}`);
+const isSeoulExperience = (_input, context) => context.destination?.id === "seoul";
+const belongsToDestination = (item, context) => context.destination?.id === "seoul" || !(item?.tags || []).includes("seoul");
 const rotate = (items, offset) => items.length ? items.map((_, index) => items[(index + offset) % items.length]) : [];
 
 export function buildExperienceGenerationPrompt(input = {}) {
@@ -58,15 +59,18 @@ export function generateExperience(input = {}) {
   const seed = `${input.mission || "experience"}|${context.destination?.id || "nearby"}|${generationIndex}|${vault.completed.join("|")}`;
   const seoulMode = isSeoulExperience(input, context);
   const cluster = seoulMode ? SEOUL_EXPERIENCE_CLUSTERS[hash(`${seed}:cluster`) % SEOUL_EXPERIENCE_CLUSTERS.length] : null;
-  const location = cluster ? EXPERIENCE_INGREDIENTS.locations.find((item) => item.id === cluster.location) : pick(EXPERIENCE_INGREDIENTS.locations, wanted, seed, generationIndex, vault);
+  const eligibleLocations = EXPERIENCE_INGREDIENTS.locations.filter((item) => belongsToDestination(item, context));
+  const eligibleActivities = EXPERIENCE_INGREDIENTS.activities.filter((item) => belongsToDestination(item, context));
+  const eligibleFoods = EXPERIENCE_INGREDIENTS.foods.filter((item) => belongsToDestination(item, context));
+  const location = cluster ? EXPERIENCE_INGREDIENTS.locations.find((item) => item.id === cluster.location) : pick(eligibleLocations, wanted, seed, generationIndex, vault);
   const clusterActivities = cluster ? rotate(byId(EXPERIENCE_INGREDIENTS.activities, cluster.activities), hash(`${seed}:activities`) % cluster.activities.length) : [];
   const clusterFoods = cluster ? rotate(byId(EXPERIENCE_INGREDIENTS.foods, cluster.foods), hash(`${seed}:foods`) % cluster.foods.length) : [];
-  const activities = cluster ? clusterActivities.slice(0, 4) : [0, 1, 2, 3].map((offset) => pick(EXPERIENCE_INGREDIENTS.activities, wanted, seed, generationIndex + offset * 3, vault)).filter((item, index, list) => item && list.findIndex((other) => other.id === item.id) === index);
-  const foods = cluster ? clusterFoods.slice(0, 4) : [0, 1, 2, 3].map((offset) => pick(EXPERIENCE_INGREDIENTS.foods, wanted, seed, generationIndex + offset * 5, vault)).filter((item, index, list) => item && list.findIndex((other) => other.id === item.id) === index);
+  const activities = cluster ? clusterActivities.slice(0, 4) : [0, 1, 2, 3].map((offset) => pick(eligibleActivities, wanted, seed, generationIndex + offset * 3, vault)).filter((item, index, list) => item && list.findIndex((other) => other.id === item.id) === index);
+  const foods = cluster ? clusterFoods.slice(0, 4) : [0, 1, 2, 3].map((offset) => pick(eligibleFoods, wanted, seed, generationIndex + offset * 5, vault)).filter((item, index, list) => item && list.findIndex((other) => other.id === item.id) === index);
   const mood = pick(EXPERIENCE_INGREDIENTS.moods, wanted, seed, generationIndex, vault);
   const allowedTransport = EXPERIENCE_INGREDIENTS.transport.filter((item) => (context.transport || []).some((mode) => String(mode).toLowerCase().includes(item.id.toLowerCase())));
   const transport = pick(allowedTransport.length ? allowedTransport : EXPERIENCE_INGREDIENTS.transport, wanted, seed, generationIndex, vault);
-  const rainCandidates = byId(EXPERIENCE_INGREDIENTS.activities, INDOOR_RAIN_PRIORITY);
+  const rainCandidates = byId(eligibleActivities, INDOOR_RAIN_PRIORITY);
   const rainActivity = rainCandidates.find((item) => cluster?.activities.includes(item.id) && !activities.some((chosen) => chosen.id === item.id))
     || rainCandidates.find((item) => cluster?.activities.includes(item.id))
     || rainCandidates.find((item) => !activities.some((chosen) => chosen.id === item.id));
@@ -89,7 +93,7 @@ export function generateExperience(input = {}) {
       story: language === "ko" ? `${label(location.id, language)}에서 시작해 ${label(activities.at(-1)?.id, language)}, ${label(foods.at(-1)?.id, language)}로 마무리하는 기억에 남을 하루예요.` : language === "es" ? `Un día memorable que comienza en ${label(location.id, language)}, continúa con ${label(activities.at(-1)?.id, language)} y termina con ${label(foods.at(-1)?.id, language)}.` : `A memorable ${label(mood.id, language).toLowerCase()} experience that moves from ${label(location.id, language)} to ${label(activities.at(-1)?.id, language)} and ends with ${label(foods.at(-1)?.id, language)}.`,
       location: label(location.id, language), mood: label(mood.id, language), transportation: label(transport.id, language),
       activities: Object.freeze(activities.map((item) => label(item.id, language))), foods: Object.freeze(foods.map((item) => label(item.id, language))),
-      timeline: Object.freeze(timelineIngredients.map((item, index) => Object.freeze({ time: timeSlots[index], title: label(item.id, language), type: EXPERIENCE_INGREDIENTS.foods.includes(item) ? "food" : "activity" }))),
+      timeline: Object.freeze(timelineIngredients.map((item, index) => Object.freeze({ time: timeSlots[index], title: label(item.id, language), type: EXPERIENCE_INGREDIENTS.foods.includes(item) ? "food" : "activity", phase: ["beginning", "build", "highlight", "relax", "memory"][index] }))),
       rainPlan: rainActivity ? label(rainActivity.id, language) : language === "ko" ? "실내 대안" : language === "es" ? "Alternativa interior" : "Indoor flexible alternative",
       budget: input.budget ? { status: "USER_LIMIT", amount: input.budget } : { status: "ESTIMATED_AFTER_SELECTION", amount: null },
       reasoning: language === "ko" ? (context.nearbyFirst ? "가까운 곳부터 이어 이동은 줄이고 함께하는 시간을 늘렸어요." : "이동, 휴식, 음식과 특별한 순간의 균형을 맞췄어요.") : language === "es" ? (context.nearbyFirst ? "Priorizamos lugares cercanos para compartir más y desplazarnos menos." : "La secuencia equilibra movimiento, descanso, comida y un recuerdo especial.") : context.nearbyFirst ? "Nearby-first pacing leaves more time for shared moments and less time in transit." : "The sequence balances movement, rest, food and one distinctive memory anchor."
@@ -100,6 +104,10 @@ export function generateExperience(input = {}) {
     prompt: buildExperienceGenerationPrompt({ ...input, context }),
     combinatorialLibrarySize: Object.values(EXPERIENCE_INGREDIENTS).reduce((total, list) => total * list.length, 1),
     ingredientCount: ingredientCount(),
+    quality: Object.freeze({ passed: ingredientIds.every((id) => {
+      const item = [...EXPERIENCE_INGREDIENTS.locations, ...EXPERIENCE_INGREDIENTS.activities, ...EXPERIENCE_INGREDIENTS.foods].find((candidate) => candidate.id === id);
+      return !item || belongsToDestination(item, context);
+    }), checks: Object.freeze(["destination-only", "coherent-story", "transport-continuity", "relationship-fit", "weather-backup"]) }),
     approval: Object.freeze({ required: true, approved: false, externalExecution: false })
   });
 }
