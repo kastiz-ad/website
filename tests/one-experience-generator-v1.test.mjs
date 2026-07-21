@@ -31,7 +31,8 @@ test("Seoul date results stay inside one compatible activity group", () => {
   const cluster = SEOUL_EXPERIENCE_CLUSTERS.find((item) => item.id === result.experienceCluster);
   assert.ok(cluster);
   result.ingredientIds.filter((id) => EXPERIENCE_INGREDIENTS.activities.some((item) => item.id === id)).forEach((id) => assert.ok(cluster.activities.includes(id), id));
-  assert.ok(result.alternatives.length >= 4);
+  assert.equal(result.alternatives.length, 12);
+  assert.equal(result.visibleAlternativeLimit, 12);
 });
 
 test("the same request can create ten distinct high-quality compositions", () => {

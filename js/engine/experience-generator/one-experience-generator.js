@@ -1,4 +1,4 @@
-import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js?v=20260722-experience-expansion";
+import { EXPERIENCE_INGREDIENTS, SEOUL_EXPERIENCE_CLUSTERS, ingredientCount } from "./experience-ingredient-library.js?v=20260722-experience-expansion-2";
 import { buildExperienceVault } from "./experience-vault.js";
 
 const hash = (value) => [...String(value)].reduce((total, character) => Math.imul(total ^ character.charCodeAt(0), 16777619) >>> 0, 2166136261);
@@ -29,6 +29,7 @@ const LABELS = {
 };
 const label = (id, language = "en") => LABELS[language]?.[id] || String(id || "").replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 const timeSlots = ["10:30", "12:00", "14:00", "16:30", "18:30", "20:30"];
+const MAX_VISIBLE_ACTIVITY_ALTERNATIVES = 12;
 const byId = (items, ids) => ids.map((id) => items.find((item) => item.id === id)).filter(Boolean);
 const isSeoulExperience = (input, context) => /(?:seoul|서울|데이트|여친|남친|couple|date)/i.test(`${input.mission || ""} ${context.destination?.id || ""} ${context.relationship?.value || ""}`);
 const rotate = (items, offset) => items.length ? items.map((_, index) => items[(index + offset) % items.length]) : [];
@@ -72,7 +73,7 @@ export function generateExperience(input = {}) {
   const broadAlternatives = cluster
     ? [...clusterActivities.slice(1), ...SEOUL_EXPERIENCE_CLUSTERS.filter((item) => item.id !== cluster.id).flatMap((item) => byId(EXPERIENCE_INGREDIENTS.activities, item.activities).slice(0, 2))]
       .filter((item, index, list) => item && !activities.slice(0, 1).some((chosen) => chosen.id === item.id) && list.findIndex((other) => other.id === item.id) === index)
-      .slice(0, 12)
+      .slice(0, MAX_VISIBLE_ACTIVITY_ALTERNATIVES)
     : activities.slice(1);
   return Object.freeze({
     engine: "ONE_EXPERIENCE_GENERATOR_V1",
@@ -91,6 +92,7 @@ export function generateExperience(input = {}) {
       reasoning: language === "ko" ? (context.nearbyFirst ? "가까운 곳부터 이어 이동은 줄이고 함께하는 시간을 늘렸어요." : "이동, 휴식, 음식과 특별한 순간의 균형을 맞췄어요.") : language === "es" ? (context.nearbyFirst ? "Priorizamos lugares cercanos para compartir más y desplazarnos menos." : "La secuencia equilibra movimiento, descanso, comida y un recuerdo especial.") : context.nearbyFirst ? "Nearby-first pacing leaves more time for shared moments and less time in transit." : "The sequence balances movement, rest, food and one distinctive memory anchor."
     }),
     alternatives: Object.freeze(broadAlternatives.map((item) => label(item.id, language))),
+    visibleAlternativeLimit: MAX_VISIBLE_ACTIVITY_ALTERNATIVES,
     experienceCluster: cluster?.id || null,
     prompt: buildExperienceGenerationPrompt({ ...input, context }),
     combinatorialLibrarySize: Object.values(EXPERIENCE_INGREDIENTS).reduce((total, list) => total * list.length, 1),

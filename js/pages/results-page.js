@@ -2,7 +2,7 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { reviseMission } from "../engine/revision/mission-revision-engine.js";
-import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-experience-expansion";
+import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-experience-expansion-2";
 import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 
@@ -835,12 +835,13 @@ const makeOptionRow = (key, value, details = {}) => {
   const reason = encodeURIComponent(details.reason || "");
   const label = encodeURIComponent(details.label || key || "");
   const index = Number.isInteger(details.index) ? details.index : -1;
+  const selected = details.selected !== false;
   const priceAttributes = details.price
     ? ` data-price-min="${Number(details.price.min || 0)}" data-price-max="${Number(details.price.max || 0)}" data-price-currency="${details.price.currency || "KRW"}"`
     : "";
   return `
-    <button class="option-row selectable-option" type="button" aria-pressed="true" data-option-index="${index}" data-option-label="${label}" data-option-reason="${reason}"${priceAttributes}>
-      <span class="option-key">✓</span>
+    <button class="option-row selectable-option${selected ? "" : " is-excluded"}" type="button" aria-pressed="${selected}" data-option-index="${index}" data-option-label="${label}" data-option-reason="${reason}"${priceAttributes}>
+      <span class="option-key">${selected ? "✓" : "+"}</span>
       <span class="option-value"><strong>${key}</strong><span>${value}</span></span>
     </button>
   `;
@@ -1848,7 +1849,7 @@ const renderGeneratedExperienceMission = (result) => {
     label: "⭐ ONE Pick",
     value: currentExperienceReview.recommendation,
     reason: one.reasoning,
-    options: generated.alternatives.map((alternative, index) => makeOptionRow(alternative, "", { index, label: alternative })),
+    options: generated.alternatives.map((alternative, index) => makeOptionRow(alternative, "", { index, label: alternative, selected: false })),
     editable: true
   }));
   missionGrid.appendChild(createListCard({
