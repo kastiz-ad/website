@@ -1,6 +1,7 @@
 import { fetchJson } from "../engine/providers.js?v=20260711-1";
 import { trackEvent } from "../analytics.js";
 import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
+import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
 
 const root = document.documentElement;
 const body = document.body;
@@ -150,11 +151,14 @@ const getCoordinates = async (mission) => {
     } catch { /* Continue to safe fallback. */ }
   }
   if (mission?.destination?.city === "Tokyo") return { latitude: 35.6762, longitude: 139.6503 };
-  return { latitude: 37.5665, longitude: 126.978 };
+  if (mission?.destination?.city === "Seoul") return { latitude: 37.5665, longitude: 126.978 };
+  return null;
 };
 
 const fetchWeather = async (mission) => {
-  const { latitude, longitude } = await getCoordinates(mission);
+  const coordinates = await getCoordinates(mission);
+  if (!coordinates) return fallbackProvider("Open-Meteo", "weather", "Weather requires a verified destination location; no other city was substituted.");
+  const { latitude, longitude } = coordinates;
   const schedule = mission?.schedule;
   const scheduledDays = schedule?.startDate && schedule?.endDate
     ? Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1)
@@ -285,7 +289,10 @@ const fetchLocalPlaces = async (mission) => {
   const country = mission?.countryProfile?.name || mission?.destination?.country || "";
   if (!city) return fallbackProvider("OpenStreetMap", "local_places", "Local place search requires a destination city.");
   try {
-    const { latitude, longitude } = await getCoordinates(mission);
+    const coordinates = await getCoordinates(mission);
+    if (!coordinates) return fallbackProvider("OpenStreetMap", "local_places", "Destination coordinates could not be verified; no places from another city were substituted.");
+    const { latitude, longitude } = coordinates;
+    const geographicScope = createGeographicScope(mission, coordinates);
     const placeQueries = [
       `[out:json][timeout:12];nwr(around:3500,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"][name];out center 30;`,
       `[out:json][timeout:12];nwr(around:6000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"][name];out center 20;`
@@ -307,7 +314,7 @@ const fetchLocalPlaces = async (mission) => {
       const tags = entry.tags || {};
       const kind = tags.tourism ? "hotel" : tags.amenity && /restaurant|cafe|fast_food/.test(tags.amenity) ? "restaurant" : "transport";
       const name = tags[mission.language === "ko" ? "name:ko" : "name:en"] || tags.name;
-      return { label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", source: "OpenStreetMap" };
+      return stampGeographicEvidence({ label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", source: "OpenStreetMap" }, geographicScope, { latitude: entry.lat || entry.center?.lat, longitude: entry.lon || entry.center?.lon });
     };
     const items = elements.map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
     if (items.filter((item) => item.kind === "restaurant").length < 4) {
@@ -318,7 +325,7 @@ const fetchLocalPlaces = async (mission) => {
         const key = `restaurant:${String(label).toLowerCase()}`;
         if (!label || /^(restaurant|restaurants|cafe)$/i.test(label) || seen.has(key)) return;
         seen.add(key);
-        items.push({ label, value: place.type || "restaurant", kind: "restaurant", cuisine: place.extratags?.cuisine || "", stars: "", source: "OpenStreetMap Nominatim" });
+        items.push(stampGeographicEvidence({ label, value: place.type || "restaurant", kind: "restaurant", cuisine: place.extratags?.cuisine || "", stars: "", source: "OpenStreetMap Nominatim" }, geographicScope, { latitude: place.lat, longitude: place.lon }));
       });
     }
     if (items.filter((item) => item.kind === "hotel").length < 5) {
@@ -329,10 +336,11 @@ const fetchLocalPlaces = async (mission) => {
         const key = `hotel:${String(label).toLowerCase()}`;
         if (!label || /^(hotel|hotels|accommodation|accommodations)$/i.test(label) || seen.has(key)) return;
         seen.add(key);
-        items.push({ label, value: place.type || "hotel", kind: "hotel", cuisine: "", stars: place.extratags?.stars || "", source: "OpenStreetMap Nominatim" });
+        items.push(stampGeographicEvidence({ label, value: place.type || "hotel", kind: "hotel", cuisine: "", stars: place.extratags?.stars || "", source: "OpenStreetMap Nominatim" }, geographicScope, { latitude: place.lat, longitude: place.lon }));
       });
     }
-    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: items.length > 0, requiresKey: false, requiresPartnerAccess: false, items, attribution: "© OpenStreetMap contributors", error: null };
+    const scopedItems = enforceGeographicScope(items, geographicScope);
+    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: scopedItems.length > 0, requiresKey: false, requiresPartnerAccess: false, items: scopedItems, geographicScope, attribution: "© OpenStreetMap contributors", error: null };
   } catch (error) {
     return fallbackProvider("OpenStreetMap Overpass", "local_places", "Public hotel, restaurant and transport names could not be loaded; prototype fallbacks are shown.", error.message);
   }
