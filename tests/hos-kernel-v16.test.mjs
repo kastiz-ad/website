@@ -14,6 +14,7 @@ test("V16 registers every required orchestration stage", () => {
     "context",
     "prediction",
     "mission-routing",
+    "solution",
     "provider-routing",
     "approval",
     "execution-preparation"

@@ -2,6 +2,7 @@ import { buildUniversalMission, classifyUniversalMission } from "../universal-mi
 import { buildHumanReasoningObject } from "../human-reasoning/human-reasoning-engine.js";
 import { buildContextObject } from "../context/context-intelligence-engine-v14.js";
 import { generateFutureMissionSuggestions } from "../prediction/prediction-engine-v15.js";
+import { buildResolutionPlan } from "../solution/solution-operating-layer-v17.js";
 import { buildLifeMemoryContext } from "../../profile/life-memory-engine.js";
 
 export const HOS_KERNEL_VERSION = "V16";
@@ -12,6 +13,7 @@ export const HOS_KERNEL_STAGES = Object.freeze([
   "context",
   "prediction",
   "mission-routing",
+  "solution",
   "provider-routing",
   "approval",
   "execution-preparation"
@@ -228,6 +230,26 @@ function defaultEngines() {
             candidateCount: Array.isArray(state.mission?.providers) ? state.mission.providers.length : 0,
             liveCallsEnabled: false,
             fallbackAllowed: true
+          })
+        };
+      }
+    },
+    {
+      id: "solution-operating-layer-v17",
+      stage: "solution",
+      version: "V17",
+      description: "Converts the routed mission into a reusable ResolutionPlan without execution.",
+      handler(state) {
+        return {
+          resolutionPlan: buildResolutionPlan({
+            ...state.input,
+            userProblem: state.classification?.mission || state.input?.mission,
+            classification: state.classification,
+            missionObject: state.mission,
+            humanReasoning: state.humanReasoning,
+            lifeMemoryContext: state.lifeMemoryContext,
+            contextObject: state.contextObject,
+            futureMissionSuggestions: state.futureMissionSuggestions
           })
         };
       }

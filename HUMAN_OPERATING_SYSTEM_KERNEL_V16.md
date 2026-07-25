@@ -36,6 +36,8 @@ Prediction Engine V15
   ↓
 Mission Routing
   ↓
+Solution Operating Layer V17
+  ↓
 Provider Routing
   ↓
 Approval Orchestration
@@ -62,9 +64,10 @@ Supported stages:
 3. `context`
 4. `prediction`
 5. `mission-routing`
-6. `provider-routing`
-7. `approval`
-8. `execution-preparation`
+6. `solution`
+7. `provider-routing`
+8. `approval`
+9. `execution-preparation`
 
 ## Boundaries
 
