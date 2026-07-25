@@ -37,11 +37,12 @@ test("V22 replaces prototype leakage with product-quality result components", ()
   assert.doesNotMatch(resultsHtml, /Live public data \+ estimated travel options/);
 });
 
-test("V22 renders travel as complete packages before detailed choices", () => {
+test("V22/V23 renders travel as experience-first choices before provider details", () => {
   assert.match(resultsPageSource, /createTravelPackagesCard/);
   assert.match(resultsPageSource, /travel-package-card/);
-  assert.match(resultsPageSource, /Travel packages prepared by ONE/);
-  assert.match(resultsPageSource, /Complete options/);
+  assert.match(resultsPageSource, /v23-travel-experience/);
+  assert.match(resultsPageSource, /v23-journey-card/);
+  assert.match(resultsPageSource, /sourceStateLabel/);
 });
 
 test("V22 has responsive premium result styling", () => {
@@ -51,13 +52,15 @@ test("V22 has responsive premium result styling", () => {
     ".v22-path-grid",
     ".travel-package-grid",
     ".travel-package-option",
+    ".v23-travel-experience",
+    ".v23-journey-card",
     "@media (max-width: 640px)"
   ]) {
     assert.match(resultsCss, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
 
-test("V22 cache key is active in results entry files", () => {
-  assert.match(resultsEntry, /20260726-v22-product-refinement/);
-  assert.match(resultsHtml, /20260726-v22-product-refinement/);
+test("V23 travel-first cache key is active in results entry files", () => {
+  assert.match(resultsEntry, /20260726-v23-travel-first/);
+  assert.match(resultsHtml, /20260726-v23-travel-first/);
 });

@@ -388,6 +388,19 @@ const MANUAL_V22_SCENARIOS = Object.freeze({
   career: "한국에서 일자리를 찾고 싶어"
 });
 
+const MANUAL_V23_TRAVEL_SCENARIOS = Object.freeze({
+  "sapporo-general": "삿포로 여행",
+  "sapporo-food": "삿포로 맛집 여행",
+  "sapporo-family": "가족과 삿포로 여행",
+  "sapporo-budget": "삿포로 실속 여행",
+  "missing-live-data": "삿포로 여행",
+  "mixed-source-states": "삿포로 여행",
+  "mobile": "삿포로 여행",
+  "long-provider-names": "삿포로 여행",
+  "no-visa-required": "삿포로 여행",
+  "visa-unresolved": "삿포로 여행"
+});
+
 const isTravelResult = (result) => ["travel", "travel-preparation"].includes(result?.type) || result?.domain === "travel" || result?.resolutionPlan?.domain === "travel";
 
 const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => {
@@ -436,11 +449,26 @@ const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => 
 
 function getManualScenarioResult() {
   const params = new URLSearchParams(window.location.search);
-  const scenario = params.get("v22Scenario") || params.get("v21Scenario") || params.get("scenario");
-  const prompt = MANUAL_V22_SCENARIOS[scenario] || MANUAL_V21_SCENARIOS[scenario] || params.get("mission");
+  const scenario = params.get("v23TravelScenario") || params.get("v22Scenario") || params.get("v21Scenario") || params.get("scenario");
+  const prompt = MANUAL_V23_TRAVEL_SCENARIOS[scenario] || MANUAL_V22_SCENARIOS[scenario] || MANUAL_V21_SCENARIOS[scenario] || params.get("mission");
   if (!prompt) return null;
   const language = params.get("lang") || (/[\u3131-\uD79D]/.test(prompt) ? "ko" : activeLanguage);
-  return createResolutionResultFromPrompt(prompt, language);
+  const result = createResolutionResultFromPrompt(prompt, language);
+  if (MANUAL_V23_TRAVEL_SCENARIOS[scenario]) {
+    result.v23TravelScenario = scenario;
+    result.destination = {
+      ...(result.destination || {}),
+      country: "Japan",
+      countryKo: "일본",
+      countryCode: "JP",
+      city: "Sapporo",
+      cityKo: "삿포로",
+      continent: "Asia"
+    };
+    result.country = "JP";
+    result.countryProfile = { ...(result.countryProfile || {}), code: "JP", name: "Japan", nameKo: "일본", capital: "Tokyo", currency: "JPY", continent: "Asia" };
+  }
+  return result;
 }
 
 const createNeutralMissionResult = () => createResolutionResultFromPrompt(
@@ -1989,240 +2017,305 @@ const createV22PathCard = ({ id, title, reason, steps = [], selected = false }) 
   return article;
 };
 
-const createTravelPackagesCard = (result, missionContext) => {
-  const flights = result.flights || [];
-  const hotels = result.hotels || [];
-  const restaurants = result.restaurants || [];
-  if (!flights.length && !hotels.length && !restaurants.length) return null;
+const getTravelDestinationLabel = (result) => {
+  const city = activeLanguage === "ko" ? result.destination?.cityKo || result.destination?.city : result.destination?.city;
+  const country = activeLanguage === "ko" ? result.destination?.countryKo || result.destination?.country : result.destination?.country;
+  return city || country || (activeLanguage === "ko" ? "목적지" : activeLanguage === "es" ? "destino" : "destination");
+};
 
-  const packageLabels = [
-    { en: "Balanced", ko: "균형형", es: "Equilibrado" },
-    { en: "Comfort", ko: "편안함", es: "Cómodo" },
-    { en: "Budget", ko: "알뜰형", es: "Económico" },
-    { en: "Premium", ko: "프리미엄", es: "Premium" }
+const getTravelDurationLabel = (result) => {
+  const start = result.schedule?.startDate ? new Date(`${result.schedule.startDate}T00:00:00`) : null;
+  const end = result.schedule?.endDate ? new Date(`${result.schedule.endDate}T00:00:00`) : null;
+  const days = start && end && !Number.isNaN(start.valueOf()) && !Number.isNaN(end.valueOf())
+    ? Math.max(1, Math.round((end - start) / 86400000) + 1)
+    : 5;
+  return activeLanguage === "ko" ? `${days}일` : activeLanguage === "es" ? `${days} días` : `${days} days`;
+};
+
+const getTravelBudgetLabel = (result, tone = "balanced") => {
+  const total = result.budget?.estimatedTotal || result.budget?.total;
+  if (total?.min && total?.max) {
+    return activeLanguage === "ko" ? `예상 ${formatRange(total)}` : activeLanguage === "es" ? `Estimado ${formatRange(total)}` : `Estimated ${formatRange(total)}`;
+  }
+  const labels = {
+    balanced: { en: "Estimated budget: medium", ko: "예상 예산: 중간", es: "Presupuesto estimado: medio" },
+    food: { en: "Estimated budget: medium+", ko: "예상 예산: 중상", es: "Presupuesto estimado: medio alto" },
+    value: { en: "Estimated budget: value", ko: "예상 예산: 실속", es: "Presupuesto estimado: ahorro" },
+    rest: { en: "Estimated budget: comfort", ko: "예상 예산: 여유", es: "Presupuesto estimado: cómodo" }
+  };
+  return localize(labels[tone] || labels.balanced);
+};
+
+const sourceStateLabel = (state) => {
+  const labels = {
+    verified_live: { en: "Verified live", ko: "실시간 확인", es: "Verificado en vivo" },
+    cached_public: { en: "Recent public info", ko: "최근 공개 정보 기준", es: "Información pública reciente" },
+    estimated: { en: "Estimated", ko: "예상", es: "Estimado" },
+    placeholder: { en: "Search structure ready", ko: "검색 조건 준비됨", es: "Estructura preparada" },
+    unavailable: { en: "Live search required", ko: "실시간 검색 필요", es: "Búsqueda en vivo necesaria" }
+  };
+  return localize(labels[state] || labels.placeholder);
+};
+
+const getScenarioSourceState = (result, key, fallback = "estimated") => {
+  if (result.v23TravelScenario === "missing-live-data") return "unavailable";
+  if (result.v23TravelScenario === "mixed-source-states") {
+    return { flight: "estimated", hotel: "cached_public", transport: "placeholder", food: "placeholder", entry: "unavailable", insurance: "placeholder" }[key] || fallback;
+  }
+  return fallback;
+};
+
+const providerSourceNote = (state) => {
+  const copy = {
+    verified_live: { en: "Confirmed by a live provider source.", ko: "실시간 제공업체 정보로 확인되었습니다.", es: "Confirmado por fuente en vivo." },
+    cached_public: { en: "Based on recent public information.", ko: "최근 공개 정보 기준입니다.", es: "Basado en información pública reciente." },
+    estimated: { en: "Estimated only. ONE will verify before approval.", ko: "예상 정보입니다. 승인 전 ONE이 다시 확인합니다.", es: "Solo estimado. ONE verifica antes de aprobar." },
+    placeholder: { en: "No fictional provider shown. Search conditions are ready.", ko: "가상 업체명은 표시하지 않습니다. 검색 조건만 준비했습니다.", es: "Sin proveedor ficticio; criterios listos." },
+    unavailable: { en: "Live provider search is required.", ko: "실시간 제공업체 검색이 필요합니다.", es: "Se requiere búsqueda en vivo." }
+  };
+  return localize(copy[state] || copy.placeholder);
+};
+
+const buildV23TravelJourneys = (result, missionContext) => {
+  const destination = getTravelDestinationLabel(result);
+  const duration = getTravelDurationLabel(result);
+  const ko = activeLanguage === "ko";
+  const es = activeLanguage === "es";
+  const isFamily = /가족|family|familia/i.test(result.rawInput || result.mission || "");
+  const isFood = /맛집|food|gourmet|comida/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-food";
+  const isBudget = /실속|저렴|budget|cheap|econ[oó]mico/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-budget";
+  const names = [
+    ko ? `편안한 ${destination}` : es ? `${destination} cómodo` : `Comfortable ${destination}`,
+    ko ? `맛집 중심 ${destination}` : es ? `${destination} gastronómico` : `Food-focused ${destination}`,
+    ko ? `실속형 ${destination}` : es ? `${destination} eficiente` : `Value ${destination}`,
+    ko ? (isFamily ? `가족 추억 ${destination}` : `온천과 휴식 ${destination}`) : es ? `${destination} descanso` : `Restful ${destination}`
   ];
-  const packageReasons = [
-    { en: "Best balance of comfort, cost, and simple logistics.", ko: "편안함, 비용, 동선을 가장 균형 있게 맞춘 조합입니다.", es: "Equilibra comodidad, precio y logística sencilla." },
-    { en: "Good when comfort and fewer decisions matter more than the lowest price.", ko: "최저가보다 편안함과 결정 부담을 줄이는 데 맞춘 조합입니다.", es: "Prioriza comodidad y menos decisiones." },
-    { en: "Keeps the core trip intact while lowering the estimated spend.", ko: "여행의 핵심은 유지하면서 예상 비용을 낮춘 조합입니다.", es: "Mantiene el viaje y reduce el gasto estimado." },
-    { en: "Designed for a smoother, more memorable trip with higher comfort.", ko: "더 부드럽고 기억에 남는 여행 경험을 위해 편안함을 높인 조합입니다.", es: "Pensado para una experiencia más memorable y cómoda." }
+  const purposes = [
+    ko ? "이동 부담을 줄이고 음식과 관광의 균형을 맞춘 일정" : es ? "Menos fricción, buen equilibrio entre comida y ciudad" : "Low-friction balance of food, city, and comfort",
+    ko ? "현지 음식과 시장, 카페 시간을 더 넉넉하게 둔 일정" : es ? "Más tiempo para comida local, mercados y cafés" : "More time for local food, markets, and cafés",
+    ko ? "핵심 경험은 지키고 불필요한 비용을 낮춘 일정" : es ? "Mantiene lo esencial y baja gastos innecesarios" : "Keeps the core experience while reducing spend",
+    ko ? "휴식과 여유를 중심에 둔 느린 여행" : es ? "Viaje más lento, cómodo y reparador" : "A slower journey focused on rest"
   ];
-  const packages = packageLabels.map((label, index) => {
-    const flight = flights[index] || flights[0] || {};
-    const hotel = hotels[index] || hotels[0] || {};
-    const restaurantSlice = restaurants.slice(index, index + 3);
-    const priceBits = [
-      flight.estimatedPrice ? formatRange(flight.estimatedPrice) : "",
-      hotel.estimatedNightlyPrice ? `${formatRange(hotel.estimatedNightlyPrice)} / ${activeLanguage === "ko" ? "1박" : "night"}` : ""
-    ].filter(Boolean);
-    return {
-      label: localize(label),
-      flight: getFlightName(flight) || v22Local("Airline option", "항공편 옵션", "Opción de vuelo"),
-      hotel: getHotelName(hotel) || v22Local("Hotel option", "호텔 옵션", "Hotel"),
-      restaurants: restaurantSlice.map(getRestaurantName).filter(Boolean),
-      price: priceBits.join(" · "),
-      reason: localize(packageReasons[index])
-    };
-  });
-  const article = document.createElement("article");
-  article.className = "mission-card is-wide travel-package-card";
-  article.dataset.cardId = "travel-packages";
-  article.innerHTML = `
-    <div class="v22-card-heading">
-      <span class="v22-kicker">${v22Local("Complete options", "완성형 선택지", "Opciones completas")}</span>
-      <h2>${v22Local("Travel packages prepared by ONE", "ONE이 준비한 여행 패키지", "Paquetes preparados por ONE")}</h2>
-      <p class="v22-card-body">${v22Local("Choose a complete direction first. Details below stay editable before approval.", "먼저 전체 방향을 고르세요. 아래 세부 항목은 승인 전까지 계속 수정할 수 있습니다.", "Elige primero una dirección completa. Los detalles siguen editables antes de aprobar.")}</p>
+  const tags = [
+    ko ? ["음식", "시내 관광", "편안함", "결정 부담 낮음"] : es ? ["Comida", "Ciudad", "Cómodo", "Fácil"] : ["Food", "City", "Comfort", "Easy"],
+    ko ? ["맛집", "시장", "카페", "야경"] : es ? ["Comida", "Mercado", "Café", "Noche"] : ["Food", "Markets", "Cafés", "Night"],
+    ko ? ["실속", "핵심 관광", "대중교통", "가성비"] : es ? ["Ahorro", "Esencial", "Transporte", "Valor"] : ["Value", "Essentials", "Transit", "Efficient"],
+    ko ? ["휴식", "온천", "천천히", isFamily ? "가족" : "여유"] : es ? ["Descanso", "Spa", "Lento", "Calma"] : ["Rest", "Spa", "Slow", "Calm"]
+  ];
+  const reasons = [
+    ko ? "가장 무난하고 결정 부담이 적은 구성입니다." : es ? "La opción más fácil y equilibrada." : "The easiest balanced choice with the fewest decisions.",
+    ko ? "먹는 즐거움을 여행의 중심에 두고 싶을 때 가장 잘 맞습니다." : es ? "Ideal si la comida es el centro del viaje." : "Best when food should lead the trip.",
+    ko ? "가격 부담을 낮추면서 핵심 일정은 유지합니다." : es ? "Reduce gasto sin perder lo esencial." : "Lowers spend while keeping the core plan.",
+    ko ? "빡빡한 이동보다 회복과 기억에 남는 시간을 우선합니다." : es ? "Prioriza descanso y momentos memorables." : "Prioritizes recovery and memorable time."
+  ];
+  const tones = ["balanced", "food", "value", "rest"];
+  const preferredIndex = isFood ? 1 : isBudget ? 2 : isFamily ? 3 : 0;
+  const timelines = [
+    ko ? ["도착 후 숙소 주변 적응", "시내 대표 동선", "음식과 쇼핑", "여유 일정", "귀국 준비"] : ["Arrival and easy area setup", "Core city route", "Food and shopping", "Flexible day", "Return prep"],
+    ko ? ["대표 음식 첫 식사", "시장과 카페", "예약 후보 비교", "야경과 디저트", "귀국 전 가벼운 식사"] : ["Signature first meal", "Market and cafés", "Restaurant shortlist", "Night view and dessert", "Easy final meal"],
+    ko ? ["저녁 도착 기준 정리", "핵심 명소 압축", "대중교통 중심 이동", "무료·저비용 선택지", "귀국 준비"] : ["Evening arrival setup", "Compact highlights", "Transit-first route", "Low-cost options", "Return prep"],
+    ko ? ["느린 체크인", "온천 또는 휴식", "가벼운 관광", "카페와 산책", "무리 없는 귀국"] : ["Slow check-in", "Spa or rest", "Light sightseeing", "Café and walk", "Easy return"]
+  ];
+  return names.map((name, index) => ({
+    id: `v23-journey-${index}`,
+    name,
+    purpose: purposes[index],
+    tags: tags[index],
+    reason: reasons[index],
+    duration,
+    tone: tones[index],
+    comfort: ko ? (index === 2 ? "효율 높음" : index === 1 ? "취향 선명" : "편안함 높음") : es ? (index === 2 ? "Muy eficiente" : "Alta comodidad") : (index === 2 ? "High efficiency" : "High comfort"),
+    budget: getTravelBudgetLabel(result, tones[index]),
+    timeline: timelines[index],
+    selected: index === preferredIndex,
+    details: {
+      flight: ko ? "인천 출발 직항 또는 환승 부담이 낮은 항공편 우선" : es ? "Priorizar vuelo directo o conexión simple desde Incheon" : "Prioritize direct or low-friction flights from Incheon",
+      hotel: ko ? `${destination}역 또는 중심 이동권 숙소 우선` : es ? `Zona central o estación principal de ${destination}` : `${destination} central station or walkable center`,
+      transport: ko ? "공식 교통과 허가된 이동수단 중심으로 비교" : es ? "Comparar transporte oficial y traslados autorizados" : "Compare official transit and licensed transfers",
+      food: ko ? (index === 1 ? "현지 음식·시장·카페 후보를 중심으로 구성" : "음식, 카페, 가벼운 활동을 균형 있게 구성") : es ? "Comida local, cafés y actividades equilibradas" : "Balanced food, cafés, and light activities",
+      entry: ko ? "입국 요건은 실행 전 공식 채널로 다시 확인" : es ? "Revisar requisitos oficiales antes de ejecutar" : "Re-check entry requirements through official channels before execution",
+      insurance: ko ? "여행자 보험과 일정 변경 리스크 확인 준비" : es ? "Preparar seguro y riesgo de cambios" : "Prepare insurance and schedule-change risk review"
+    },
+    sourceStates: {
+      flight: getScenarioSourceState(result, "flight", "estimated"),
+      hotel: getScenarioSourceState(result, "hotel", "estimated"),
+      transport: getScenarioSourceState(result, "transport", "placeholder"),
+      food: getScenarioSourceState(result, "food", "placeholder"),
+      entry: result.v23TravelScenario === "no-visa-required" ? "cached_public" : getScenarioSourceState(result, "entry", "unavailable"),
+      insurance: getScenarioSourceState(result, "insurance", "placeholder")
+    }
+  }));
+};
+
+const createV23SourcePill = (state) => `<span class="v23-source-pill is-${state}">${escapeSummaryText(sourceStateLabel(state))}</span>`;
+
+const createV23TravelDetailHtml = (journey, result) => {
+  const ko = activeLanguage === "ko";
+  const sections = [
+    ["timeline", ko ? "일정 흐름" : "Suggested timeline", journey.timeline.join(" → "), "estimated"],
+    ["flight", ko ? "항공 방향" : "Flight approach", journey.details.flight, journey.sourceStates.flight],
+    ["hotel", ko ? "숙소 방향" : "Accommodation approach", journey.details.hotel, journey.sourceStates.hotel],
+    ["transport", ko ? "이동" : "Transportation", journey.details.transport, journey.sourceStates.transport],
+    ["food", ko ? "음식과 활동" : "Food and activities", journey.details.food, journey.sourceStates.food],
+    ["entry", ko ? "입국 요건" : "Entry requirements", journey.details.entry, journey.sourceStates.entry],
+    ["insurance", ko ? "보험과 리스크" : "Insurance and risk", journey.details.insurance, journey.sourceStates.insurance]
+  ];
+  return `
+    <div class="v23-journey-overview">
+      <div>
+        <span class="v23-eyebrow">${ko ? "선택한 여정" : "Selected journey"}</span>
+        <h2>${escapeSummaryText(journey.name)}</h2>
+        <p>${escapeSummaryText(journey.purpose)}</p>
+      </div>
+      <div class="v23-overview-meta">
+        <span>${escapeSummaryText(journey.duration)}</span>
+        <span>${escapeSummaryText(journey.comfort)}</span>
+        <span>${escapeSummaryText(journey.budget)}</span>
+      </div>
     </div>
-    <div class="travel-package-grid">
-      ${packages.map((item, index) => `
-        <button class="travel-package-option${index === 0 ? " is-selected" : ""}" type="button" data-package-index="${index}" aria-pressed="${index === 0}">
-          <span class="travel-package-label">${escapeSummaryText(item.label)}</span>
-          <strong>${escapeSummaryText(item.flight)}</strong>
-          <span>${escapeSummaryText(item.hotel)}</span>
-          <small>${escapeSummaryText(item.restaurants.join(" · ") || v22Local("Restaurant shortlist ready", "레스토랑 후보 준비", "Restaurantes preparados"))}</small>
-          ${item.price ? `<em>${escapeSummaryText(item.price)}</em>` : `<em>${v22Local("Live prices after provider search", "제공업체 검색 후 실시간 가격 확인", "Precios tras búsqueda de proveedor")}</em>`}
-          <span class="travel-package-reason">${escapeSummaryText(item.reason)}</span>
-        </button>
+    <div class="v23-detail-grid">
+      ${sections.map(([id, title, body, source]) => `
+        <details class="v23-detail-card" data-detail-id="${id}" ${["timeline", "flight", "hotel", "food"].includes(id) ? "open" : ""}>
+          <summary><span>${escapeSummaryText(title)}</span>${createV23SourcePill(source)}</summary>
+          <p>${escapeSummaryText(body)}</p>
+          <small>${escapeSummaryText(providerSourceNote(source))}</small>
+        </details>
       `).join("")}
     </div>
+    <div class="v23-prep-grid">
+      <section>
+        <h3>${ko ? "ONE이 이미 준비한 것" : "Already prepared"}</h3>
+        <div class="v22-chip-list">
+          ${[ko ? "여정 방향" : "Journey direction", ko ? "비교 기준" : "Comparison criteria", ko ? "승인 전 확인 항목" : "Pre-approval checks"].map((item) => createV22Chip(item)).join("")}
+        </div>
+      </section>
+      <section>
+        <h3>${ko ? "아직 확인할 것" : "Still needs confirmation"}</h3>
+        <div class="v22-chip-list">
+          ${[ko ? "실시간 가격" : "Live prices", ko ? "재고와 가능 여부" : "Availability", ko ? "공식 입국 요건" : "Official entry rules"].map((item) => createV22Chip(item)).join("")}
+        </div>
+      </section>
+    </div>
+    <div class="v23-document-note">${ko ? "보안 문서 연동은 아직 준비 중입니다. 필요한 경우에도 승인 전에는 제출되지 않습니다." : "Secure document handling is still being prepared. Nothing is submitted before approval."}</div>
+    <div class="v23-approval-preview">
+      <strong>${ko ? "승인 시 ONE이 준비할 작업" : "If approved, ONE prepares"}</strong>
+      <ul>
+        <li>${ko ? "실시간 항공편 조회" : "Live flight search"}</li>
+        <li>${ko ? "숙소 재고 및 가격 확인" : "Accommodation availability and price check"}</li>
+        <li>${ko ? "선택한 여정 기준으로 최종 비교안 생성" : "Final comparison using the selected journey"}</li>
+      </ul>
+      <p>${ko ? "예약·결제·제출은 아직 진행되지 않습니다." : "No booking, payment, or submission happens yet."}</p>
+    </div>
   `;
+};
+
+const createTravelPackagesCard = (result, missionContext) => {
+  const journeys = buildV23TravelJourneys(result, missionContext);
+  const selectedIndex = Math.max(0, journeys.findIndex((journey) => journey.selected));
+  const destination = getTravelDestinationLabel(result);
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide travel-package-card v23-travel-experience";
+  article.dataset.cardId = "travel-experiences";
+  article.innerHTML = `
+    <div class="v23-travel-heading">
+      <span class="v23-eyebrow">${v22Local("ONE Recommendation", "ONE 추천", "ONE recomienda")}</span>
+      <h2>${escapeSummaryText(v22Local(
+        `${destination} trip prepared four ways`,
+        `${destination} 여행을 네 가지 방식으로 준비했습니다.`,
+        `Viaje a ${destination} preparado en cuatro formas`
+      ))}</h2>
+      <p>${escapeSummaryText(v22Local(
+        "Choose the experience first. Providers stay underneath the journey, where they belong.",
+        "먼저 원하는 경험을 고르세요. 항공·숙소·식당은 선택한 여정 안에서 조용히 정리됩니다.",
+        "Elige primero la experiencia. Los proveedores quedan dentro del viaje seleccionado."
+      ))}</p>
+    </div>
+    <div class="v23-style-chips" aria-label="${escapeSummaryText(v22Local("Travel style", "여행 스타일", "Estilo de viaje"))}">
+      ${["편안함", "맛집", "실속", "휴식", "쇼핑", "가족"].map((chip) => `<button type="button" class="v23-style-chip">${chip}</button>`).join("")}
+    </div>
+    <div class="v23-journey-layout">
+      <button class="v23-journey-card is-featured${selectedIndex === 0 ? " is-selected" : ""}" type="button" data-journey-index="0" aria-pressed="${selectedIndex === 0}">
+        ${renderV23JourneyCardInner(journeys[0], true)}
+      </button>
+      <div class="v23-alternative-journeys">
+        ${journeys.slice(1).map((journey, index) => `
+          <button class="v23-journey-card${selectedIndex === index + 1 ? " is-selected" : ""}" type="button" data-journey-index="${index + 1}" aria-pressed="${selectedIndex === index + 1}">
+            ${renderV23JourneyCardInner(journey, false)}
+          </button>
+        `).join("")}
+      </div>
+    </div>
+    <section class="v23-selected-journey" aria-live="polite">${createV23TravelDetailHtml(journeys[selectedIndex], result)}</section>
+  `;
+  article._v23Journeys = journeys;
   return article;
 };
 
+function renderV23JourneyCardInner(journey, featured) {
+  return `
+    <span class="v23-selected-badge">${journey.selected ? v22Local("Selected", "선택됨", "Seleccionado") : v22Local("Choose", "선택", "Elegir")}</span>
+    <strong>${escapeSummaryText(journey.name)}</strong>
+    <small>${escapeSummaryText(journey.purpose)}</small>
+    <div class="v23-journey-tags">${journey.tags.map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}</div>
+    <div class="v23-journey-meta">
+      <span>${escapeSummaryText(journey.duration)}</span>
+      <span>${escapeSummaryText(journey.comfort)}</span>
+      <span>${escapeSummaryText(journey.budget)}</span>
+    </div>
+    <p>${escapeSummaryText(journey.reason)}</p>
+    ${featured ? `<em>${v22Local("Recommended because it reduces decisions.", "결정 부담을 줄여 주기 때문에 추천합니다.", "Recomendado porque reduce decisiones.")}</em>` : ""}
+  `;
+}
+
+const updateV23JourneySelection = (container, index, result) => {
+  const journeys = container._v23Journeys || [];
+  const selected = journeys[index] || journeys[0];
+  if (!selected) return;
+  journeys.forEach((journey, cursor) => { journey.selected = cursor === index; });
+  container.querySelectorAll(".v23-journey-card").forEach((card) => {
+    const selectedCard = Number(card.dataset.journeyIndex) === index;
+    card.classList.toggle("is-selected", selectedCard);
+    card.setAttribute("aria-pressed", selectedCard ? "true" : "false");
+    const badge = card.querySelector(".v23-selected-badge");
+    if (badge) badge.textContent = selectedCard ? v22Local("Selected", "선택됨", "Seleccionado") : v22Local("Choose", "선택", "Elegir");
+  });
+  const details = container.querySelector(".v23-selected-journey");
+  if (details) details.innerHTML = createV23TravelDetailHtml(selected, result);
+  currentResult.v23SelectedJourney = selected;
+};
+
 const renderTravelMission = (result, missionContext) => {
-  const recommendedFlight = result.flights?.[0];
-  const recommendedHotel = result.hotels?.[0];
-  const transfer = result.airportTransfer;
-  const checklist = result.checklist || [];
-  const restaurants = result.restaurants || [];
-  const flightPriceLabel = result.tripType === "one_way"
-    ? (activeLanguage === "ko" ? "편도" : "one way")
-    : (activeLanguage === "ko" ? "왕복" : "round trip");
-  const flightOrigin = result.followUp?.answers?.origin || result.origin || (activeLanguage === "ko" ? "서울" : "Seoul");
-  const flightDestination = result.destination?.city || result.destination?.country || result.display?.destination || "Japan";
-  const flightSchedule = result.schedule || {};
-  const liveFareQuery = [
-    `Flights from ${flightOrigin} to ${flightDestination}`,
-    flightSchedule.startDate || "",
-    result.tripType === "one_way" ? "one way" : `return ${flightSchedule.endDate || ""}`
-  ].filter(Boolean).join(" ");
-  const liveFareUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(liveFareQuery)}`;
-  const flightVerification = `<p class="flight-estimate-notice"><span>${t("flightEstimateNotice")}</span><a href="${liveFareUrl}" target="_blank" rel="noopener noreferrer">${t("verifyLiveFares")}</a></p>`;
-  const transportBudget = result.budget?.transport || { currency: "KRW", min: 120000, max: 280000 };
-  const transferPriceRanges = [
-    { currency: transportBudget.currency || result.budget?.currency || "KRW", min: Math.round(transportBudget.min * .5), max: Math.round(transportBudget.max * .57) },
-    { currency: transportBudget.currency || result.budget?.currency || "KRW", min: Math.round(transportBudget.min * 1.15), max: Math.round(transportBudget.max * 1.35) },
-    { currency: transportBudget.currency || result.budget?.currency || "KRW", min: Math.round(transportBudget.min * .17), max: Math.round(transportBudget.max * .22) }
-  ];
-  const restaurantPriceFallbacks = [
-    { currency: "KRW", min: 25000, max: 65000 },
-    { currency: "KRW", min: 12000, max: 25000 },
-    { currency: "KRW", min: 70000, max: 180000 },
-    { currency: "KRW", min: 25000, max: 60000 },
-    { currency: "KRW", min: 8000, max: 22000 }
-  ];
-
-  missionTitle.textContent = result.display?.title || t("fallbackTitle");
+  const destination = getTravelDestinationLabel(result);
+  missionTitle.textContent = v22Local(
+    `${destination} trip prepared four ways`,
+    `${destination} 여행을 네 가지 방식으로 준비했습니다.`,
+    `Viaje a ${destination} preparado en cuatro formas`
+  );
   missionGrid.innerHTML = "";
-  currentResult.v22TravelPackages = true;
-  missionGrid.classList.add("is-travel-package-layout");
-  const travelPackagesCard = createTravelPackagesCard(result, missionContext);
-  if (travelPackagesCard) missionGrid.appendChild(travelPackagesCard);
-  const scheduleCard = createScheduleCard(result);
-  if (scheduleCard) missionGrid.appendChild(scheduleCard);
-
-  const flightOptions = (result.flights || [])
-    .map((flight, index) => makeOptionRow(getFlightName(flight), `${formatRange(flight.estimatedPrice)} · ${flightPriceLabel}`, {
-      index, label: getFlightName(flight), reason: activeLanguage === "ko" ? flight.reasonKo || flight.reason : flight.reason, price: flight.estimatedPrice
-    }));
-
-  if (!isDomesticContext(missionContext) || missionContext.destination.id === "jeju") missionGrid.appendChild(
-    createMissionCard({
-      id: "flights",
-      title: activeLanguage === "ko" ? "항공권" : "Flights",
-      label: "⭐ ONE Pick",
-      value: `<span class="recommended-name">${getFlightName(recommendedFlight)}</span><span class="recommended-price">${formatRange(recommendedFlight?.estimatedPrice)} · ${flightPriceLabel}</span>`,
-      reason:
-        activeLanguage === "ko"
-          ? recommendedFlight?.reasonKo || recommendedFlight?.reason || ""
-          : recommendedFlight?.reason || "",
-      supportingContent: flightVerification,
-      options: flightOptions,
-      editable: true
-    })
+  currentResult.v22TravelPackages = false;
+  currentResult.v23TravelExperience = true;
+  missionGrid.classList.add("is-v23-travel-layout");
+  const disclosure = document.querySelector(".prototype-disclosure");
+  if (disclosure) disclosure.textContent = v22Local(
+    "Prototype · experience-first travel plan · no booking or payment",
+    "프로토타입 · 경험 중심 여행 계획 · 예약과 결제 없음",
+    "Prototipo · viaje centrado en experiencia · sin reservas ni pagos"
   );
-
-  const hotelOptions = (result.hotels || [])
-    .map((hotel, index) => makeOptionRow(getHotelName(hotel), formatRange(hotel.estimatedNightlyPrice), {
-      index, label: getHotelName(hotel), reason: activeLanguage === "ko" ? hotel.reasonKo || hotel.reason : hotel.reason, price: hotel.estimatedNightlyPrice
-    }));
-
-  missionGrid.appendChild(
-    createMissionCard({
-      id: "hotel",
-      title: activeLanguage === "ko" ? "호텔" : "Hotel",
-      label: "⭐ ONE Pick",
-      value: `<span class="recommended-name">${getHotelName(recommendedHotel)}</span><span class="recommended-price">${formatRange(recommendedHotel?.estimatedNightlyPrice)} / ${activeLanguage === "ko" ? "1박" : "night"}</span>`,
-      reason:
-        activeLanguage === "ko"
-          ? recommendedHotel?.reasonKo || recommendedHotel?.reason || ""
-          : recommendedHotel?.reason || "",
-      options: hotelOptions,
-      editable: true
-    })
-  );
-
-  if (!isDomesticContext(missionContext)) missionGrid.appendChild(
-    createMissionCard({
-      id: "airport-transfer",
-      title: activeLanguage === "ko" ? "공항 이동" : "Airport Transfer",
-      label: "⭐ ONE Pick",
-      value: localize(transfer?.recommended),
-      reason: localize(transfer?.reason),
-      options: (transfer?.options || []).map((option, index) => {
-        const reasons = activeLanguage === "ko"
-          ? [localize(transfer?.reason), "수하물 이동과 편안함을 우선하는 가장 편리한 옵션입니다.", "공식 대중교통으로 비용을 줄이려는 여행자에게 적합한 예산형 옵션입니다."]
-          : [localize(transfer?.reason), "Best comfort option when luggage handling and convenience matter most.", "Best budget option for travelers comfortable using official public transport."];
-        const types = activeLanguage === "ko" ? ["균형형", "편의 중심", "예산 중심"] : ["Balanced", "Best comfort", "Best budget"];
-        const price = transferPriceRanges[index] || transferPriceRanges[0];
-        return makeOptionRow(localize(option), `${types[index] || types[0]} · ${formatRange(price)}`, { index, label: localize(option), reason: reasons[index] || reasons[0], price });
-      }),
-      editable: true
-    })
-  );
-
-  if (isDomesticContext(missionContext)) missionGrid.appendChild(
-    createMissionCard({
-      id: "local-transport",
-      title: activeLanguage === "ko" ? "이동" : activeLanguage === "es" ? "Transporte" : "Getting Around",
-      label: "⭐ ONE Pick",
-      value: missionContext.transport.slice(0, 2).join(" · "),
-      reason: activeLanguage === "ko" ? "거리와 이동 시간을 기준으로 가장 자연스러운 동선을 먼저 골랐어요." : activeLanguage === "es" ? "Elegí la ruta más natural según la distancia y el tiempo." : "ONE picked the most natural route for the distance and available time.",
-      options: missionContext.transport.map((option, index) => makeOptionRow(option, "", { index, label: option })),
-      editable: true
-    })
-  );
-
-  missionGrid.appendChild(
-    createListCard({
-      id: "checklist",
-      title: activeLanguage === "ko" ? "여행 체크리스트" : "Travel Checklist",
-      label: activeLanguage === "ko" ? "준비" : "Prepared",
-      items: checklist.map((item) => localize(item)),
-      wide: true,
-      editable: true
-    })
-  );
-
-  missionGrid.appendChild(
-    createMissionCard({
-      id: "visa-legacy",
-      title: t("visa"),
-      label: t("verifyVisa"),
-      value: activeLanguage === "ko" ? "실행 전 확인 필요" : "Verification required",
-      reason: localize(result.visa?.message),
-      options: [],
-      editable: false
-    })
-  );
-
-  missionGrid.querySelector('[data-card-id="visa-legacy"]')?.remove();
-  if (!isDomesticContext(missionContext)) missionGrid.appendChild(createVisaVerificationCard(result));
-
-  missionGrid.appendChild(
-    createListCard({
-      id: "restaurants",
-      title: activeLanguage === "ko" ? "레스토랑" : "Restaurants",
-      label: activeLanguage === "ko" ? "프로토타입 가격" : "Prototype prices",
-      items: restaurants.map((restaurant, index) => {
-        const price = formatRange(restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0]);
-        const countryCode = result.country || result.countryProfile?.code || "JP";
-        const venue = restaurantVenueProfiles[countryCode]?.[index];
-        const venueName = activeLanguage === "ko"
-          ? restaurant.venueNameKo || restaurant.venueName || restaurant.typeKo || venue?.ko || restaurant.type
-          : restaurant.venueName || restaurant.type || venue?.en;
-        const rating = restaurant.rating || venue?.rating;
-        const cuisine = restaurant.cuisine ? String(restaurant.cuisine).replaceAll(";", " · ") : "";
-        const facts = [rating ? `★ ${rating}` : "", cuisine, `${activeLanguage === "ko" ? "1인 예상" : "per person"} ${price}`].filter(Boolean).join('<span aria-hidden="true"> · </span>');
-        return `<span class="restaurant-entry"><strong class="restaurant-name">${venueName}</strong><small class="restaurant-meta"><span aria-hidden="true"> · </span>${facts}</small></span>`;
-      }),
-      itemDetails: restaurants.map((restaurant, index) => ({ price: restaurant.estimatedPrice || restaurantPriceFallbacks[index] || restaurantPriceFallbacks[0] })),
-      wide: true,
-      editable: true
-    })
-  );
-
-  missionGrid.appendChild(createBudgetCard(result.budget));
-
-  missionGrid.appendChild(createWeatherForecastCard(result));
-
-  missionGrid.appendChild(createExchangeBudgetCard(result));
-
-  const advisoryCard = createPublicResourceCard(result, "travel_advisory", activeLanguage === "ko" ? "공식 여행 안전 정보" : "Official Travel Advice", activeLanguage === "ko" ? "공식 자료" : "Official source");
-  if (advisoryCard) missionGrid.appendChild(advisoryCard);
-  const resourcesCard = createPublicResourceCard(result, "travel_resources", activeLanguage === "ko" ? "여행 전 추천 자료" : "Before You Go", activeLanguage === "ko" ? "무료 공개 자료" : "Free public resources");
-  if (resourcesCard) missionGrid.appendChild(resourcesCard);
-
+  const travelExperience = createTravelPackagesCard(result, missionContext);
+  missionGrid.appendChild(travelExperience);
+  updateV23JourneySelection(travelExperience, Math.max(0, travelExperience._v23Journeys.findIndex((journey) => journey.selected)), result);
+  travelExperience.querySelectorAll(".v23-journey-card").forEach((card) => {
+    card.addEventListener("click", () => updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), result));
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), result);
+      }
+    });
+  });
+  travelExperience.querySelectorAll(".v23-style-chip").forEach((chip) => {
+    chip.addEventListener("click", () => chip.classList.toggle("is-selected"));
+  });
 };
 
 const renderResolutionPlanMission = (result) => {
@@ -2599,7 +2692,7 @@ const organizeProgressiveResults = () => {
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
-  missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout");
+  missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout", "is-v23-travel-layout");
   delete missionGrid.dataset.domain;
   const schedule = currentResult.schedule || {};
   const start = schedule.startDate ? new Date(schedule.startDate) : null;

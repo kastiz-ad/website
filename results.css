@@ -541,6 +541,361 @@ html[data-theme="light"] .brand img {
   font-weight: 720 !important;
 }
 
+.mission-grid.is-v23-travel-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(18px, 2vw, 26px);
+}
+
+.mission-grid.is-v23-travel-layout > * {
+  grid-column: 1 / -1 !important;
+}
+
+.v23-travel-experience {
+  gap: clamp(18px, 2vw, 26px);
+  min-height: 0;
+  padding: clamp(18px, 2.6vw, 32px);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 6%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 92%, var(--accent) 8%), var(--surface));
+}
+
+.v23-travel-heading {
+  display: grid;
+  gap: 10px;
+  max-width: 920px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.v23-eyebrow {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.v23-travel-heading h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(28px, 4.2vw, 54px);
+  line-height: 0.98;
+  font-weight: 900;
+  letter-spacing: -0.07em;
+}
+
+.v23-travel-heading p {
+  margin: 0 auto;
+  max-width: 760px;
+  color: var(--text-muted);
+  font-size: clamp(14px, 1.3vw, 17px);
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.v23-style-chips,
+.v23-journey-tags,
+.v23-journey-meta,
+.v23-overview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.v23-style-chip {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.v23-style-chip:hover,
+.v23-style-chip.is-selected {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  background: color-mix(in srgb, var(--accent) 14%, var(--chip));
+  color: var(--text);
+}
+
+.v23-journey-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.2fr) minmax(320px, 0.9fr);
+  gap: clamp(14px, 2vw, 22px);
+  align-items: stretch;
+}
+
+.v23-alternative-journeys {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.v23-journey-card {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  min-height: 150px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--chip) 78%, transparent);
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 200ms ease, border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+}
+
+.v23-journey-card.is-featured {
+  min-height: 100%;
+  padding: clamp(22px, 3vw, 34px);
+  border-radius: 32px;
+  align-content: center;
+}
+
+.v23-journey-card:hover,
+.v23-journey-card:focus-visible,
+.v23-journey-card.is-selected {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 72%, var(--border));
+  background:
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 42%),
+    color-mix(in srgb, var(--chip) 88%, var(--accent) 12%);
+  box-shadow: 0 22px 70px color-mix(in srgb, #000 18%, transparent);
+  outline: none;
+}
+
+.v23-selected-badge {
+  justify-self: center;
+  min-height: 26px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.v23-journey-card.is-selected .v23-selected-badge {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.v23-journey-card strong {
+  display: block;
+  color: var(--text);
+  font-size: clamp(20px, 2.2vw, 34px);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+}
+
+.v23-journey-card:not(.is-featured) strong {
+  font-size: clamp(17px, 1.4vw, 22px);
+}
+
+.v23-journey-card small,
+.v23-journey-card p,
+.v23-journey-card em {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 650;
+  font-style: normal;
+}
+
+.v23-journey-card p,
+.v23-journey-card em {
+  color: var(--text);
+  font-weight: 760;
+}
+
+.v23-journey-tags span,
+.v23-journey-meta span,
+.v23-overview-meta span {
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.v23-selected-journey {
+  display: grid;
+  gap: 18px;
+  padding: clamp(16px, 2vw, 24px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+}
+
+.v23-journey-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  text-align: left;
+}
+
+.v23-journey-overview .v23-eyebrow {
+  justify-self: start;
+}
+
+.v23-journey-overview h2 {
+  margin: 8px 0 6px;
+  color: var(--text);
+  font-size: clamp(24px, 2.5vw, 38px);
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+}
+
+.v23-journey-overview p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.v23-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.v23-detail-card {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--chip);
+  overflow: hidden;
+}
+
+.v23-detail-card summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 52px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+  list-style: none;
+}
+
+.v23-detail-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.v23-detail-card p {
+  margin: 0;
+  padding: 0 16px 10px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.v23-detail-card small {
+  display: block;
+  padding: 0 16px 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+.v23-source-pill {
+  flex: 0 0 auto;
+  min-height: 24px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.v23-source-pill.is-verified_live {
+  color: var(--success);
+}
+
+.v23-source-pill.is-unavailable {
+  color: var(--warning);
+}
+
+.v23-prep-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.v23-prep-grid section,
+.v23-document-note,
+.v23-approval-preview {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--chip);
+}
+
+.v23-prep-grid h3,
+.v23-approval-preview strong {
+  display: block;
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.v23-document-note,
+.v23-approval-preview,
+.v23-approval-preview p,
+.v23-approval-preview li {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.v23-approval-preview ul {
+  margin: 0 0 8px 18px;
+  padding: 0;
+}
+
+.v23-approval-preview p {
+  margin: 0;
+  color: var(--text);
+}
+
 .mission-card.is-full {
   grid-column: span 12;
 }
@@ -638,16 +993,47 @@ html[data-theme="light"] .brand img {
   .travel-package-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .v23-journey-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .v23-alternative-journeys {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .v23-journey-card.is-featured {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .v23-alternative-journeys,
+  .v23-detail-grid,
+  .v23-prep-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .v23-journey-overview {
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+  }
+
+  .v23-journey-overview .v23-eyebrow {
+    justify-self: center;
+  }
 }
 
 @media (max-width: 640px) {
   .mission-grid.is-domain-layout,
-  .mission-grid.is-travel-package-layout {
+  .mission-grid.is-travel-package-layout,
+  .mission-grid.is-v23-travel-layout {
     grid-template-columns: 1fr;
   }
 
   .mission-grid.is-domain-layout > *,
-  .mission-grid.is-travel-package-layout > * {
+  .mission-grid.is-travel-package-layout > *,
+  .mission-grid.is-v23-travel-layout > * {
     grid-column: 1 / -1 !important;
   }
 
@@ -662,6 +1048,38 @@ html[data-theme="light"] .brand img {
 
   .travel-package-option {
     min-height: 0;
+  }
+
+  .v23-travel-experience {
+    width: 100%;
+    padding: 18px 14px;
+    border-radius: 24px;
+  }
+
+  .v23-travel-heading h2 {
+    font-size: clamp(28px, 9vw, 40px);
+  }
+
+  .v23-journey-card,
+  .v23-style-chip,
+  .v23-detail-card summary {
+    min-height: 44px;
+  }
+
+  .v23-journey-card.is-featured {
+    min-height: 220px;
+    border-radius: 26px;
+  }
+
+  .v23-journey-tags span,
+  .v23-journey-meta span,
+  .v23-overview-meta span {
+    font-size: 11px;
+  }
+
+  .v23-selected-journey {
+    padding: 14px;
+    border-radius: 22px;
   }
 }
 .additional-services { width: 100%; margin: 16px 0 28px; min-height: 0 !important; height: auto !important; display: flex !important; flex-direction: column; visibility: visible !important; overflow: visible !important; position: relative; z-index: 2; contain: none !important; }
