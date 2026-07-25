@@ -1309,8 +1309,67 @@ const restaurantProfileForCity = (city) => {
   const key = aliases[normalized] || normalized;
   return cityRestaurantProfiles[key] || [
     [`${city} Local Table`, 4.6, 30000, 75000], [`${city} Market Kitchen`, 4.5, 22000, 60000],
-    [`${city} Dining Room`, 4.4, 45000, 110000], [`${city} Neighborhood Cafe`, 4.5, 12000, 35000]
+    [`${city} Dining Room`, 4.4, 45000, 110000], [`${city} Neighborhood Cafe`, 4.5, 12000, 35000],
+    [`${city} Bistro`, 4.5, 28000, 68000], [`${city} Grill`, 4.4, 35000, 90000],
+    [`${city} Sushi House`, 4.5, 30000, 85000], [`${city} Pasta Bar`, 4.4, 26000, 72000],
+    [`${city} Steak Kitchen`, 4.5, 55000, 140000], [`${city} Seafood Table`, 4.4, 45000, 120000],
+    [`${city} Bakery Cafe`, 4.6, 12000, 32000], [`${city} Rooftop Dining`, 4.5, 50000, 135000]
   ];
+};
+
+const TRAVEL_OPTION_TARGETS = Object.freeze({
+  flights: 8,
+  hotels: 8,
+  restaurants: 12
+});
+
+const airlineFallbackOptions = [
+  ["Korean Air", "대한항공"],
+  ["Asiana Airlines", "아시아나항공"],
+  ["Delta Air Lines", "델타항공"],
+  ["United Airlines", "유나이티드항공"],
+  ["American Airlines", "아메리칸항공"],
+  ["Qatar Airways", "카타르항공"],
+  ["Emirates", "에미레이트항공"],
+  ["Turkish Airlines", "터키항공"],
+  ["Singapore Airlines", "싱가포르항공"],
+  ["Lufthansa", "루프트한자"]
+];
+
+const uniqueProviderEntries = (entries = []) => {
+  const seen = new Set();
+  return entries.filter((entry) => {
+    const name = String(Array.isArray(entry) ? entry[0] : entry || "").trim();
+    const key = name.toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const expandPriceRanges = (ranges = [], fallbackRanges = [], target = 8) => {
+  const usable = [...(Array.isArray(ranges) ? ranges : []), ...(Array.isArray(fallbackRanges) ? fallbackRanges : [])]
+    .filter((range) => Array.isArray(range) && range.length >= 2 && Number.isFinite(Number(range[0])) && Number.isFinite(Number(range[1])));
+  const base = usable.length ? usable : [[120000, 340000], [220000, 560000], [90000, 250000], [70000, 180000]];
+  const next = [...usable];
+  let cursor = 0;
+  while (next.length < target) {
+    const source = base[cursor % base.length];
+    const drift = 1 + (Math.floor(cursor / base.length) + 1) * 0.04;
+    next.push([Math.round(source[0] * drift / 1000) * 1000, Math.round(source[1] * drift / 1000) * 1000]);
+    cursor += 1;
+  }
+  return next.slice(0, target);
+};
+
+const uniqueRestaurantCandidates = (entries = []) => {
+  const seen = new Set();
+  return entries.filter(([name]) => {
+    const key = String(name || "").trim().toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 function adaptTravelResultToDestination(result) {
@@ -1320,8 +1379,8 @@ function adaptTravelResultToDestination(result) {
   const city = result.destination?.city || result.countryProfile?.capital || "the destination";
   const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
   const livePlaces = findLiveProvider(result, "local_places");
-  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, 6);
-  const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, 6);
+  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, TRAVEL_OPTION_TARGETS.hotels);
+  const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, TRAVEL_OPTION_TARGETS.restaurants);
   const regionalFareRanges = {
     KR: [[90000, 220000], [100000, 250000], [70000, 190000], [120000, 280000]],
     CN: [[280000, 620000], [300000, 680000], [220000, 520000], [340000, 740000]],
@@ -1380,10 +1439,16 @@ function adaptTravelResultToDestination(result) {
     `${city} Premium Hotel`,
     `${city} Best-Value Stay`,
     `${city} Budget Hotel`,
+    `${city} Boutique Hotel`,
+    `${city} City View Hotel`,
+    `${city} Family Stay`,
     `${city} Flexible Stay`
   ];
   const hotelPool = [...new Set([...liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks])];
-  profile.hotels = hotelPool.slice(0, hotelPool.length >= 6 ? 6 : 4);
+  profile.hotels = hotelPool.slice(0, TRAVEL_OPTION_TARGETS.hotels);
+  profile.airlines = uniqueProviderEntries([...(profile.airlines || []), ...airlineFallbackOptions]).slice(0, TRAVEL_OPTION_TARGETS.flights);
+  profile.flightPrices = expandPriceRanges(profile.flightPrices, genericPrices, TRAVEL_OPTION_TARGETS.flights);
+  profile.hotelPrices = expandPriceRanges(profile.hotelPrices, nightlyRangesByContinent[continent], TRAVEL_OPTION_TARGETS.hotels);
   const flightReasons = [
     [`Best overall itinerary option for ${city}.`, `${cityKo}행 일정 중 전체 균형이 가장 좋은 옵션입니다.`],
     [`Service-focused itinerary option for ${city}.`, `${cityKo}행 서비스 중심 일정 옵션입니다.`],
@@ -1435,9 +1500,18 @@ function adaptTravelResultToDestination(result) {
     reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
     reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
-  const restaurantCandidates = liveRestaurantPlaces.length
-    ? liveRestaurantPlaces.map((place, index) => [place.label, null, [30000, 22000, 45000, 18000, 35000, 25000][index] || 25000, [75000, 60000, 110000, 50000, 85000, 65000][index] || 65000, place.cuisine, place.source])
-    : restaurantProfileForCity(city);
+  const liveRestaurantCandidates = liveRestaurantPlaces.map((place, index) => [
+    place.label,
+    null,
+    [30000, 22000, 45000, 18000, 35000, 25000, 28000, 42000, 52000, 16000, 38000, 47000][index] || 25000,
+    [75000, 60000, 110000, 50000, 85000, 65000, 70000, 95000, 130000, 42000, 90000, 120000][index] || 65000,
+    place.cuisine,
+    place.source
+  ]);
+  const restaurantCandidates = uniqueRestaurantCandidates([
+    ...liveRestaurantCandidates,
+    ...restaurantProfileForCity(city)
+  ]).slice(0, TRAVEL_OPTION_TARGETS.restaurants);
   const restaurants = restaurantCandidates.map(([name, rating, min, max, cuisine, source], index) => ({
     ...(result.restaurants?.[index] || {}),
     id: `restaurant-${profileCode}-${index + 1}`,

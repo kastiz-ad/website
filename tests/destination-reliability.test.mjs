@@ -156,8 +156,10 @@ assert.doesNotMatch(results, /central hotel — provider confirmation required/)
 assert.match(results, /goalAliases = \{ la: cityName \|\| "Los Angeles"/);
 assert.match(resultsCss, /data-card-id="exchange-rate"[^}]*grid-template-rows: none; grid-auto-flow: row/);
 assert.match(resultsCss, /mission-understood-goal strong \{ font-size: clamp\(24px/);
-assert.match(results, /\.slice\(0, 6\);\r?\n  const liveRestaurantPlaces/);
-assert.match(results, /profile\.hotels = hotelPool\.slice\(0, hotelPool\.length >= 6 \? 6 : 4\)/);
+assert.match(results, /flights:\s*8/);
+assert.match(results, /hotels:\s*8/);
+assert.match(results, /restaurants:\s*12/);
+assert.match(results, /profile\.hotels = hotelPool\.slice\(0, TRAVEL_OPTION_TARGETS\.hotels\)/);
 assert.match(results, /class="restaurant-entry"/);
 assert.match(resultsCss, /\.mission-understood \{[\s\S]*?text-align: center;/);
 assert.match(resultsCss, /\.mission-understood-items \{[^}]*justify-content: center/);

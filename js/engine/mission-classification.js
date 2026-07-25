@@ -11,8 +11,12 @@ const RULES = {
   tutoring: /tutor|tutoring|private lesson|english tutor|과외|튜터|개인 수업|영어 선생님/i,
   childcare: /babysitter|babysitting|childcare|nanny|trusted babysitter|베이비시터|아이 돌봄|보육|믿을 수 있는 베이비시터/i,
   language_exchange: /language[ -]?exchange|conversation partner|언어[ -]?교환|회화 파트너|언어교환 파트너/i,
+  sports_wellness: /gym|personal trainer|pt|yoga|pilates|swimming|tennis|golf|baseball|bowling|martial arts|physical therapy|rehabilitation|acupuncture|massage|헬스|피티|요가|필라테스|수영|테니스|골프|야구|볼링|무술|물리치료|재활|침술|마사지/i,
+  beauty: /hair salon|skin clinic|laser clinic|plastic surgery|cosmetic dentistry|vision correction|beauty|미용실|피부과|레이저|성형외과|미용치과|시력교정|뷰티/i,
+  professionals: /patent attorney|architect|real estate agent|translator|interpreter|financial advisor|professional|변리사|건축사|공인중개사|번역가|통역사|재무상담사|전문가/i,
+  home_services: /cleaning|moving company|repair|locksmith|pest control|home service|청소|이사업체|수리|열쇠|방역|해충|생활 서비스/i,
   education: /course|class|teacher|school|education|lesson|수업|선생님|학교|교육/i,
-  government_services: /government service|public office|certificate|permit|정부 서비스|민원|증명서|허가/i,
+  government_services: /government service|public office|certificate|permit|passport|driver'?s license|resident service|business registration|정부 서비스|민원|증명서|허가|여권|운전면허|주민센터|사업자등록/i,
   lifestyle: /wedding|event|restaurant|reservation|date\s*(?:night|plan)?|weekend\s*date|girlfriend|boyfriend|couple|anniversary|결혼식|행사|레스토랑|예약|데이트|주말\s*데이트|여친|여자친구|남친|남자친구|커플|기념일/i
 };
 
