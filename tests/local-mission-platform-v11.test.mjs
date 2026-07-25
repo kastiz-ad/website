@@ -137,7 +137,7 @@ test("V11 healthcare separates routine, urgent and emergency navigation without 
 test("Universal Mission Engine reuses the local registry for local missions", () => {
   const mission = buildUniversalMission({ mission: "싱크대 누수 수리업체 찾아줘", language: "ko" });
   assert.equal(mission.providerType, "home_services");
-  assert.deepEqual(mission.pipeline, ["mission","classifier","context","experience","provider","live-intelligence","one-pick","preparation","approval","receipt"]);
+  assert.deepEqual(mission.pipeline, ["mission","classifier","human-reasoning","context","experience","provider","live-intelligence","one-pick","preparation","approval","receipt"]);
   assert.equal(mission.localMissionPlan.engineId, "home_services");
   assert.ok(mission.providers.length);
   assert.equal(mission.preparation.executionEnabled, false);
