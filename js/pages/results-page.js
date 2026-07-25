@@ -376,6 +376,18 @@ const MANUAL_V21_SCENARIOS = Object.freeze({
   "unknown-help": "도와줘"
 });
 
+const V22_VERSION = "20260726-v22-product-refinement";
+
+const MANUAL_V22_SCENARIOS = Object.freeze({
+  travel: "일본 여행",
+  education: "인천 서구에서 중학생 영어 내신 학원 찾아줘",
+  healthcare: "이가 아픈데 오늘 갈 수 있는 치과 찾아줘",
+  business: "한국에서 외국인이 회사를 시작하려면 준비해 줘",
+  "home-services": "싱크대 누수 수리업체 찾아줘",
+  home: "싱크대 누수 수리업체 찾아줘",
+  career: "한국에서 일자리를 찾고 싶어"
+});
+
 const isTravelResult = (result) => ["travel", "travel-preparation"].includes(result?.type) || result?.domain === "travel" || result?.resolutionPlan?.domain === "travel";
 
 const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => {
@@ -424,8 +436,8 @@ const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => 
 
 function getManualScenarioResult() {
   const params = new URLSearchParams(window.location.search);
-  const scenario = params.get("v21Scenario") || params.get("scenario");
-  const prompt = MANUAL_V21_SCENARIOS[scenario] || params.get("mission");
+  const scenario = params.get("v22Scenario") || params.get("v21Scenario") || params.get("scenario");
+  const prompt = MANUAL_V22_SCENARIOS[scenario] || MANUAL_V21_SCENARIOS[scenario] || params.get("mission");
   if (!prompt) return null;
   const language = params.get("lang") || (/[\u3131-\uD79D]/.test(prompt) ? "ko" : activeLanguage);
   return createResolutionResultFromPrompt(prompt, language);
@@ -952,11 +964,15 @@ const getFlightName = (flight) => {
 };
 
 const getHotelName = (hotel) => {
-  return activeLanguage === "ko" ? hotel.nameKo || hotel.name : hotel.name;
+  const destination = currentResult?.destination?.city || currentResult?.destination?.country || currentResult?.display?.destination || "";
+  const name = activeLanguage === "ko" ? hotel.nameKo || hotel.name : hotel.name;
+  return String(name || "").replace(/^the destination\b/i, destination || (activeLanguage === "ko" ? "목적지" : "Destination")).trim();
 };
 
 const getRestaurantName = (restaurant) => {
-  return activeLanguage === "ko" ? restaurant.typeKo || restaurant.type : restaurant.type;
+  const destination = currentResult?.destination?.city || currentResult?.destination?.country || currentResult?.display?.destination || "";
+  const name = activeLanguage === "ko" ? restaurant.typeKo || restaurant.type : restaurant.type;
+  return String(name || "").replace(/^the destination\b/i, destination || (activeLanguage === "ko" ? "목적지" : "Destination")).trim();
 };
 
 const getRestaurantRecommendation = (restaurant) => {
@@ -1722,6 +1738,317 @@ const createScheduleCard = (result) => {
   return article;
 };
 
+const v22Local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+
+const DOMAIN_PRESENTATION = Object.freeze({
+  education: {
+    icon: "✦",
+    accent: "learning",
+    title: {
+      en: "Learning plan",
+      ko: "학습 해결 계획",
+      es: "Plan de aprendizaje"
+    },
+    prototype: {
+      en: "Prototype · education support · no academy contacted",
+      ko: "프로토타입 · 학습 지원 · 학원 연락 없음",
+      es: "Prototipo · apoyo educativo · sin contactar academias"
+    },
+    understood: {
+      en: "ONE understood the learning gap, student level, commute, and comparison path.",
+      ko: "ONE이 학습 문제, 학생 수준, 통학 조건, 비교 방향을 정리했습니다.",
+      es: "ONE entendió la necesidad de aprendizaje, nivel, distancia y comparación."
+    },
+    prepared: {
+      en: ["Level check", "Academy path", "Tutor option", "Home routine"],
+      ko: ["수준 점검", "학원 비교", "과외 대안", "가정 학습"],
+      es: ["Nivel", "Academias", "Tutor", "Rutina en casa"]
+    }
+  },
+  healthcare: {
+    icon: "＋",
+    accent: "care",
+    title: {
+      en: "Care navigation",
+      ko: "진료 안내 계획",
+      es: "Ruta de atención"
+    },
+    prototype: {
+      en: "Prototype · care navigation · not medical advice",
+      ko: "프로토타입 · 진료 안내 · 의학적 진단 아님",
+      es: "Prototipo · orientación médica · no es diagnóstico"
+    },
+    understood: {
+      en: "ONE separated urgency, specialty, same-day path, and safety warnings.",
+      ko: "ONE이 긴급도, 진료과, 당일 가능 경로, 주의사항을 나눠 정리했습니다.",
+      es: "ONE separó urgencia, especialidad, disponibilidad y advertencias."
+    },
+    prepared: {
+      en: ["Urgency", "Specialty", "Same-day path", "Warning signs"],
+      ko: ["긴급도", "진료과", "당일 경로", "주의 신호"],
+      es: ["Urgencia", "Especialidad", "Hoy", "Alertas"]
+    }
+  },
+  business: {
+    icon: "◇",
+    accent: "business",
+    title: {
+      en: "Business setup plan",
+      ko: "사업 준비 계획",
+      es: "Plan de negocio"
+    },
+    prototype: {
+      en: "Prototype · business preparation · no filing submitted",
+      ko: "프로토타입 · 사업 준비 · 서류 제출 없음",
+      es: "Prototipo · preparación empresarial · sin presentar trámites"
+    },
+    understood: {
+      en: "ONE organized the official steps, documents, expert help, and approval boundary.",
+      ko: "ONE이 공식 절차, 필요 서류, 전문가 도움, 승인 경계를 정리했습니다.",
+      es: "ONE organizó pasos oficiales, documentos, expertos y aprobación."
+    },
+    prepared: {
+      en: ["Official steps", "Documents", "Specialists", "Approval boundary"],
+      ko: ["공식 절차", "필요 서류", "전문가", "승인 경계"],
+      es: ["Pasos oficiales", "Documentos", "Expertos", "Aprobación"]
+    }
+  },
+  "home-services": {
+    icon: "⌂",
+    accent: "home",
+    title: {
+      en: "Home service plan",
+      ko: "생활 서비스 해결 계획",
+      es: "Plan de servicio local"
+    },
+    prototype: {
+      en: "Prototype · local service preparation · no provider contacted",
+      ko: "프로토타입 · 생활 서비스 준비 · 업체 연락 없음",
+      es: "Prototipo · servicio local · sin contactar proveedores"
+    },
+    understood: {
+      en: "ONE prepared immediate damage control, provider comparison, and safe approval steps.",
+      ko: "ONE이 즉시 피해 줄이기, 업체 비교, 승인 후 연락 단계를 준비했습니다.",
+      es: "ONE preparó control inicial, comparación y aprobación segura."
+    },
+    prepared: {
+      en: ["Damage control", "Provider path", "Photos", "Fallbacks"],
+      ko: ["피해 줄이기", "업체 경로", "사진 준비", "대안"],
+      es: ["Control", "Proveedor", "Fotos", "Alternativas"]
+    }
+  },
+  career: {
+    icon: "↗",
+    accent: "career",
+    title: {
+      en: "Career action plan",
+      ko: "커리어 실행 계획",
+      es: "Plan profesional"
+    },
+    prototype: {
+      en: "Prototype · career preparation · no application submitted",
+      ko: "프로토타입 · 커리어 준비 · 지원서 제출 없음",
+      es: "Prototipo · carrera · sin enviar solicitudes"
+    },
+    understood: {
+      en: "ONE structured the role target, resume path, interview preparation, and approval gate.",
+      ko: "ONE이 목표 직무, 이력서, 면접 준비, 승인 후 지원 단계를 정리했습니다.",
+      es: "ONE estructuró objetivo, CV, entrevista y aprobación."
+    },
+    prepared: {
+      en: ["Role target", "Resume", "Interview", "Applications"],
+      ko: ["목표 직무", "이력서", "면접", "지원"],
+      es: ["Puesto", "CV", "Entrevista", "Postulación"]
+    }
+  },
+  general: {
+    icon: "○",
+    accent: "general",
+    title: {
+      en: "Mission plan",
+      ko: "미션 해결 계획",
+      es: "Plan de misión"
+    },
+    prototype: {
+      en: "Prototype · approval protected · no external action",
+      ko: "프로토타입 · 승인 보호 · 외부 실행 없음",
+      es: "Prototipo · aprobación protegida · sin acción externa"
+    },
+    understood: {
+      en: "ONE organized the goal, possible paths, and approval boundary.",
+      ko: "ONE이 목표, 가능한 경로, 승인 경계를 정리했습니다.",
+      es: "ONE organizó objetivo, rutas posibles y aprobación."
+    },
+    prepared: {
+      en: ["Goal", "Plan", "Options", "Approval"],
+      ko: ["목표", "계획", "대안", "승인"],
+      es: ["Objetivo", "Plan", "Opciones", "Aprobación"]
+    }
+  }
+});
+
+const TERM_TRANSLATIONS = Object.freeze({
+  "education": { ko: "교육", es: "educación" },
+  "healthcare": { ko: "의료", es: "salud" },
+  "business": { ko: "사업", es: "negocio" },
+  "home-services": { ko: "생활 서비스", es: "servicios del hogar" },
+  "career": { ko: "커리어", es: "carrera" },
+  "general": { ko: "일반 미션", es: "misión general" },
+  "child-english-performance-decline": { ko: "아이 영어 실력 개선", es: "mejorar inglés del niño" },
+  "academy-finder": { ko: "학원 찾기", es: "buscar academia" },
+  "dental-care": { ko: "치과 진료 안내", es: "atención dental" },
+  "plumbing": { ko: "누수 수리", es: "reparación de fuga" },
+  "company-formation": { ko: "회사 설립 준비", es: "creación de empresa" },
+  "job-search": { ko: "일자리 찾기", es: "búsqueda laboral" },
+  "English level and study-pattern review": { ko: "영어 수준과 학습 패턴 점검", es: "revisión de nivel y hábitos de inglés" },
+  "English academy comparison path": { ko: "영어 학원 비교", es: "comparación de academias de inglés" },
+  "Private tutor path": { ko: "과외 선생님 비교", es: "comparación de tutor privado" },
+  "Eight-week home-study routine": { ko: "8주 가정 학습 루틴", es: "rutina de estudio de 8 semanas" },
+  "Teacher or school discussion path": { ko: "학교 선생님 상담 준비", es: "conversación con profesor o escuela" },
+  "Same-day dental navigation": { ko: "오늘 가능한 치과 진료 경로", es: "ruta dental para hoy" },
+  "Urgent or emergency escalation": { ko: "응급 여부 확인", es: "evaluación urgente" },
+  "After-hours fallback": { ko: "야간·주말 대안", es: "alternativa fuera de horario" },
+  "Immediate damage control": { ko: "즉시 피해 줄이기", es: "control inmediato de daños" },
+  "Plumber provider path": { ko: "수리업체 연결 준비", es: "ruta de proveedor de plomería" },
+  "Landlord or building manager fallback": { ko: "집주인·관리사무소 대안", es: "alternativa con propietario o administración" },
+  "Official business registration path": { ko: "공식 사업자 등록 경로", es: "ruta oficial de registro" },
+  "Professional support path": { ko: "전문가 도움 경로", es: "ruta con especialista" },
+  "Job matching preparation path": { ko: "일자리 매칭 준비", es: "preparación de búsqueda laboral" },
+  "Resume and interview readiness path": { ko: "이력서·면접 준비", es: "CV y entrevista" },
+  "Review prepared plan": { ko: "준비된 계획 검토", es: "revisar plan preparado" },
+  "Contact provider after approval": { ko: "승인 후 제공업체 연락", es: "contactar proveedor tras aprobación" },
+  "Submit after approval": { ko: "승인 후 제출", es: "enviar tras aprobación" },
+  "Schedule after approval": { ko: "승인 후 일정 확정", es: "programar tras aprobación" },
+  "No external action before approval.": { ko: "승인 전에는 외부 실행이 없습니다.", es: "Sin acción externa antes de aprobar." },
+  "Live provider data is not connected in this prototype.": { ko: "이 프로토타입에는 실시간 제공업체 데이터가 연결되어 있지 않습니다.", es: "Este prototipo no tiene datos de proveedores en vivo." }
+});
+
+const getDomainKey = (result = currentResult) => {
+  const key = result?.resolutionPlan?.domain || result?.domain || result?.type || "general";
+  return DOMAIN_PRESENTATION[key] ? key : "general";
+};
+
+const domainPresentation = (result = currentResult) => DOMAIN_PRESENTATION[getDomainKey(result)] || DOMAIN_PRESENTATION.general;
+
+const localizeDomainText = (value) => {
+  const raw = String(value?.title || value?.label || value || "").trim();
+  if (!raw) return "";
+  const translated = TERM_TRANSLATIONS[raw];
+  if (translated) return activeLanguage === "ko" ? translated.ko : activeLanguage === "es" ? translated.es : raw;
+  const cleaned = raw.replace(/[-_]/g, " ").replace(/\s+/g, " ").trim();
+  if (activeLanguage === "en" && !/[.!?]/.test(cleaned) && cleaned.length < 42) {
+    return cleaned.replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+  return cleaned;
+};
+
+const hasUntranslatedEnglish = (value) => activeLanguage !== "en" && /[A-Za-z]{4,}/.test(String(value || ""));
+
+const polishedDomainText = (value, fallback) => {
+  const text = localizeDomainText(value);
+  return hasUntranslatedEnglish(text) ? fallback : text;
+};
+
+const createV22Chip = (label, tone = "") => {
+  const safe = escapeSummaryText(localizeDomainText(label));
+  return safe ? `<span class="v22-chip${tone ? ` is-${tone}` : ""}">${safe}</span>` : "";
+};
+
+const createV22Card = ({ id, title, kicker = "", body = "", chips = [], items = [], wide = false, tone = "" }) => {
+  const article = document.createElement("article");
+  article.className = `mission-card v22-card${wide ? " is-wide" : ""}${tone ? ` is-${tone}` : ""}`;
+  article.dataset.cardId = id;
+  const chipHtml = chips.map((chip) => createV22Chip(chip)).join("");
+  const itemHtml = items.map((item) => `<li>${escapeSummaryText(localizeDomainText(item))}</li>`).join("");
+  article.innerHTML = `
+    <div class="v22-card-heading">
+      ${kicker ? `<span class="v22-kicker">${escapeSummaryText(kicker)}</span>` : ""}
+      <h2>${escapeSummaryText(title)}</h2>
+    </div>
+    ${body ? `<p class="v22-card-body">${escapeSummaryText(localizeDomainText(body))}</p>` : ""}
+    ${chipHtml ? `<div class="v22-chip-list">${chipHtml}</div>` : ""}
+    ${itemHtml ? `<ul class="v22-clean-list">${itemHtml}</ul>` : ""}
+  `;
+  return article;
+};
+
+const createV22PathCard = ({ id, title, reason, steps = [], selected = false }) => {
+  const article = document.createElement("article");
+  article.className = `v22-path-card${selected ? " is-selected" : ""}`;
+  article.dataset.pathId = id;
+  article.innerHTML = `
+    <button type="button" class="v22-path-select" aria-pressed="${selected}">
+      <span class="v22-path-check">${selected ? "✓" : "+"}</span>
+      <span class="v22-path-content">
+        <strong>${escapeSummaryText(localizeDomainText(title))}</strong>
+        <small>${escapeSummaryText(localizeDomainText(reason))}</small>
+      </span>
+    </button>
+    <div class="v22-chip-list">${steps.slice(0, 4).map((step) => createV22Chip(step)).join("")}</div>
+  `;
+  return article;
+};
+
+const createTravelPackagesCard = (result, missionContext) => {
+  const flights = result.flights || [];
+  const hotels = result.hotels || [];
+  const restaurants = result.restaurants || [];
+  if (!flights.length && !hotels.length && !restaurants.length) return null;
+
+  const packageLabels = [
+    { en: "Balanced", ko: "균형형", es: "Equilibrado" },
+    { en: "Comfort", ko: "편안함", es: "Cómodo" },
+    { en: "Budget", ko: "알뜰형", es: "Económico" },
+    { en: "Premium", ko: "프리미엄", es: "Premium" }
+  ];
+  const packageReasons = [
+    { en: "Best balance of comfort, cost, and simple logistics.", ko: "편안함, 비용, 동선을 가장 균형 있게 맞춘 조합입니다.", es: "Equilibra comodidad, precio y logística sencilla." },
+    { en: "Good when comfort and fewer decisions matter more than the lowest price.", ko: "최저가보다 편안함과 결정 부담을 줄이는 데 맞춘 조합입니다.", es: "Prioriza comodidad y menos decisiones." },
+    { en: "Keeps the core trip intact while lowering the estimated spend.", ko: "여행의 핵심은 유지하면서 예상 비용을 낮춘 조합입니다.", es: "Mantiene el viaje y reduce el gasto estimado." },
+    { en: "Designed for a smoother, more memorable trip with higher comfort.", ko: "더 부드럽고 기억에 남는 여행 경험을 위해 편안함을 높인 조합입니다.", es: "Pensado para una experiencia más memorable y cómoda." }
+  ];
+  const packages = packageLabels.map((label, index) => {
+    const flight = flights[index] || flights[0] || {};
+    const hotel = hotels[index] || hotels[0] || {};
+    const restaurantSlice = restaurants.slice(index, index + 3);
+    const priceBits = [
+      flight.estimatedPrice ? formatRange(flight.estimatedPrice) : "",
+      hotel.estimatedNightlyPrice ? `${formatRange(hotel.estimatedNightlyPrice)} / ${activeLanguage === "ko" ? "1박" : "night"}` : ""
+    ].filter(Boolean);
+    return {
+      label: localize(label),
+      flight: getFlightName(flight) || v22Local("Airline option", "항공편 옵션", "Opción de vuelo"),
+      hotel: getHotelName(hotel) || v22Local("Hotel option", "호텔 옵션", "Hotel"),
+      restaurants: restaurantSlice.map(getRestaurantName).filter(Boolean),
+      price: priceBits.join(" · "),
+      reason: localize(packageReasons[index])
+    };
+  });
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide travel-package-card";
+  article.dataset.cardId = "travel-packages";
+  article.innerHTML = `
+    <div class="v22-card-heading">
+      <span class="v22-kicker">${v22Local("Complete options", "완성형 선택지", "Opciones completas")}</span>
+      <h2>${v22Local("Travel packages prepared by ONE", "ONE이 준비한 여행 패키지", "Paquetes preparados por ONE")}</h2>
+      <p class="v22-card-body">${v22Local("Choose a complete direction first. Details below stay editable before approval.", "먼저 전체 방향을 고르세요. 아래 세부 항목은 승인 전까지 계속 수정할 수 있습니다.", "Elige primero una dirección completa. Los detalles siguen editables antes de aprobar.")}</p>
+    </div>
+    <div class="travel-package-grid">
+      ${packages.map((item, index) => `
+        <button class="travel-package-option${index === 0 ? " is-selected" : ""}" type="button" data-package-index="${index}" aria-pressed="${index === 0}">
+          <span class="travel-package-label">${escapeSummaryText(item.label)}</span>
+          <strong>${escapeSummaryText(item.flight)}</strong>
+          <span>${escapeSummaryText(item.hotel)}</span>
+          <small>${escapeSummaryText(item.restaurants.join(" · ") || v22Local("Restaurant shortlist ready", "레스토랑 후보 준비", "Restaurantes preparados"))}</small>
+          ${item.price ? `<em>${escapeSummaryText(item.price)}</em>` : `<em>${v22Local("Live prices after provider search", "제공업체 검색 후 실시간 가격 확인", "Precios tras búsqueda de proveedor")}</em>`}
+          <span class="travel-package-reason">${escapeSummaryText(item.reason)}</span>
+        </button>
+      `).join("")}
+    </div>
+  `;
+  return article;
+};
+
 const renderTravelMission = (result, missionContext) => {
   const recommendedFlight = result.flights?.[0];
   const recommendedHotel = result.hotels?.[0];
@@ -1757,6 +2084,10 @@ const renderTravelMission = (result, missionContext) => {
 
   missionTitle.textContent = result.display?.title || t("fallbackTitle");
   missionGrid.innerHTML = "";
+  currentResult.v22TravelPackages = true;
+  missionGrid.classList.add("is-travel-package-layout");
+  const travelPackagesCard = createTravelPackagesCard(result, missionContext);
+  if (travelPackagesCard) missionGrid.appendChild(travelPackagesCard);
   const scheduleCard = createScheduleCard(result);
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
 
@@ -1896,91 +2227,139 @@ const renderTravelMission = (result, missionContext) => {
 
 const renderResolutionPlanMission = (result) => {
   const plan = result.resolutionPlan || {};
-  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
-  const safeItems = (items = []) => items.map((item) => escapeSummaryText(item?.title || item?.label || item)).filter(Boolean);
+  const domainKey = getDomainKey(result);
+  const presentation = domainPresentation(result);
+  const local = v22Local;
+  const safeItems = (items = []) => items.map((item) => localizeDomainText(item?.title || item?.label || item)).filter(Boolean);
   const mission = plan.userProblem || result.originalMission || result.rawInput || result.mission || "";
   missionTitle.textContent = mission || local("Prepared mission", "준비된 미션", "Misión preparada");
   missionGrid.innerHTML = "";
+  missionGrid.classList.add("is-domain-layout");
+  missionGrid.dataset.domain = domainKey;
+  currentResult.v22DomainLayout = true;
+  const disclosure = document.querySelector(".prototype-disclosure");
+  if (disclosure) disclosure.textContent = localize(presentation.prototype);
   const scheduleCard = createScheduleCard(result);
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
 
   const recommended = plan.recommendedPath || plan.solutionPaths?.[0] || {};
-  missionGrid.appendChild(createListCard({
+
+  missionGrid.appendChild(createV22Card({
     id: "resolution-understanding",
     title: local("What ONE understood", "ONE이 이해한 내용", "Lo que ONE entendió"),
-    label: local("Mission context", "미션 맥락", "Contexto"),
-    items: [
-      local("Goal", "목표", "Objetivo") + ": " + (plan.desiredOutcome || mission),
-      local("Domain", "분야", "Dominio") + ": " + (plan.domain || result.domain || result.type || "general"),
-      local("Mission type", "미션 유형", "Tipo de misión") + ": " + (plan.missionType || result.missionType || "general_mission")
-    ].map(escapeSummaryText),
+    kicker: localize(presentation.title),
+    body: localize(presentation.understood),
+    chips: [
+      `${local("Goal", "목표", "Objetivo")}: ${mission || polishedDomainText(plan.desiredOutcome, local("Mission prepared", "미션 준비", "Misión preparada"))}`,
+      `${local("Domain", "분야", "Dominio")}: ${localizeDomainText(plan.domain || result.domain || result.type || "general")}`,
+      `${local("Type", "유형", "Tipo")}: ${localizeDomainText(plan.missionType || result.missionType || "general")}`
+    ],
     wide: true,
-    editable: false
+    tone: "hero"
   }));
 
-  missionGrid.appendChild(createMissionCard({
+  const recommendedFallback = local(
+    "ONE prepared the safest useful path and kept every real-world action behind approval.",
+    "ONE이 가장 적합한 해결 경로를 준비했고 실제 실행은 승인 뒤로 막아두었습니다.",
+    "ONE preparó la ruta más útil y protegió toda acción real con aprobación."
+  );
+  const recommendedSteps = activeLanguage === "en"
+    ? safeItems(recommended.requiredSteps || plan.preparedActions || []).slice(0, 5)
+    : (presentation.prepared?.[activeLanguage] || presentation.prepared?.en || []);
+  missionGrid.appendChild(createV22Card({
     id: "resolution-recommended-solution",
     title: local("Recommended solution", "추천 해결 방법", "Solución recomendada"),
-    label: "⭐ ONE Pick",
-    value: escapeSummaryText(recommended.title || local("Prepared solution path", "준비된 해결 경로", "Ruta preparada")),
-    reason: escapeSummaryText(recommended.expectedOutcome || plan.nextBestAction || local("This path best matches the mission with approval protected.", "승인을 보호하면서 미션에 가장 잘 맞는 경로입니다.", "Esta ruta encaja mejor y protege la aprobación.")),
-    options: safeItems(recommended.requiredSteps || []).map((item, index) => makeOptionRow(item, "", { index, label: item, selected: true })),
-    editable: true,
-    selectionMode: "multiple"
-  }));
-
-  missionGrid.appendChild(createListCard({
-    id: "resolution-other-paths",
-    title: local("Other viable solution paths", "다른 가능한 해결 경로", "Otras rutas posibles"),
-    label: local("Options", "선택지", "Opciones"),
-    items: safeItems(plan.alternativePaths || []),
+    kicker: local("ONE Pick", "ONE 추천", "ONE recomienda"),
+    body: polishedDomainText(recommended.expectedOutcome || plan.nextBestAction, recommendedFallback),
+    chips: [polishedDomainText(recommended.title, local("Prepared solution path", "준비된 해결 경로", "Ruta preparada")), ...recommendedSteps],
     wide: true,
-    editable: true
+    tone: "primary"
   }));
 
-  missionGrid.appendChild(createListCard({
+  const alternativePaths = (plan.alternativePaths || []).slice(0, 4);
+  const alternatives = document.createElement("article");
+  alternatives.className = "mission-card v22-card is-wide";
+  alternatives.dataset.cardId = "resolution-other-paths";
+  alternatives.innerHTML = `
+    <div class="v22-card-heading">
+      <span class="v22-kicker">${local("Alternatives", "다른 좋은 선택지", "Alternativas")}</span>
+      <h2>${local("Other good options", "다른 좋은 방법", "Otras buenas opciones")}</h2>
+      <p class="v22-card-body">${local("Tap a direction to compare before approval.", "승인 전에 방향을 눌러 비교할 수 있습니다.", "Toca una ruta para comparar antes de aprobar.")}</p>
+    </div>
+    <div class="v22-path-grid"></div>
+  `;
+  const pathGrid = alternatives.querySelector(".v22-path-grid");
+  if (alternativePaths.length) {
+    const alternativeNames = [
+      local("Compare another route", "다른 경로 비교", "Comparar otra ruta"),
+      local("Lower-effort path", "부담이 적은 경로", "Ruta más simple"),
+      local("Higher-support path", "지원이 더 많은 경로", "Ruta con más apoyo"),
+      local("Fallback path", "대안 경로", "Ruta alternativa")
+    ];
+    alternativePaths.forEach((path, index) => pathGrid.appendChild(createV22PathCard({
+      id: `path-${index}`,
+      title: polishedDomainText(path.title || path, alternativeNames[index] || alternativeNames[0]),
+      reason: polishedDomainText(path.expectedOutcome, local("Useful fallback if the main path does not fit.", "주요 경로가 맞지 않을 때 사용할 수 있는 대안입니다.", "Alternativa si la ruta principal no encaja.")),
+      steps: activeLanguage === "en" ? path.requiredSteps || [] : (presentation.prepared?.[activeLanguage] || presentation.prepared?.en || []),
+      selected: index === 0
+    })));
+  } else {
+    pathGrid.appendChild(createV22PathCard({
+      id: "path-default",
+      title: local("Keep current recommendation", "현재 추천 유지", "Mantener recomendación"),
+      reason: local("The current plan is enough to continue.", "현재 계획만으로도 계속 진행할 수 있습니다.", "El plan actual basta para continuar."),
+      selected: true
+    }));
+  }
+  missionGrid.appendChild(alternatives);
+
+  missionGrid.appendChild(createV22Card({
     id: "resolution-prepared",
-    title: local("What ONE has prepared", "ONE이 준비한 것", "Lo que ONE preparó"),
-    label: local("Ready for review", "검토 준비", "Listo para revisar"),
-    items: safeItems(plan.preparedActions || []),
-    wide: true,
-    editable: false
+    title: local("Already prepared", "이미 준비된 것", "Ya preparado"),
+    kicker: local("Ready", "준비 완료", "Listo"),
+    chips: activeLanguage === "en" ? safeItems(plan.preparedActions?.length ? plan.preparedActions : presentation.prepared?.en || []) : (presentation.prepared?.[activeLanguage] || presentation.prepared?.en || []),
+    wide: false,
+    tone: "prepared"
   }));
 
-  missionGrid.appendChild(createListCard({
+  missionGrid.appendChild(createV22Card({
     id: "resolution-needed",
-    title: local("Essential info still needed", "아직 필요한 핵심 정보", "Información esencial pendiente"),
-    label: local("Only if needed", "필요한 것만", "Solo lo necesario"),
-    items: safeItems(plan.missingEssentialInformation?.length ? plan.missingEssentialInformation : plan.userRequiredActions || []),
-    wide: true,
-    editable: false
+    title: local("Things I still need", "아직 필요한 것", "Lo que falta"),
+    kicker: local("Only if needed", "필요할 때만", "Solo si hace falta"),
+    chips: activeLanguage === "en"
+      ? safeItems(plan.missingEssentialInformation?.length ? plan.missingEssentialInformation : plan.userRequiredActions || [local("Confirm before approval", "승인 전 확인", "Confirmar antes de aprobar")])
+      : [local("필요 조건 확인", "필요 조건 확인", "Confirmar detalles"), local("승인 전 검토", "승인 전 검토", "Revisar antes de aprobar")],
+    wide: false,
+    tone: "needed"
   }));
 
-  missionGrid.appendChild(createListCard({
+  missionGrid.appendChild(createV22Card({
     id: "resolution-approval-actions",
-    title: local("Approval-required actions", "승인이 필요한 실행", "Acciones que requieren aprobación"),
-    label: local("Blocked before approval", "승인 전 차단", "Bloqueado antes de aprobar"),
-    items: safeItems(plan.approvalRequiredActions || []),
+    title: local("Ready when you are", "준비되면 승인하세요", "Listo cuando quieras"),
+    kicker: local("Approval protected", "승인 보호", "Aprobación protegida"),
+    body: local("Nothing is booked, paid, submitted, signed, or shared before explicit approval.", "명확한 승인 전에는 예약, 결제, 제출, 서명, 제공업체 공유가 진행되지 않습니다.", "Nada se reserva, paga, envía, firma o comparte antes de aprobar."),
+    chips: activeLanguage === "en" ? safeItems(plan.approvalRequiredActions?.length ? plan.approvalRequiredActions : [local("Approve", "승인", "Aprobar"), local("Modify", "수정", "Modificar"), local("Cancel", "취소", "Cancelar")]) : [local("Approve", "승인", "Aprobar"), local("Modify", "수정", "Modificar"), local("Cancel", "취소", "Cancelar")],
     wide: true,
-    editable: false
+    tone: "approval"
   }));
 
-  missionGrid.appendChild(createListCard({
+  missionGrid.appendChild(createV22Card({
     id: "resolution-risks",
-    title: local("Risks and limitations", "위험과 한계", "Riesgos y límites"),
-    label: local("Honest evidence", "정직한 근거", "Evidencia honesta"),
-    items: safeItems(plan.risks || []),
-    wide: true,
-    editable: false
+    title: local("Before execution", "실행 전 확인", "Antes de ejecutar"),
+    kicker: local("Honest limits", "정직한 한계", "Límites honestos"),
+    chips: activeLanguage === "en" ? safeItems(plan.risks?.length ? plan.risks : [local("Live availability may change.", "실시간 가능 여부는 바뀔 수 있습니다.", "La disponibilidad puede cambiar."), local("Provider confirmation is required.", "제공업체 최종 확인이 필요합니다.", "Se necesita confirmación del proveedor.")]) : [local("Live availability may change.", "실시간 가능 여부는 바뀔 수 있습니다.", "La disponibilidad puede cambiar."), local("Provider confirmation is required.", "제공업체 최종 확인이 필요합니다.", "Se necesita confirmación del proveedor.")],
+    wide: false,
+    tone: "quiet"
   }));
 
-  missionGrid.appendChild(createListCard({
+  missionGrid.appendChild(createV22Card({
     id: "resolution-next-action",
-    title: local("Next best action", "다음 최선의 행동", "Siguiente mejor acción"),
-    label: local("Founder-approved flow", "승인 우선", "Flujo con aprobación"),
-    items: [escapeSummaryText(plan.nextBestAction || local("Review the prepared solution, then approve or revise.", "준비된 해결 방법을 검토한 뒤 승인하거나 수정하세요.", "Revisa la solución y aprueba o modifica."))],
-    wide: true,
-    editable: false
+    title: local("Next action", "다음 행동", "Siguiente acción"),
+    kicker: local("ONE is ready", "ONE 준비 완료", "ONE está listo"),
+    body: polishedDomainText(plan.nextBestAction, local("Review the prepared solution, adjust anything, then approve when ready.", "준비된 해결 방법을 확인하고 필요한 부분을 고친 뒤 준비되면 승인하세요.", "Revisa la solución, ajusta lo necesario y aprueba cuando quieras.")),
+    chips: presentation.prepared?.[activeLanguage] || presentation.prepared?.en || [],
+    wide: false,
+    tone: "next"
   }));
 };
 
@@ -2169,7 +2548,9 @@ const renderMissionUnderstanding = () => {
     ? (ko ? ["맞춤 경험", "시간별 일정", "음식", "이동", "날씨 대안"] : es ? ["Experiencia", "Horario", "Comida", "Transporte", "Plan alternativo"] : ["Experience", "Timeline", "Food", "Transportation", "Weather backup"])
     : currentResult?.type === "travel"
     ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : es ? ["Vuelos", "Hotel", "Transporte", "Clima", "Presupuesto", "Lista"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
-    : ["⭐ ONE Pick", ko ? "비교 선택지" : es ? "Opciones comparadas" : "Compared options", ko ? "예산" : es ? "Presupuesto" : "Budget", ko ? "체크리스트" : es ? "Lista" : "Checklist"];
+    : currentResult?.resolutionPlan
+    ? (domainPresentation(currentResult).prepared?.[activeLanguage] || domainPresentation(currentResult).prepared?.en || [])
+    : [ko ? "추천 해결" : es ? "Solución" : "Solution", ko ? "대안" : es ? "Alternativas" : "Alternatives", ko ? "준비 상태" : es ? "Preparado" : "Prepared", ko ? "승인 보호" : es ? "Aprobación" : "Approval"];
   missionUnderstoodGoal.innerHTML = `<span>${ko ? "목표" : es ? "Objetivo" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
   missionUnderstoodItems.innerHTML = prepared.map((item) => `<span>✓ ${item}</span>`).join("");
   const heading = document.getElementById("missionUnderstoodTitle");
@@ -2183,6 +2564,7 @@ const renderMissionUnderstanding = () => {
 };
 
 const organizeProgressiveResults = () => {
+  if (currentResult?.v22DomainLayout || currentResult?.v22TravelPackages) return;
   const nodes = [...missionGrid.children];
   const nodeIds = new Set(nodes.map((node) => node.dataset?.cardId || (node.id === "additionalServicesForm" ? "additional-services" : "")));
   const groups = [
@@ -2217,6 +2599,8 @@ const organizeProgressiveResults = () => {
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
+  missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout");
+  delete missionGrid.dataset.domain;
   const schedule = currentResult.schedule || {};
   const start = schedule.startDate ? new Date(schedule.startDate) : null;
   const end = schedule.endDate ? new Date(schedule.endDate) : null;
@@ -2255,19 +2639,20 @@ const renderMission = () => {
 
 const renderPathwayOpportunities = () => {
   if (!pathwayOpportunityPanel || !pathwayOpportunityList) return;
-  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const local = v22Local;
   const goal = currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.mission || currentResult?.goal || "";
   const memoryEnabled = missionMemoryEnabled();
   const previousExperiences = memoryEnabled ? readMissionMemories().flatMap((row) => row.preferences || row.favoriteLocations || []).map(String) : [];
   const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
   if (!experienceMission && !isTravelResult(currentResult) && currentResult?.resolutionPlan) {
     const plan = currentResult.resolutionPlan;
+    const presentation = domainPresentation(currentResult);
     pathwayOpportunityTitle.textContent = local("ONE Recommendation", "ONE 추천", "Recomendación de ONE");
-    experienceReviewOpening.textContent = plan.desiredOutcome || local("ONE prepared a domain-aware solution path.", "ONE이 분야에 맞는 해결 경로를 준비했어요.", "ONE preparó una solución adecuada.");
+    experienceReviewOpening.textContent = polishedDomainText(plan.desiredOutcome, localize(presentation.understood) || local("ONE prepared a domain-aware solution path.", "ONE이 분야에 맞는 해결 경로를 준비했어요.", "ONE preparó una solución adecuada."));
     experienceReviewLabel.textContent = local("Why this fits", "이 선택이 맞는 이유", "Por qué encaja");
     const insights = [
-      plan.recommendedPath?.expectedOutcome,
-      plan.nextBestAction,
+      polishedDomainText(plan.recommendedPath?.expectedOutcome, local("The recommendation matches this mission and stays approval-first.", "추천 경로는 이 미션에 맞고 승인 우선 원칙을 지킵니다.", "La recomendación encaja y mantiene aprobación primero.")),
+      polishedDomainText(plan.nextBestAction, local("Review, adjust, then approve when ready.", "검토하고 수정한 뒤 준비되면 승인하세요.", "Revisa, ajusta y aprueba cuando quieras.")),
       local("No provider contact, booking, payment, submission, or signature happens before approval.", "승인 전에는 제공업체 연락, 예약, 결제, 제출, 서명이 진행되지 않습니다.", "No hay contacto, reserva, pago, envío ni firma sin aprobación.")
     ].filter(Boolean);
     experienceReviewInsights.replaceChildren(...insights.map((insight) => {
@@ -2281,9 +2666,9 @@ const renderPathwayOpportunities = () => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "pathway-opportunity-action";
-      button.dataset.revisionCommand = path.title || "";
+      button.dataset.revisionCommand = polishedDomainText(path.title || "", local("Prepared path", "준비된 경로", "Ruta preparada"));
       button.setAttribute("role", "listitem");
-      button.textContent = path.title || local("Prepared path", "준비된 경로", "Ruta preparada");
+      button.textContent = polishedDomainText(path.title || "", local("Prepared path", "준비된 경로", "Ruta preparada"));
       return button;
     }));
     pathwayOpportunityPanel.hidden = false;
@@ -2355,6 +2740,28 @@ const initializeOptionSelections = () => {
   });
   missionGrid.querySelectorAll(".option-list").forEach((list) => {
     list.style.setProperty("--option-rows", String(Math.max(1, Math.ceil(list.children.length / 2))));
+  });
+  missionGrid.querySelectorAll(".travel-package-option").forEach((option) => {
+    option.addEventListener("click", () => {
+      const group = option.closest(".travel-package-grid");
+      group?.querySelectorAll(".travel-package-option").forEach((item) => {
+        item.classList.toggle("is-selected", item === option);
+        item.setAttribute("aria-pressed", item === option ? "true" : "false");
+      });
+    });
+  });
+  missionGrid.querySelectorAll(".v22-path-select").forEach((button) => {
+    button.addEventListener("click", () => {
+      const card = button.closest(".v22-path-card");
+      const group = card?.closest(".v22-path-grid");
+      group?.querySelectorAll(".v22-path-card").forEach((item) => {
+        const selected = item === card;
+        item.classList.toggle("is-selected", selected);
+        item.querySelector(".v22-path-select")?.setAttribute("aria-pressed", selected ? "true" : "false");
+        const check = item.querySelector(".v22-path-check");
+        if (check) check.textContent = selected ? "✓" : "+";
+      });
+    });
   });
 };
 
