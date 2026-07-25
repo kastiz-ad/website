@@ -298,22 +298,25 @@ export function buildHumanReasoningObject(input = {}) {
   const mission = String(input.mission || input.classification?.mission || input.goal || "").normalize("NFKC").trim().replace(/\s+/g, " ");
   const language = normalizeReasoningLanguage(input.language, mission);
   const classification = input.classification || {};
-  const selectedType = classification.providerType || "general_mission";
   const possibleInterpretations = inferMissionHypotheses({
     mission,
     classification,
     candidateMissions: input.candidateMissions
   });
+  const classifierType = classification.providerType || "general_mission";
+  const classifierConfidence = confidenceFromClassifier(classification.confidence);
+  const top = possibleInterpretations[0] || {
+    type: classifierType,
+    confidence: classifierConfidence,
+    source: "classifier"
+  };
+  const genericClassifier = ["professional-service", "general_mission"].includes(classifierType) || classifierConfidence < 0.5;
+  const selectedType = genericClassifier && top?.type ? top.type : classifierType;
   const missingInformation = detectMissingInformation({
     mission,
     classification: { ...classification, providerType: selectedType },
     input
   });
-  const top = possibleInterpretations[0] || {
-    type: selectedType,
-    confidence: confidenceFromClassifier(classification.confidence),
-    source: "classifier"
-  };
   const second = possibleInterpretations[1];
   const vagueGoal = !mission || /^(help|help me|do it|추천|도와줘|해줘|ayuda|hazlo)$/i.test(mission);
   const ambiguousByScore = Boolean(second && Math.abs(top.confidence - second.confidence) < 0.12);
@@ -350,7 +353,7 @@ export function buildHumanReasoningObject(input = {}) {
     selectedMission: Object.freeze({
       type: selectedType,
       label,
-      source: classification.providerType ? "classifier" : "fallback",
+      source: selectedType === classifierType && classification.providerType ? "classifier" : top.source || "reasoning-signal",
       confidence: top.confidence || confidence
     }),
     reasoningSummary: summary,

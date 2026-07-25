@@ -5,6 +5,7 @@ import { reviseMission } from "../engine/revision/mission-revision-engine.js";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
 import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js?v=20260722-context-v2";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
+import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -350,6 +351,8 @@ const getPortableSharedResult = () => {
 };
 
 const getStoredResult = () => {
+  const manualScenario = getManualScenarioResult();
+  if (manualScenario) return manualScenario;
   const sharedResult = getPortableSharedResult();
   if (sharedResult) return sharedResult;
   try {
@@ -363,6 +366,75 @@ const getStoredResult = () => {
 
   return null;
 };
+
+const MANUAL_V21_SCENARIOS = Object.freeze({
+  "child-english": "아이가 영어가 부족한데 어떻게 할까?",
+  "academy-english": "인천 서구에서 중학생 영어 내신 학원 찾아줘",
+  "japan-travel": "일본 여행",
+  "tooth-pain": "이가 아픈데 오늘 갈 수 있는 치과 찾아줘",
+  "sink-leak": "싱크대 누수 수리업체 찾아줘",
+  "unknown-help": "도와줘"
+});
+
+const isTravelResult = (result) => ["travel", "travel-preparation"].includes(result?.type) || result?.domain === "travel" || result?.resolutionPlan?.domain === "travel";
+
+const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => {
+  const kernelOutput = createHOSKernel().run({
+    mission: prompt,
+    language,
+    currentLocation: language === "ko" ? "서울" : "Seoul"
+  });
+  const plan = kernelOutput.resolutionPlan;
+  return {
+    id: `manual-v21-${Date.now()}`,
+    resultId: `manual-result-${Date.now()}`,
+    type: plan?.domain || kernelOutput.classification?.providerType || "general_mission",
+    domain: plan?.domain || kernelOutput.classification?.providerType || "general_mission",
+    missionType: plan?.missionType,
+    status: "mission-ready",
+    mission: prompt,
+    originalMission: prompt,
+    rawInput: prompt,
+    language,
+    interfaceLanguage: language,
+    approvalRequired: true,
+    classification: kernelOutput.classification,
+    humanReasoning: kernelOutput.humanReasoning,
+    missionIntelligence: kernelOutput.missionIntelligence,
+    resolutionPlan: plan,
+    display: {
+      missionReady: t("missionReady"),
+      title: prompt,
+      approvalProtection: t("approvalProtection")
+    },
+    executionSequence: {
+      en: translations.en.executionSteps,
+      ko: translations.ko.executionSteps
+    },
+    finalMessage: {
+      en: translations.en.finalMessage,
+      ko: translations.ko.finalMessage
+    },
+    approvalProtection: {
+      en: translations.en.approvalProtection,
+      ko: translations.ko.approvalProtection
+    }
+  };
+};
+
+function getManualScenarioResult() {
+  const params = new URLSearchParams(window.location.search);
+  const scenario = params.get("v21Scenario") || params.get("scenario");
+  const prompt = MANUAL_V21_SCENARIOS[scenario] || params.get("mission");
+  if (!prompt) return null;
+  const language = params.get("lang") || (/[\u3131-\uD79D]/.test(prompt) ? "ko" : activeLanguage);
+  return createResolutionResultFromPrompt(prompt, language);
+}
+
+const createNeutralMissionResult = () => createResolutionResultFromPrompt(
+  activeLanguage === "ko" ? "도와줘" : activeLanguage === "es" ? "Ayúdame" : "Help me",
+  activeLanguage
+);
 
 const countryNamesKoByRegion = {
   KR: "대한민국", US: "미국", ES: "스페인", FR: "프랑스", JP: "일본",
@@ -774,7 +846,7 @@ const createFallbackTravelResult = () => {
 };
 
 const normalizeStoredResult = (stored) => {
-  if (!stored) return createFallbackTravelResult();
+  if (!stored) return createNeutralMissionResult();
 
   if (stored.type === "travel") {
     const result = {
@@ -1822,6 +1894,96 @@ const renderTravelMission = (result, missionContext) => {
 
 };
 
+const renderResolutionPlanMission = (result) => {
+  const plan = result.resolutionPlan || {};
+  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const safeItems = (items = []) => items.map((item) => escapeSummaryText(item?.title || item?.label || item)).filter(Boolean);
+  const mission = plan.userProblem || result.originalMission || result.rawInput || result.mission || "";
+  missionTitle.textContent = mission || local("Prepared mission", "준비된 미션", "Misión preparada");
+  missionGrid.innerHTML = "";
+  const scheduleCard = createScheduleCard(result);
+  if (scheduleCard) missionGrid.appendChild(scheduleCard);
+
+  const recommended = plan.recommendedPath || plan.solutionPaths?.[0] || {};
+  missionGrid.appendChild(createListCard({
+    id: "resolution-understanding",
+    title: local("What ONE understood", "ONE이 이해한 내용", "Lo que ONE entendió"),
+    label: local("Mission context", "미션 맥락", "Contexto"),
+    items: [
+      local("Goal", "목표", "Objetivo") + ": " + (plan.desiredOutcome || mission),
+      local("Domain", "분야", "Dominio") + ": " + (plan.domain || result.domain || result.type || "general"),
+      local("Mission type", "미션 유형", "Tipo de misión") + ": " + (plan.missionType || result.missionType || "general_mission")
+    ].map(escapeSummaryText),
+    wide: true,
+    editable: false
+  }));
+
+  missionGrid.appendChild(createMissionCard({
+    id: "resolution-recommended-solution",
+    title: local("Recommended solution", "추천 해결 방법", "Solución recomendada"),
+    label: "⭐ ONE Pick",
+    value: escapeSummaryText(recommended.title || local("Prepared solution path", "준비된 해결 경로", "Ruta preparada")),
+    reason: escapeSummaryText(recommended.expectedOutcome || plan.nextBestAction || local("This path best matches the mission with approval protected.", "승인을 보호하면서 미션에 가장 잘 맞는 경로입니다.", "Esta ruta encaja mejor y protege la aprobación.")),
+    options: safeItems(recommended.requiredSteps || []).map((item, index) => makeOptionRow(item, "", { index, label: item, selected: true })),
+    editable: true,
+    selectionMode: "multiple"
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "resolution-other-paths",
+    title: local("Other viable solution paths", "다른 가능한 해결 경로", "Otras rutas posibles"),
+    label: local("Options", "선택지", "Opciones"),
+    items: safeItems(plan.alternativePaths || []),
+    wide: true,
+    editable: true
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "resolution-prepared",
+    title: local("What ONE has prepared", "ONE이 준비한 것", "Lo que ONE preparó"),
+    label: local("Ready for review", "검토 준비", "Listo para revisar"),
+    items: safeItems(plan.preparedActions || []),
+    wide: true,
+    editable: false
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "resolution-needed",
+    title: local("Essential info still needed", "아직 필요한 핵심 정보", "Información esencial pendiente"),
+    label: local("Only if needed", "필요한 것만", "Solo lo necesario"),
+    items: safeItems(plan.missingEssentialInformation?.length ? plan.missingEssentialInformation : plan.userRequiredActions || []),
+    wide: true,
+    editable: false
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "resolution-approval-actions",
+    title: local("Approval-required actions", "승인이 필요한 실행", "Acciones que requieren aprobación"),
+    label: local("Blocked before approval", "승인 전 차단", "Bloqueado antes de aprobar"),
+    items: safeItems(plan.approvalRequiredActions || []),
+    wide: true,
+    editable: false
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "resolution-risks",
+    title: local("Risks and limitations", "위험과 한계", "Riesgos y límites"),
+    label: local("Honest evidence", "정직한 근거", "Evidencia honesta"),
+    items: safeItems(plan.risks || []),
+    wide: true,
+    editable: false
+  }));
+
+  missionGrid.appendChild(createListCard({
+    id: "resolution-next-action",
+    title: local("Next best action", "다음 최선의 행동", "Siguiente mejor acción"),
+    label: local("Founder-approved flow", "승인 우선", "Flujo con aprobación"),
+    items: [escapeSummaryText(plan.nextBestAction || local("Review the prepared solution, then approve or revise.", "준비된 해결 방법을 검토한 뒤 승인하거나 수정하세요.", "Revisa la solución y aprueba o modifica."))],
+    wide: true,
+    editable: false
+  }));
+};
+
 const renderGeneralMission = (result) => {
   missionTitle.textContent = result.display?.title || result.rawInput || (activeLanguage === "ko" ? "미션 계획" : "Mission Plan");
   missionGrid.innerHTML = "";
@@ -2000,7 +2162,7 @@ const renderMissionUnderstanding = () => {
   const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
   const title = experienceMission
     ? rawGoal
-    : currentResult?.type === "travel"
+    : isTravelResult(currentResult)
     ? normalizedTravelGoal || (ko ? "여행" : "Trip")
     : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "준비된 미션" : "Prepared mission");
   const prepared = experienceMission
@@ -2075,8 +2237,10 @@ const renderMission = () => {
 
   if (isExperienceMission(currentResult, currentResult.missionContext)) {
     renderGeneratedExperienceMission(currentResult);
-  } else if (currentResult.type === "travel") {
+  } else if (isTravelResult(currentResult)) {
     renderTravelMission(currentResult, currentResult.missionContext);
+  } else if (currentResult.resolutionPlan) {
+    renderResolutionPlanMission(currentResult);
   } else {
     renderGeneralMission(currentResult);
   }
@@ -2096,6 +2260,35 @@ const renderPathwayOpportunities = () => {
   const memoryEnabled = missionMemoryEnabled();
   const previousExperiences = memoryEnabled ? readMissionMemories().flatMap((row) => row.preferences || row.favoriteLocations || []).map(String) : [];
   const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
+  if (!experienceMission && !isTravelResult(currentResult) && currentResult?.resolutionPlan) {
+    const plan = currentResult.resolutionPlan;
+    pathwayOpportunityTitle.textContent = local("ONE Recommendation", "ONE 추천", "Recomendación de ONE");
+    experienceReviewOpening.textContent = plan.desiredOutcome || local("ONE prepared a domain-aware solution path.", "ONE이 분야에 맞는 해결 경로를 준비했어요.", "ONE preparó una solución adecuada.");
+    experienceReviewLabel.textContent = local("Why this fits", "이 선택이 맞는 이유", "Por qué encaja");
+    const insights = [
+      plan.recommendedPath?.expectedOutcome,
+      plan.nextBestAction,
+      local("No provider contact, booking, payment, submission, or signature happens before approval.", "승인 전에는 제공업체 연락, 예약, 결제, 제출, 서명이 진행되지 않습니다.", "No hay contacto, reserva, pago, envío ni firma sin aprobación.")
+    ].filter(Boolean);
+    experienceReviewInsights.replaceChildren(...insights.map((insight) => {
+      const item = document.createElement("li");
+      item.textContent = insight;
+      return item;
+    }));
+    experienceReviewConfidence.textContent = local("Domain locked", "분야 고정", "Dominio fijado");
+    revisionLead.textContent = local("Use Modify to add constraints before approval.", "승인 전에 수정에서 조건을 추가할 수 있어요.", "Usa Modificar para añadir condiciones antes de aprobar.");
+    pathwayOpportunityList.replaceChildren(...(plan.solutionPaths || []).slice(0, 3).map((path) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "pathway-opportunity-action";
+      button.dataset.revisionCommand = path.title || "";
+      button.setAttribute("role", "listitem");
+      button.textContent = path.title || local("Prepared path", "준비된 경로", "Ruta preparada");
+      return button;
+    }));
+    pathwayOpportunityPanel.hidden = false;
+    return;
+  }
   const destinationName = activeLanguage === "ko"
     ? currentResult?.destination?.cityKo || currentResult?.destination?.countryKo || currentResult?.missionContext?.destination?.city
     : currentResult?.destination?.city || currentResult?.destination?.country || currentResult?.missionContext?.destination?.city;

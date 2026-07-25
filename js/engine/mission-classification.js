@@ -37,6 +37,7 @@ export function normalizeMissionText(value = "") {
 
 export function classifyMission(value) {
   const text = normalizeMissionText(value);
+  if (/child.*english|english.*child|student.*english|english.*student|english.*weak|weak.*english|grades?.*english|english.*grades?|아이.*영어|자녀.*영어|학생.*영어|영어.*부족|영어.*어려|영어.*성적|성적.*영어|영어.*떨어|중학생.*영어|초등.*영어|고등.*영어/i.test(text)) return "education";
   if (/viaje|viajar|vacaciones|luna de miel|vuelo|aeropuerto/i.test(text)) return "travel";
   const priority = Object.entries(PRIORITY_LOCAL_RULES).find(([, pattern]) => pattern.test(text));
   if (priority) return priority[0];

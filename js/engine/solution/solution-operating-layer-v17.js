@@ -29,6 +29,17 @@ const DOMAIN_RULES = Object.freeze([
   { domain: "beauty", missionType: "beauty-care", patterns: [/hair|skin|laser|beauty|salon|미용|피부|레이저|헤어|네일/i] }
 ]);
 
+function refineMissionType(domain, missionType, userProblem = "") {
+  const text = String(userProblem || "").normalize("NFKC");
+  if (domain === "education" && /academy|school exam|middle school|english academy|학원|내신|중학생|초등학생|고등학생|어학원/i.test(text)) {
+    return "academy-finder";
+  }
+  if (domain === "education" && /child.*english|english.*child|student.*english|english.*student|english.*weak|weak.*english|grades?.*english|english.*grades?|아이.*영어|자녀.*영어|학생.*영어|영어.*부족|영어.*어려|영어.*성적|성적.*영어|영어.*떨어/i.test(text)) {
+    return "child-english-performance-decline";
+  }
+  return missionType;
+}
+
 const DOMAIN_COPY = Object.freeze({
   "home-services": {
     outcome: "Stop damage, prepare a plumber or home-service path, and protect approval before contact.",
@@ -83,8 +94,11 @@ const DOMAIN_COPY = Object.freeze({
 
 function inferDomain({ userProblem, classification = {}, mission = {} }) {
   const text = `${userProblem} ${classification.providerType || ""} ${mission.providerType || ""}`.normalize("NFKC");
+  if (/child.*english|english.*child|student.*english|english.*student|english.*weak|weak.*english|grades?.*english|english.*grades?|아이.*영어|자녀.*영어|학생.*영어|영어.*부족|영어.*어려|영어.*성적|성적.*영어|영어.*떨어|학원|내신|어학원/i.test(text)) {
+    return { domain: "education", missionType: refineMissionType("education", "education-support", userProblem), patterns: [] };
+  }
   const matched = DOMAIN_RULES.find((rule) => includesAny(text, rule.patterns));
-  if (matched) return matched;
+  if (matched) return { ...matched, missionType: refineMissionType(matched.domain, matched.missionType, userProblem) };
   const providerType = classification.providerType || mission.providerType || "professional-service";
   const providerMap = {
     "home-services": "home-services",
@@ -102,7 +116,7 @@ function inferDomain({ userProblem, classification = {}, mission = {} }) {
     professionals: "professional-services"
   };
   const domain = providerMap[providerType] || "default";
-  return { domain, missionType: providerType, patterns: [] };
+  return { domain, missionType: refineMissionType(domain, providerType, userProblem), patterns: [] };
 }
 
 function inferUrgency(userProblem, domain) {

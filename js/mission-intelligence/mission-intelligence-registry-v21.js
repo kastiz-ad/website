@@ -21,6 +21,12 @@ function domainAliases(value = "") {
   return map[key] || [key];
 }
 
+function domainsCompatible(left = "", right = "") {
+  const leftAliases = domainAliases(left);
+  const rightAliases = domainAliases(right);
+  return leftAliases.some((alias) => rightAliases.includes(alias));
+}
+
 function scorePlaybook(playbook, input = {}) {
   const text = clean([
     input.mission,
@@ -28,10 +34,13 @@ function scorePlaybook(playbook, input = {}) {
     input.humanReasoning?.userGoal,
     input.contextObject?.currentMission?.text
   ].filter(Boolean).join(" "));
-  const providerType = clean(input.classification?.providerType || input.missionObject?.providerType || "");
+  const providerType = clean(input.humanReasoning?.selectedMission?.type || input.classification?.providerType || input.missionObject?.providerType || "");
+  const topInterpretation = clean(input.humanReasoning?.possibleInterpretations?.[0]?.type || "");
   let score = 0;
   const reasons = [];
   if (domainAliases(playbook.domain).includes(providerType)) { score += 24; reasons.push("domain fit"); }
+  if (topInterpretation && domainAliases(playbook.domain).includes(topInterpretation)) { score += 18; reasons.push("reasoning domain fit"); }
+  if (providerType && !domainsCompatible(playbook.domain, providerType)) { score -= 18; reasons.push("domain mismatch penalty"); }
   if (rxMatch(playbook.problemPatterns, text)) { score += 34; reasons.push("problem pattern fit"); }
   if (playbook.supportedIntents.some((intent) => text.includes(clean(intent)))) { score += 16; reasons.push("intent fit"); }
   if (playbook.supportedLanguages.includes(input.language || input.contextObject?.currentMission?.language || "en")) { score += 8; reasons.push("language supported"); }
@@ -52,8 +61,8 @@ export function createMissionIntelligenceRegistry({ playbooks = loadMissionIntel
     getPlaybook: (id) => byId.get(id) || null,
     select(input = {}) {
       const ranked = playbooks.map((playbook) => scorePlaybook(playbook, input)).sort((a, b) => b.score - a.score);
-      const primary = ranked[0];
-      const compatible = ranked.filter((item) => item.score >= Math.max(30, primary.score - 12)).slice(0, 3);
+      const primary = ranked[0]?.score >= 30 ? ranked[0] : null;
+      const compatible = primary ? ranked.filter((item) => item.score >= Math.max(30, primary.score - 12)).slice(0, 3) : [];
       const ambiguous = compatible.length > 1 && compatible[1].score >= primary.score - 4;
       return Object.freeze({
         version: MISSION_INTELLIGENCE_VERSION,
@@ -101,6 +110,19 @@ export function filterEssentialQuestions(playbook = {}, context = {}) {
 export function applyPlaybookGuidanceToResolutionPlan(plan = {}, playbookSelection = {}) {
   const playbook = playbookSelection.selectedPlaybook;
   if (!playbook) return plan;
+  if (plan.domain && playbook.domain && !domainsCompatible(plan.domain, playbook.domain)) {
+    return Object.freeze({
+      ...plan,
+      missionIntelligence: Object.freeze({
+        version: MISSION_INTELLIGENCE_VERSION,
+        selectedPlaybookId: null,
+        rejectedPlaybookId: playbook.playbookId,
+        rejectionReason: "domain_mismatch",
+        confidence: playbookSelection.confidence || 0,
+        reasons: Object.freeze([...(playbookSelection.reasons || []), `Rejected ${playbook.domain} playbook for ${plan.domain} mission`])
+      })
+    });
+  }
   const solutionPaths = playbook.solutionPaths.length ? playbook.solutionPaths.map((title, index) => Object.freeze({
     id: `${playbook.playbookId}-path-${index + 1}`,
     title,

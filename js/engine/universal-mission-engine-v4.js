@@ -32,10 +32,13 @@ const KOREAN={education:"교육",healthcare:"의료",restaurant:"레스토랑",a
 
 export function classifyUniversalMission(value=""){
   const mission=String(value).normalize("NFKC").trim().replace(/\s+/g," ");
+  if (/child.*english|english.*child|student.*english|english.*student|english.*weak|weak.*english|grades?.*english|english.*grades?|아이.*영어|자녀.*영어|학생.*영어|영어.*부족|영어.*어려|영어.*성적|성적.*영어|영어.*떨어|중학생.*영어|초등.*영어|고등.*영어|학원|내신|어학원/i.test(mission)) {
+    return {mission,providerType:"education",confidence:"rule-supported",categorySelectionRequired:false};
+  }
   const local=classifyLocalMission(mission);
   if(local) return {mission,providerType:local.providerType,confidence:local.confidence,categorySelectionRequired:false,candidates:local.candidates};
-  const providerType=RULES.find(([,rx])=>rx.test(mission))?.[0]||"professional-service";
-  return {mission,providerType,confidence:providerType==="professional-service"?"unknown":"rule-supported",categorySelectionRequired:false};
+  const providerType=RULES.find(([,rx])=>rx.test(mission))?.[0]||"general_mission";
+  return {mission,providerType,confidence:providerType==="general_mission"?"unknown":"rule-supported",categorySelectionRequired:false};
 }
 
 export function normalizeProvider(record={}){

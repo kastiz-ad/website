@@ -6,6 +6,7 @@ import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
+import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 
 const root = document.documentElement;
 const body = document.body;
@@ -1460,7 +1461,27 @@ const buildTravelMission = (mission) => {
 };
 
 const buildGeneralMission = (mission) => {
-  return buildMissionObject(mission);
+  const base = buildMissionObject(mission);
+  try {
+    const output = createHOSKernel().run({
+      mission,
+      language: activeLanguage,
+      currentLocation: activeLanguage === "ko" ? "서울" : "Seoul"
+    });
+    const plan = output.resolutionPlan;
+    return {
+      ...base,
+      type: plan?.domain || output.classification?.providerType || base.type,
+      domain: plan?.domain || output.classification?.providerType || base.type,
+      missionType: plan?.missionType || output.classification?.providerType || base.type,
+      classification: output.classification,
+      humanReasoning: output.humanReasoning,
+      missionIntelligence: output.missionIntelligence,
+      resolutionPlan: plan
+    };
+  } catch {
+    return base;
+  }
 };
 
 const saveMission = (mission, schedule = null) => {
