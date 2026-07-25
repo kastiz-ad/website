@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { detectMissionLanguage, resolveWorldDestination, validateWorldMission } from "../js/engine/world/world-intelligence-engine.js";
+import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination, validateWorldMission } from "../js/engine/world/world-intelligence-engine.js";
 import { buildMissionContext } from "../js/engine/context/mission-context-intelligence.js";
 import { classifyMission } from "../js/engine/mission-classification.js";
 
@@ -61,4 +61,78 @@ test("destination quality gate rejects mixed-city recommendations", () => {
   ]);
   assert.equal(quality.passed, false);
   assert.equal(quality.invalid.length, 1);
+});
+
+const requiredDestinations = [
+  ["Tokyo", "Tokyo", "JP"],
+  ["Osaka", "Osaka", "JP"],
+  ["Kyoto", "Kyoto", "JP"],
+  ["Seoul", "Seoul", "KR"],
+  ["Busan", "Busan", "KR"],
+  ["Jeju", "Jeju", "KR"],
+  ["Ho Chi Minh", "Ho Chi Minh City", "VN"],
+  ["Hanoi", "Hanoi", "VN"],
+  ["Singapore", "Singapore", "SG"],
+  ["Bangkok", "Bangkok", "TH"],
+  ["Taipei", "Taipei", "TW"],
+  ["Hong Kong", "Hong Kong", "HK"],
+  ["Lima", "Lima", "PE"],
+  ["Cusco", "Cusco", "PE"],
+  ["Machu Picchu", "Machu Picchu", "PE"],
+  ["New York", "New York City", "US"],
+  ["Los Angeles", "Los Angeles", "US"],
+  ["London England", "London", "GB"],
+  ["Paris France", "Paris", "FR"],
+  ["Rome", "Rome", "IT"],
+  ["Barcelona", "Barcelona", "ES"],
+  ["Sydney", "Sydney", "AU"],
+  ["Melbourne", "Melbourne", "AU"],
+  ["Cape Town", "Cape Town", "ZA"],
+  ["Dubai", "Dubai", "AE"],
+  ["Mexico City", "Mexico City", "MX"],
+  ["Santiago Chile", "Santiago", "CL"],
+  ["Reykjavik", "Reykjavik", "IS"],
+  ["Auckland", "Auckland", "NZ"]
+];
+
+test("V10.1 resolves required worldwide regression destinations", () => {
+  for (const [query, city, countryCode] of requiredDestinations) {
+    const destination = resolveWorldDestination(query);
+    assert.equal(destination?.city, city, query);
+    assert.equal(destination?.countryCode, countryCode, query);
+    const context = buildMissionContext(`${query} trip`, { currentLocation: "Seoul" });
+    assert.equal(context.destination.city, city, query);
+    assert.equal(context.destination.countryCode, countryCode, query);
+    assert.ok(context.destination.countryName || context.destination.country, query);
+  }
+});
+
+test("V10.1 recognizes Korean and Spanish aliases for world destinations", () => {
+  const aliases = [
+    ["서울", "Seoul", "KR"],
+    ["ソウル", "Seoul", "KR"],
+    ["리마 여행", "Lima", "PE"],
+    ["뉴욕 여행", "New York City", "US"],
+    ["viaje a Nueva York", "New York City", "US"],
+    ["viaje a Ciudad de México", "Mexico City", "MX"],
+    ["방콕 여행", "Bangkok", "TH"],
+    ["레이캬비크 여행", "Reykjavik", "IS"],
+    ["Ciudad Ho Chi Minh", "Ho Chi Minh City", "VN"]
+  ];
+  for (const [query, city, countryCode] of aliases) {
+    const destination = resolveWorldDestination(query);
+    assert.equal(destination?.city, city, query);
+    assert.equal(destination?.countryCode, countryCode, query);
+  }
+});
+
+test("V10.1 asks for disambiguation instead of guessing", () => {
+  assert.equal(resolveWorldDestination("Trip to Paris"), null);
+  assert.equal(resolveWorldDestination("viaje a Santiago"), null);
+  assert.equal(resolveWorldDestination("산티아고 여행"), null);
+  assert.ok(ambiguousWorldDestinationMatches("Trip to Paris").length >= 3);
+  assert.ok(ambiguousWorldDestinationMatches("viaje a Santiago").length >= 4);
+  assert.ok(ambiguousWorldDestinationMatches("산티아고 여행").length >= 4);
+  assert.equal(resolveWorldDestination("Paris France")?.countryCode, "FR");
+  assert.equal(resolveWorldDestination("London Ontario")?.countryCode, "CA");
 });

@@ -5,7 +5,7 @@ import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
-import { detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
+import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -1609,6 +1609,20 @@ const MISSION_AMBIGUITIES = Object.freeze([
   ]}
 ]);
 const missionAmbiguityMatches = (mission) => {
+  const shared = ambiguousWorldDestinationMatches(mission);
+  if (shared.length > 1) return shared.map((place) => ({
+    city: place.city,
+    state: place.state,
+    country: place.country,
+    countryKo: place.country,
+    countryEs: place.country,
+    code: place.countryCode,
+    continent: place.continent,
+    currency: place.currency,
+    latitude: place.latitude,
+    longitude: place.longitude,
+    description: [place.placeType || "Destination", place.state, place.country].filter(Boolean).join(" · ")
+  }));
   const normalized = String(mission || "").normalize("NFKC").toLocaleLowerCase();
   const entry = MISSION_AMBIGUITIES.find(({ aliases }) => aliases.some((alias) => normalized.includes(alias)));
   if (!entry) return [];

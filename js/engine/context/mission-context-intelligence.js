@@ -1,4 +1,4 @@
-import { detectMissionLanguage, normalizeResolvedDestination, resolveWorldDestination } from "../world/world-intelligence-engine.js";
+import { detectMissionLanguage, makeFallbackWorldDestination, normalizeResolvedDestination, resolveWorldDestination } from "../world/world-intelligence-engine.js";
 
 const text = (value) => String(value || "").normalize("NFKC").trim();
 
@@ -51,22 +51,25 @@ const resolveDestination = (missionSource, options, origin) => {
   const explicit = text(options.destination);
   const worldwide = resolveWorldDestination(`${explicit} ${missionSource}`);
   if (worldwide) return { ...normalizeResolvedDestination(worldwide), specified: true, confidence: 0.99 };
-  const resolvedMetadata = normalizeResolvedDestination(options.resolvedDestination || {}, {
-    city: explicit,
-    country: text(options.destinationCountry || options.country),
-    countryCode: text(options.destinationCountryCode || options.country),
-    continent: text(options.destinationContinent),
-    currency: text(options.destinationCurrency)
-  });
-  if (resolvedMetadata.city && !/confirm|확인|unspecified/i.test(resolvedMetadata.city)) {
-    return { ...resolvedMetadata, specified: true, confidence: 0.995 };
+  if (explicit || options.resolvedDestination?.city || options.resolvedDestination?.country) {
+    const resolvedMetadata = normalizeResolvedDestination(options.resolvedDestination || {}, {
+      city: explicit,
+      country: text(options.destinationCountry || options.country),
+      countryCode: text(options.destinationCountryCode || options.country),
+      continent: text(options.destinationContinent),
+      currency: text(options.destinationCurrency),
+      allowSynthetic: Boolean(explicit)
+    });
+    if (resolvedMetadata.city && !/confirm|확인|unspecified|destination/i.test(resolvedMetadata.city)) {
+      return { ...resolvedMetadata, specified: true, confidence: 0.995 };
+    }
   }
   const known = findLocation(explicit) || findLocation(missionSource);
   if (known) return { ...known, specified: true, confidence: 0.98 };
   const country = findCountry(explicit) || findCountry(missionSource);
   if (country) return { id: country.toLowerCase(), city: explicit || country, country, transport: ["public transit", "walk", "taxi"], specified: true, confidence: 0.86 };
   if (explicit && !/confirm|확인|unspecified/i.test(explicit)) {
-    return { id: slug(explicit), city: explicit, country: text(options.destinationCountryCode || options.country) || origin.country, transport: ["public transit", "walk", "taxi"], specified: true, confidence: 0.78 };
+    return { ...makeFallbackWorldDestination(explicit, { country: text(options.destinationCountry || options.country) || explicit, countryCode: text(options.destinationCountryCode || options.country), continent: text(options.destinationContinent), currency: text(options.destinationCurrency) }), specified: true, confidence: 0.78 };
   }
   return { ...origin, specified: false, confidence: 0.58 };
 };
