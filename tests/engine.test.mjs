@@ -17,7 +17,7 @@ assert.equal(classifyMission("Buy the best laptop"), "shopping");
 assert.equal(classifyMission("Find me an English tutor."), "tutoring");
 assert.equal(classifyMission("Find me a trusted babysitter nearby."), "childcare");
 assert.equal(classifyMission("Find me an English language-exchange partner."), "language_exchange");
-assert.equal(classifyMission("Help me move to Korea."), "moving");
+assert.equal(classifyMission("Help me move to Korea."), "foreigner_korea");
 assert.equal(classifyMission("영어 선생님을 찾아줘."), "tutoring");
 assert.equal(classifyMission("가까운 곳에서 믿을 수 있는 베이비시터를 찾아줘."), "childcare");
 assert.equal(classifyMission("한국에서 사업 시작을 도와줘."), "business");

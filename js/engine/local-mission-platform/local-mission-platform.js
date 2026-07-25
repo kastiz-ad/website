@@ -26,6 +26,53 @@ const LABELS = {
 };
 
 const normalizeLanguage = (language = "en") => ["en", "ko", "es"].includes(language) ? language : "en";
+const normalizeText = (value = "") => String(value).normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase();
+
+const LOCATION_PATTERNS = [
+  /([가-힣A-Za-z.\s]+?)에서\s/,
+  /near\s+([A-Za-z가-힣\s.]+)/i,
+  /in\s+([A-Za-z가-힣\s.]+)/i,
+  /en\s+([A-Za-z가-힣\s.]+)/i
+];
+
+export function resolveLocalMissionLocation(input = {}) {
+  const direct = input.location || input.destination?.city || input.currentLocation;
+  if (direct) return { label: direct, source: "provided", confidence: 0.95 };
+  const mission = String(input.mission || input.goal || "");
+  for (const pattern of LOCATION_PATTERNS) {
+    const match = mission.match(pattern);
+    const label = match?.[1]?.trim()?.replace(/\s+(near|in|en)$/i, "");
+    if (label && label.length > 1) return { label, source: "mission_text", confidence: 0.78 };
+  }
+  return { label: null, source: "unknown", confidence: 0 };
+}
+
+export function classifyLocalMission(value = "") {
+  const text = normalizeText(value);
+  const matches = LOCAL_MISSION_ENGINE_IDS.map((id) => {
+    const engine = LOCAL_MISSION_ENGINES[id];
+    const keywords = engine.keywords || [];
+    const score = keywords.reduce((sum, keyword) => {
+      const key = normalizeText(keyword);
+      return key && text.includes(key) ? sum + Math.max(3, Math.min(15, key.length)) : sum;
+    }, 0);
+    return { id, score };
+  }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score);
+  if (!matches.length) return null;
+  return {
+    providerType: matches[0].id,
+    confidence: matches[0].score >= 15 ? "config-high" : "config-supported",
+    categorySelectionRequired: false,
+    candidates: matches.slice(0, 3)
+  };
+}
+
+export function classifyHealthcareUrgency(value = "") {
+  const text = normalizeText(value);
+  if (/chest pain|cannot breathe|stroke|seizure|unconscious|heavy bleeding|응급|호흡곤란|가슴 통증|의식 없음|마비|심한 출혈|emergencia/.test(text)) return "emergency";
+  if (/today|tonight|urgent|pain|open now|오늘|오늘 밤|아픈|통증|급해|urgente|hoy/.test(text)) return "urgent";
+  return "routine";
+}
 
 export function isLocalMissionType(type) {
   return LOCAL_MISSION_ENGINE_IDS.includes(type);
@@ -77,8 +124,9 @@ export function buildLocalMissionPlan(input = {}) {
     };
   }
 
-  const location = input.location || input.destination?.city || input.currentLocation || labels.unknownLocation;
-  const providerSeeds = input.providers?.length ? input.providers : engine.services.slice(0, 4).map((service, index) => ({
+  const resolvedLocation = resolveLocalMissionLocation(input);
+  const location = resolvedLocation.label || labels.unknownLocation;
+  const providerSeeds = input.providers?.length ? input.providers : engine.services.slice(0, 8).map((service, index) => ({
     id: `${engine.id}-demo-${index + 1}`,
     name: `${location} ${service}`,
     providerType: engine.providerTypes[index % engine.providerTypes.length],
@@ -102,11 +150,22 @@ export function buildLocalMissionPlan(input = {}) {
     engineLabel: engine.labels[language] || engine.labels.en,
     mission: input.mission || "",
     location,
+    locationResolution: {
+      ...resolvedLocation,
+      label: location
+    },
+    dataState: input.providers?.length ? "provided" : "fallback_demo",
+    adapterReadiness: (engine.adapters || []).map((adapter) => {
+      const [id, state = "future"] = adapter.split(":");
+      return { id, state, connected: state === "live" || state === "verified" };
+    }),
+    safetyMode: engine.safetyMode || "approval_protected_navigation",
+    healthcareUrgency: engine.id === "healthcare" ? classifyHealthcareUrgency(input.mission || input.goal || "") : null,
     understoodGoal: {
       goal: input.goal || input.mission || "",
       serviceCategory: engine.id,
       language,
-      locationResolved: Boolean(location)
+      locationResolved: resolvedLocation.source !== "unknown"
     },
     essentialFollowUps: engine.essentialQuestions,
     providerLayer: {
