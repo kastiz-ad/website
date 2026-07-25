@@ -44,6 +44,8 @@ Approval Orchestration
   ↓
 Trusted Action Gateway V18
   ↓
+Mission Completion Loop V19
+  ↓
 Execution Preparation
 ```
 
@@ -70,7 +72,8 @@ Supported stages:
 7. `provider-routing`
 8. `approval`
 9. `trusted-action-gateway`
-10. `execution-preparation`
+10. `mission-completion-loop`
+11. `execution-preparation`
 
 ## Boundaries
 

@@ -4,6 +4,7 @@ import { buildContextObject } from "../context/context-intelligence-engine-v14.j
 import { generateFutureMissionSuggestions } from "../prediction/prediction-engine-v15.js";
 import { buildResolutionPlan } from "../solution/solution-operating-layer-v17.js";
 import { buildTrustedActionGatewayPackage } from "../action/trusted-action-gateway-v18.js";
+import { buildMissionProgress } from "../completion/mission-completion-loop-v19.js";
 import { buildLifeMemoryContext } from "../../profile/life-memory-engine.js";
 
 export const HOS_KERNEL_VERSION = "V16";
@@ -18,6 +19,7 @@ export const HOS_KERNEL_STAGES = Object.freeze([
   "provider-routing",
   "approval",
   "trusted-action-gateway",
+  "mission-completion-loop",
   "execution-preparation"
 ]);
 
@@ -275,6 +277,22 @@ function defaultEngines() {
           trustedActionGateway: buildTrustedActionGatewayPackage({
             resolutionPlan: state.resolutionPlan,
             actions: state.resolutionPlan?.approvalRequiredActions
+          })
+        };
+      }
+    },
+    {
+      id: "mission-completion-loop-v19",
+      stage: "mission-completion-loop",
+      version: "V19",
+      description: "Tracks mission progress, detects failures, and prepares recovery without falsely marking completion.",
+      handler(state) {
+        return {
+          missionProgress: buildMissionProgress({
+            resolutionPlan: state.resolutionPlan,
+            trustedActionGateway: state.trustedActionGateway,
+            events: state.input?.missionEvents || [],
+            now: state.input?.now
           })
         };
       }

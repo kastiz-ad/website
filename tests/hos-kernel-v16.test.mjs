@@ -18,6 +18,7 @@ test("V16 registers every required orchestration stage", () => {
     "provider-routing",
     "approval",
     "trusted-action-gateway",
+    "mission-completion-loop",
     "execution-preparation"
   ]);
 });
@@ -51,6 +52,7 @@ test("V16 coordinates V12, V13, V14, V15 and mission routing without execution",
   assert.ok(result.futureMissionSuggestions.suggestions.some((item) => item.type === "passport-renewal"));
   assert.equal(result.approvalEnvelope.executionEnabled, false);
   assert.equal(result.trustedActionGateway.securityBoundaries.rawFinancialCredentialsStored, false);
+  assert.equal(result.missionProgress.currentState, "waiting_for_approval");
   assert.equal(result.executionPreparation.executionEnabled, false);
 });
 
