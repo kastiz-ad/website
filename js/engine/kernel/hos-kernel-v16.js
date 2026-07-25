@@ -5,6 +5,7 @@ import { generateFutureMissionSuggestions } from "../prediction/prediction-engin
 import { buildResolutionPlan } from "../solution/solution-operating-layer-v17.js";
 import { buildTrustedActionGatewayPackage } from "../action/trusted-action-gateway-v18.js";
 import { buildMissionProgress } from "../completion/mission-completion-loop-v19.js";
+import { selectMissionPlaybook } from "../../mission-intelligence/mission-intelligence-registry-v21.js";
 import { buildLifeMemoryContext } from "../../profile/life-memory-engine.js";
 
 export const HOS_KERNEL_VERSION = "V16";
@@ -13,6 +14,7 @@ export const HOS_KERNEL_STAGES = Object.freeze([
   "reasoning",
   "memory",
   "context",
+  "mission-intelligence",
   "prediction",
   "mission-routing",
   "solution",
@@ -182,6 +184,25 @@ function defaultEngines() {
       }
     },
     {
+      id: "mission-intelligence-library-v21",
+      stage: "mission-intelligence",
+      version: "V21",
+      description: "Selects a structured operational playbook without replacing reasoning or mission engines.",
+      handler(state) {
+        return {
+          missionIntelligence: selectMissionPlaybook({
+            ...state.input,
+            mission: state.classification?.mission || state.input?.mission,
+            classification: state.classification,
+            humanReasoning: state.humanReasoning,
+            lifeMemoryContext: state.lifeMemoryContext,
+            contextObject: state.contextObject,
+            language: state.language
+          })
+        };
+      }
+    },
+    {
       id: "prediction-v15",
       stage: "prediction",
       version: "V15",
@@ -253,7 +274,8 @@ function defaultEngines() {
             humanReasoning: state.humanReasoning,
             lifeMemoryContext: state.lifeMemoryContext,
             contextObject: state.contextObject,
-            futureMissionSuggestions: state.futureMissionSuggestions
+            futureMissionSuggestions: state.futureMissionSuggestions,
+            missionIntelligence: state.missionIntelligence
           })
         };
       }

@@ -71,18 +71,21 @@ The benchmark includes 25 real-world cases across:
 
 ## Honest current result
 
-Current benchmark run against the V16–V19 system:
+Current benchmark run after V21 Mission Intelligence Library:
 
 - Cases: 25
 - Passed: 25
 - Failed: 0
-- Average score: 81%
+- Average score: 87%
 
 Weakest mission areas:
 
-- Unnecessary questions avoided: 2.8/5
-- Provider relevance: 3/5
-- Absence of generic chatbot filler: 3.3/5
+- Outcome clarity: 4/5
+- Correct mission understanding: 4/5
+- Context reuse: 4/5
+- Unnecessary questions avoided: 4/5
+- Feasibility: 4/5
+- Provider relevance: 4/5
 - Outcome clarity: 4/5
 - Correct mission understanding: 4/5
 - Context reuse: 4/5
@@ -91,21 +94,32 @@ Weakest mission areas:
 Maturity distribution:
 
 - informative_answer: 0
-- recommendation: 8
-- prepared_solution: 17
+- recommendation: 0
+- prepared_solution: 25
 - executable_approved_mission: 0
 - completed_mission: 0
 
 ## Honest weaknesses
 
-The benchmark shows ONE is no longer a simple answer engine, but it is not uniformly at prepared-solution maturity yet.
+The benchmark shows V21 moved the current system to prepared-solution maturity across all 25 benchmark cases.
 
 But the current system is still weakest in:
 
 - real provider relevance, because provider integrations are mock/fallback rather than live;
 - context reuse, because many benchmark scenarios do not include rich calendar/profile/history data;
-- several missions still score as recommendations rather than fully prepared solutions;
 - executable/completed mission maturity, because approval, provider auth, and real execution remain disabled by design.
+
+Before V21:
+
+- Average score: 81%
+- Recommendation maturity: 8
+- Prepared-solution maturity: 17
+
+After V21:
+
+- Average score: 87%
+- Recommendation maturity: 0
+- Prepared-solution maturity: 25
 
 That is correct for the prototype. The benchmark should not mark missions complete until real provider evidence or user confirmation exists.
 

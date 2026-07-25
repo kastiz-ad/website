@@ -1,4 +1,5 @@
 import { classifyUniversalMission } from "../universal-mission-engine-v4.js";
+import { applyPlaybookGuidanceToResolutionPlan } from "../../mission-intelligence/mission-intelligence-registry-v21.js";
 
 export const SOLUTION_OPERATING_LAYER_VERSION = "V17";
 
@@ -238,7 +239,7 @@ export function buildResolutionPlan(input = {}) {
     domain === "business" ? "ONE does not provide legal certainty; official or professional review may be required." : null
   ].filter(Boolean));
 
-  return Object.freeze({
+  const plan = Object.freeze({
     version: SOLUTION_OPERATING_LAYER_VERSION,
     resolutionId: `resolution-${idText(userProblem)}`,
     missionId: clean(input.missionObject?.id || input.missionId || `mission-${idText(userProblem)}`),
@@ -312,6 +313,9 @@ export function buildResolutionPlan(input = {}) {
       : "Show prepared solution and request approval or revision.",
     ...SAFE_FLAGS
   });
+  return input.missionIntelligence?.selectedPlaybook
+    ? applyPlaybookGuidanceToResolutionPlan(plan, input.missionIntelligence)
+    : plan;
 }
 
 export function summarizeResolutionPlan(plan = {}) {

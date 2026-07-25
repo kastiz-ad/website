@@ -32,6 +32,8 @@ Life Memory Engine V13
   ↓
 Context Intelligence Engine V14
   ↓
+Mission Intelligence Library V21
+  ↓
 Prediction Engine V15
   ↓
 Mission Routing
@@ -66,14 +68,15 @@ Supported stages:
 1. `reasoning`
 2. `memory`
 3. `context`
-4. `prediction`
-5. `mission-routing`
-6. `solution`
-7. `provider-routing`
-8. `approval`
-9. `trusted-action-gateway`
-10. `mission-completion-loop`
-11. `execution-preparation`
+4. `mission-intelligence`
+5. `prediction`
+6. `mission-routing`
+7. `solution`
+8. `provider-routing`
+9. `approval`
+10. `trusted-action-gateway`
+11. `mission-completion-loop`
+12. `execution-preparation`
 
 ## Boundaries
 

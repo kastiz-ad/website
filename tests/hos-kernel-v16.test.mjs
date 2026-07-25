@@ -12,6 +12,7 @@ test("V16 registers every required orchestration stage", () => {
     "reasoning",
     "memory",
     "context",
+    "mission-intelligence",
     "prediction",
     "mission-routing",
     "solution",
@@ -49,6 +50,7 @@ test("V16 coordinates V12, V13, V14, V15 and mission routing without execution",
   assert.ok(result.humanReasoning);
   assert.ok(result.lifeMemoryContext);
   assert.ok(result.contextObject);
+  assert.ok(result.missionIntelligence.selectedPlaybookId);
   assert.ok(result.futureMissionSuggestions.suggestions.some((item) => item.type === "passport-renewal"));
   assert.equal(result.approvalEnvelope.executionEnabled, false);
   assert.equal(result.trustedActionGateway.securityBoundaries.rawFinancialCredentialsStored, false);

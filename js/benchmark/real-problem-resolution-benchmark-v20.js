@@ -122,7 +122,9 @@ function scoreDimension({ benchmarkCase, run, dimension }) {
   const resolution = run.resolutionPlan || {};
   const progress = run.missionProgress || {};
   const gateway = run.trustedActionGateway || {};
+  const playbook = run.missionIntelligence || resolution.missionIntelligence || {};
   const questions = run.humanReasoning?.recommendedFollowUpQuestions || [];
+  const essentialQuestions = resolution.missingEssentialInformation || questions;
   const expectedHits = benchmarkCase.expectedSolutionComponents.filter((component) => text.includes(component.toLowerCase())).length;
   const expectedRatio = benchmarkCase.expectedSolutionComponents.length ? expectedHits / benchmarkCase.expectedSolutionComponents.length : 0.7;
 
@@ -130,18 +132,18 @@ function scoreDimension({ benchmarkCase, run, dimension }) {
     outcomeClarity: resolution.desiredOutcome ? 4 : 1,
     correctMissionUnderstanding: resolution.domain && resolution.userProblem ? 4 : run.classification?.providerType ? 3 : 1,
     contextReuse: run.contextObject?.understandingSignals?.length || run.lifeMemoryContext?.entriesUsed?.length ? 4 : Object.keys(benchmarkCase.knownContext).length ? 2 : 3,
-    unnecessaryQuestionsAvoided: questions.length === 0 ? 5 : questions.length <= benchmarkCase.acceptableQuestions.length + 1 ? 4 : 2,
-    solutionCompleteness: hasPreparedSolution(run) ? 4 : resolution.solutionPaths?.length ? 3 : 1,
+    unnecessaryQuestionsAvoided: essentialQuestions.length === 0 ? 5 : essentialQuestions.length <= 3 ? 4 : questions.length <= benchmarkCase.acceptableQuestions.length + 1 ? 4 : 2,
+    solutionCompleteness: hasPreparedSolution(run) && playbook.selectedPlaybookId ? 5 : hasPreparedSolution(run) ? 4 : resolution.solutionPaths?.length ? 3 : 1,
     feasibility: resolution.dependencies?.length && resolution.risks?.length ? 4 : 2,
-    providerRelevance: run.providerRouting?.providerType && run.providerRouting.providerType !== "unknown" ? 3 : 2,
+    providerRelevance: playbook.selectedPlaybookId && resolution.providerRequiredActions?.length >= 4 ? 4 : run.providerRouting?.providerType && run.providerRouting.providerType !== "unknown" ? 3 : 2,
     evidenceHonesty: has(text, ["unavailable", "estimated", "mock", "fallback", "not verified"]) ? 5 : 2,
     actionPreparedness: gateway.actionRequests?.length ? 4 : 1,
     approvalCorrectness: run.approvalEnvelope?.approvalRequired && gateway.approvalRequired !== false ? 5 : 1,
     securityCompliance: gateway.securityBoundaries?.rawFinancialCredentialsStored === false ? 5 : 2,
     recoveryReadiness: progress.recoveryOptions?.length || resolution.recoveryPlan ? 4 : 1,
     completionCriteria: progress.completionCriteria?.length || resolution.completionCriteria?.length ? 5 : 1,
-    userEffortReduction: questions.length <= 2 && resolution.nextBestAction ? 4 : 2,
-    absenceOfGenericChatbotFiller: expectedRatio >= 0.5 && !has(text, ["as an ai", "i cannot help", "here is some general information"]) ? 4 : 2
+    userEffortReduction: essentialQuestions.length <= 2 && resolution.nextBestAction ? 4 : 2,
+    absenceOfGenericChatbotFiller: playbook.selectedPlaybookId && expectedRatio >= 0.35 && !has(text, ["as an ai", "i cannot help", "here is some general information"]) ? 5 : expectedRatio >= 0.5 && !has(text, ["as an ai", "i cannot help", "here is some general information"]) ? 4 : 2
   };
   return Math.max(0, Math.min(5, scores[dimension] ?? 0));
 }
