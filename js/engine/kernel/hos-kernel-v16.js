@@ -3,6 +3,7 @@ import { buildHumanReasoningObject } from "../human-reasoning/human-reasoning-en
 import { buildContextObject } from "../context/context-intelligence-engine-v14.js";
 import { generateFutureMissionSuggestions } from "../prediction/prediction-engine-v15.js";
 import { buildResolutionPlan } from "../solution/solution-operating-layer-v17.js";
+import { buildTrustedActionGatewayPackage } from "../action/trusted-action-gateway-v18.js";
 import { buildLifeMemoryContext } from "../../profile/life-memory-engine.js";
 
 export const HOS_KERNEL_VERSION = "V16";
@@ -16,6 +17,7 @@ export const HOS_KERNEL_STAGES = Object.freeze([
   "solution",
   "provider-routing",
   "approval",
+  "trusted-action-gateway",
   "execution-preparation"
 ]);
 
@@ -261,6 +263,20 @@ function defaultEngines() {
       description: "Adds approval envelope and protected action policy.",
       handler(state) {
         return { approvalEnvelope: buildApprovalEnvelope(state) };
+      }
+    },
+    {
+      id: "trusted-action-gateway-v18",
+      stage: "trusted-action-gateway",
+      version: "V18",
+      description: "Converts approved ResolutionPlan actions into provider-safe ActionRequests without live execution.",
+      handler(state) {
+        return {
+          trustedActionGateway: buildTrustedActionGatewayPackage({
+            resolutionPlan: state.resolutionPlan,
+            actions: state.resolutionPlan?.approvalRequiredActions
+          })
+        };
       }
     },
     {

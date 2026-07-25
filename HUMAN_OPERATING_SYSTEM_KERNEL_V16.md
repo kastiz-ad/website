@@ -42,6 +42,8 @@ Provider Routing
   ↓
 Approval Orchestration
   ↓
+Trusted Action Gateway V18
+  ↓
 Execution Preparation
 ```
 
@@ -67,7 +69,8 @@ Supported stages:
 6. `solution`
 7. `provider-routing`
 8. `approval`
-9. `execution-preparation`
+9. `trusted-action-gateway`
+10. `execution-preparation`
 
 ## Boundaries
 
