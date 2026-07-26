@@ -54,10 +54,10 @@ test("government submission and job application use external provider auth surfa
 test("approval decisions support approve reject modify alternative and cancel", () => {
   const action = createActionRequest({ resolutionPlan, actionType: "book", now: "2026-07-26T00:00:00Z" });
   assert.equal(reviewActionRequest(action, "approve", { now: "2026-07-26T00:05:00Z" }).approvalStatus, "approved");
-  assert.equal(reviewActionRequest(action, "reject").approvalStatus, "rejected");
-  assert.equal(reviewActionRequest(action, "modify").approvalStatus, "needs_modification");
-  assert.equal(reviewActionRequest(action, "selectAlternative").approvalStatus, "alternative_selected");
-  assert.equal(reviewActionRequest(action, "cancel").approvalStatus, "cancelled");
+  assert.equal(reviewActionRequest(action, "reject", { now: "2026-07-26T00:05:00Z" }).approvalStatus, "rejected");
+  assert.equal(reviewActionRequest(action, "modify", { now: "2026-07-26T00:05:00Z" }).approvalStatus, "needs_modification");
+  assert.equal(reviewActionRequest(action, "selectAlternative", { now: "2026-07-26T00:05:00Z" }).approvalStatus, "alternative_selected");
+  assert.equal(reviewActionRequest(action, "cancel", { now: "2026-07-26T00:05:00Z" }).approvalStatus, "cancelled");
 });
 
 test("expired approval blocks execution", () => {

@@ -401,6 +401,19 @@ const MANUAL_V23_TRAVEL_SCENARIOS = Object.freeze({
   "visa-unresolved": "삿포로 여행"
 });
 
+const MANUAL_V231_APPROVAL_SCENARIOS = Object.freeze({
+  "preparation-approved-no-dates": "preparation_approved",
+  "dates-known-no-live-provider": "preparation_approved",
+  "live-search-approved-adapter-unavailable": "live_search_requested",
+  "cached-public-provider-result": "preparation_approved",
+  "verified-live-provider-result-not-booked": "preparation_approved",
+  "booking-approval-requested": "transaction_approval_requested",
+  "provider-processing": "provider_processing",
+  "real-completion-fixture": "completed_verified_fixture",
+  "direct-completion-blocked": "completion_blocked",
+  "korean-language-integrity": "preparation_approved"
+});
+
 const isTravelResult = (result) => ["travel", "travel-preparation"].includes(result?.type) || result?.domain === "travel" || result?.resolutionPlan?.domain === "travel";
 
 const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => {
@@ -456,6 +469,7 @@ function getManualScenarioResult() {
   const result = createResolutionResultFromPrompt(prompt, language);
   if (MANUAL_V23_TRAVEL_SCENARIOS[scenario]) {
     result.v23TravelScenario = scenario;
+    result.v23ApprovalScenario = params.get("v23ApprovalScenario") || "";
     result.destination = {
       ...(result.destination || {}),
       country: "Japan",
@@ -3060,6 +3074,210 @@ const updateTravelBudgetFromSelections = () => {
   if (exchangeCard) exchangeCard.replaceWith(createExchangeBudgetCard(currentResult));
 };
 
+const isV231TravelPreparationFlow = () => currentResult?.type === "travel" && currentResult?.v23TravelExperience === true;
+
+const v231Local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+
+const getV231SelectedJourney = () => {
+  if (currentResult?.v23SelectedJourney) return currentResult.v23SelectedJourney;
+  if (currentResult?.type !== "travel") return null;
+  const journeys = buildV23TravelJourneys(currentResult, currentResult?.missionContext);
+  const selected = journeys.find((journey) => journey.selected) || journeys[0] || null;
+  if (selected) currentResult.v23SelectedJourney = selected;
+  return selected;
+};
+
+const getV231SourceStateLabel = (state) => {
+  const normalized = ["verified_live", "cached_public", "estimated", "placeholder"].includes(state) ? state : "unavailable";
+  const labels = {
+    verified_live: v231Local("Verified live", "실시간 확인됨", "Verificado en vivo"),
+    cached_public: v231Local("Recent public information", "최근 공개 정보 기준", "Información pública reciente"),
+    estimated: v231Local("Estimated information", "예상 정보", "Información estimada"),
+    placeholder: v231Local("Search criteria prepared", "검색 조건 준비됨", "Criterios preparados"),
+    unavailable: v231Local("Not retrieved yet", "아직 조회되지 않음", "Aún no consultado")
+  };
+  return labels[normalized];
+};
+
+const getV231MissingTravelFields = () => {
+  const schedule = currentResult?.schedule || {};
+  const answers = currentResult?.followUp?.answers || {};
+  const missing = [];
+  if (!schedule.startDate) missing.push(v231Local("Outbound date", "출국 날짜", "Fecha de salida"));
+  if (!schedule.endDate) missing.push(v231Local("Return date or trip length", "귀국 날짜 또는 여행 기간", "Fecha de regreso o duración"));
+  if (!answers.adults && !currentResult?.travelerCount && !currentResult?.travelers) missing.push(v231Local("Number of travelers", "여행 인원", "Número de viajeros"));
+  if (!answers.originAirport && !currentResult?.originAirport) missing.push(v231Local("Departure airport confirmation", "출발 공항 확인", "Aeropuerto de salida"));
+  if (!answers.rooms && !currentResult?.rooms) missing.push(v231Local("Number of rooms", "객실 수", "Número de habitaciones"));
+  if (!currentResult?.budget?.preference && !currentResult?.budget?.userBudget && !currentResult?.budget?.estimatedTotal) missing.push(v231Local("Preferred budget range", "선호 예산 범위", "Rango de presupuesto preferido"));
+  return missing;
+};
+
+const setV231CompletionHeader = (titleText, bodyText) => {
+  completionMessage.hidden = false;
+  const title = completionMessage.querySelector("h3");
+  const subtitle = completionMessage.querySelector("p");
+  if (title) title.textContent = titleText;
+  if (subtitle) subtitle.textContent = bodyText;
+};
+
+const renderV231PreparationContinuation = ({ state = "preparation_approved" } = {}) => {
+  if (!executionSummary) return;
+  const journey = getV231SelectedJourney();
+  if (!journey) return;
+
+  currentResult.approvalState = {
+    level: state,
+    selectedJourneyId: journey.id,
+    selectedJourneyName: journey.name,
+    destination: currentResult.destination,
+    approvedScope: ["journey_direction", "provider_search_criteria_preparation", "comparison_preparation"],
+    blockedActions: ["booking", "payment", "ticketing", "submission", "provider_contact", "completion"],
+    providerSearchStatus: state === "live_search_requested" ? "adapter_unavailable" : "not_started",
+    completionEvidence: null
+  };
+  sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+  sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+
+  const source = journey.sourceStates || {};
+  const tags = (journey.tags || []).slice(0, 5).join(" · ");
+  const missing = getV231MissingTravelFields();
+  const approvedScope = [
+    v231Local("Keep the selected journey direction", "선택한 여행 방향 유지", "Mantener el viaje elegido"),
+    v231Local("Prepare live flight search criteria", "실시간 항공편 검색 조건 준비", "Preparar criterios de vuelos en vivo"),
+    v231Local("Prepare accommodation search criteria", "숙소 검색 조건 준비", "Preparar criterios de alojamiento"),
+    v231Local("Organize transport, food, and activity criteria", "교통·식사·활동 조건 정리", "Organizar transporte, comida y actividades"),
+    v231Local("Prepare a final comparison plan", "최종 비교안 준비", "Preparar comparación final")
+  ];
+  const actionRows = [
+    { title: v231Local("Flights", "항공편", "Vuelos"), body: journey.details?.flight || "—", state: source.flight || "unavailable" },
+    { title: v231Local("Accommodation", "숙소", "Alojamiento"), body: journey.details?.hotel || "—", state: source.hotel || "unavailable" },
+    { title: v231Local("Local transportation", "현지 이동", "Transporte local"), body: journey.details?.transport || "—", state: source.transport || "placeholder" },
+    { title: v231Local("Food and activities", "식사와 활동", "Comida y actividades"), body: journey.details?.food || "—", state: source.food || "placeholder" }
+  ];
+  const stillNeeded = missing.length
+    ? missing
+    : [v231Local("Nothing essential is missing for the next preparation step.", "다음 준비 단계에 꼭 필요한 정보는 이미 있습니다.", "No falta información esencial para el siguiente paso.")];
+  const providerNotice = state === "live_search_requested"
+    ? v231Local(
+        "Live provider search was approved, but no live provider adapter is connected in this prototype yet.",
+        "실시간 제공업체 조회는 승인되었지만, 이 프로토타입에는 아직 연결된 실시간 제공업체 어댑터가 없습니다.",
+        "La búsqueda en vivo fue aprobada, pero este prototipo aún no tiene un adaptador de proveedor en vivo conectado."
+      )
+    : v231Local(
+        "Provider search has not started yet. ONE only prepared the next step.",
+        "제공업체 조회는 아직 시작되지 않았습니다. ONE은 다음 단계만 준비했습니다.",
+        "La búsqueda de proveedores aún no comenzó. ONE solo preparó el siguiente paso."
+      );
+
+  setV231CompletionHeader(
+    v231Local("Next step prepared", "다음 단계를 준비했습니다", "Siguiente paso preparado"),
+    v231Local(
+      `ONE organized the criteria needed to continue with “${journey.name}”.`,
+      `선택한 ‘${journey.name}’ 여행을 기준으로 다음 확인에 필요한 조건을 정리했습니다.`,
+      `ONE organizó los criterios para continuar con “${journey.name}”.`
+    )
+  );
+
+  executionSummary.innerHTML = `
+    <section class="v231-continuation" data-stage="${escapeSummaryText(state)}">
+      <div class="v231-stage-strip">${escapeSummaryText(v231Local("No booking, payment, ticketing, submission, or provider contact has occurred.", "아직 예약, 결제, 발권, 제출, 제공업체 연락은 진행되지 않았습니다.", "Todavía no hay reserva, pago, emisión, envío ni contacto con proveedores."))}</div>
+      <article class="v231-selected-journey">
+        <span class="v23-eyebrow">${escapeSummaryText(v231Local("Selected journey", "선택한 여행", "Viaje elegido"))}</span>
+        <h4>${escapeSummaryText(journey.name)}</h4>
+        <p>${escapeSummaryText(journey.purpose)}</p>
+        <div class="v23-overview-meta">
+          <span>${escapeSummaryText(journey.duration)}</span>
+          <span>${escapeSummaryText(journey.comfort)}</span>
+          <span>${escapeSummaryText(journey.budget)}</span>
+          <span>${escapeSummaryText(tags)}</span>
+        </div>
+        <p class="v231-reason">${escapeSummaryText(journey.reason)}</p>
+      </article>
+      <article class="v231-card">
+        <h4>${escapeSummaryText(v231Local("Scope approved", "승인한 범위", "Alcance aprobado"))}</h4>
+        <ul>${approvedScope.map((item) => `<li>✓ ${escapeSummaryText(item)}</li>`).join("")}</ul>
+      </article>
+      <article class="v231-card">
+        <h4>${escapeSummaryText(v231Local("What ONE will check next", "ONE이 다음에 확인할 내용", "Lo que ONE comprobará después"))}</h4>
+        <div class="v231-action-grid">
+          ${actionRows.map((item) => `
+            <section>
+              <strong>${escapeSummaryText(item.title)}</strong>
+              <p>${escapeSummaryText(item.body)}</p>
+              <small>${escapeSummaryText(v231Local("Current state", "현재 상태", "Estado actual"))}: ${escapeSummaryText(getV231SourceStateLabel(item.state))}</small>
+            </section>
+          `).join("")}
+        </div>
+        <p class="v231-provider-notice">${escapeSummaryText(providerNotice)}</p>
+      </article>
+      <article class="v231-card">
+        <h4>${escapeSummaryText(v231Local("Information still needed", "아직 필요한 정보", "Información pendiente"))}</h4>
+        <ul>${stillNeeded.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
+      </article>
+      <article class="v231-next-action">
+        <strong>${escapeSummaryText(v231Local("One safe next action", "안전한 다음 작업 하나", "Una acción segura siguiente"))}</strong>
+        <button type="button" class="v231-primary" data-v231-live-search>${escapeSummaryText(v231Local("Approve live search only", "실시간 조회만 승인하기", "Aprobar solo búsqueda en vivo"))}</button>
+        <p>${escapeSummaryText(v231Local(
+          "This allows search and comparison only. Before any booking or payment, ONE must show exact options, price, provider, terms, and ask for separate approval.",
+          "이 승인은 검색과 비교까지만 허용합니다. 예약이나 결제 전에는 ONE이 정확한 옵션, 금액, 제공업체, 조건을 다시 보여드리고 별도 승인을 요청해야 합니다.",
+          "Esto permite solo búsqueda y comparación. Antes de reservar o pagar, ONE debe mostrar opciones, precio, proveedor y condiciones exactas, y pedir otra aprobación."
+        ))}</p>
+      </article>
+    </section>
+  `;
+};
+
+const renderV231BlockedCompletionState = () => {
+  if (!executionSummary) return;
+  setV231CompletionHeader(
+    v231Local("Completion requires evidence", "완료에는 확인 증거가 필요합니다", "La finalización requiere evidencia"),
+    v231Local(
+      "ONE did not open a completed booking screen because no verified provider result exists.",
+      "확인된 제공업체 결과가 없기 때문에 완료된 예약 화면을 열지 않았습니다.",
+      "ONE no abrió una pantalla de reserva completada porque no existe un resultado verificado del proveedor."
+    )
+  );
+  executionSummary.innerHTML = `
+    <section class="v231-continuation v231-blocked" data-stage="completion-blocked">
+      <div class="v231-stage-strip">${escapeSummaryText(v231Local("No booking, payment, ticketing, submission, or provider contact has occurred.", "아직 예약, 결제, 발권, 제출, 제공업체 연락은 진행되지 않았습니다.", "Todavía no hay reserva, pago, emisión, envío ni contacto con proveedores."))}</div>
+      <article class="v231-card">
+        <h4>${escapeSummaryText(v231Local("Why this was blocked", "차단된 이유", "Por qué se bloqueó"))}</h4>
+        <p>${escapeSummaryText(v231Local(
+          "A prototype reference or direct completion link cannot prove that a real provider completed anything.",
+          "프로토타입 참조 번호나 직접 완료 링크는 실제 제공업체가 무언가를 완료했다는 증거가 될 수 없습니다.",
+          "Una referencia de prototipo o un enlace directo no demuestra que un proveedor haya completado algo."
+        ))}</p>
+      </article>
+    </section>
+  `;
+};
+
+const applyV231ManualApprovalScenario = () => {
+  const scenario = currentResult?.v23ApprovalScenario;
+  if (!scenario || !isV231TravelPreparationFlow()) return;
+  const state = MANUAL_V231_APPROVAL_SCENARIOS[scenario];
+  if (!state) return;
+  document.body.classList.add("v231-manual-preview-view");
+  bottomActions.hidden = true;
+  approvalPanel.hidden = false;
+  approvalList.hidden = true;
+  if (state === "completion_blocked") {
+    renderV231BlockedCompletionState();
+    return;
+  }
+  if (state === "completed_verified_fixture") {
+    renderV231PreparationContinuation({ state: "provider_processing" });
+    const notice = executionSummary.querySelector(".v231-stage-strip");
+    if (notice) notice.textContent = v231Local(
+      "Verified completion requires a real provider receipt. This preview stops before fake completion.",
+      "검증된 완료에는 실제 제공업체 영수증이 필요합니다. 이 미리보기는 가짜 완료 화면으로 가지 않습니다.",
+      "La finalización verificada requiere un recibo real del proveedor. Esta vista previa no muestra una finalización falsa."
+    );
+    return;
+  }
+  renderV231PreparationContinuation({ state });
+};
+
 const buildExecutionSummary = () => {
   if (!executionSummary) return;
   if (isExperienceMission(currentResult, currentResult?.missionContext)) {
@@ -3149,6 +3367,33 @@ const buildExecutionSummary = () => {
 };
 
 const runApprovalSequence = () => {
+  if (isV231TravelPreparationFlow()) {
+    trackEvent("preparation_approval_started", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "preparation_only" });
+    const items = [...approvalList.querySelectorAll(".approval-item")];
+
+    makeRealityButton.disabled = true;
+    bottomActions.hidden = true;
+    approvalPanel.hidden = false;
+    approvalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    items.forEach((item) => {
+      item.classList.add("is-complete");
+      item.querySelector(".approval-check").textContent = "✓";
+    });
+
+    window.setTimeout(() => {
+      renderV231PreparationContinuation();
+      trackEvent("approval_confirmed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", approval_scope: "preparation_only" });
+      trackEvent("preparation_approved", { mission_type: currentResult?.type, language: activeLanguage, page: "results", provider_search_status: "not_started" });
+      window.requestAnimationFrame(() => {
+        const headerHeight = document.querySelector(".results-header")?.getBoundingClientRect().height || 76;
+        const targetTop = window.scrollY + completionMessage.getBoundingClientRect().top - headerHeight - 28;
+        window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+      });
+    }, 320);
+    return;
+  }
+
   trackEvent("simulated_execution_started", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "prototype_simulation" });
   const items = [...approvalList.querySelectorAll(".approval-item")];
 
@@ -3446,6 +3691,15 @@ additionalServiceInput?.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const v231LiveSearch = event.target.closest("[data-v231-live-search]");
+  if (v231LiveSearch) {
+    event.preventDefault();
+    v231LiveSearch.disabled = true;
+    renderV231PreparationContinuation({ state: "live_search_requested" });
+    trackEvent("live_provider_search_requested", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "adapter_unavailable" });
+    return;
+  }
+
   const pathwayAction = event.target.closest(".pathway-opportunity-action");
   if (pathwayAction && additionalServiceInput) {
     additionalServiceInput.value = pathwayAction.dataset.revisionCommand || pathwayAction.textContent.trim();
@@ -3494,7 +3748,16 @@ makeRealityButton.addEventListener("click", () => {
   const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
   const experience = currentExperienceReview?.generatedExperience?.onePick;
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
-  const reviewItems = experienceMission && experience
+  const journey = isV231TravelPreparationFlow() ? getV231SelectedJourney() : null;
+  const reviewItems = journey
+    ? [
+        { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
+        { label: local("Selected journey", "선택한 여행", "Viaje elegido"), value: journey.name },
+        { label: local("Journey style", "여행 스타일", "Estilo de viaje"), value: `${journey.duration} · ${journey.comfort} · ${journey.budget}` },
+        { label: local("Approved scope", "승인 범위", "Alcance aprobado"), value: local("Prepare search and comparison only", "검색과 비교 준비까지만 승인", "Solo preparar búsqueda y comparación") },
+        { label: local("Not approved", "승인되지 않은 것", "No aprobado"), value: local("No booking, payment, ticketing, submission, or provider contact", "예약, 결제, 발권, 제출, 제공업체 연락 없음", "Sin reserva, pago, emisión, envío ni contacto con proveedores") }
+      ]
+    : experienceMission && experience
     ? [
         { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
         { label: "ONE Pick", value: currentExperienceReview.recommendation },
@@ -3528,8 +3791,17 @@ renderMission();
 initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
+applyV231ManualApprovalScenario();
 const requestedReference = new URLSearchParams(location.search).get("reference")?.toUpperCase();
-if (currentResult?.portableShare === true || /^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
+if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
+  document.body.classList.add("completion-blocked-view");
+  renderV231BlockedCompletionState();
+  bottomActions.hidden = true;
+  approvalPanel.hidden = false;
+  approvalList.hidden = true;
+  document.title = activeLanguage === "ko" ? "Kastiz ONE — 완료 확인 필요" : activeLanguage === "es" ? "Kastiz ONE — Finalización pendiente" : "Kastiz ONE — Completion Requires Evidence";
+  window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
+} else if (currentResult?.portableShare === true) {
   document.body.classList.add("portable-summary-view");
   buildExecutionSummary();
   const finalTitle = completionMessage.querySelector("h3");
