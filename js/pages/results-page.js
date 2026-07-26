@@ -6,6 +6,7 @@ import { buildContextualExperienceIntelligence as buildExperienceIntelligence } 
 import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js?v=20260722-context-v2";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
+import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -467,6 +468,7 @@ function getManualScenarioResult() {
   if (!prompt) return null;
   const language = params.get("lang") || (/[\u3131-\uD79D]/.test(prompt) ? "ko" : activeLanguage);
   const result = createResolutionResultFromPrompt(prompt, language);
+  result.v24WorldScenario = params.get("v24WorldScenario") || "";
   if (MANUAL_V23_TRAVEL_SCENARIOS[scenario]) {
     result.v23TravelScenario = scenario;
     result.v23ApprovalScenario = params.get("v23ApprovalScenario") || "";
@@ -1509,6 +1511,11 @@ function adaptTravelResultToDestination(result) {
   const city = result.destination?.city || result.countryProfile?.capital || "the destination";
   const cityKo = result.destination?.cityKo || result.countryProfile?.capitalKo || city;
   const livePlaces = findLiveProvider(result, "local_places");
+  const worldIntelligence = buildTravelWorldIntelligence(result, { scenario: result.v24WorldScenario || "" });
+  const worldHotels = worldIntelligence.models.hotels || [];
+  const worldRestaurants = worldIntelligence.models.restaurants || [];
+  const worldFlights = worldIntelligence.models.flights || [];
+  const worldHotelNames = worldHotels.map((item) => item.name).filter(Boolean);
   const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, TRAVEL_OPTION_TARGETS.hotels);
   const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, TRAVEL_OPTION_TARGETS.restaurants);
   const regionalFareRanges = {
@@ -1558,21 +1565,21 @@ function adaptTravelResultToDestination(result) {
   const baseProfile = destinationPrototypeProfiles[code] || {
     airlines: airlineProfilesByCountry[code] || airlineProfilesByContinent[continent] || airlineProfilesByContinent.Asia,
     flightPrices: genericPrices,
-    hotels: liveHotelNames.length ? liveHotelNames : [`${city} Central Hotel`],
+    hotels: worldHotelNames.length ? worldHotelNames : (liveHotelNames.length ? liveHotelNames : [`${city} accommodation search required`]),
     hotelPrices: nightlyRangesByContinent[continent] || [[120000, 340000], [220000, 560000], [90000, 250000], [70000, 180000]],
     transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
   };
   const cityOverride = cityProfileOverride(code, city);
   const profile = cityOverride ? { ...baseProfile, ...cityOverride } : { ...baseProfile };
   const hotelFallbacks = [
-    `${city} Central Hotel`,
-    `${city} Premium Hotel`,
-    `${city} Best-Value Stay`,
-    `${city} Budget Hotel`,
-    `${city} Boutique Hotel`,
-    `${city} City View Hotel`,
-    `${city} Family Stay`,
-    `${city} Flexible Stay`
+    `${city} accommodation live search`,
+    `${city} premium stay live search`,
+    `${city} value stay live search`,
+    `${city} budget stay live search`,
+    `${city} boutique stay live search`,
+    `${city} family stay live search`,
+    `${city} flexible stay live search`,
+    `${city} verified-provider search`
   ];
   const hotelPool = [...new Set([...liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks])];
   profile.hotels = hotelPool.slice(0, TRAVEL_OPTION_TARGETS.hotels);
@@ -1606,14 +1613,17 @@ function adaptTravelResultToDestination(result) {
   const flights = profile.airlines.map((providerEntry, index) => {
     const provider = Array.isArray(providerEntry) ? providerEntry[0] : providerEntry;
     const providerKo = Array.isArray(providerEntry) ? providerEntry[1] : (airlineNameKo[provider] || provider);
+    const worldFlight = worldFlights[index] || worldFlights[0] || {};
     return {
       ...(result.flights?.[index] || result.flights?.[0] || {}),
       id: `flight-${profileCode}-${index + 1}`,
-      provider,
+      provider: worldFlight.airline || provider,
       providerKo,
       category: index === 0 ? "recommended" : "alternative",
       estimatedPrice: priceFor(index),
-      priceBasis: "prototype_market_estimate",
+      priceBasis: worldFlight.priceState || "estimated_until_live_search",
+      sourceState: worldFlight.sourceState || "estimated",
+      sourceMetadata: worldFlight.sourceMetadata || null,
       reason: flightReasons[index]?.[0] || `Practical prototype flight option for ${city}.`,
       reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
     };
@@ -1627,6 +1637,9 @@ function adaptTravelResultToDestination(result) {
     estimatedNightlyPrice: profile.hotelPrices?.[index]
       ? { currency: "KRW", min: profile.hotelPrices[index][0], max: profile.hotelPrices[index][1] }
       : (result.hotels?.[index]?.estimatedNightlyPrice || result.hotels?.[0]?.estimatedNightlyPrice),
+    priceBasis: worldHotels[index]?.priceState || "requires_live_search",
+    sourceState: worldHotels[index]?.sourceState || "unavailable",
+    sourceMetadata: worldHotels[index]?.sourceMetadata || null,
     reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
     reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
@@ -1651,7 +1664,9 @@ function adaptTravelResultToDestination(result) {
     venueNameKo: localizedVenueNames[name] || name,
     rating,
     cuisine: cuisine || "",
-    providerSource: source || "Prototype curated fallback",
+    providerSource: source || "ONE World Intelligence estimate",
+    sourceState: worldRestaurants[index]?.sourceState || (source ? "cached_public" : "estimated"),
+    sourceMetadata: worldRestaurants[index]?.sourceMetadata || null,
     livePlaceName: Boolean(liveRestaurantPlaces.length),
     estimatedPrice: { currency: "KRW", min, max },
     recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,
@@ -1684,6 +1699,8 @@ function adaptTravelResultToDestination(result) {
 
   return {
     ...result,
+    worldIntelligence,
+    v24WorldIntelligence: true,
     flights,
     hotels,
     restaurants,
@@ -2298,6 +2315,50 @@ const updateV23JourneySelection = (container, index, result) => {
   currentResult.v23SelectedJourney = selected;
 };
 
+const createWorldIntelligenceSourceCard = (result) => {
+  const foundation = result.worldIntelligence;
+  if (!foundation) return null;
+  const language = activeLanguage === "ko" ? "ko" : activeLanguage === "es" ? "es" : "en";
+  const breakdown = foundation.sourceBreakdown || {};
+  const failures = Array.isArray(foundation.failures) ? foundation.failures : [];
+  const title = v22Local("World Intelligence status", "월드 인텔리전스 상태", "Estado de inteligencia mundial");
+  const subtitle = v22Local(
+    "ONE separates verified, public, estimated, and unavailable data before planning.",
+    "ONE은 계획 전에 검증·공개·예상·불가 데이터를 분리합니다.",
+    "ONE separa datos verificados, públicos, estimados y no disponibles antes de planificar."
+  );
+  const sourceRows = ["verified_live", "cached_public", "estimated", "placeholder", "unavailable"].map((state) => `
+    <span class="v24-source-chip is-${state}">
+      <strong>${escapeSummaryText(sourceStateUserLabel(state, language))}</strong>
+      <small>${Number(breakdown[state] || 0)}</small>
+    </span>
+  `).join("");
+  const failureRows = failures.length
+    ? failures.slice(0, 4).map((failure) => `<li>${escapeSummaryText(failure.providerType || "provider")}: ${escapeSummaryText(failure.message || "")}</li>`).join("")
+    : `<li>${escapeSummaryText(v22Local("No adapter failures reported.", "어댑터 오류 없음", "Sin fallos de adaptador."))}</li>`;
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide v24-world-source-card";
+  article.dataset.cardId = "world-intelligence-status";
+  article.innerHTML = `
+    <div class="v24-source-header">
+      <span class="v23-eyebrow">V24 · World Intelligence Foundation</span>
+      <h2>${escapeSummaryText(title)}</h2>
+      <p>${escapeSummaryText(subtitle)}</p>
+    </div>
+    <div class="v24-source-chip-grid">${sourceRows}</div>
+    <div class="v24-source-diagnostics">
+      <span>${escapeSummaryText(v22Local("Cache health", "캐시 상태", "Estado de caché"))}: ${escapeSummaryText(foundation.cache?.health || "unknown")}</span>
+      <span>${escapeSummaryText(v22Local("Confidence", "신뢰도", "Confianza"))}: ${Math.round(Number(foundation.averageConfidence || 0) * 100)}%</span>
+      <span>${escapeSummaryText(v22Local("Fixture mode", "픽스처 모드", "Modo fixture"))}: ${foundation.fixtureMode ? "on" : "off"}</span>
+    </div>
+    <details class="v24-source-failures">
+      <summary>${escapeSummaryText(v22Local("Provider notes", "제공업체 메모", "Notas de proveedor"))}</summary>
+      <ul>${failureRows}</ul>
+    </details>
+  `;
+  return article;
+};
+
 const renderTravelMission = (result, missionContext) => {
   const destination = getTravelDestinationLabel(result);
   missionTitle.textContent = v22Local(
@@ -2317,6 +2378,8 @@ const renderTravelMission = (result, missionContext) => {
   );
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
+  const worldSourceCard = createWorldIntelligenceSourceCard(result);
+  if (worldSourceCard) missionGrid.appendChild(worldSourceCard);
   updateV23JourneySelection(travelExperience, Math.max(0, travelExperience._v23Journeys.findIndex((journey) => journey.selected)), result);
   travelExperience.querySelectorAll(".v23-journey-card").forEach((card) => {
     card.addEventListener("click", () => updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), result));
