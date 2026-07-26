@@ -7,6 +7,7 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
+import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -2315,6 +2316,95 @@ const updateV23JourneySelection = (container, index, result) => {
   currentResult.v23SelectedJourney = selected;
 };
 
+const readInsightDismissals = (result) => {
+  try {
+    return JSON.parse(localStorage.getItem(insightStorageKey(result)) || "{}");
+  } catch {
+    return {};
+  }
+};
+
+const writeInsightDismissal = (result, insightId, state) => {
+  try {
+    const key = insightStorageKey(result);
+    const current = JSON.parse(localStorage.getItem(key) || "{}");
+    current[insightId] = state;
+    localStorage.setItem(key, JSON.stringify(current));
+  } catch {
+    // Local persistence is optional; insight actions must never block the mission.
+  }
+};
+
+const createMissionInsightsCard = (result, context) => {
+  const insights = generateMissionInsights({
+    result,
+    context,
+    language: activeLanguage,
+    worldIntelligence: result.worldIntelligence
+  });
+  const { visible, collapsed } = splitVisibleMissionInsights(insights, readInsightDismissals(result));
+  if (!visible.length && !collapsed.length) return null;
+  const language = activeLanguage === "ko" ? "ko" : activeLanguage === "es" ? "es" : "en";
+  const actionLabels = {
+    dismiss: v22Local("Dismiss", "닫기", "Descartar"),
+    later: v22Local("Remind later", "나중에 보기", "Recordar luego"),
+    hide: v22Local("Hide for this mission", "이 미션에서 숨기기", "Ocultar en esta misión")
+  };
+  const renderInsight = (insight, compact = false) => `
+    <article class="alpha-insight-row" data-insight-id="${escapeSummaryText(insight.id)}">
+      <div class="alpha-insight-main">
+        <span class="alpha-insight-urgency is-${escapeSummaryText(insight.urgency)}">${escapeSummaryText(sourceStateUserLabel(insight.sourceState, language))}</span>
+        <h3>${escapeSummaryText(insight.title)}</h3>
+        <p>${escapeSummaryText(insight.explanation)}</p>
+        ${compact ? "" : `<details><summary>${escapeSummaryText(v22Local("Why am I seeing this?", "왜 보여주나요?", "¿Por qué aparece?"))}</summary><p>${escapeSummaryText(insight.why)}</p></details>`}
+      </div>
+      <div class="alpha-insight-meta">
+        <span>${escapeSummaryText(v22Local("Urgency", "긴급도", "Urgencia"))}: ${escapeSummaryText(insight.urgency)}</span>
+        <span>${escapeSummaryText(v22Local("Confidence", "신뢰도", "Confianza"))}: ${Math.round(Number(insight.confidence || 0) * 100)}%</span>
+        <span>${escapeSummaryText(v22Local("Action", "사용자 행동", "Acción"))}: ${escapeSummaryText(insight.actionRequired ? v22Local("Optional decision", "선택 결정", "Decisión opcional") : v22Local("No action required", "필수 행동 없음", "Sin acción requerida"))}</span>
+      </div>
+      <div class="alpha-insight-actions">
+        <button type="button" data-insight-action="dismiss">${escapeSummaryText(actionLabels.dismiss)}</button>
+        <button type="button" data-insight-action="later">${escapeSummaryText(actionLabels.later)}</button>
+        <button type="button" data-insight-action="hide">${escapeSummaryText(actionLabels.hide)}</button>
+      </div>
+    </article>
+  `;
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide alpha-insights-card";
+  article.dataset.cardId = "mission-insights-alpha01";
+  article.innerHTML = `
+    <div class="alpha-insights-heading">
+      <span class="v23-eyebrow">ALPHA-01 · Mission Insights</span>
+      <h2>${escapeSummaryText(v22Local("Things worth knowing", "알아두면 좋은 것", "Cosas que conviene saber"))}</h2>
+      <p>${escapeSummaryText(v22Local(
+        "ONE prepared these quietly so you can decide with less mental effort.",
+        "ONE이 결정 부담을 줄이기 위해 조용히 준비한 참고사항이에요.",
+        "ONE preparó esto para reducir tu esfuerzo mental."
+      ))}</p>
+    </div>
+    <div class="alpha-insight-list">${visible.map((insight) => renderInsight(insight)).join("")}</div>
+    ${collapsed.length ? `
+      <details class="alpha-insight-more">
+        <summary>${escapeSummaryText(v22Local("More optional insights", "추가 참고사항", "Más consejos opcionales"))} · ${collapsed.length}</summary>
+        <div class="alpha-insight-list">${collapsed.map((insight) => renderInsight(insight, true)).join("")}</div>
+      </details>
+    ` : ""}
+  `;
+  article.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-insight-action]");
+    if (!button) return;
+    const row = button.closest("[data-insight-id]");
+    const insightId = row?.dataset?.insightId;
+    if (!insightId) return;
+    const action = button.dataset.insightAction;
+    writeInsightDismissal(result, insightId, action === "hide" ? "hidden" : action === "later" ? "later" : "dismissed");
+    row.classList.add("is-dismissed");
+    row.setAttribute("aria-hidden", "true");
+  });
+  return article;
+};
+
 const createWorldIntelligenceSourceCard = (result) => {
   const foundation = result.worldIntelligence;
   if (!foundation) return null;
@@ -2378,6 +2468,8 @@ const renderTravelMission = (result, missionContext) => {
   );
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
+  const insightsCard = createMissionInsightsCard(result, missionContext);
+  if (insightsCard) missionGrid.appendChild(insightsCard);
   const worldSourceCard = createWorldIntelligenceSourceCard(result);
   if (worldSourceCard) missionGrid.appendChild(worldSourceCard);
   updateV23JourneySelection(travelExperience, Math.max(0, travelExperience._v23Journeys.findIndex((journey) => journey.selected)), result);
@@ -2445,6 +2537,8 @@ const renderResolutionPlanMission = (result) => {
     wide: true,
     tone: "primary"
   }));
+  const insightsCard = createMissionInsightsCard(result, result.missionContext);
+  if (insightsCard) missionGrid.appendChild(insightsCard);
 
   const alternativePaths = (plan.alternativePaths || []).slice(0, 4);
   const alternatives = document.createElement("article");
@@ -2538,6 +2632,8 @@ const renderGeneralMission = (result) => {
   missionGrid.innerHTML = "";
   const scheduleCard = createScheduleCard(result);
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
+  const insightsCard = createMissionInsightsCard(result, result.missionContext);
+  if (insightsCard) missionGrid.appendChild(insightsCard);
 
   const detailLabels = {
     tutors: ["Matched tutor profiles", "튜터 프로필 매칭"], style: ["Teaching approach compared", "수업 방식 비교"],
@@ -2658,6 +2754,8 @@ const renderGeneratedExperienceMission = (result) => {
     editable: true,
     selectionMode: "multiple"
   }));
+  const insightsCard = createMissionInsightsCard(result, result.missionContext);
+  if (insightsCard) missionGrid.appendChild(insightsCard);
   missionGrid.appendChild(createListCard({
     id: "generated-timeline",
     title: local("The story of your day", "하루의 이야기", "La historia del día"),
