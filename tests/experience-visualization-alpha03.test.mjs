@@ -54,8 +54,8 @@ test("ALPHA-03 creates distinct founder preview experiences for Sapporo", () => 
 });
 
 test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => {
-  assert.match(travelDetailSource, /<details class="alpha03-preparation-details">/);
-  assert.doesNotMatch(travelDetailSource, /<details class="alpha03-preparation-details" open>/);
+  assert.match(travelDetailSource, /alpha04SectionAttrs\(workspace, "preparation", "alpha03-preparation-details"\)/);
+  assert.doesNotMatch(travelDetailSource, /alpha03-preparation-details" open/);
   [
     ".alpha03-story-panel",
     ".alpha03-card-grid",
@@ -68,6 +68,6 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260727-alpha03-visualization/);
-  assert.match(resultsEntry, /20260727-alpha03-visualization/);
+  assert.match(resultsHtml, /20260727-alpha04-living-mission/);
+  assert.match(resultsEntry, /20260727-alpha04-living-mission/);
 });

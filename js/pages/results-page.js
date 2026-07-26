@@ -9,13 +9,20 @@ import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
+  ALPHA04_LIVING_MISSION_VERSION,
+  createLivingMissionWorkspace,
+  getSectionUpdateReason,
+  livingMissionStorageKey,
+  sectionWasRecentlyUpdated
+} from "../engine/workspace/living-mission-alpha04.js?v=20260727-alpha04-living-mission";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
   buildProgressiveRefinement,
   createEmptyRefinementState,
   refinementStorageKey
-} from "../engine/refinement/progressive-refinement-alpha02.js?v=20260727-alpha03-visualization";
+} from "../engine/refinement/progressive-refinement-alpha02.js?v=20260727-alpha04-living-mission";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -478,6 +485,7 @@ function getManualScenarioResult() {
   const language = params.get("lang") || (/[\u3131-\uD79D]/.test(prompt) ? "ko" : activeLanguage);
   const result = createResolutionResultFromPrompt(prompt, language);
   result.v24WorldScenario = params.get("v24WorldScenario") || "";
+  result.alpha04Scenario = params.get("alpha04Scenario") || "";
   if (MANUAL_V23_TRAVEL_SCENARIOS[scenario]) {
     result.v23TravelScenario = scenario;
     result.v23ApprovalScenario = params.get("v23ApprovalScenario") || "";
@@ -2294,6 +2302,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const destination = getTravelDestinationLabel(result);
   const ko = activeLanguage === "ko";
   const profile = getAlpha03DestinationProfile(destination);
+  const workspace = result.alpha04Workspace || null;
   const restaurants = selectAlpha03Items(profile.restaurants, journey.tone, journey.tone === "food" ? 5 : 4);
   const places = selectAlpha03Items(profile.places, journey.tone, 5);
   const days = buildAlpha03DayCards(journey, destination);
@@ -2304,7 +2313,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       ? alpha03Copy("Short moves, fewer transfers, and more time inside the destination.", "짧은 이동, 적은 환승, 목적지에서 머무는 시간을 늘립니다.", "Traslados cortos, menos cambios y más tiempo en destino.")
       : alpha03Copy("Walkable core route with official transit or licensed transfer checks.", "도보 가능한 중심 동선에 공식 교통 또는 허가 이동수단을 확인합니다.", "Ruta caminable con transporte oficial o traslado autorizado.");
   return `
-    <div class="v23-journey-overview alpha03-hero">
+    <div ${alpha04SectionAttrs(workspace, "journey", "v23-journey-overview alpha03-hero")}>
       <div>
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Selected journey", "선택한 여정", "Viaje seleccionado"))}</span>
         <h2>${escapeSummaryText(journey.name)}</h2>
@@ -2316,7 +2325,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         <span>${escapeSummaryText(journey.budget)}</span>
       </div>
     </div>
-    <section class="alpha03-story-panel">
+    <section ${alpha04SectionAttrs(workspace, "journey", "alpha03-story-panel")}>
       <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Picture the trip", "여행이 그려지는 순간", "Imagina el viaje"))}</span>
       <h3>${escapeSummaryText(alpha03Copy(
         `A ${destination} journey that feels easy before it feels busy.`,
@@ -2328,7 +2337,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         ${journey.tags.slice(0, 4).map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}
       </div>
     </section>
-    <section class="alpha03-section">
+    <section ${alpha04SectionAttrs(workspace, "restaurants", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Restaurants", "추천 맛집", "Restaurantes"))}</span>
         <h3>${escapeSummaryText(alpha03Copy("Places to taste the trip", "여행을 맛보는 장소", "Lugares para saborear el viaje"))}</h3>
@@ -2343,7 +2352,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         })).join("")}
       </div>
     </section>
-    <section class="alpha03-section">
+    <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "추천 명소", "Lugares"))}</span>
         <h3>${escapeSummaryText(alpha03Copy("Moments worth remembering", "기억에 남을 장면", "Momentos para recordar"))}</h3>
@@ -2358,7 +2367,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         })).join("")}
       </div>
     </section>
-    <section class="alpha03-section">
+    <section ${alpha04SectionAttrs(workspace, "timeline", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Day preview", "하루씩 보기", "Vista por día"))}</span>
         <h3>${escapeSummaryText(alpha03Copy("Readable in five seconds", "5초 안에 이해되는 일정", "Se entiende en cinco segundos"))}</h3>
@@ -2378,7 +2387,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       ${createAlpha03Card({ className: "alpha03-mini-card", icon: "✈️", title: alpha03Copy("Flight direction", "항공 방향", "Vuelo"), badge: truthLabel(journey.sourceStates.flight), text: journey.details.flight })}
       ${createAlpha03Card({ className: "alpha03-mini-card", icon: "🚇", title: alpha03Copy("Transportation", "이동", "Transporte"), badge: truthLabel(journey.sourceStates.transport), text: transportationSummary })}
     </section>
-    <details class="alpha03-preparation-details">
+    <details ${alpha04SectionAttrs(workspace, "preparation", "alpha03-preparation-details")}>
       <summary>${escapeSummaryText(alpha03Copy("Travel preparation", "여행 준비", "Preparación del viaje"))}</summary>
       <div class="v23-detail-grid">
         ${[
@@ -2396,7 +2405,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         `).join("")}
       </div>
     </details>
-    <div class="v23-approval-preview">
+    <div ${alpha04SectionAttrs(workspace, "approval", "v23-approval-preview")}>
       <strong>${escapeSummaryText(alpha03Copy("If approved, ONE prepares", "승인하면 ONE이 준비할 것", "Si apruebas, ONE prepara"))}</strong>
       <ul>
         <li>${escapeSummaryText(alpha03Copy("Live flight and hotel checks", "실시간 항공·숙소 확인", "Verificación en vivo de vuelos y hoteles"))}</li>
@@ -2735,6 +2744,141 @@ const createWorldIntelligenceSourceCard = (result) => {
   return article;
 };
 
+const alpha04Local = (en, ko, es) => v22Local(en, ko, es);
+
+const formatAlpha04Time = (value) => {
+  const date = value ? new Date(value) : new Date();
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : activeLanguage === "es" ? "es" : "en", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+};
+
+const createAlpha04UpdateBadge = (workspace, sectionKey) => {
+  if (!sectionWasRecentlyUpdated(workspace, sectionKey)) return "";
+  return `<span class="alpha04-update-badge" title="${escapeSummaryText(getSectionUpdateReason(workspace, sectionKey))}">${escapeSummaryText(alpha04Local("Updated", "업데이트", "Actualizado"))}</span>`;
+};
+
+const alpha04SectionAttrs = (workspace, sectionKey, className) => {
+  const updated = sectionWasRecentlyUpdated(workspace, sectionKey);
+  const reason = updated ? ` data-alpha04-update-reason="${escapeSummaryText(getSectionUpdateReason(workspace, sectionKey))}"` : "";
+  return `class="${className}${updated ? " is-recently-updated" : ""}" data-section-id="${sectionKey}"${reason}`;
+};
+
+const createLivingMissionWorkspaceCard = (result, missionContext) => {
+  const workspace = createLivingMissionWorkspace(result, {
+    language: activeLanguage,
+    scenario: new URLSearchParams(window.location.search).get("alpha04Scenario") || result.alpha04Scenario
+  });
+  currentResult.alpha04Workspace = workspace;
+  const card = document.createElement("article");
+  card.className = "mission-card is-wide alpha04-workspace-card";
+  card.dataset.cardId = "living-mission-alpha04";
+  card.dataset.storageKey = livingMissionStorageKey(result);
+  const pendingTasks = workspace.tasks.length
+    ? workspace.tasks.map((task) => `<li>${escapeSummaryText(task.label)}</li>`).join("")
+    : `<li>${escapeSummaryText(alpha04Local("No pending task right now", "지금은 남은 작업이 없습니다", "No hay tareas pendientes ahora"))}</li>`;
+  const notifications = workspace.notifications.length
+    ? workspace.notifications.map((notice) => `<li class="is-${escapeSummaryText(notice.level)}">${escapeSummaryText(notice.label)}</li>`).join("")
+    : `<li>${escapeSummaryText(alpha04Local("No urgent update. ONE is keeping the workspace ready.", "긴급 업데이트는 없습니다. ONE이 작업 공간을 준비 상태로 유지합니다.", "No hay actualización urgente. ONE mantiene el espacio listo."))}</li>`;
+  const historyRows = workspace.history.slice(-5).reverse().map((event) => `
+    <li>
+      <strong>${escapeSummaryText(event.label)}</strong>
+      <span>${escapeSummaryText(formatAlpha04Time(event.at))}</span>
+    </li>
+  `).join("");
+  const approvalRows = workspace.approvalHistory.length
+    ? workspace.approvalHistory.slice(-4).reverse().map((approval) => `
+      <li>
+        <strong>${escapeSummaryText(approval.label)}</strong>
+        <span>${escapeSummaryText(approval.executionApproved ? alpha04Local("Execution approved", "실행 승인", "Ejecución aprobada") : alpha04Local("Preparation only", "준비만 승인", "Solo preparación"))}</span>
+      </li>
+    `).join("")
+    : `<li><strong>${escapeSummaryText(alpha04Local("No approval yet", "아직 승인 없음", "Sin aprobación todavía"))}</strong><span>${escapeSummaryText(alpha04Local("Search approval and booking approval stay separate.", "검색 승인과 예약 승인은 분리됩니다.", "La aprobación de búsqueda y reserva se separan."))}</span></li>`;
+  card.innerHTML = `
+    <div class="alpha04-workspace-header">
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA04_LIVING_MISSION_VERSION)} · ${escapeSummaryText(alpha04Local("Living Mission", "살아있는 미션", "Misión viva"))}</span>
+      <h2>${escapeSummaryText(alpha04Local("Mission Workspace", "미션 작업 공간", "Espacio de misión"))}</h2>
+      <p>${escapeSummaryText(alpha04Local(
+        "ONE keeps this mission alive as your choices, timing, providers, and world data change.",
+        "ONE은 선택, 일정, 제공업체, 월드 데이터가 바뀔 때마다 이 미션을 살아있는 상태로 유지합니다.",
+        "ONE mantiene esta misión viva cuando cambian tus elecciones, horarios, proveedores y datos."
+      ))}</p>
+    </div>
+    <div class="alpha04-compact-summary" aria-label="${escapeSummaryText(alpha04Local("Mission summary", "미션 요약", "Resumen de misión"))}">
+      <div><span>${escapeSummaryText(alpha04Local("Mission", "미션", "Misión"))}</span><strong>${escapeSummaryText(workspace.mission)}</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Status", "상태", "Estado"))}</span><strong>${escapeSummaryText(workspace.status.label)}</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Progress", "진행", "Progreso"))}</span><strong>${workspace.progress}%</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Updated", "업데이트", "Actualizado"))}</span><strong>${escapeSummaryText(formatAlpha04Time(workspace.lastUpdated))}</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Next", "다음", "Siguiente"))}</span><strong>${escapeSummaryText(workspace.nextAction)}</strong></div>
+    </div>
+    <div class="alpha04-stage-row">
+      ${workspace.stages.map((stage) => `<span class="alpha04-stage is-${escapeSummaryText(stage.state)}">${escapeSummaryText(stage.label)}</span>`).join("")}
+    </div>
+    <div class="alpha04-workspace-grid">
+      <section class="alpha04-panel">
+        <h3>${escapeSummaryText(alpha04Local("Remaining tasks", "남은 작업", "Tareas pendientes"))}</h3>
+        <ul class="alpha04-task-list">${pendingTasks}</ul>
+      </section>
+      <section class="alpha04-panel">
+        <h3>${escapeSummaryText(alpha04Local("Mission updates", "미션 업데이트", "Actualizaciones"))}</h3>
+        <ul class="alpha04-notification-list">${notifications}</ul>
+      </section>
+    </div>
+    <details class="alpha04-history-panel" data-alpha04-detail-id="mission-history">
+      <summary>${escapeSummaryText(alpha04Local("Mission history", "미션 히스토리", "Historial de misión"))}</summary>
+      <ul>${historyRows}</ul>
+    </details>
+    <details class="alpha04-history-panel" data-alpha04-detail-id="approval-history">
+      <summary>${escapeSummaryText(alpha04Local("Approval history", "승인 히스토리", "Historial de aprobación"))}</summary>
+      <ul>${approvalRows}</ul>
+    </details>
+  `;
+  return { card, workspace };
+};
+
+const readAlpha04UiState = (result) => {
+  try {
+    return JSON.parse(localStorage.getItem(`${livingMissionStorageKey(result)}:ui`) || "{}");
+  } catch {
+    return {};
+  }
+};
+
+const writeAlpha04UiState = (result, patch = {}) => {
+  if (!result) return;
+  try {
+    const key = `${livingMissionStorageKey(result)}:ui`;
+    localStorage.setItem(key, JSON.stringify({ ...readAlpha04UiState(result), ...patch, updatedAt: new Date().toISOString() }));
+  } catch {
+    // Workspace resume is a convenience layer. It must never block mission results.
+  }
+};
+
+const restoreAlpha04UiState = (result) => {
+  const state = readAlpha04UiState(result);
+  const opened = Array.isArray(state.openedSections) ? new Set(state.openedSections) : new Set();
+  document.querySelectorAll("[data-alpha04-detail-id]").forEach((details) => {
+    details.open = opened.has(details.dataset.alpha04DetailId);
+  });
+  if (Number.isFinite(Number(state.scrollY)) && Number(state.scrollY) > 0 && !document.body.classList.contains("portable-summary-view")) {
+    window.requestAnimationFrame(() => window.scrollTo({ top: Number(state.scrollY), behavior: "auto" }));
+  }
+};
+
+const trackAlpha04Details = (result) => {
+  document.querySelectorAll(".alpha04-history-panel").forEach((details, index) => {
+    details.dataset.alpha04DetailId = details.dataset.alpha04DetailId || `alpha04-history-${index}`;
+    details.addEventListener("toggle", () => {
+      const openedSections = [...document.querySelectorAll("[data-alpha04-detail-id][open]")].map((item) => item.dataset.alpha04DetailId);
+      writeAlpha04UiState(result, { openedSections });
+    });
+  });
+};
+
 const renderTravelMission = (result, missionContext) => {
   const destination = getTravelDestinationLabel(result);
   missionTitle.textContent = v22Local(
@@ -2752,6 +2896,8 @@ const renderTravelMission = (result, missionContext) => {
     "프로토타입 · 경험 중심 여행 계획 · 예약과 결제 없음",
     "Prototipo · viaje centrado en experiencia · sin reservas ni pagos"
   );
+  const livingWorkspace = createLivingMissionWorkspaceCard(result, missionContext);
+  missionGrid.appendChild(livingWorkspace.card);
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
   const refinementCard = createProgressiveRefinementCard(result, missionContext);
@@ -2760,6 +2906,8 @@ const renderTravelMission = (result, missionContext) => {
   if (insightsCard) missionGrid.appendChild(insightsCard);
   const worldSourceCard = createWorldIntelligenceSourceCard(result);
   if (worldSourceCard) missionGrid.appendChild(worldSourceCard);
+  trackAlpha04Details(result);
+  restoreAlpha04UiState(result);
   updateV23JourneySelection(travelExperience, Math.max(0, travelExperience._v23Journeys.findIndex((journey) => journey.selected)), result);
   travelExperience.querySelectorAll(".v23-journey-card").forEach((card) => {
     card.addEventListener("click", () => updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), result));
@@ -4220,6 +4368,16 @@ document.addEventListener("change", (event) => {
     if (prepareButton) prepareButton.disabled = !input.checked;
   }
 });
+
+let alpha04ScrollSaveQueued = false;
+window.addEventListener("scroll", () => {
+  if (!currentResult?.alpha04Workspace || alpha04ScrollSaveQueued) return;
+  alpha04ScrollSaveQueued = true;
+  window.requestAnimationFrame(() => {
+    alpha04ScrollSaveQueued = false;
+    writeAlpha04UiState(currentResult, { scrollY: window.scrollY });
+  });
+}, { passive: true });
 
 returnHomeButton.addEventListener("click", returnHome);
 makeRealityButton.addEventListener("click", () => {
