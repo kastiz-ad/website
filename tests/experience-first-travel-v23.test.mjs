@@ -78,6 +78,6 @@ test("V23 travel styling supports responsive, no-overflow layouts", () => {
 });
 
 test("V23 result cache key is active", () => {
-  assert.match(resultsEntry, /20260727-alpha01-insights/);
-  assert.match(resultsHtml, /20260727-alpha01-insights/);
+  assert.match(resultsEntry, /20260727-alpha02-refinement-7/);
+  assert.match(resultsHtml, /20260727-alpha02-refinement-7/);
 });

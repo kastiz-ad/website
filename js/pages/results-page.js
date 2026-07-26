@@ -8,6 +8,14 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
+import {
+  ALPHA02_REFINEMENT_VERSION,
+  applyRefinementAnswer,
+  archiveRefinementQuestion,
+  buildProgressiveRefinement,
+  createEmptyRefinementState,
+  refinementStorageKey
+} from "../engine/refinement/progressive-refinement-alpha02.js?v=20260727-alpha02-refinement-7";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -2405,6 +2413,121 @@ const createMissionInsightsCard = (result, context) => {
   return article;
 };
 
+const readRefinementState = (result) => {
+  const embedded = result.alpha02Refinements || createEmptyRefinementState();
+  try {
+    const saved = JSON.parse(localStorage.getItem(refinementStorageKey(result)) || "{}");
+    return {
+      ...createEmptyRefinementState(),
+      ...embedded,
+      ...saved,
+      answers: { ...(embedded.answers || {}), ...(saved.answers || {}) },
+      archived: { ...(embedded.archived || {}), ...(saved.archived || {}) }
+    };
+  } catch {
+    return embedded;
+  }
+};
+
+const writeRefinementState = (result, state) => {
+  const nextState = {
+    ...createEmptyRefinementState(),
+    ...state,
+    updatedAt: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem(refinementStorageKey(result), JSON.stringify(nextState));
+  } catch {
+    // Mission refinement persistence is helpful, not mission-critical.
+  }
+  currentResult.alpha02Refinements = nextState;
+  sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+  sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+  return nextState;
+};
+
+const createProgressiveRefinementCard = (result, context) => {
+  const state = readRefinementState(result);
+  result.alpha02Refinements = state;
+  const refinement = buildProgressiveRefinement(result, context, state, { language: activeLanguage });
+  if (!refinement.visible.length && !refinement.collapsed.length && !result.alpha02LastUpdate) return null;
+  const renderQuestion = (question, compact = false) => `
+    <article class="alpha02-question" data-question-id="${escapeSummaryText(question.id)}" data-priority="${escapeSummaryText(question.priority)}">
+      <div class="alpha02-question-copy">
+        <span class="alpha02-priority">${escapeSummaryText(question.priority === "critical" ? v22Local("Critical", "중요", "Crítico") : question.priority === "high" ? v22Local("High value", "가치 높음", "Alto valor") : v22Local("Helpful", "도움됨", "Útil"))}</span>
+        <h3>${escapeSummaryText(question.titleText)}</h3>
+        <p>${escapeSummaryText(question.explanationText)}</p>
+      </div>
+      <div class="alpha02-chip-row" role="group" aria-label="${escapeSummaryText(question.titleText)}">
+        ${question.choices.map((choice) => `<button type="button" class="alpha02-answer-chip" data-answer-value="${escapeSummaryText(choice.value)}">${escapeSummaryText(choice.labelText)}</button>`).join("")}
+      </div>
+      ${compact ? "" : `<p class="alpha02-impact">${escapeSummaryText(question.improvementText)}</p>`}
+      <div class="alpha02-question-actions">
+        <button type="button" data-refinement-action="skip">${escapeSummaryText(v22Local("Skip", "건너뛰기", "Saltar"))}</button>
+        <button type="button" data-refinement-action="later">${escapeSummaryText(v22Local("Later", "나중에", "Luego"))}</button>
+        <button type="button" data-refinement-action="hide">${escapeSummaryText(v22Local("Don't ask again", "다시 묻지 않기", "No preguntar otra vez"))}</button>
+      </div>
+    </article>
+  `;
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide alpha02-refinement-card";
+  article.dataset.cardId = "progressive-refinement-alpha02";
+  article.dataset.alpha02Wired = "direct";
+  article.innerHTML = `
+    <div class="alpha02-heading">
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA02_REFINEMENT_VERSION)} · Progressive Refinement</span>
+      <h2>${escapeSummaryText(v22Local("Help me improve this plan", "이 계획을 더 좋게 만들기", "Ayúdame a mejorar este plan"))}</h2>
+      <p>${escapeSummaryText(v22Local(
+        "This recommendation is already good. Answering only what matters can make it more personal.",
+        "이 추천은 이미 진행할 수 있어요. 중요한 것만 답하면 더 개인화됩니다.",
+        "Esta recomendación ya sirve. Responder solo lo importante la vuelve más personal."
+      ))}</p>
+    </div>
+    ${result.alpha02LastUpdate ? `<div class="alpha02-update-note" role="status">${escapeSummaryText(result.alpha02LastUpdate)}</div>` : ""}
+    ${refinement.visible.length ? `<div class="alpha02-visible-questions">${refinement.visible.map((question) => renderQuestion(question)).join("")}</div>` : `<p class="alpha02-empty">${escapeSummaryText(v22Local("No extra question is needed right now.", "지금은 추가 질문이 필요하지 않습니다.", "No hace falta otra pregunta ahora."))}</p>`}
+    ${refinement.collapsed.length ? `
+      <details class="alpha02-more">
+        <summary>${escapeSummaryText(v22Local("Helpful questions", "도움 되는 질문", "Preguntas útiles"))} · ${refinement.collapsed.length}</summary>
+        <div class="alpha02-visible-questions">${refinement.collapsed.map((question) => renderQuestion(question, true)).join("")}</div>
+      </details>
+    ` : ""}
+  `;
+  const handleRefinementAnswer = (answerButton) => {
+    const question = answerButton.closest("[data-question-id]");
+    const questionId = question?.dataset?.questionId;
+    if (!questionId) return;
+      currentResult = applyRefinementAnswer(currentResult, { questionId, value: answerButton.dataset.answerValue }, { language: activeLanguage });
+      writeRefinementState(currentResult, currentResult.alpha02Refinements);
+      trackEvent("mission_refinement_answered", { mission_type: currentResult?.type, language: activeLanguage, page: "results", question_id: questionId });
+      renderMission();
+  };
+  const handleRefinementArchive = (actionButton) => {
+    const question = actionButton.closest("[data-question-id]");
+    const questionId = question?.dataset?.questionId;
+    if (!questionId) return;
+      const status = actionButton.dataset.refinementAction === "hide" ? "hidden" : actionButton.dataset.refinementAction === "later" ? "later" : "skipped";
+      const nextState = archiveRefinementQuestion(readRefinementState(currentResult), questionId, status);
+      writeRefinementState(currentResult, nextState);
+      question.classList.add("is-archived");
+      question.setAttribute("aria-hidden", "true");
+      trackEvent("mission_refinement_archived", { mission_type: currentResult?.type, language: activeLanguage, page: "results", question_id: questionId, status });
+  };
+  article.dataset.alpha02Handlers = String(article.querySelectorAll(".alpha02-answer-chip").length);
+  article.querySelectorAll(".alpha02-answer-chip").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      handleRefinementAnswer(button);
+    });
+  });
+  article.querySelectorAll("[data-refinement-action]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      handleRefinementArchive(button);
+    });
+  });
+  return article;
+};
+
 const createWorldIntelligenceSourceCard = (result) => {
   const foundation = result.worldIntelligence;
   if (!foundation) return null;
@@ -2468,6 +2591,8 @@ const renderTravelMission = (result, missionContext) => {
   );
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
+  const refinementCard = createProgressiveRefinementCard(result, missionContext);
+  if (refinementCard) missionGrid.appendChild(refinementCard);
   const insightsCard = createMissionInsightsCard(result, missionContext);
   if (insightsCard) missionGrid.appendChild(insightsCard);
   const worldSourceCard = createWorldIntelligenceSourceCard(result);
@@ -2539,6 +2664,8 @@ const renderResolutionPlanMission = (result) => {
   }));
   const insightsCard = createMissionInsightsCard(result, result.missionContext);
   if (insightsCard) missionGrid.appendChild(insightsCard);
+  const refinementCard = createProgressiveRefinementCard(result, result.missionContext);
+  if (refinementCard) missionGrid.appendChild(refinementCard);
 
   const alternativePaths = (plan.alternativePaths || []).slice(0, 4);
   const alternatives = document.createElement("article");
@@ -2634,6 +2761,8 @@ const renderGeneralMission = (result) => {
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
   const insightsCard = createMissionInsightsCard(result, result.missionContext);
   if (insightsCard) missionGrid.appendChild(insightsCard);
+  const refinementCard = createProgressiveRefinementCard(result, result.missionContext);
+  if (refinementCard) missionGrid.appendChild(refinementCard);
 
   const detailLabels = {
     tutors: ["Matched tutor profiles", "튜터 프로필 매칭"], style: ["Teaching approach compared", "수업 방식 비교"],
@@ -2756,6 +2885,8 @@ const renderGeneratedExperienceMission = (result) => {
   }));
   const insightsCard = createMissionInsightsCard(result, result.missionContext);
   if (insightsCard) missionGrid.appendChild(insightsCard);
+  const refinementCard = createProgressiveRefinementCard(result, result.missionContext);
+  if (refinementCard) missionGrid.appendChild(refinementCard);
   missionGrid.appendChild(createListCard({
     id: "generated-timeline",
     title: local("The story of your day", "하루의 이야기", "La historia del día"),
@@ -3852,6 +3983,33 @@ additionalServiceInput?.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const alpha02Answer = event.target.closest?.(".alpha02-answer-chip");
+  if (alpha02Answer) {
+    const question = alpha02Answer.closest("[data-question-id]");
+    const questionId = question?.dataset?.questionId;
+    if (questionId) {
+      currentResult = applyRefinementAnswer(currentResult, { questionId, value: alpha02Answer.dataset.answerValue }, { language: activeLanguage });
+      writeRefinementState(currentResult, currentResult.alpha02Refinements);
+      trackEvent("mission_refinement_answered", { mission_type: currentResult?.type, language: activeLanguage, page: "results", question_id: questionId });
+      renderMission();
+      return;
+    }
+  }
+  const alpha02Action = event.target.closest?.("[data-refinement-action]");
+  if (alpha02Action) {
+    const question = alpha02Action.closest("[data-question-id]");
+    const questionId = question?.dataset?.questionId;
+    if (questionId) {
+      const status = alpha02Action.dataset.refinementAction === "hide" ? "hidden" : alpha02Action.dataset.refinementAction === "later" ? "later" : "skipped";
+      const nextState = archiveRefinementQuestion(readRefinementState(currentResult), questionId, status);
+      writeRefinementState(currentResult, nextState);
+      question.classList.add("is-archived");
+      question.setAttribute("aria-hidden", "true");
+      trackEvent("mission_refinement_archived", { mission_type: currentResult?.type, language: activeLanguage, page: "results", question_id: questionId, status });
+      return;
+    }
+  }
+
   const v231LiveSearch = event.target.closest("[data-v231-live-search]");
   if (v231LiveSearch) {
     event.preventDefault();
