@@ -15,7 +15,7 @@ import {
   buildProgressiveRefinement,
   createEmptyRefinementState,
   refinementStorageKey
-} from "../engine/refinement/progressive-refinement-alpha02.js?v=20260727-alpha02-refinement-7";
+} from "../engine/refinement/progressive-refinement-alpha02.js?v=20260727-alpha03-visualization";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -2189,21 +2189,124 @@ const buildV23TravelJourneys = (result, missionContext) => {
 
 const createV23SourcePill = (state) => `<span class="v23-source-pill is-${state}">${escapeSummaryText(sourceStateLabel(state))}</span>`;
 
-const createV23TravelDetailHtml = (journey, result) => {
+const alpha03Copy = (en, ko, es) => v22Local(en, ko, es);
+
+const getAlpha03DestinationProfile = (destination) => {
+  const key = String(destination || "").toLowerCase();
+  if (/sapporo|삿포로/.test(key)) {
+    return {
+      restaurants: [
+        { icon: "🍜", name: "Sapporo Ramen Yokocho", tags: ["ramen", "Susukino"], source: "cached_public" },
+        { icon: "🦀", name: "Nijo Market Seafood", tags: ["market", "seafood"], source: "cached_public" },
+        { icon: "🍛", name: "Soup Curry GARAKU", tags: ["soup curry", "central"], source: "cached_public" },
+        { icon: "☕", name: "MORIHICO Café", tags: ["coffee", "slow break"], source: "estimated" },
+        { icon: "🍺", name: "Sapporo Beer Garden", tags: ["beer hall", "classic"], source: "cached_public" }
+      ],
+      places: [
+        { icon: "🌳", name: "Odori Park", tags: ["walk", "seasonal"], source: "cached_public" },
+        { icon: "🍺", name: "Sapporo Beer Museum", tags: ["indoor", "classic"], source: "cached_public" },
+        { icon: "🦀", name: "Nijo Market", tags: ["morning", "food"], source: "cached_public" },
+        { icon: "🌃", name: "JR Tower Observatory", tags: ["night view", "city"], source: "estimated" },
+        { icon: "🛍️", name: "Tanukikoji Shopping Street", tags: ["shopping", "covered"], source: "cached_public" }
+      ]
+    };
+  }
+  return {
+    restaurants: [
+      { icon: "🍽️", name: `${destination} local table`, tags: ["local food", "central area"], source: "estimated" },
+      { icon: "☕", name: `${destination} café stop`, tags: ["coffee", "rest"], source: "estimated" },
+      { icon: "🥘", name: `${destination} signature meal`, tags: ["regional", "recommended check"], source: "estimated" },
+      { icon: "🌙", name: `${destination} evening dining area`, tags: ["dinner", "walkable"], source: "estimated" }
+    ],
+    places: [
+      { icon: "📍", name: `${destination} central landmark`, tags: ["orientation", "photo"], source: "estimated" },
+      { icon: "🧭", name: `${destination} old town / main district`, tags: ["walk", "culture"], source: "estimated" },
+      { icon: "🏛️", name: `${destination} museum or indoor highlight`, tags: ["rain plan", "culture"], source: "estimated" },
+      { icon: "🌿", name: `${destination} park or viewpoint`, tags: ["view", "slow time"], source: "estimated" }
+    ]
+  };
+};
+
+const selectAlpha03Items = (items, tone, targetCount) => {
+  const keywordMap = {
+    food: /ramen|market|seafood|soup|food|meal|table|dining|curry/i,
+    value: /market|walk|central|covered|local|park/i,
+    rest: /café|coffee|park|view|observatory|slow|indoor/i,
+    balanced: /central|classic|walk|market|park|landmark/i
+  };
+  const pattern = keywordMap[tone] || keywordMap.balanced;
+  const ranked = [...items].sort((a, b) => Number(pattern.test(`${b.name} ${(b.tags || []).join(" ")}`)) - Number(pattern.test(`${a.name} ${(a.tags || []).join(" ")}`)));
+  return ranked.slice(0, targetCount);
+};
+
+const buildAlpha03DayCards = (journey, destination) => {
   const ko = activeLanguage === "ko";
-  const sections = [
-    ["timeline", ko ? "일정 흐름" : "Suggested timeline", journey.timeline.join(" → "), "estimated"],
-    ["flight", ko ? "항공 방향" : "Flight approach", journey.details.flight, journey.sourceStates.flight],
-    ["hotel", ko ? "숙소 방향" : "Accommodation approach", journey.details.hotel, journey.sourceStates.hotel],
-    ["transport", ko ? "이동" : "Transportation", journey.details.transport, journey.sourceStates.transport],
-    ["food", ko ? "음식과 활동" : "Food and activities", journey.details.food, journey.sourceStates.food],
-    ["entry", ko ? "입국 요건" : "Entry requirements", journey.details.entry, journey.sourceStates.entry],
-    ["insurance", ko ? "보험과 리스크" : "Insurance and risk", journey.details.insurance, journey.sourceStates.insurance]
-  ];
+  const es = activeLanguage === "es";
+  const tone = journey.tone || "balanced";
+  const daySets = {
+    food: [
+      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Check-in", "호텔 체크인", "Check-in"), alpha03Copy("Market dinner", "시장 저녁", "Cena de mercado"), alpha03Copy("Night dessert", "야경과 디저트", "Postre nocturno")],
+      [alpha03Copy("Morning café", "아침 카페", "Café de mañana"), alpha03Copy("Local market", "현지 시장", "Mercado local"), alpha03Copy("Signature lunch", "대표 점심", "Almuerzo especial"), alpha03Copy("Relaxed shopping", "가벼운 쇼핑", "Compras tranquilas")],
+      [alpha03Copy("Slow breakfast", "느린 아침", "Desayuno lento"), alpha03Copy("Final walk", "마지막 산책", "Paseo final"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
+    ],
+    value: [
+      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Transit to hotel", "대중교통으로 숙소 이동", "Traslado económico"), alpha03Copy("Neighborhood walk", "숙소 주변 산책", "Paseo por la zona")],
+      [alpha03Copy("Core landmark", "핵심 명소", "Lugar principal"), alpha03Copy("Local lunch", "현지 점심", "Almuerzo local"), alpha03Copy("Free viewpoint", "무료 전망/산책", "Mirador o paseo gratis")],
+      [alpha03Copy("Flexible morning", "여유 아침", "Mañana flexible"), alpha03Copy("Souvenir stop", "기념품", "Recuerdos"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
+    ],
+    rest: [
+      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Easy check-in", "느린 체크인", "Check-in tranquilo"), alpha03Copy("Warm dinner", "편안한 저녁", "Cena cómoda")],
+      [alpha03Copy("Late morning", "늦은 아침", "Mañana lenta"), alpha03Copy("Spa or indoor rest", "온천/실내 휴식", "Spa o descanso interior"), alpha03Copy("Quiet café", "조용한 카페", "Café tranquilo")],
+      [alpha03Copy("Park walk", "공원 산책", "Paseo por parque"), alpha03Copy("Light lunch", "가벼운 점심", "Almuerzo ligero"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
+    ],
+    balanced: [
+      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Hotel check-in", "호텔 체크인", "Check-in"), alpha03Copy("First city walk", "첫 도시 산책", "Primer paseo"), alpha03Copy("Comfort dinner", "편안한 저녁", "Cena cómoda")],
+      [alpha03Copy("Market", "시장", "Mercado"), alpha03Copy("Landmark", "대표 명소", "Lugar icónico"), alpha03Copy("Café break", "카페 휴식", "Pausa de café"), alpha03Copy("Night view", "야경", "Vista nocturna")],
+      [alpha03Copy("Free morning", "자유 오전", "Mañana libre"), alpha03Copy("Shopping", "쇼핑", "Compras"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
+    ]
+  };
+  return (daySets[tone] || daySets.balanced).map((items, index) => ({
+    day: `DAY ${index + 1}`,
+    title: index === 0
+      ? alpha03Copy("Arrive softly", "부담 없이 도착", "Llegada tranquila")
+      : index === 1
+        ? alpha03Copy(`${destination} highlight day`, `${destination} 하이라이트`, `Día especial en ${destination}`)
+        : alpha03Copy("Leave with space", "여유 있게 마무리", "Cierre con calma"),
+    items
+  }));
+};
+
+const createAlpha03Card = ({ className, icon, title, badge, tags = [], text = "" }) => `
+  <article class="${className}">
+    <span class="alpha03-card-icon" aria-hidden="true">${escapeSummaryText(icon)}</span>
+    <div>
+      <strong>${escapeSummaryText(title)}</strong>
+      ${text ? `<p>${escapeSummaryText(text)}</p>` : ""}
+      <div class="alpha03-tag-row">
+        ${badge ? `<span class="alpha03-truth-badge">${escapeSummaryText(badge)}</span>` : ""}
+        ${tags.map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}
+      </div>
+    </div>
+  </article>
+`;
+
+const createAlpha03ExperienceHtml = (journey, result) => {
+  const destination = getTravelDestinationLabel(result);
+  const ko = activeLanguage === "ko";
+  const profile = getAlpha03DestinationProfile(destination);
+  const restaurants = selectAlpha03Items(profile.restaurants, journey.tone, journey.tone === "food" ? 5 : 4);
+  const places = selectAlpha03Items(profile.places, journey.tone, 5);
+  const days = buildAlpha03DayCards(journey, destination);
+  const truthLabel = (state) => sourceStateLabel(state || "estimated");
+  const transportationSummary = journey.tone === "value"
+    ? alpha03Copy("Transit-first route with licensed taxi only when it saves energy.", "대중교통 중심, 꼭 필요할 때만 허가된 택시를 사용합니다.", "Ruta con transporte público y taxi autorizado solo cuando ahorra energía.")
+    : journey.tone === "rest"
+      ? alpha03Copy("Short moves, fewer transfers, and more time inside the destination.", "짧은 이동, 적은 환승, 목적지에서 머무는 시간을 늘립니다.", "Traslados cortos, menos cambios y más tiempo en destino.")
+      : alpha03Copy("Walkable core route with official transit or licensed transfer checks.", "도보 가능한 중심 동선에 공식 교통 또는 허가 이동수단을 확인합니다.", "Ruta caminable con transporte oficial o traslado autorizado.");
   return `
-    <div class="v23-journey-overview">
+    <div class="v23-journey-overview alpha03-hero">
       <div>
-        <span class="v23-eyebrow">${ko ? "선택한 여정" : "Selected journey"}</span>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Selected journey", "선택한 여정", "Viaje seleccionado"))}</span>
         <h2>${escapeSummaryText(journey.name)}</h2>
         <p>${escapeSummaryText(journey.purpose)}</p>
       </div>
@@ -2213,40 +2316,100 @@ const createV23TravelDetailHtml = (journey, result) => {
         <span>${escapeSummaryText(journey.budget)}</span>
       </div>
     </div>
-    <div class="v23-detail-grid">
-      ${sections.map(([id, title, body, source]) => `
-        <details class="v23-detail-card" data-detail-id="${id}" ${["timeline", "flight", "hotel", "food"].includes(id) ? "open" : ""}>
-          <summary><span>${escapeSummaryText(title)}</span>${createV23SourcePill(source)}</summary>
-          <p>${escapeSummaryText(body)}</p>
-          <small>${escapeSummaryText(providerSourceNote(source))}</small>
-        </details>
-      `).join("")}
-    </div>
-    <div class="v23-prep-grid">
-      <section>
-        <h3>${ko ? "ONE이 이미 준비한 것" : "Already prepared"}</h3>
-        <div class="v22-chip-list">
-          ${[ko ? "여정 방향" : "Journey direction", ko ? "비교 기준" : "Comparison criteria", ko ? "승인 전 확인 항목" : "Pre-approval checks"].map((item) => createV22Chip(item)).join("")}
-        </div>
-      </section>
-      <section>
-        <h3>${ko ? "아직 확인할 것" : "Still needs confirmation"}</h3>
-        <div class="v22-chip-list">
-          ${[ko ? "실시간 가격" : "Live prices", ko ? "재고와 가능 여부" : "Availability", ko ? "공식 입국 요건" : "Official entry rules"].map((item) => createV22Chip(item)).join("")}
-        </div>
-      </section>
-    </div>
-    <div class="v23-document-note">${ko ? "보안 문서 연동은 아직 준비 중입니다. 필요한 경우에도 승인 전에는 제출되지 않습니다." : "Secure document handling is still being prepared. Nothing is submitted before approval."}</div>
+    <section class="alpha03-story-panel">
+      <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Picture the trip", "여행이 그려지는 순간", "Imagina el viaje"))}</span>
+      <h3>${escapeSummaryText(alpha03Copy(
+        `A ${destination} journey that feels easy before it feels busy.`,
+        `${destination}에서 바쁘기보다 먼저 설레는 여행입니다.`,
+        `Un viaje a ${destination} que se siente emocionante, no pesado.`
+      ))}</h3>
+      <p>${escapeSummaryText(journey.reason)}</p>
+      <div class="alpha03-mood-row">
+        ${journey.tags.slice(0, 4).map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}
+      </div>
+    </section>
+    <section class="alpha03-section">
+      <div class="alpha03-section-heading">
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Restaurants", "추천 맛집", "Restaurantes"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Places to taste the trip", "여행을 맛보는 장소", "Lugares para saborear el viaje"))}</h3>
+      </div>
+      <div class="alpha03-card-grid is-restaurants">
+        ${restaurants.map((item) => createAlpha03Card({
+          className: "alpha03-visual-card",
+          icon: item.icon,
+          title: item.name,
+          badge: truthLabel(item.source),
+          tags: item.tags
+        })).join("")}
+      </div>
+    </section>
+    <section class="alpha03-section">
+      <div class="alpha03-section-heading">
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "추천 명소", "Lugares"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Moments worth remembering", "기억에 남을 장면", "Momentos para recordar"))}</h3>
+      </div>
+      <div class="alpha03-card-grid">
+        ${places.map((item) => createAlpha03Card({
+          className: "alpha03-visual-card",
+          icon: item.icon,
+          title: item.name,
+          badge: truthLabel(item.source),
+          tags: item.tags
+        })).join("")}
+      </div>
+    </section>
+    <section class="alpha03-section">
+      <div class="alpha03-section-heading">
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Day preview", "하루씩 보기", "Vista por día"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Readable in five seconds", "5초 안에 이해되는 일정", "Se entiende en cinco segundos"))}</h3>
+      </div>
+      <div class="alpha03-day-grid">
+        ${days.map((day) => `
+          <article class="alpha03-day-card">
+            <span>${escapeSummaryText(day.day)}</span>
+            <strong>${escapeSummaryText(day.title)}</strong>
+            <ul>${day.items.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+    <section class="alpha03-logistics-strip" aria-label="${escapeSummaryText(alpha03Copy("Travel direction", "여행 방향", "Dirección del viaje"))}">
+      ${createAlpha03Card({ className: "alpha03-mini-card", icon: "🏨", title: alpha03Copy("Hotel direction", "숙소 방향", "Hotel"), badge: truthLabel(journey.sourceStates.hotel), text: journey.details.hotel })}
+      ${createAlpha03Card({ className: "alpha03-mini-card", icon: "✈️", title: alpha03Copy("Flight direction", "항공 방향", "Vuelo"), badge: truthLabel(journey.sourceStates.flight), text: journey.details.flight })}
+      ${createAlpha03Card({ className: "alpha03-mini-card", icon: "🚇", title: alpha03Copy("Transportation", "이동", "Transporte"), badge: truthLabel(journey.sourceStates.transport), text: transportationSummary })}
+    </section>
+    <details class="alpha03-preparation-details">
+      <summary>${escapeSummaryText(alpha03Copy("Travel preparation", "여행 준비", "Preparación del viaje"))}</summary>
+      <div class="v23-detail-grid">
+        ${[
+          ["insurance", alpha03Copy("Insurance and risk", "보험과 리스크", "Seguro y riesgo"), journey.details.insurance, journey.sourceStates.insurance],
+          ["entry", alpha03Copy("Entry requirements", "입국 요건", "Requisitos de entrada"), journey.details.entry, journey.sourceStates.entry],
+          ["transport-detail", alpha03Copy("Transport details", "교통 세부사항", "Detalles de transporte"), journey.details.transport, journey.sourceStates.transport],
+          ["secure-documents", alpha03Copy("Secure documents", "보안 문서", "Documentos seguros"), alpha03Copy("Secure document handling is still being prepared. Nothing is submitted before approval.", "보안 문서 연동은 아직 준비 중입니다. 승인 전에는 어떤 문서도 제출되지 않습니다.", "La gestión segura de documentos aún se está preparando. Nada se envía antes de aprobar."), "placeholder"],
+          ["approval-check", alpha03Copy("Before approval", "승인 전 확인", "Antes de aprobar"), alpha03Copy("ONE verifies live price, availability, rules, and material changes before any external action.", "ONE은 외부 실행 전 실시간 가격, 가능 여부, 규정, 중요한 변경사항을 다시 확인합니다.", "ONE verifica precio, disponibilidad, reglas y cambios importantes antes de cualquier acción externa."), "estimated"]
+        ].map(([id, title, body, source]) => `
+          <details class="v23-detail-card" data-detail-id="${id}">
+            <summary><span>${escapeSummaryText(title)}</span>${createV23SourcePill(source)}</summary>
+            <p>${escapeSummaryText(body)}</p>
+            <small>${escapeSummaryText(providerSourceNote(source))}</small>
+          </details>
+        `).join("")}
+      </div>
+    </details>
     <div class="v23-approval-preview">
-      <strong>${ko ? "승인 시 ONE이 준비할 작업" : "If approved, ONE prepares"}</strong>
+      <strong>${escapeSummaryText(alpha03Copy("If approved, ONE prepares", "승인하면 ONE이 준비할 것", "Si apruebas, ONE prepara"))}</strong>
       <ul>
-        <li>${ko ? "실시간 항공편 조회" : "Live flight search"}</li>
-        <li>${ko ? "숙소 재고 및 가격 확인" : "Accommodation availability and price check"}</li>
-        <li>${ko ? "선택한 여정 기준으로 최종 비교안 생성" : "Final comparison using the selected journey"}</li>
+        <li>${escapeSummaryText(alpha03Copy("Live flight and hotel checks", "실시간 항공·숙소 확인", "Verificación en vivo de vuelos y hoteles"))}</li>
+        <li>${escapeSummaryText(alpha03Copy("Restaurant and experience shortlist validation", "맛집·경험 후보 검증", "Validación de restaurantes y experiencias"))}</li>
+        <li>${escapeSummaryText(alpha03Copy("Final comparison using your selected journey", "선택한 여정 기준 최종 비교", "Comparación final con tu viaje elegido"))}</li>
       </ul>
-      <p>${ko ? "예약·결제·제출은 아직 진행되지 않습니다." : "No booking, payment, or submission happens yet."}</p>
+      <p>${escapeSummaryText(alpha03Copy("No booking, payment, or submission happens yet. No provider contact happens yet.", "아직 예약·결제·제출·제공업체 연락은 진행되지 않습니다.", "Aún no hay reserva, pago, envío ni contacto con proveedor."))}</p>
     </div>
   `;
+};
+
+const createV23TravelDetailHtml = (journey, result) => {
+  return createAlpha03ExperienceHtml(journey, result);
 };
 
 const createTravelPackagesCard = (result, missionContext) => {

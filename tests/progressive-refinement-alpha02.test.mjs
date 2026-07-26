@@ -59,10 +59,10 @@ test("ALPHA-02 archive lifecycle supports skip later and hidden", () => {
 
 test("ALPHA-02 supports healthcare education business and career domains", () => {
   const cases = [
-    ["이가 아픈데 오늘 갈 수 있는 치과 찾아줘", "healthcare", "urgency"],
-    ["중학생 영어 내신 학원 찾아줘", "education", "student"],
-    ["한국에서 회사를 시작하고 싶어", "business", "business"],
-    ["한국에서 일자리를 찾고 싶어", "career", "field"]
+    ["ì´ê°€ ì•„í”ˆë° ì˜¤ëŠ˜ ê°ˆ ìˆ˜ ìžˆëŠ” ì¹˜ê³¼ ì°¾ì•„ì¤˜", "healthcare", "urgency"],
+    ["ì¤‘í•™ìƒ ì˜ì–´ ë‚´ì‹  í•™ì› ì°¾ì•„ì¤˜", "education", "student"],
+    ["í•œêµ­ì—ì„œ íšŒì‚¬ë¥¼ ì‹œìž‘í•˜ê³  ì‹¶ì–´", "business", "business"],
+    ["í•œêµ­ì—ì„œ ì¼ìžë¦¬ë¥¼ ì°¾ê³  ì‹¶ì–´", "career", "field"]
   ];
   for (const [mission, domain, expected] of cases) {
     const refinement = buildProgressiveRefinement({ rawInput: mission, resolutionPlan: { domain } }, {}, {}, { language: "ko" });
@@ -89,6 +89,6 @@ test("ALPHA-02 UI is wired without homepage redesign", () => {
   assert.match(resultsPage, /renderMission\(\)/);
   assert.match(css, /\.alpha02-refinement-card/);
   assert.match(css, /@media \(max-width: 760px\)/);
-  assert.match(resultsHtml, /20260727-alpha02-refinement-7/);
-  assert.match(resultsEntry, /20260727-alpha02-refinement-7/);
+  assert.match(resultsHtml, /20260727-alpha03-visualization/);
+  assert.match(resultsEntry, /20260727-alpha03-visualization/);
 });
