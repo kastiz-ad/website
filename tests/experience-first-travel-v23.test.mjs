@@ -54,8 +54,9 @@ test("V23 travel uses explicit source states and avoids fake live claims", () =>
 });
 
 test("V23 travel contains the required approval-first safety language", () => {
-  assert.match(resultsPageSource, /Secure document handling is still being prepared/);
-  assert.match(resultsPageSource, /No booking, payment, or submission happens yet/);
+  assert.match(resultsPageSource, /Ready for live search/);
+  assert.match(resultsPageSource, /No booking, payment, or provider contact without a separate final approval/);
+  assert.match(resultsPageSource, /Start Live Search/);
   assert.match(resultsPageSource, /v23-approval-preview/);
   assert.doesNotMatch(resultsPageSource, /passport\/visa upload/i);
 });
@@ -78,6 +79,6 @@ test("V23 travel styling supports responsive, no-overflow layouts", () => {
 });
 
 test("V23 result cache key is active", () => {
-  assert.match(resultsEntry, /20260729-alpha15-results-cleanup/);
-  assert.match(resultsHtml, /20260729-alpha15-results-cleanup/);
+  assert.match(resultsEntry, /20260729-product-refinement-ux/);
+  assert.match(resultsHtml, /20260729-product-refinement-ux/);
 });

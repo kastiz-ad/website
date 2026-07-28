@@ -35,11 +35,15 @@ test("day cards respect trip length and reserve checkout for the final day", () 
   assert.doesNotMatch(dayBuilder, /baseDays\[index % baseDays\.length\]/);
 });
 
-test("travel results copy is simpler and refinement appears as normal UX", () => {
+test("travel results use the refined premium product hierarchy", () => {
   assert.match(resultsPageSource, /Quick adjustment/);
-  assert.match(resultsPageSource, /Recommended trip/);
+  assert.match(resultsPageSource, /Trip designed for you/);
+  assert.match(resultsPageSource, /Ready for live search/);
   assert.match(resultsPageSource, /No booking or payment yet/);
+  assert.match(resultsPageSource, /product-refined-results/);
+  assert.match(resultsPageSource, /alpha03-premium-hero/);
+  assert.match(resultsPageSource, /alpha03-journey-map/);
+  assert.match(resultsPageSource, /alpha03-budget-breakdown/);
   assert.doesNotMatch(resultsPageSource, /four ways/);
-  assert.doesNotMatch(resultsPageSource, /네 가지 방식/);
   assert.doesNotMatch(resultsPageSource, /cuatro formas/);
 });

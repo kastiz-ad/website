@@ -2731,6 +2731,444 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .completion-blocked-view #bottomActions,
 .completion-blocked-view .approval-header,
 .completion-blocked-view #approvalList { display: none !important; }
+
+/* Product refinement: premium customer-facing travel results */
+.product-refined-results {
+  padding: clamp(18px, 3vw, 34px);
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.product-hero-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(16px, 3vw, 28px);
+  max-width: none;
+  text-align: left;
+  padding: clamp(18px, 3.2vw, 34px);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 16% 6%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface-strong) 84%, transparent), color-mix(in srgb, var(--chip) 92%, transparent));
+}
+
+.product-hero-heading .v23-eyebrow {
+  justify-self: start;
+}
+
+.product-hero-heading h2 {
+  font-size: clamp(38px, 6vw, 82px);
+  letter-spacing: -0.08em;
+}
+
+.product-hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(92px, 1fr));
+  gap: 10px;
+  min-width: min(440px, 100%);
+}
+
+.product-hero-metrics span {
+  display: grid;
+  gap: 4px;
+  min-height: 76px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.product-hero-metrics b {
+  color: var(--text);
+  font-size: clamp(16px, 2vw, 22px);
+  line-height: 1.05;
+  font-weight: 950;
+  text-transform: none;
+}
+
+.product-journey-layout {
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+}
+
+.product-refined-results .v23-journey-card {
+  text-align: left;
+  align-content: start;
+  min-height: 116px;
+}
+
+.product-refined-results .v23-journey-card.is-featured {
+  min-height: 260px;
+  padding: clamp(24px, 4vw, 42px);
+  background:
+    radial-gradient(circle at 90% 12%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 38%),
+    linear-gradient(145deg, color-mix(in srgb, var(--text) 10%, var(--chip)), var(--chip));
+}
+
+.product-refined-results .v23-selected-badge {
+  justify-self: start;
+}
+
+.product-refined-results .v23-journey-meta {
+  justify-content: flex-start;
+}
+
+.alpha03-premium-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.42fr);
+  gap: clamp(14px, 2.4vw, 24px);
+  align-items: stretch;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background: color-mix(in srgb, var(--chip) 80%, transparent);
+}
+
+.alpha03-hero-copy {
+  display: grid;
+  align-content: center;
+  gap: 12px;
+}
+
+.alpha03-hero-copy .v23-eyebrow {
+  justify-self: start;
+}
+
+.alpha03-hero-copy h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(30px, 4vw, 56px);
+  line-height: 1;
+  letter-spacing: -0.075em;
+}
+
+.alpha03-hero-copy p {
+  max-width: 740px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: clamp(14px, 1.4vw, 17px);
+  line-height: 1.55;
+  font-weight: 730;
+}
+
+.alpha03-destination-photo {
+  position: relative;
+  display: grid;
+  align-content: end;
+  min-height: 220px;
+  padding: 20px;
+  overflow: hidden;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 72% 28%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 28%),
+    linear-gradient(150deg, color-mix(in srgb, var(--text) 18%, transparent), color-mix(in srgb, var(--surface) 90%, transparent)),
+    var(--surface-strong);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 10%, transparent);
+}
+
+.alpha03-destination-photo::before {
+  content: "";
+  position: absolute;
+  inset: auto -10% -28% -10%;
+  height: 58%;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 30%, transparent), transparent 55%);
+  opacity: 0.72;
+}
+
+.alpha03-destination-photo span {
+  position: relative;
+  font-size: clamp(46px, 7vw, 84px);
+  line-height: 1;
+}
+
+.alpha03-destination-photo strong,
+.alpha03-destination-photo small {
+  position: relative;
+  color: var(--text);
+}
+
+.alpha03-destination-photo strong {
+  margin-top: 10px;
+  font-size: 21px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.alpha03-destination-photo small {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+.alpha03-journey-map,
+.alpha03-budget-breakdown {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.95fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: clamp(16px, 2.4vw, 24px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--chip) 82%, transparent);
+}
+
+.alpha03-map-canvas {
+  position: relative;
+  min-height: 240px;
+  overflow: hidden;
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--accent) 10%, var(--surface))),
+    repeating-linear-gradient(45deg, transparent 0 16px, color-mix(in srgb, var(--border) 36%, transparent) 17px 18px);
+}
+
+.alpha03-map-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 18% 14%;
+  border: 2px dashed color-mix(in srgb, var(--text) 28%, transparent);
+  border-radius: 42% 58% 48% 52%;
+}
+
+.alpha03-map-pin {
+  position: absolute;
+  left: calc(14% + (var(--pin) * 18%));
+  top: calc(18% + ((var(--pin) % 2) * 38%));
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 46%;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 14px 36px color-mix(in srgb, #000 16%, transparent);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.alpha03-map-pin i {
+  font-style: normal;
+}
+
+.alpha03-map-copy,
+.alpha03-budget-breakdown > div:first-child {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.alpha03-map-copy .v23-eyebrow,
+.alpha03-budget-breakdown .v23-eyebrow {
+  justify-self: start;
+}
+
+.alpha03-map-copy h3,
+.alpha03-budget-breakdown h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(22px, 3vw, 34px);
+  line-height: 1.05;
+  letter-spacing: -0.055em;
+}
+
+.alpha03-map-copy p {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 720;
+  line-height: 1.5;
+}
+
+.alpha03-budget-breakdown {
+  grid-template-columns: minmax(200px, 0.55fr) minmax(0, 1fr);
+}
+
+.alpha03-budget-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.alpha03-budget-grid span {
+  display: grid;
+  gap: 5px;
+  min-height: 88px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.alpha03-budget-grid i,
+.alpha03-budget-grid em {
+  font-style: normal;
+}
+
+.alpha03-budget-grid b {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.alpha03-budget-grid em {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 780;
+}
+
+.alpha03-premium-card {
+  grid-template-columns: minmax(76px, 0.32fr) minmax(0, 1fr);
+  padding: 0;
+  overflow: hidden;
+}
+
+.alpha03-thumb {
+  display: grid;
+  place-items: center;
+  min-height: 118px;
+  background:
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface-strong) 80%, transparent), var(--surface));
+}
+
+.alpha03-thumb span {
+  font-size: 32px;
+}
+
+.alpha03-premium-card > div:last-child {
+  padding: 14px;
+}
+
+.alpha03-card-grid,
+.alpha03-card-grid.is-restaurants {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.alpha03-timeline-redesign {
+  gap: 14px;
+}
+
+.alpha03-timeline-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+}
+
+.alpha03-timeline-card {
+  flex: 0 0 min(330px, 86vw);
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--chip);
+  scroll-snap-align: start;
+}
+
+.alpha03-timeline-card > span {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+}
+
+.alpha03-timeline-card strong {
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+}
+
+.alpha03-timeline-card div {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.alpha03-timeline-card b {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.alpha03-timeline-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.42;
+  font-weight: 720;
+}
+
+.product-refined-results .v23-approval-preview {
+  text-align: center;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 40%),
+    var(--chip);
+}
+
+@media (max-width: 840px) {
+  .product-hero-heading,
+  .alpha03-premium-hero,
+  .alpha03-journey-map,
+  .alpha03-budget-breakdown,
+  .product-journey-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .product-hero-metrics,
+  .alpha03-budget-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .alpha03-destination-photo,
+  .alpha03-map-canvas {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 560px) {
+  .product-refined-results {
+    padding: 14px;
+    border-radius: 28px;
+  }
+
+  .product-hero-heading,
+  .alpha03-premium-hero,
+  .alpha03-story-panel,
+  .alpha03-journey-map,
+  .alpha03-budget-breakdown {
+    border-radius: 24px;
+    padding: 16px;
+  }
+
+  .product-hero-heading h2,
+  .alpha03-hero-copy h2 {
+    font-size: clamp(34px, 11vw, 48px);
+  }
+
+  .product-hero-metrics,
+  .alpha03-budget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-refined-results .v23-journey-card.is-featured {
+    min-height: 210px;
+  }
+
+  .alpha03-logistics-strip {
+    grid-template-columns: 1fr;
+  }
+}
 .completion-blocked-view .mission-layout { padding-top: clamp(20px, 4vw, 44px); }
 
 .v231-continuation { display: grid; gap: 14px; width: 100%; margin: 0 auto; text-align: center; }

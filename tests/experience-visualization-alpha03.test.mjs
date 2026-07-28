@@ -22,7 +22,7 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
   const experienceIndex = travelDetailSource.indexOf("alpha03-story-panel");
   const restaurantIndex = travelDetailSource.indexOf("Food");
   const placesIndex = travelDetailSource.indexOf("Places");
-  const dayIndex = travelDetailSource.indexOf("Day preview");
+  const dayIndex = travelDetailSource.indexOf("Timeline");
   const hotelIndex = travelDetailSource.indexOf("Hotel direction");
   const flightIndex = travelDetailSource.indexOf("Flight direction");
   const prepIndex = travelDetailSource.indexOf("alpha03-preparation-details");
@@ -37,7 +37,8 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
 });
 
 test("ALPHA-03 restaurant and place previews are truthful and do not fake ratings", () => {
-  assert.match(travelDetailSource, /sourceStateLabel/);
+  assert.match(resultsPageSource, /Fit to the route/);
+  assert.match(resultsPageSource, /Hours and reservations checked after approval/);
   assert.match(resultsPageSource, /cached_public/);
   assert.match(resultsPageSource, /estimated/);
   assert.doesNotMatch(travelDetailSource, /fake rating|review count|reservationStatus|availability confirmed/i);
@@ -58,9 +59,12 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
   assert.doesNotMatch(travelDetailSource, /alpha03-preparation-details" open/);
   [
     ".alpha03-story-panel",
+    ".alpha03-premium-hero",
+    ".alpha03-journey-map",
+    ".alpha03-budget-breakdown",
     ".alpha03-card-grid",
     ".alpha03-visual-card",
-    ".alpha03-day-grid",
+    ".alpha03-timeline-strip",
     ".alpha03-logistics-strip",
     ".alpha03-preparation-details"
   ].forEach((selector) => assert.match(resultsCss, new RegExp(selector.replace(".", "\\."))));
@@ -68,6 +72,6 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260729-alpha15-results-cleanup/);
-  assert.match(resultsEntry, /20260729-alpha15-results-cleanup/);
+  assert.match(resultsHtml, /20260729-product-refinement-ux/);
+  assert.match(resultsEntry, /20260729-product-refinement-ux/);
 });
