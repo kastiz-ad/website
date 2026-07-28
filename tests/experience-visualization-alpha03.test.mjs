@@ -11,6 +11,10 @@ const travelDetailSource = resultsPageSource.slice(
   resultsPageSource.indexOf("const createAlpha03ExperienceHtml"),
   resultsPageSource.indexOf("const createTravelPackagesCard")
 );
+const journeyMapSource = resultsPageSource.slice(
+  resultsPageSource.indexOf("const createAlpha03JourneyMap"),
+  resultsPageSource.indexOf("const createAlpha03OptionPreviewCard")
+);
 
 test("ALPHA-03 renders experience before logistics without a new engine", () => {
   assert.match(resultsPageSource, /createAlpha03ExperienceHtml/);
@@ -71,6 +75,25 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260729-map-drag-cleanup/);
-  assert.match(resultsEntry, /20260729-map-drag-cleanup/);
+  assert.match(resultsHtml, /20260729-transport-restaurant-cleanup/);
+  assert.match(resultsEntry, /20260729-transport-restaurant-cleanup/);
+});
+
+test("ALPHA-03 keeps map pins clean and transport choices top-aligned", () => {
+  assert.match(journeyMapSource, /class="alpha03-map-pin/);
+  assert.doesNotMatch(journeyMapSource, /<b>/);
+  assert.match(resultsPageSource, /Train \+ local bus \+ walk/);
+  assert.match(resultsPageSource, /Subway pass route/);
+  assert.match(resultsPageSource, /Late-night taxi backup/);
+  assert.match(resultsCss, /alpha03-option-preview[\s\S]*align-items:\s*start/);
+  assert.match(resultsCss, /alpha03-preview-group > div[\s\S]*align-content:\s*start/);
+});
+
+test("ALPHA-03 restaurant fallbacks are destination-aware instead of Japan-only", () => {
+  assert.match(resultsPageSource, /restaurantCuisineProfiles/);
+  assert.match(resultsPageSource, /cuisineProfilesByContinent/);
+  assert.match(resultsPageSource, /ONE destination cuisine fallback/);
+  assert.match(resultsPageSource, /Classic deli/);
+  assert.match(resultsPageSource, /Ceviche house/);
+  assert.match(resultsPageSource, /Churrascaria/);
 });

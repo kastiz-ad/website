@@ -3144,6 +3144,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  align-items: start;
 }
 
 .alpha03-preview-group {
@@ -3167,6 +3168,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .alpha03-preview-group > div {
   display: grid;
   gap: 8px;
+  align-content: start;
   max-height: 420px;
   overflow: auto;
 }

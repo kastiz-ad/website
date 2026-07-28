@@ -138,8 +138,8 @@ test("ALPHA-14 is wired into result page and cache key", () => {
   assert.match(page, /createExplanationLayer/);
   assert.match(page, /attachExplainableIntelligenceLayer\(currentResult\)/);
   assert.match(page, /data-card-id="explainable-intelligence"/);
-  assert.match(html, /20260729-map-drag-cleanup/);
-  assert.match(entry, /20260729-map-drag-cleanup/);
+  assert.match(html, /20260729-transport-restaurant-cleanup/);
+  assert.match(entry, /20260729-transport-restaurant-cleanup/);
 });
 
 test("ALPHA-14 demo result shell has no mojibake and refreshes stale demo links", () => {

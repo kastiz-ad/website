@@ -139,8 +139,8 @@ test("ALPHA-12 is wired into the results page and cache key", () => {
   assert.match(page, /createLifeTimelineLayer/);
   assert.match(page, /attachLifeTimelineLayer\(currentResult\)/);
   assert.match(page, /data-card-id="life-timeline"/);
-  assert.match(html, /20260729-map-drag-cleanup/);
-  assert.match(entry, /20260729-map-drag-cleanup/);
+  assert.match(html, /20260729-transport-restaurant-cleanup/);
+  assert.match(entry, /20260729-transport-restaurant-cleanup/);
 });
 
 test("ALPHA-12 validation catches broken layers", () => {

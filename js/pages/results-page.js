@@ -1506,7 +1506,32 @@ const cityRestaurantProfiles = {
   ]
 };
 
-const restaurantProfileForCity = (city) => {
+const restaurantCuisineProfiles = {
+  JP: [["Sushi counter", 4.6, 30000, 85000, "sushi"], ["Ramen shop", 4.5, 16000, 38000, "ramen"], ["Wagyu grill", 4.6, 65000, 150000, "wagyu"], ["Izakaya", 4.5, 28000, 70000, "izakaya"], ["Matcha dessert stop", 4.6, 12000, 32000, "dessert"], ["Tempura house", 4.5, 35000, 90000, "tempura"], ["Market seafood stall", 4.5, 22000, 68000, "seafood"], ["Curry rice shop", 4.4, 14000, 36000, "curry"], ["Yakitori alley", 4.5, 25000, 65000, "yakitori"], ["Udon and soba shop", 4.4, 13000, 34000, "noodles"], ["Kaiseki dinner", 4.6, 85000, 220000, "kaiseki"], ["Local bakery cafe", 4.4, 10000, 28000, "cafe"]],
+  US: [["Classic deli", 4.5, 22000, 60000, "deli"], ["Steakhouse", 4.6, 70000, 170000, "steak"], ["Pizza slice shop", 4.5, 12000, 36000, "pizza"], ["Burger grill", 4.4, 18000, 48000, "burger"], ["Seafood bar", 4.5, 45000, 120000, "seafood"], ["Brunch cafe", 4.4, 20000, 52000, "brunch"], ["Taco counter", 4.4, 14000, 38000, "tacos"], ["Rooftop dinner", 4.5, 55000, 140000, "dinner"], ["Bakery and coffee", 4.5, 10000, 30000, "bakery"], ["Market food hall", 4.4, 18000, 52000, "market"], ["Fine dining", 4.6, 95000, 240000, "fine dining"], ["Neighborhood bistro", 4.4, 28000, 72000, "bistro"]],
+  FR: [["Neighborhood bistro", 4.6, 35000, 90000, "bistro"], ["Bakery and coffee", 4.6, 9000, 28000, "bakery"], ["Wine bar", 4.5, 30000, 85000, "wine"], ["Brasserie", 4.5, 32000, 90000, "brasserie"], ["Crepe stop", 4.4, 12000, 36000, "crepe"], ["Cheese and charcuterie", 4.5, 28000, 72000, "cheese"], ["Market lunch", 4.4, 18000, 52000, "market"], ["Seafood table", 4.5, 45000, 120000, "seafood"]],
+  ES: [["Tapas bar", 4.6, 22000, 65000, "tapas"], ["Paella restaurant", 4.5, 35000, 95000, "paella"], ["Churros cafe", 4.5, 9000, 26000, "dessert"], ["Market counter", 4.4, 16000, 48000, "market"], ["Seafood tavern", 4.5, 42000, 110000, "seafood"], ["Wine and pintxos", 4.5, 26000, 72000, "pintxos"]],
+  IT: [["Trattoria", 4.6, 28000, 76000, "trattoria"], ["Pizzeria", 4.5, 16000, 42000, "pizza"], ["Gelato stop", 4.6, 7000, 22000, "gelato"], ["Pasta house", 4.5, 26000, 72000, "pasta"], ["Aperitivo bar", 4.4, 22000, 62000, "aperitivo"], ["Seafood osteria", 4.5, 42000, 110000, "seafood"]],
+  MX: [["Taco stand", 4.6, 10000, 32000, "tacos"], ["Mole kitchen", 4.5, 24000, 68000, "mole"], ["Cantina", 4.4, 22000, 62000, "cantina"], ["Market lunch", 4.5, 12000, 36000, "market"], ["Seafood tostada bar", 4.4, 18000, 52000, "seafood"], ["Churros and coffee", 4.5, 8000, 24000, "dessert"]],
+  PE: [["Ceviche house", 4.6, 24000, 72000, "ceviche"], ["Nikkei restaurant", 4.6, 45000, 130000, "nikkei"], ["Anticucho grill", 4.5, 16000, 48000, "grill"], ["Pisco and tapas", 4.4, 24000, 68000, "pisco"], ["Market lunch", 4.4, 12000, 38000, "market"], ["Coffee and dessert", 4.5, 9000, 26000, "cafe"]],
+  CO: [["Arepa cafe", 4.5, 10000, 28000, "arepa"], ["Bandeja paisa kitchen", 4.5, 18000, 48000, "local"], ["Grill and empanadas", 4.4, 14000, 42000, "grill"], ["Coffee house", 4.6, 8000, 24000, "coffee"], ["Rooftop dinner", 4.5, 42000, 110000, "dinner"], ["Market lunch", 4.4, 12000, 36000, "market"]],
+  BR: [["Churrascaria", 4.6, 42000, 110000, "steak"], ["Feijoada kitchen", 4.5, 20000, 58000, "local"], ["Acai and juice bar", 4.5, 8000, 24000, "snack"], ["Seafood restaurant", 4.4, 36000, 98000, "seafood"], ["Bakery cafe", 4.5, 9000, 26000, "bakery"], ["Market lunch", 4.4, 12000, 38000, "market"]],
+  KR: [["Korean BBQ", 4.6, 30000, 85000, "bbq"], ["Kimbap and noodles", 4.4, 9000, 26000, "casual"], ["Market street food", 4.5, 8000, 25000, "street food"], ["Cafe dessert stop", 4.5, 9000, 28000, "cafe"], ["Hanwoo dinner", 4.6, 70000, 180000, "hanwoo"], ["Traditional table", 4.5, 22000, 65000, "korean"]]
+};
+
+const cuisineProfilesByContinent = {
+  Asia: restaurantCuisineProfiles.JP,
+  Europe: restaurantCuisineProfiles.FR,
+  "North America": restaurantCuisineProfiles.US,
+  "South America": restaurantCuisineProfiles.PE,
+  "Central America": restaurantCuisineProfiles.MX,
+  Caribbean: restaurantCuisineProfiles.MX,
+  Africa: [["Grill house", 4.5, 22000, 65000, "grill"], ["Local stew kitchen", 4.4, 16000, 48000, "local"], ["Seafood table", 4.4, 32000, 90000, "seafood"], ["Coffee and pastry", 4.5, 8000, 24000, "cafe"], ["Market lunch", 4.4, 12000, 36000, "market"], ["Rooftop dinner", 4.5, 38000, 105000, "dinner"]],
+  "Middle East": [["Kebab grill", 4.5, 18000, 52000, "kebab"], ["Mezze table", 4.5, 22000, 65000, "mezze"], ["Seafood restaurant", 4.4, 36000, 98000, "seafood"], ["Bakery and coffee", 4.5, 9000, 26000, "bakery"], ["Market lunch", 4.4, 12000, 38000, "market"], ["Rooftop dinner", 4.5, 42000, 120000, "dinner"]],
+  Oceania: [["Seafood restaurant", 4.5, 36000, 98000, "seafood"], ["Brunch cafe", 4.5, 18000, 48000, "brunch"], ["Steak grill", 4.5, 48000, 125000, "steak"], ["Market food hall", 4.4, 16000, 46000, "market"], ["Bakery and coffee", 4.5, 9000, 28000, "bakery"], ["Wine bar", 4.4, 30000, 82000, "wine"]]
+};
+
+const restaurantProfileForCity = (city, result = {}) => {
   const normalized = String(city || "").trim().toLowerCase();
   const aliases = {
     "뉴욕": "new york", "로스앤젤레스": "los angeles", "워싱턴 d.c.": "washington, d.c.",
@@ -1515,14 +1540,26 @@ const restaurantProfileForCity = (city) => {
     "도쿄": "tokyo", "오사카": "osaka", "교토": "kyoto"
   };
   const key = aliases[normalized] || normalized;
-  return cityRestaurantProfiles[key] || [
-    [`${city} Local Table`, 4.6, 30000, 75000], [`${city} Market Kitchen`, 4.5, 22000, 60000],
-    [`${city} Dining Room`, 4.4, 45000, 110000], [`${city} Neighborhood Cafe`, 4.5, 12000, 35000],
-    [`${city} Bistro`, 4.5, 28000, 68000], [`${city} Grill`, 4.4, 35000, 90000],
-    [`${city} Sushi House`, 4.5, 30000, 85000], [`${city} Pasta Bar`, 4.4, 26000, 72000],
-    [`${city} Steak Kitchen`, 4.5, 55000, 140000], [`${city} Seafood Table`, 4.4, 45000, 120000],
-    [`${city} Bakery Cafe`, 4.6, 12000, 32000], [`${city} Rooftop Dining`, 4.5, 50000, 135000]
+  const countryCode = result.country || result.countryProfile?.code || result.destination?.countryCode || result.destination?.code || "";
+  const continent = result.destination?.continent || result.countryProfile?.continent || "";
+  const cuisineProfile = restaurantCuisineProfiles[countryCode] || cuisineProfilesByContinent[continent] || [
+    ["Local signature restaurant", 4.5, 22000, 65000, "local"],
+    ["Market food hall", 4.4, 14000, 42000, "market"],
+    ["Neighborhood cafe", 4.5, 9000, 28000, "cafe"],
+    ["Grill house", 4.4, 30000, 85000, "grill"],
+    ["Seafood table", 4.4, 38000, 105000, "seafood"],
+    ["Bakery and dessert", 4.5, 8000, 24000, "dessert"],
+    ["Rooftop dinner", 4.5, 42000, 120000, "dinner"],
+    ["Casual lunch spot", 4.4, 12000, 36000, "casual"]
   ];
+  return cuisineProfile.map(([name, rating, min, max, cuisine], index) => [
+    `${city} ${name}`,
+    rating,
+    min,
+    max,
+    cuisine,
+    "ONE destination cuisine fallback"
+  ]).slice(0, TRAVEL_OPTION_TARGETS.restaurants);
 };
 
 const TRAVEL_OPTION_TARGETS = Object.freeze({
@@ -1752,7 +1789,7 @@ function adaptTravelResultToDestination(result) {
   ]);
   const restaurantCandidates = uniqueRestaurantCandidates([
     ...liveRestaurantCandidates,
-    ...restaurantProfileForCity(city)
+    ...restaurantProfileForCity(city, result)
   ]).slice(0, TRAVEL_OPTION_TARGETS.restaurants);
   const restaurants = restaurantCandidates.map(([name, rating, min, max, cuisine, source], index) => ({
     ...(result.restaurants?.[index] || {}),
@@ -2723,6 +2760,11 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
     { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar"), meta: alpha03Copy("comfort route", "편한 이동", "ruta cómoda") },
     { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado"), meta: alpha03Copy("higher cost", "높은 비용", "mayor costo") }
   ];
+  transfers.push(
+    { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar"), meta: alpha03Copy("regional route", "지역 이동", "ruta regional") },
+    { name: alpha03Copy("Subway pass route", "지하철 패스 동선", "Ruta con pase de metro"), meta: alpha03Copy("easy repeat rides", "반복 이동에 편함", "traslados repetidos") },
+    { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo"), meta: alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar") }
+  );
   const groups = [
     [alpha03Copy("Flights", "항공", "Vuelos"), "flights", flights],
     [alpha03Copy("Hotels", "숙소", "Hotel"), "hotels", hotels],
