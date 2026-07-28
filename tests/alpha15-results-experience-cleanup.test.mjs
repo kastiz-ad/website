@@ -37,13 +37,14 @@ test("day cards respect trip length and reserve checkout for the final day", () 
 
 test("travel results use the refined premium product hierarchy", () => {
   assert.match(resultsPageSource, /Quick adjustment/);
-  assert.match(resultsPageSource, /Trip designed for you/);
-  assert.match(resultsPageSource, /Ready for live search/);
-  assert.match(resultsPageSource, /No booking or payment yet/);
+  assert.match(resultsPageSource, /alpha03-recommendation-stage/);
+  assert.match(resultsPageSource, /Start Live Search/);
+  assert.match(resultsPageSource, /Live Search Ready/);
+  assert.match(resultsPageSource, /getCompactTravelBudgetLabel/);
   assert.match(resultsPageSource, /product-refined-results/);
-  assert.match(resultsPageSource, /alpha03-premium-hero/);
-  assert.match(resultsPageSource, /alpha03-journey-map/);
+  assert.match(resultsPageSource, /alpha03-option-preview/);
   assert.match(resultsPageSource, /alpha03-budget-breakdown/);
+  assert.doesNotMatch(resultsPageSource, /Trip designed for you/);
   assert.doesNotMatch(resultsPageSource, /four ways/);
   assert.doesNotMatch(resultsPageSource, /cuatro formas/);
 });

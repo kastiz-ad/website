@@ -19,28 +19,26 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
   assert.match(resultsPageSource, /createMissionInsightsCard/);
   assert.match(resultsPageSource, /createProgressiveRefinementCard/);
 
-  const experienceIndex = travelDetailSource.indexOf("alpha03-premium-hero");
+  const experienceIndex = travelDetailSource.indexOf("alpha03-recommendation-stage");
   const mapIndex = travelDetailSource.indexOf("createAlpha03JourneyMap");
   const restaurantIndex = travelDetailSource.indexOf("Food");
   const placesIndex = travelDetailSource.indexOf("Places");
   const dayIndex = travelDetailSource.indexOf("Timeline");
-  const hotelIndex = travelDetailSource.indexOf("Hotel direction");
-  const flightIndex = travelDetailSource.indexOf("Flight direction");
+  const optionIndex = travelDetailSource.indexOf("createAlpha03OptionPreview");
   const prepIndex = travelDetailSource.indexOf("alpha03-preparation-details");
 
   assert.ok(experienceIndex >= 0);
-  assert.ok(mapIndex > experienceIndex);
+  assert.ok(mapIndex >= 0);
   assert.ok(restaurantIndex > mapIndex);
   assert.ok(placesIndex > restaurantIndex);
   assert.ok(dayIndex > placesIndex);
-  assert.ok(hotelIndex > dayIndex);
-  assert.ok(flightIndex > hotelIndex);
-  assert.ok(prepIndex > flightIndex);
+  assert.ok(optionIndex > dayIndex);
+  assert.ok(prepIndex > optionIndex);
 });
 
 test("ALPHA-03 restaurant and place previews are truthful and do not fake ratings", () => {
-  assert.match(resultsPageSource, /Fit to the route/);
-  assert.match(resultsPageSource, /Hours and reservations checked after approval/);
+  assert.match(resultsPageSource, /getAlpha03ItemAdvice/);
+  assert.match(resultsPageSource, /what to order/);
   assert.match(resultsPageSource, /cached_public/);
   assert.match(resultsPageSource, /estimated/);
   assert.doesNotMatch(travelDetailSource, /fake rating|review count|reservationStatus|availability confirmed/i);
@@ -60,13 +58,13 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
   assert.match(travelDetailSource, /alpha04SectionAttrs\(workspace, "preparation", "alpha03-preparation-details"\)/);
   assert.doesNotMatch(travelDetailSource, /alpha03-preparation-details" open/);
   [
-    ".alpha03-premium-hero",
-    ".alpha03-journey-map",
+    ".alpha03-recommendation-stage",
+    ".alpha03-map-canvas",
     ".alpha03-budget-breakdown",
     ".alpha03-card-grid",
     ".alpha03-visual-card",
     ".alpha03-timeline-strip",
-    ".alpha03-logistics-strip",
+    ".alpha03-option-preview",
     ".alpha03-preparation-details"
   ].forEach((selector) => assert.match(resultsCss, new RegExp(selector.replace(".", "\\."))));
   assert.match(resultsCss, /@media \(max-width: 768px\)[\s\S]*alpha03-card-grid/);

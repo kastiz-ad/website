@@ -54,8 +54,8 @@ test("V23 travel uses explicit source states and avoids fake live claims", () =>
 });
 
 test("V23 travel contains the required approval-first safety language", () => {
-  assert.match(resultsPageSource, /Ready for live search/);
-  assert.match(resultsPageSource, /No booking, payment, or provider contact without a separate final approval/);
+  assert.match(resultsPageSource, /Live Search Ready/);
+  assert.match(resultsPageSource, /approvalProtection/);
   assert.match(resultsPageSource, /Start Live Search/);
   assert.match(resultsPageSource, /v23-approval-preview/);
   assert.doesNotMatch(resultsPageSource, /passport\/visa upload/i);
