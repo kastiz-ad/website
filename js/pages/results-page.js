@@ -43,6 +43,10 @@ import {
   validateProviderTrustBrief
 } from "../engine/trust/provider-trust-network-alpha09.js?v=20260729-alpha09-provider-trust-network";
 import {
+  buildConversationUnderstandingLayer,
+  validateConversationUnderstandingLayer
+} from "../engine/conversation/natural-mission-conversation-alpha10.js?v=20260729-alpha10-natural-mission-conversation";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
@@ -3185,6 +3189,74 @@ const createProviderTrustNetworkCard = (brief) => {
   return article;
 };
 
+const createNaturalConversationCard = (result, context, refinement = null) => {
+  try {
+    const refinementLayer = refinement || buildProgressiveRefinement(result, context, readRefinementState(result), { language: activeLanguage });
+    const layer = buildConversationUnderstandingLayer({
+      messages: [result.originalMission || result.rawInput || result.mission || result.display?.title || ""],
+      result,
+      context,
+      refinement: refinementLayer,
+      predictions: result.alpha06PredictiveIntelligence,
+      memory: result.alpha07PersonalMissionMemory,
+      language: activeLanguage
+    });
+    const validation = validateConversationUnderstandingLayer(layer);
+    currentResult.alpha10NaturalConversation = layer;
+    currentResult.alpha10NaturalConversationValidation = validation;
+    const local = v22Local;
+    const u = layer.understanding || {};
+    const fields = [
+      [local("Goal", "목표", "Objetivo"), u.goal],
+      [local("Intent", "의도", "Intención"), u.missionIntent],
+      [local("Location", "장소", "Lugar"), u.locations?.join(" · ")],
+      [local("Dates", "날짜", "Fechas"), u.dates?.join(" · ")],
+      [local("People", "사람", "Personas"), u.people?.join(" · ")],
+      [local("Budget", "예산", "Presupuesto"), u.budget],
+      [local("Preferences", "선호", "Preferencias"), u.preferences?.join(" · ")],
+      [local("Constraints", "조건", "Restricciones"), u.constraints?.join(" · ")]
+    ].filter(([, value]) => value);
+    const missing = layer.visibleQuestions?.length
+      ? layer.visibleQuestions.map((question) => question.text)
+      : [local("No extra question is needed right now.", "지금은 추가 질문이 필요하지 않습니다.", "No hace falta otra pregunta ahora.")];
+    const confidenceLabel = layer.confidence?.level === "high"
+      ? local("Clear enough to continue", "계속 준비해도 충분히 명확함", "Claro para continuar")
+      : layer.confidence?.level === "medium"
+        ? local("Almost clear", "거의 명확함", "Casi claro")
+        : local("Needs quick confirmation", "짧은 확인 필요", "Necesita confirmación");
+    const article = document.createElement("article");
+    article.className = "mission-card v22-card is-wide alpha10-conversation-card";
+    article.dataset.cardId = "natural-mission-conversation";
+    article.dataset.alpha10Confidence = layer.confidence?.level || "unknown";
+    article.dataset.alpha10QuestionCount = String(layer.visibleQuestions?.length || 0);
+    article.innerHTML = `
+      <div class="v22-card-heading">
+        <span class="v22-kicker">ALPHA-10 · Natural Mission Conversation</span>
+        <h2>${escapeSummaryText(local("ONE currently understands", "ONE이 현재 이해한 내용", "ONE entiende ahora"))}</h2>
+      </div>
+      <p class="v22-card-body">${escapeSummaryText(local(
+        "Keep talking naturally. ONE extracts only what matters and asks only if it improves the mission.",
+        "자연스럽게 말하면 됩니다. ONE은 중요한 정보만 이해하고, 꼭 필요할 때만 묻습니다.",
+        "Habla naturalmente. ONE extrae lo importante y solo pregunta si mejora la misión."
+      ))}</p>
+      <div class="v22-chip-list">${fields.map(([label, value]) => createV22Chip(`${label}: ${value}`)).join("")}</div>
+      <div class="v22-chip-list">${createV22Chip(confidenceLabel, "primary")}</div>
+      <details class="alpha10-missing-info"${layer.visibleQuestions?.length ? " open" : ""}>
+        <summary>${escapeSummaryText(local("Natural follow-up", "자연스러운 확인", "Seguimiento natural"))}</summary>
+        <ul class="v22-clean-list">${missing.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
+      </details>
+    `;
+    return article;
+  } catch (error) {
+    currentResult.alpha10NaturalConversation = {
+      version: "ALPHA-10",
+      status: "degraded",
+      failureReason: String(error?.message || "conversation_understanding_unavailable").slice(0, 120)
+    };
+    return null;
+  }
+};
+
 const attachProviderTrustBrief = (result) => {
   try {
     const brief = buildProviderTrustBrief({
@@ -3271,6 +3343,8 @@ const renderTravelMission = (result, missionContext) => {
   );
   const livingWorkspace = createLivingMissionWorkspaceCard(result, missionContext);
   missionGrid.appendChild(livingWorkspace.card);
+  const conversationCard = createNaturalConversationCard(result, missionContext);
+  if (conversationCard) missionGrid.appendChild(conversationCard);
   const executionOrchestrator = createExecutionOrchestratorCard(result, livingWorkspace.workspace);
   missionGrid.appendChild(executionOrchestrator.card);
   const predictiveCard = createPredictiveIntelligenceCard(result, missionContext, executionOrchestrator.orchestrator);
@@ -3318,6 +3392,8 @@ const renderResolutionPlanMission = (result) => {
   if (disclosure) disclosure.textContent = localize(presentation.prototype);
   const scheduleCard = createScheduleCard(result);
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
+  const conversationCard = createNaturalConversationCard(result, result.missionContext);
+  if (conversationCard) missionGrid.appendChild(conversationCard);
   const executionOrchestrator = createExecutionOrchestratorCard(result, null);
   missionGrid.appendChild(executionOrchestrator.card);
   const predictiveCard = createPredictiveIntelligenceCard(result, { resolutionPlan: plan }, executionOrchestrator.orchestrator);
@@ -3455,6 +3531,8 @@ const renderGeneralMission = (result) => {
   missionGrid.innerHTML = "";
   const scheduleCard = createScheduleCard(result);
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
+  const conversationCard = createNaturalConversationCard(result, result.missionContext);
+  if (conversationCard) missionGrid.appendChild(conversationCard);
   const insightsCard = createMissionInsightsCard(result, result.missionContext);
   if (insightsCard) missionGrid.appendChild(insightsCard);
   const refinementCard = createProgressiveRefinementCard(result, result.missionContext);
@@ -3566,6 +3644,9 @@ const renderGeneratedExperienceMission = (result) => {
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
   const disclosure = document.querySelector(".prototype-disclosure");
   if (disclosure) disclosure.textContent = local("Prototype · personalized experience plan · no booking made", "프로토타입 · 맞춤 경험 계획 · 실제 예약 아님", "Prototipo · experiencia personalizada · sin reservas");
+
+  const conversationCard = createNaturalConversationCard(result, result.missionContext);
+  if (conversationCard) missionGrid.appendChild(conversationCard);
 
   missionGrid.appendChild(createMissionCard({
     id: "generated-one-pick",
