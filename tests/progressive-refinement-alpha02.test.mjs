@@ -1,4 +1,4 @@
-import test from "node:test";
+﻿import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {
@@ -59,10 +59,10 @@ test("ALPHA-02 archive lifecycle supports skip later and hidden", () => {
 
 test("ALPHA-02 supports healthcare education business and career domains", () => {
   const cases = [
-    ["ì´ê°€ ì•„í”ˆë° ì˜¤ëŠ˜ ê°ˆ ìˆ˜ ìžˆëŠ” ì¹˜ê³¼ ì°¾ì•„ì¤˜", "healthcare", "urgency"],
-    ["ì¤‘í•™ìƒ ì˜ì–´ ë‚´ì‹  í•™ì› ì°¾ì•„ì¤˜", "education", "student"],
-    ["í•œêµ­ì—ì„œ íšŒì‚¬ë¥¼ ì‹œìž‘í•˜ê³  ì‹¶ì–´", "business", "business"],
-    ["í•œêµ­ì—ì„œ ì¼ìžë¦¬ë¥¼ ì°¾ê³  ì‹¶ì–´", "career", "field"]
+    ["Ã¬ÂÂ´ÃªÂ°â‚¬ Ã¬â€¢â€žÃ­â€Ë†Ã«ÂÂ° Ã¬ËœÂ¤Ã«Å Ëœ ÃªÂ°Ë† Ã¬Ë†Ëœ Ã¬Å¾Ë†Ã«Å â€ Ã¬Â¹ËœÃªÂ³Â¼ Ã¬Â°Â¾Ã¬â€¢â€žÃ¬Â¤Ëœ", "healthcare", "urgency"],
+    ["Ã¬Â¤â€˜Ã­â€¢â„¢Ã¬Æ’Â Ã¬ËœÂÃ¬â€“Â´ Ã«â€šÂ´Ã¬â€¹Â  Ã­â€¢â„¢Ã¬â€ºÂ Ã¬Â°Â¾Ã¬â€¢â€žÃ¬Â¤Ëœ", "education", "student"],
+    ["Ã­â€¢Å“ÃªÂµÂ­Ã¬â€”ÂÃ¬â€žÅ“ Ã­Å¡Å’Ã¬â€šÂ¬Ã«Â¥Â¼ Ã¬â€¹Å“Ã¬Å¾â€˜Ã­â€¢ËœÃªÂ³Â  Ã¬â€¹Â¶Ã¬â€“Â´", "business", "business"],
+    ["Ã­â€¢Å“ÃªÂµÂ­Ã¬â€”ÂÃ¬â€žÅ“ Ã¬ÂÂ¼Ã¬Å¾ÂÃ«Â¦Â¬Ã«Â¥Â¼ Ã¬Â°Â¾ÃªÂ³Â  Ã¬â€¹Â¶Ã¬â€“Â´", "career", "field"]
   ];
   for (const [mission, domain, expected] of cases) {
     const refinement = buildProgressiveRefinement({ rawInput: mission, resolutionPlan: { domain } }, {}, {}, { language: "ko" });
@@ -89,6 +89,6 @@ test("ALPHA-02 UI is wired without homepage redesign", () => {
   assert.match(resultsPage, /renderMission\(\)/);
   assert.match(css, /\.alpha02-refinement-card/);
   assert.match(css, /@media \(max-width: 760px\)/);
-  assert.match(resultsHtml, /20260727-alpha04-living-mission/);
-  assert.match(resultsEntry, /20260727-alpha04-living-mission/);
+  assert.match(resultsHtml, /20260729-alpha05-execution-orchestrator/);
+  assert.match(resultsEntry, /20260729-alpha05-execution-orchestrator/);
 });

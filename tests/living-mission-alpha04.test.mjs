@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
@@ -72,8 +72,8 @@ test("ALPHA-04 results page integrates workspace card, section markers, resume s
   assert.match(resultsPageSource, /alpha04Scenario/);
   assert.match(resultsCss, /\.alpha04-workspace-card/);
   assert.match(resultsCss, /\.is-recently-updated/);
-  assert.match(resultsHtml, /20260727-alpha04-living-mission/);
-  assert.match(resultsEntry, /20260727-alpha04-living-mission/);
+  assert.match(resultsHtml, /20260729-alpha05-execution-orchestrator/);
+  assert.match(resultsEntry, /20260729-alpha05-execution-orchestrator/);
 });
 
 test("ALPHA-04 storage key is deterministic and scoped to a mission", () => {

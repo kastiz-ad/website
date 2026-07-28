@@ -16,6 +16,11 @@ import {
   sectionWasRecentlyUpdated
 } from "../engine/workspace/living-mission-alpha04.js?v=20260727-alpha04-living-mission";
 import {
+  ALPHA05_EXECUTION_ORCHESTRATOR_VERSION,
+  createExecutionOrchestrator,
+  validateExecutionOrchestrator
+} from "../engine/workspace/execution-orchestrator-alpha05.js?v=20260729-alpha05-execution-orchestrator";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
@@ -2840,6 +2845,104 @@ const createLivingMissionWorkspaceCard = (result, missionContext) => {
   return { card, workspace };
 };
 
+const alpha05StatusClass = (status = "") => {
+  return String(status).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z-]/g, "") || "unknown";
+};
+
+const createAlpha05ActionItem = (action) => `
+  <li class="alpha05-action is-${alpha05StatusClass(action.status)}" tabindex="0">
+    <span class="alpha05-action-state">${escapeSummaryText(action.status)}</span>
+    <strong>${escapeSummaryText(action.title)}</strong>
+    <small>${escapeSummaryText(action.explanation?.whyItExists || action.description)}</small>
+  </li>
+`;
+
+const createExecutionOrchestratorCard = (result, workspace) => {
+  const orchestrator = createExecutionOrchestrator(result, {
+    language: activeLanguage,
+    scenario: new URLSearchParams(window.location.search).get("alpha05Scenario") || result.alpha05Scenario || result.alpha04Scenario
+  });
+  const validation = validateExecutionOrchestrator(orchestrator);
+  currentResult.alpha05ExecutionOrchestrator = orchestrator;
+
+  const card = document.createElement("article");
+  card.className = "mission-card is-wide alpha05-orchestrator-card";
+  card.dataset.cardId = "execution-orchestrator-alpha05";
+
+  const actionsById = new Map(orchestrator.actionGraph.nodes.map((action) => [action.id, action]));
+  const boardSections = orchestrator.board.map((section) => {
+    const items = section.actions
+      .map((actionId) => actionsById.get(actionId))
+      .filter(Boolean)
+      .map(createAlpha05ActionItem)
+      .join("");
+    return `
+      <section class="alpha05-board-column" aria-labelledby="alpha05-${escapeSummaryText(section.id)}">
+        <h3 id="alpha05-${escapeSummaryText(section.id)}">${escapeSummaryText(section.label)}</h3>
+        <ul>${items || `<li class="alpha05-empty">${escapeSummaryText(alpha04Local("Nothing here right now.", "지금은 없습니다.", "Nada aquí ahora."))}</li>`}</ul>
+      </section>
+    `;
+  }).join("");
+
+  const timeline = orchestrator.timeline.map((item) => `
+    <li class="alpha05-timeline-item is-${alpha05StatusClass(item.status)}">
+      <span aria-hidden="true">${escapeSummaryText(item.marker)}</span>
+      <strong>${escapeSummaryText(item.label)}</strong>
+      <small>${escapeSummaryText(item.status)}</small>
+    </li>
+  `).join("");
+
+  const history = orchestrator.history.slice(-6).reverse().map((event) => `
+    <li>
+      <strong>${escapeSummaryText(event.actionTitle || event.type)}</strong>
+      <span>${escapeSummaryText(event.reason)}</span>
+    </li>
+  `).join("");
+
+  const safeLabel = validation.valid
+    ? alpha04Local("Approval-safe", "승인 안전", "Seguro con aprobación")
+    : alpha04Local("Needs review", "검토 필요", "Necesita revisión");
+
+  card.innerHTML = `
+    <div class="alpha05-orchestrator-header">
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA05_EXECUTION_ORCHESTRATOR_VERSION)} · ${escapeSummaryText(alpha04Local("Execution Orchestrator", "실행 오케스트레이터", "Orquestador de ejecución"))}</span>
+      <h2>${escapeSummaryText(alpha04Local("Mission Board", "미션 보드", "Tablero de misión"))}</h2>
+      <p>${escapeSummaryText(alpha04Local(
+        "ONE now coordinates actions, dependencies, approval scopes, status, and recovery instead of showing only a passive plan.",
+        "ONE은 이제 단순 계획이 아니라 액션, 의존성, 승인 범위, 상태, 복구를 함께 조율합니다.",
+        "ONE coordina acciones, dependencias, aprobaciones, estado y recuperación, no solo un plan pasivo."
+      ))}</p>
+    </div>
+    <div class="alpha05-next-action" role="status" aria-live="polite">
+      <span>${escapeSummaryText(alpha04Local("Next best action", "다음 최우선 행동", "Siguiente mejor acción"))}</span>
+      <strong>${escapeSummaryText(orchestrator.nextBestAction.title)}</strong>
+      <small>${escapeSummaryText(orchestrator.nextBestAction.reason)}</small>
+    </div>
+    <div class="alpha05-board" role="list">${boardSections}</div>
+    <div class="alpha05-lower-grid">
+      <section class="alpha05-panel">
+        <h3>${escapeSummaryText(alpha04Local("Mission timeline", "미션 타임라인", "Línea de tiempo"))}</h3>
+        <ol class="alpha05-timeline">${timeline}</ol>
+      </section>
+      <section class="alpha05-panel">
+        <h3>${escapeSummaryText(alpha04Local("Execution safety", "실행 안전", "Seguridad de ejecución"))}</h3>
+        <p>${escapeSummaryText(orchestrator.executionSafety.note)}</p>
+        <p>${escapeSummaryText(alpha04Local(
+          "Demo only. No provider contact, booking, payment, or submission happens from this board.",
+          "데모 전용입니다. 이 보드에서 제공업체 연락, 예약, 결제, 제출은 진행되지 않습니다.",
+          "Solo demo. Este tablero no contacta proveedores, reserva, paga ni envía nada."
+        ))}</p>
+        <span class="alpha05-safe-pill">${escapeSummaryText(safeLabel)}</span>
+      </section>
+    </div>
+    <details class="alpha05-history-panel">
+      <summary>${escapeSummaryText(alpha04Local("Action history", "액션 기록", "Historial de acciones"))}</summary>
+      <ul>${history}</ul>
+    </details>
+  `;
+  return { card, orchestrator, validation, workspace };
+};
+
 const readAlpha04UiState = (result) => {
   try {
     return JSON.parse(localStorage.getItem(`${livingMissionStorageKey(result)}:ui`) || "{}");
@@ -2898,6 +3001,8 @@ const renderTravelMission = (result, missionContext) => {
   );
   const livingWorkspace = createLivingMissionWorkspaceCard(result, missionContext);
   missionGrid.appendChild(livingWorkspace.card);
+  const executionOrchestrator = createExecutionOrchestratorCard(result, livingWorkspace.workspace);
+  missionGrid.appendChild(executionOrchestrator.card);
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
   const refinementCard = createProgressiveRefinementCard(result, missionContext);
@@ -2939,6 +3044,8 @@ const renderResolutionPlanMission = (result) => {
   if (disclosure) disclosure.textContent = localize(presentation.prototype);
   const scheduleCard = createScheduleCard(result);
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
+  const executionOrchestrator = createExecutionOrchestratorCard(result, null);
+  missionGrid.appendChild(executionOrchestrator.card);
 
   const recommended = plan.recommendedPath || plan.solutionPaths?.[0] || {};
 
@@ -4455,5 +4562,3 @@ if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
 }
 trackEvent("page_visit", { page: "results", language: activeLanguage });
 trackEvent("results_viewed", { page: "results", language: activeLanguage, mission_type: currentResult?.type });
-
-
