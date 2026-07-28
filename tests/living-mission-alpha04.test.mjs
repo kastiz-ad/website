@@ -72,8 +72,8 @@ test("ALPHA-04 results page integrates workspace card, section markers, resume s
   assert.match(resultsPageSource, /alpha04Scenario/);
   assert.match(resultsCss, /\.alpha04-workspace-card/);
   assert.match(resultsCss, /\.is-recently-updated/);
-  assert.match(resultsHtml, /20260729-alpha11-autonomous-mission-monitoring/);
-  assert.match(resultsEntry, /20260729-alpha11-autonomous-mission-monitoring/);
+  assert.match(resultsHtml, /20260729-alpha12-life-timeline/);
+  assert.match(resultsEntry, /20260729-alpha12-life-timeline/);
 });
 
 test("ALPHA-04 storage key is deterministic and scoped to a mission", () => {

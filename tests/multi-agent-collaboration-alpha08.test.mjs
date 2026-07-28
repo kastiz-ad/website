@@ -169,6 +169,6 @@ test("Results page wires ALPHA-08 as internal metadata only", () => {
   assert.match(resultsPage, /createMissionDirectorBrief/);
   assert.match(resultsPage, /alpha08VisibleAgents/);
   assert.doesNotMatch(resultsPage, /alpha08-agent-card/);
-  assert.match(resultsHtml, /20260729-alpha11-autonomous-mission-monitoring/);
-  assert.match(resultsEntry, /20260729-alpha11-autonomous-mission-monitoring/);
+  assert.match(resultsHtml, /20260729-alpha12-life-timeline/);
+  assert.match(resultsEntry, /20260729-alpha12-life-timeline/);
 });

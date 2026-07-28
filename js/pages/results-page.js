@@ -50,7 +50,17 @@ import {
   createMissionWatcherLayer,
   validateMissionWatcherLayer,
   watcherLabel
-} from "../engine/monitoring/mission-watchers-alpha11.js?v=20260729-alpha11-autonomous-mission-monitoring";
+} from "../engine/monitoring/mission-watchers-alpha11.js?v=20260729-alpha12-life-timeline";
+import {
+  createLifeTimelineLayer,
+  deleteLifeTimeline,
+  disableLifeMissionSuggestions,
+  exportLifeTimeline,
+  hideLifeTimeline,
+  pauseLifeTimeline,
+  relationshipLabel,
+  validateLifeTimelineLayer
+} from "../engine/timeline/life-timeline-alpha12.js?v=20260729-alpha12-life-timeline";
 import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
@@ -3306,6 +3316,170 @@ const writeAlpha11MonitoringState = (result, state) => {
   }
 };
 
+const alpha12TimelineStorageKey = (result) => `kastiz-one-alpha12-life-timeline:${result?.missionId || result?.id || result?.rawInput || "mission"}`;
+
+const readAlpha12LifeTimelineState = (result) => {
+  try {
+    return JSON.parse(localStorage.getItem(alpha12TimelineStorageKey(result)) || "{}");
+  } catch {
+    return {};
+  }
+};
+
+const writeAlpha12LifeTimelineState = (result, state) => {
+  try {
+    localStorage.setItem(alpha12TimelineStorageKey(result), JSON.stringify(state));
+  } catch {
+    // Timeline controls are user convenience. They must never block mission results.
+  }
+};
+
+const createLifeTimelineCard = (layer) => {
+  if (!layer || layer.hidden) return null;
+  const local = v22Local;
+  const map = layer.missionMap || {};
+  const relationText = (relationship) => relationship === "current"
+    ? local("Current", "현재", "Actual")
+    : relationshipLabel(relationship, activeLanguage);
+  const statusText = (status = "") => ({
+    active: local("Active", "진행 중", "Activo"),
+    "mission-ready": local("Prepared", "준비됨", "Preparado"),
+    prepared_opportunity: local("Prepared option", "준비된 선택지", "Opción preparada"),
+    completed: local("Completed", "완료", "Completado")
+  }[status] || local("Prepared", "준비됨", "Preparado"));
+  const renderNodes = (nodes = []) => nodes.length
+    ? nodes.slice(0, 4).map((node) => `
+      <li>
+        <strong>${escapeSummaryText(node.title || node.canonicalTitle || node.missionId)}</strong>
+        <span>${escapeSummaryText(relationText(node.relationship))} · ${escapeSummaryText(statusText(node.status))}</span>
+      </li>
+    `).join("")
+    : `<li>${escapeSummaryText(local("Nothing extra needed yet.", "아직 추가로 필요한 것은 없습니다.", "Aún no hace falta nada más."))}</li>`;
+  const goalRows = (layer.goals || []).slice(0, 3).map((goal) => `
+    <li>
+      <strong>${escapeSummaryText(goal.title)}</strong>
+      <span>${escapeSummaryText(goal.progressNarrative || "")}</span>
+      <small>${escapeSummaryText(local("Remaining", "남은 단계", "Pendiente"))}: ${escapeSummaryText((goal.remaining || []).slice(0, 3).join(" · "))}</small>
+    </li>
+  `).join("");
+  const futureRows = (layer.futureMissions || []).slice(0, 6).map((mission) => `
+    <li>
+      <strong>${escapeSummaryText(mission.title)}</strong>
+      <span>${escapeSummaryText(relationshipLabel(mission.relationship, activeLanguage))}</span>
+      <small>${escapeSummaryText(mission.reason || "")}</small>
+    </li>
+  `).join("");
+  const article = document.createElement("article");
+  article.className = "mission-card v22-card is-wide alpha12-life-timeline-card";
+  article.dataset.cardId = "life-timeline";
+  article.dataset.alpha12Paused = String(Boolean(layer.paused));
+  article.dataset.alpha12FutureCount = String(layer.futureMissions?.length || 0);
+  article.innerHTML = `
+    <div class="v22-card-heading">
+      <span class="v22-kicker">ALPHA-12 · Life Timeline</span>
+      <h2>${escapeSummaryText(local("Where this mission fits in your life", "이 미션이 삶에서 어디에 이어지는지", "Dónde encaja esta misión en tu vida"))}</h2>
+    </div>
+    <p class="v22-card-body">${escapeSummaryText(local(
+      "ONE connects the current mission to related, dependent, optional, and future life missions without turning it into a calendar or to-do app.",
+      "ONE은 현재 미션을 관련·의존·선택·미래 미션과 연결하지만, 캘린더나 할 일 앱처럼 만들지는 않습니다.",
+      "ONE conecta esta misión con misiones relacionadas, dependientes, opcionales y futuras sin convertirlo en calendario o lista de tareas."
+    ))}</p>
+    <div class="v22-chip-list">
+      ${createV22Chip(`${local("Life stage", "삶의 단계", "Etapa")}: ${layer.lifeStageLabel}`)}
+      ${createV22Chip(layer.paused ? local("Paused", "일시정지됨", "Pausado") : local("Active", "활성", "Activo"), "primary")}
+      ${createV22Chip(`${local("Suggestions", "제안", "Sugerencias")}: ${layer.futureMissions?.length || 0}`)}
+    </div>
+    <div class="v22-grid">
+      <section>
+        <h3>${escapeSummaryText(local("Current", "현재", "Actual"))}</h3>
+        <ul class="v22-clean-list">${renderNodes(map.current)}</ul>
+      </section>
+      <section>
+        <h3>${escapeSummaryText(local("Upcoming", "다음", "Próximo"))}</h3>
+        <ul class="v22-clean-list">${renderNodes(map.upcoming)}</ul>
+      </section>
+      <section>
+        <h3>${escapeSummaryText(local("Related", "관련", "Relacionado"))}</h3>
+        <ul class="v22-clean-list">${renderNodes(map.related)}</ul>
+      </section>
+      <section>
+        <h3>${escapeSummaryText(local("Future opportunities", "미래 기회", "Oportunidades futuras"))}</h3>
+        <ul class="v22-clean-list">${futureRows || renderNodes(map.future)}</ul>
+      </section>
+    </div>
+    <details open>
+      <summary>${escapeSummaryText(local("Goals this supports", "이 미션이 돕는 목표", "Metas que apoya"))}</summary>
+      <ul class="v22-clean-list">${goalRows || renderNodes([])}</ul>
+    </details>
+    <div class="alpha12-timeline-actions" role="group" aria-label="${escapeSummaryText(local("Life timeline controls", "라이프 타임라인 제어", "Controles de línea de vida"))}">
+      <button type="button" data-alpha12-action="pause">${escapeSummaryText(local("Pause", "일시정지", "Pausar"))}</button>
+      <button type="button" data-alpha12-action="hide">${escapeSummaryText(local("Hide", "숨기기", "Ocultar"))}</button>
+      <button type="button" data-alpha12-action="disable-suggestions">${escapeSummaryText(local("Disable suggestions", "제안 끄기", "Desactivar sugerencias"))}</button>
+      <button type="button" data-alpha12-action="export">${escapeSummaryText(local("Export", "내보내기", "Exportar"))}</button>
+      <button type="button" data-alpha12-action="delete">${escapeSummaryText(local("Delete", "삭제", "Eliminar"))}</button>
+    </div>
+  `;
+  return article;
+};
+
+const attachLifeTimelineLayer = (result) => {
+  try {
+    const state = readAlpha12LifeTimelineState(result);
+    const layer = createLifeTimelineLayer({
+      result,
+      context: result.missionContext,
+      memory: result.alpha07PersonalMissionMemory,
+      predictions: result.alpha06PredictiveIntelligence,
+      monitoring: result.alpha11MissionMonitoring,
+      previousMissions: result.previousMissions || [],
+      goals: result.lifeGoals || [],
+      state,
+      language: activeLanguage
+    });
+    const validation = validateLifeTimelineLayer(layer);
+    currentResult.alpha12LifeTimeline = layer;
+    currentResult.alpha12LifeTimelineValidation = validation;
+    missionGrid.dataset.alpha12LifeTimeline = validation.ok ? "ready" : "degraded";
+    const card = createLifeTimelineCard(layer);
+    if (card && !missionGrid.querySelector('[data-card-id="life-timeline"]')) {
+      missionGrid.appendChild(card);
+      card.querySelectorAll("[data-alpha12-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const currentState = readAlpha12LifeTimelineState(currentResult);
+          const action = button.dataset.alpha12Action;
+          if (action === "export") {
+            const blob = new Blob([JSON.stringify(exportLifeTimeline(currentResult.alpha12LifeTimeline), null, 2)], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "kastiz-one-life-timeline.json";
+            link.click();
+            URL.revokeObjectURL(link.href);
+            return;
+          }
+          const nextState = action === "pause"
+            ? pauseLifeTimeline(currentState)
+            : action === "hide"
+              ? hideLifeTimeline(currentState)
+              : action === "delete"
+                ? deleteLifeTimeline()
+                : action === "disable-suggestions"
+                  ? disableLifeMissionSuggestions(currentState)
+                  : currentState;
+          writeAlpha12LifeTimelineState(currentResult, nextState);
+          renderMission();
+        });
+      });
+    }
+  } catch (error) {
+    currentResult.alpha12LifeTimeline = {
+      version: "ALPHA-12",
+      status: "degraded",
+      failureReason: String(error?.message || "life_timeline_unavailable").slice(0, 120)
+    };
+    missionGrid.dataset.alpha12LifeTimeline = "degraded";
+  }
+};
+
 const createMissionMonitoringCard = (layer) => {
   if (!layer || !layer.watchers?.length) return null;
   const local = v22Local;
@@ -3922,6 +4096,7 @@ const renderMission = () => {
   attachMissionDirectorBrief(currentResult);
   attachProviderTrustBrief(currentResult);
   attachMissionMonitoringLayer(currentResult);
+  attachLifeTimelineLayer(currentResult);
   renderMissionUnderstanding();
   organizeProgressiveResults();
 };
