@@ -47,6 +47,11 @@ import {
   validateConversationUnderstandingLayer
 } from "../engine/conversation/natural-mission-conversation-alpha10.js?v=20260729-alpha10-natural-mission-conversation";
 import {
+  createMissionWatcherLayer,
+  validateMissionWatcherLayer,
+  watcherLabel
+} from "../engine/monitoring/mission-watchers-alpha11.js?v=20260729-alpha11-autonomous-mission-monitoring";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
@@ -3285,6 +3290,111 @@ const attachProviderTrustBrief = (result) => {
   }
 };
 
+const readAlpha11MonitoringState = (result) => {
+  try {
+    return JSON.parse(localStorage.getItem(`kastiz-one-alpha11-monitoring:${result?.missionId || result?.id || result?.rawInput || "mission"}`) || "{}");
+  } catch {
+    return {};
+  }
+};
+
+const writeAlpha11MonitoringState = (result, state) => {
+  try {
+    localStorage.setItem(`kastiz-one-alpha11-monitoring:${result?.missionId || result?.id || result?.rawInput || "mission"}`, JSON.stringify(state));
+  } catch {
+    // Monitoring state is helpful, not mission-critical.
+  }
+};
+
+const createMissionMonitoringCard = (layer) => {
+  if (!layer || !layer.watchers?.length) return null;
+  const local = v22Local;
+  const watcherRows = layer.watchers.slice(0, 8).map((watcher) => `
+    <li>
+      <strong>${escapeSummaryText(watcher.label || watcherLabel(watcher.type, activeLanguage))}</strong>
+      <span>${escapeSummaryText(watcher.status || watcher.lifecycle)} · ${escapeSummaryText(local("Last checked", "마지막 확인", "Última revisión"))}: ${escapeSummaryText(new Date(watcher.lastCheckedAt).toLocaleString(activeLanguage === "ko" ? "ko-KR" : activeLanguage === "es" ? "es" : "en"))}</span>
+    </li>
+  `).join("");
+  const digestRows = layer.digest?.updates?.length
+    ? layer.digest.updates.slice(0, 5).map((update) => `
+      <li>
+        <strong>${escapeSummaryText(update.title)}</strong>
+        <span>${escapeSummaryText(update.watcher)} · ${escapeSummaryText(update.nextRecommendedAction || "")}</span>
+        <small>${escapeSummaryText(update.whatChanged || update.why || "")}</small>
+      </li>
+    `).join("")
+    : `<li>${escapeSummaryText(local("No meaningful changes since the last check.", "마지막 확인 이후 중요한 변화는 없습니다.", "No hay cambios importantes desde la última revisión."))}</li>`;
+  const notificationCount = layer.notifications?.length || 0;
+  const article = document.createElement("article");
+  article.className = "mission-card v22-card is-wide alpha11-monitoring-card";
+  article.dataset.cardId = "autonomous-mission-monitoring";
+  article.dataset.alpha11NotificationCount = String(notificationCount);
+  article.dataset.alpha11WatcherCount = String(layer.watchers.length);
+  article.innerHTML = `
+    <div class="v22-card-heading">
+      <span class="v22-kicker">ALPHA-11 · Autonomous Mission Monitoring</span>
+      <h2>${escapeSummaryText(local("Mission Updates", "미션 업데이트", "Actualizaciones de misión"))}</h2>
+    </div>
+    <p class="v22-card-body">${escapeSummaryText(local(
+      "ONE quietly watches meaningful changes and never executes anything without approval.",
+      "ONE은 중요한 변화만 조용히 확인하며, 승인 없이 아무것도 실행하지 않습니다.",
+      "ONE observa cambios importantes y nunca ejecuta nada sin aprobación."
+    ))}</p>
+    <div class="v22-chip-list">
+      ${createV22Chip(local("Watching", "확인 중", "Observando") + `: ${layer.watchers.length}`)}
+      ${createV22Chip(local("Proactive alerts", "중요 알림", "Alertas") + `: ${notificationCount}`)}
+      ${layer.nextRecommendedAction ? createV22Chip(local("Next", "다음", "Siguiente") + `: ${layer.nextRecommendedAction}`) : ""}
+    </div>
+    <details open>
+      <summary>${escapeSummaryText(local("Watching", "확인 중", "Observando"))}</summary>
+      <ul class="v22-clean-list">${watcherRows}</ul>
+    </details>
+    <details${layer.digest?.updates?.length ? " open" : ""}>
+      <summary>${escapeSummaryText(local("Mission history", "미션 기록", "Historial"))}</summary>
+      <ul class="v22-clean-list">${digestRows}</ul>
+    </details>
+    <div class="alpha11-monitoring-actions" role="group" aria-label="${escapeSummaryText(local("Monitoring controls", "모니터링 제어", "Controles de monitoreo"))}">
+      <button type="button" data-alpha11-action="pause">${escapeSummaryText(local("Pause monitoring", "모니터링 일시정지", "Pausar monitoreo"))}</button>
+      <button type="button" data-alpha11-action="resume">${escapeSummaryText(local("Resume", "다시 시작", "Reanudar"))}</button>
+    </div>
+  `;
+  return article;
+};
+
+const attachMissionMonitoringLayer = (result) => {
+  try {
+    const state = readAlpha11MonitoringState(result);
+    const layer = createMissionWatcherLayer({
+      result,
+      state,
+      language: activeLanguage
+    });
+    const validation = validateMissionWatcherLayer(layer);
+    currentResult.alpha11MissionMonitoring = layer;
+    currentResult.alpha11MissionMonitoringValidation = validation;
+    missionGrid.dataset.alpha11Monitoring = validation.ok ? "ready" : "degraded";
+    const card = createMissionMonitoringCard(layer);
+    if (card && !missionGrid.querySelector('[data-card-id="autonomous-mission-monitoring"]')) {
+      missionGrid.appendChild(card);
+      card.querySelectorAll("[data-alpha11-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const currentState = readAlpha11MonitoringState(currentResult);
+          const nextState = { ...currentState, paused: button.dataset.alpha11Action === "pause" ? true : false };
+          writeAlpha11MonitoringState(currentResult, nextState);
+          renderMission();
+        });
+      });
+    }
+  } catch (error) {
+    currentResult.alpha11MissionMonitoring = {
+      version: "ALPHA-11",
+      status: "degraded",
+      failureReason: String(error?.message || "mission_monitoring_unavailable").slice(0, 120)
+    };
+    missionGrid.dataset.alpha11Monitoring = "degraded";
+  }
+};
+
 const readAlpha04UiState = (result) => {
   try {
     return JSON.parse(localStorage.getItem(`${livingMissionStorageKey(result)}:ui`) || "{}");
@@ -3811,6 +3921,7 @@ const renderMission = () => {
   missionGrid.appendChild(createApprovalCard(currentResult));
   attachMissionDirectorBrief(currentResult);
   attachProviderTrustBrief(currentResult);
+  attachMissionMonitoringLayer(currentResult);
   renderMissionUnderstanding();
   organizeProgressiveResults();
 };
