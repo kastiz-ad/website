@@ -28,12 +28,12 @@ test("V23.1 adds truthful preparation continuation after travel approval", () =>
   assert.match(v231Block, /Approve live search only/);
 });
 
-test("V23.1 travel approval branch does not call fake execution summary", () => {
-  assert.match(approvalBranch, /isV231TravelPreparationFlow\(\)/);
-  assert.match(approvalBranch, /renderV231PreparationContinuation\(\)/);
-  assert.match(approvalBranch, /preparation_approved/);
-  assert.doesNotMatch(approvalBranch, /buildExecutionSummary\(\)/);
-  assert.doesNotMatch(approvalBranch, /simulated_execution_completed/);
+test("travel approval now reaches the clean prototype summary and QR instead of the old continuation trap", () => {
+  assert.doesNotMatch(approvalBranch, /isV231TravelPreparationFlow\(\)/);
+  assert.doesNotMatch(approvalBranch, /renderV231PreparationContinuation\(\)/);
+  assert.match(resultsPageSource, /buildExecutionSummary\(\)/);
+  assert.match(resultsPageSource, /prototype-reference-qr/);
+  assert.match(resultsPageSource, /ONE-DEMO/);
 });
 
 test("V23.1 continuation block avoids fake completion artifacts", () => {

@@ -2209,9 +2209,15 @@ const compactMoney = (value) => {
   return `₩${value.toLocaleString("en-US")}`;
 };
 
+const compactWonMan = (value) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "";
+  return `${Math.max(1, Math.round(value / 10000)).toLocaleString("ko-KR")}만원`;
+};
+
 const getCompactTravelBudgetLabel = (result, fallback = "") => {
   const total = result.budget?.estimatedTotal || result.budget?.total;
   if (typeof total?.min === "number" && typeof total?.max === "number") {
+    if (activeLanguage === "ko") return `예상 ${compactWonMan(total.min)} - ${compactWonMan(total.max)}`;
     return `${compactMoney(total.min)} – ${compactMoney(total.max)}`;
   }
   return String(fallback || "").replace(/^Estimated\s+/i, "").replace(/^Estimado\s+/i, "");
@@ -2614,6 +2620,12 @@ const getAlpha03ItemAdvice = (item, type, index) => {
   const ko = activeLanguage === "ko";
   const es = activeLanguage === "es";
   if (type === "restaurant") {
+    if (/tsukiji|toyosu|sushi|스시|초밥/.test(name)) return ko ? "참치, 우니, 계란초밥처럼 신선도가 바로 느껴지는 메뉴를 추천해요. 아침이나 이른 점심이 가장 좋습니다." : es ? "Pide atún, uni o sushi de huevo; mejor temprano." : "Order tuna, uni, or tamago sushi; it is best early before the rush.";
+    if (/ramen|라멘|ichiran/.test(name)) return ko ? "진한 국물 라멘을 먹기 좋아요. 매운맛과 면 익힘을 취향대로 맞춰보세요." : es ? "Buen ramen intenso; ajusta picante y textura del fideo." : "Go for rich broth ramen and tune spice/noodle firmness to your taste.";
+    if (/wagyu|yakiniku|와규|야키니쿠/.test(name)) return ko ? "와규나 야키니쿠 세트가 잘 맞아요. 저녁 하이라이트로 잡으면 만족도가 높습니다." : es ? "Wagyu o yakiniku funcionan muy bien para una cena especial." : "Wagyu or yakiniku sets work well as a memorable dinner.";
+    if (/takoyaki|okonomiyaki|타코야키|오코노미야키/.test(name)) return ko ? "타코야키와 오코노미야키를 같이 비교해 먹기 좋아요. 시장 산책과 묶으면 재미있습니다." : es ? "Prueba takoyaki y okonomiyaki junto con paseo de mercado." : "Try takoyaki and okonomiyaki together, ideally with a market walk.";
+    if (/curry|카레/.test(name)) return ko ? "일본식 카레나 돈카츠 카레가 무난해요. 이동 중 빠르고 든든한 한 끼로 좋습니다." : es ? "El curry japonés o katsu curry es seguro y rápido." : "Japanese curry or katsu curry is a dependable, easy meal.";
+    if (/matcha|말차|green tea/.test(name)) return ko ? "말차 아이스크림이나 말차 파르페를 추천해요. 오후 디저트 코스로 넣기 좋습니다." : es ? "Prueba helado o parfait de matcha como postre." : "Try matcha ice cream or a matcha parfait as an afternoon dessert.";
     if (/katz|pastrami/.test(name)) return ko ? "파스트라미 샌드위치가 유명해요. 점심 피크를 피하면 훨씬 편합니다." : es ? "Famoso por pastrami; mejor evitar la hora pico." : "Known for pastrami; go just before or after lunch rush.";
     if (/russ|bagel/.test(name)) return ko ? "베이글과 훈제 생선으로 유명해요. 아침 동선에 넣기 좋습니다." : es ? "Bagels y pescado ahumado; ideal para la mañana." : "Bagels and smoked fish; best as a morning food stop.";
     if (/pizza|joe/.test(name)) return ko ? "뉴욕식 슬라이스를 빠르게 맛보기 좋아요. 이동 중 간단한 식사로 맞습니다." : es ? "Buena parada rápida para una slice clásica." : "A clean classic-slice stop between neighborhoods.";
@@ -2624,8 +2636,15 @@ const getAlpha03ItemAdvice = (item, type, index) => {
       ? `${index + 1}일차 동선에 넣기 좋은 식사 후보예요. 대표 메뉴와 예약 가능 여부를 승인 후 확인합니다.`
       : es
         ? `Buena opción para el día ${index + 1}; ONE verifica plato recomendado y reserva.`
-        : `Good fit for Day ${index + 1}; ONE checks what to order and reservation timing.`;
+      : `Good fit for Day ${index + 1}; ONE checks what to order and reservation timing.`;
   }
+  if (/universal studios|usj|유니버설/.test(name)) return ko ? "해리포터, 미니언즈, 닌텐도 월드처럼 만족도가 높은 구역을 먼저 잡는 게 좋아요." : es ? "Prioriza Harry Potter, Minions o Nintendo World." : "Prioritize Harry Potter, Minions, or Nintendo World before crowds build.";
+  if (/teamlab|팀랩/.test(name)) return ko ? "몰입형 전시라 사진과 기억에 남기 좋아요. 비 오는 날 대안으로도 안정적입니다." : es ? "Experiencia inmersiva, buena para fotos y lluvia." : "A memorable immersive stop and a reliable rainy-day option.";
+  if (/fushimi|shrine|torii|신사|사찰/.test(name)) return ko ? "붉은 도리이 길처럼 사진 포인트가 강해요. 오전에 가면 훨씬 여유롭습니다." : es ? "Los torii son perfectos para fotos; mejor por la mañana." : "The torii gates are the photo moment; mornings feel much calmer.";
+  if (/aquarium|수족관|아쿠아리움/.test(name)) return ko ? "실내에서 오래 머물기 좋아요. 해파리·대형 수조 구역을 중심으로 보면 만족도가 높습니다." : es ? "Buen plan interior; busca medusas y tanques grandes." : "A strong indoor stop; jellyfish and large-tank zones are usually the highlights.";
+  if (/shibuya|시부야|sky/.test(name)) return ko ? "스크램블 교차로와 전망을 같이 묶으면 도쿄 느낌이 바로 납니다." : es ? "Combina el cruce y una vista para sentir Tokio." : "Pair the scramble crossing with a skyline view for the Tokyo feeling.";
+  if (/nara|deer|사슴/.test(name)) return ko ? "사슴공원과 사찰 산책을 같이 잡으면 하루 여행으로 기억에 남습니다." : es ? "Ciervos y templos juntos hacen una excursión memorable." : "Deer park plus temple walking makes it a memorable day trip.";
+  if (/hakone|onsen|후지|온천/.test(name)) return ko ? "온천과 후지산 전망을 같이 노리면 휴식감이 큽니다. 이동 시간은 넉넉히 잡아야 해요." : es ? "Onsen y vistas al Fuji; deja margen de traslado." : "Onsen plus Fuji views can be special; leave generous transfer time.";
   if (/statue|liberty|ellis/.test(name)) return ko ? "뉴욕 첫 방문이면 상징성이 가장 강해요. 페리 시간까지 묶어서 보는 게 좋습니다." : es ? "Icono de Nueva York; conviene planear ferry y tiempo juntos." : "The most iconic first-visit stop; plan ferry timing with it.";
   if (/central park/.test(name)) return ko ? "걷기와 휴식 균형이 좋아요. 날씨 좋은 날 오전이나 늦은 오후가 좋습니다." : es ? "Ideal para caminar y descansar; mejor mañana o tarde." : "Easy walking plus recovery; best morning or late afternoon.";
   if (/broadway|theater/.test(name)) return ko ? "저녁 하이라이트로 좋아요. 좌석과 가격은 실시간 확인이 필요합니다." : es ? "Gran cierre nocturno; asientos y precio se verifican en vivo." : "A strong night highlight; seats and prices need live check.";
@@ -2644,7 +2663,6 @@ const createAlpha03VisualCard = (item, type, index) => `
     <div>
       <strong>${escapeSummaryText(item.name)}</strong>
       <p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>
-      ${(item.tags || []).length ? `<div class="alpha03-tag-row">${(item.tags || []).slice(0, 2).map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}</div>` : ""}
     </div>
   </article>
 `;
@@ -2663,7 +2681,7 @@ const createAlpha03JourneyMap = (days, restaurants, places) => {
 };
 
 const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => `
-  <button class="alpha03-preview-option${selected ? " is-selected" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" aria-pressed="${selected ? "true" : "false"}">
+  <button class="alpha03-preview-option${selected ? " is-selected" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" aria-pressed="${selected ? "true" : "false"}">
     <span>${selected ? "✓" : "+"}</span>
     <strong>${escapeSummaryText(option.name)}</strong>
     <em>${escapeSummaryText(option.meta)}</em>
@@ -2671,18 +2689,29 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
 `;
 
 const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
-  const flights = (result.flights || []).slice(0, 4).map((flight) => ({
+  const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
+  const flights = (result.flights || []).slice(0, 8).map((flight) => ({
     name: getFlightName(flight),
     meta: formatRange(flight.estimatedPrice) || journey.budget
-  }));
-  const hotels = (result.hotels || []).slice(0, 4).map((hotel) => ({
+  })).concat([
+    { name: `${firstFlightName} · Economy`, meta: alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica") },
+    { name: `${firstFlightName} · Business`, meta: alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad") },
+    { name: `${firstFlightName} · First`, meta: alpha03Copy("premium cabin check", "프리미엄 좌석 확인", "cabina premium") }
+  ]).slice(0, 8);
+  const hotels = (result.hotels || []).slice(0, 6).map((hotel) => ({
     name: getHotelName(hotel),
     meta: formatRange(hotel.estimatedNightlyPrice || result.budget?.hotel) || alpha03Copy("Price check", "가격 확인", "Ver precio")
-  }));
+  })).concat([
+    { name: alpha03Copy("Ryokan / traditional stay", "료칸·전통 숙소", "Ryokan / alojamiento tradicional"), meta: alpha03Copy("Japan-style stay", "일본 감성 숙박", "estancia japonesa") },
+    { name: alpha03Copy("Hostel / budget stay", "호스텔·실속 숙소", "Hostal / económico"), meta: alpha03Copy("lower cost search", "낮은 비용 확인", "menor costo") },
+    { name: alpha03Copy("Luxury hotel", "럭셔리 호텔", "Hotel de lujo"), meta: alpha03Copy("service-first option", "서비스 우선", "servicio premium") }
+  ]).slice(0, 8);
   const transfers = [
-    { name: alpha03Copy("Official transit", "공식 대중교통", "Transporte oficial"), meta: transportationSummary },
-    { name: alpha03Copy("Licensed taxi", "허가 택시", "Taxi autorizado"), meta: alpha03Copy("Comfort option", "편한 선택", "Cómodo") },
-    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado"), meta: alpha03Copy("Higher cost", "높은 비용", "Mayor costo") }
+    { name: alpha03Copy("Airport rail + subway + walk", "공항철도 + 지하철 + 도보", "Tren aeropuerto + metro + caminar"), meta: alpha03Copy("route search ready", "동선 검색 준비", "ruta preparada") },
+    { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar"), meta: alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje") },
+    { name: alpha03Copy("JR / metro day route", "JR·지하철 하루 동선", "JR / metro diario"), meta: alpha03Copy("multi-stop route", "여러 장소 이동", "varias paradas") },
+    { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar"), meta: alpha03Copy("comfort route", "편한 이동", "ruta cómoda") },
+    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado"), meta: alpha03Copy("higher cost", "높은 비용", "mayor costo") }
   ];
   const groups = [
     [alpha03Copy("Flights", "항공", "Vuelos"), "flights", flights],
@@ -2749,9 +2778,6 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     : alpha03Copy("Dates flexible", "날짜 유동적", "Fechas flexibles");
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
-      <div class="alpha03-recommendation-map">
-        ${createAlpha03JourneyMap(days, restaurants, places)}
-      </div>
       <div class="alpha03-recommendation-copy">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda"))}</span>
         <h2>${escapeSummaryText(journey.name)}</h2>
@@ -2761,7 +2787,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
           <span><b>${escapeSummaryText(compactBudget)}</b><em>${escapeSummaryText(alpha03Copy("estimated", "예상", "estimado"))}</em></span>
           <span><b>${escapeSummaryText(dateText)}</b><em>${escapeSummaryText(alpha03Copy("dates", "날짜", "fechas"))}</em></span>
         </div>
-        <span class="alpha03-primary-action">${escapeSummaryText(alpha03Copy("Start Live Search", "실시간 검색 시작", "Iniciar búsqueda en vivo"))}</span>
+        <span class="alpha03-primary-action">${escapeSummaryText(alpha03Copy("Live search ready", "실시간 검색 준비 완료", "Búsqueda en vivo lista"))}</span>
+      </div>
+      <div class="alpha03-recommendation-map" aria-label="${escapeSummaryText(alpha03Copy("Map preview", "지도 미리보기", "Vista de mapa"))}">
+        ${createAlpha03JourneyMap(days, restaurants, places)}
       </div>
     </section>
 
@@ -2803,7 +2832,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
 
     ${createAlpha03OptionPreview(journey, result, transportationSummary)}
 
-    <details ${alpha04SectionAttrs(workspace, "preparation", "alpha03-preparation-details")}>
+    <details ${alpha04SectionAttrs(workspace, "preparation", "alpha03-preparation-details")} hidden>
       <summary>${escapeSummaryText(alpha03Copy("Preparation details", "준비 세부사항", "Detalles de preparación"))}</summary>
       <div class="v23-detail-grid">
         ${[
@@ -2839,7 +2868,7 @@ const createTravelPackagesCard = (result, missionContext) => {
   article.dataset.cardId = "travel-experiences";
   article.innerHTML = `
     <section class="v23-selected-journey" aria-live="polite">${createV23TravelDetailHtml(journeys[selectedIndex], result)}</section>
-    <div class="v23-journey-layout product-journey-layout is-compact">
+    <div class="v23-journey-layout product-journey-layout is-compact" hidden>
       <div class="v23-alternative-journeys" aria-label="${escapeSummaryText(v22Local("Compare alternatives", "다른 선택지 비교", "Comparar alternativas"))}">
         ${journeys.slice(0, 4).map((journey, index) => `
           <button class="v23-journey-card${selectedIndex === index ? " is-selected" : ""}" type="button" data-journey-index="${index}" aria-pressed="${selectedIndex === index}">
@@ -4064,7 +4093,7 @@ const renderTravelMission = (result, missionContext) => {
 
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
-  if (refinementCard) missionGrid.appendChild(refinementCard);
+  if (refinementCard && isFounderDiagnosticsMode()) missionGrid.appendChild(refinementCard);
 
   if (isFounderDiagnosticsMode()) {
     missionGrid.appendChild(livingWorkspace.card);
@@ -4495,9 +4524,32 @@ const organizeProgressiveResults = () => {
   });
 };
 
+const renderRevisionAdditionNote = () => {
+  if (!additionalServiceList) return;
+  const note = currentResult?.alpha15LastAddition;
+  if (!note?.text) {
+    additionalServiceList.innerHTML = "";
+    return;
+  }
+  const label = v22Local("Added to this mission", "미션에 추가됨", "Añadido a la misión");
+  const body = v22Local(
+    "ONE refreshed the plan around this request. Live provider checks still happen only after approval.",
+    "ONE이 이 요청을 기준으로 계획을 다시 반영했습니다. 실시간 제공업체 확인은 승인 후에만 진행됩니다.",
+    "ONE actualizó el plan con esta solicitud. La verificación en vivo solo ocurre tras aprobar."
+  );
+  additionalServiceList.innerHTML = `
+    <div class="revision-added-note">
+      <span>${escapeSummaryText(label)}</span>
+      <strong>${escapeSummaryText(note.text)}</strong>
+      <p>${escapeSummaryText(body)}</p>
+    </div>
+  `;
+};
+
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
+  document.body.classList.toggle("travel-premium-result-view", isTravelResult(currentResult));
   missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout", "is-v23-travel-layout");
   delete missionGrid.dataset.domain;
   const disclosure = document.querySelector(".prototype-disclosure");
@@ -4537,6 +4589,7 @@ const renderMission = () => {
     pathwayOpportunityPanel.hidden = true;
   }
   missionGrid.appendChild(additionalServicesForm);
+  renderRevisionAdditionNote();
   missionGrid.appendChild(createApprovalCard(currentResult));
   if (!isTravelResult(currentResult) || isFounderDiagnosticsMode()) {
     attachMissionDirectorBrief(currentResult);
@@ -4920,7 +4973,7 @@ const buildJapanCreativeJourneys = (result, destination, duration) => {
   const { travelerCount, groupType } = getTravelPartyDetails(result);
   const seed = `${result.missionSeed || result.id || raw}-${result.schedule?.startDate || ""}-${travelerCount}`;
   const isSolo = groupType === "solo";
-  const isFamily = groupType === "family_or_group" || /가족|아이|family|children|familia/i.test(raw);
+  const isFamily = /가족|아이|아이와|children|kids|family|familia/i.test(raw);
   const label = (en, koText, esText) => ko ? koText : es ? esText : en;
   const names = rotateList(isFamily
     ? [
@@ -5165,10 +5218,13 @@ const buildExecutionSummary = () => {
   }
   if (currentResult?.type !== "travel") return;
   const ko = activeLanguage === "ko";
-  const flightIndex = selectedOptionIndex("flights");
+  const alpha03Selections = currentResult.alpha03PreviewSelections || {};
+  const flightIndex = typeof alpha03Selections.flights === "number" ? alpha03Selections.flights : selectedOptionIndex("flights");
   const flight = currentResult.flights?.[flightIndex] || currentResult.flights?.[0];
-  const hotel = currentResult.hotels?.[selectedOptionIndex("hotel")] || currentResult.hotels?.[0];
-  const transfer = currentResult.airportTransfer?.options?.[selectedOptionIndex("airport-transfer")] || currentResult.airportTransfer?.recommended;
+  const hotelIndex = typeof alpha03Selections.hotels === "number" ? alpha03Selections.hotels : selectedOptionIndex("hotel");
+  const hotel = currentResult.hotels?.[hotelIndex] || currentResult.hotels?.[0];
+  const transferIndex = typeof alpha03Selections.transport === "number" ? alpha03Selections.transport : selectedOptionIndex("airport-transfer");
+  const transfer = currentResult.airportTransfer?.options?.[transferIndex] || currentResult.airportTransfer?.recommended;
   const restaurants = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .selectable-option[aria-pressed="true"] .option-value')].map((item) => item.textContent.trim()).filter(Boolean);
   const schedule = currentResult.schedule || {};
   const dateRange = schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : (ko ? "날짜 확인 필요" : "Dates pending");
@@ -5248,33 +5304,6 @@ const buildExecutionSummary = () => {
 };
 
 const runApprovalSequence = () => {
-  if (isV231TravelPreparationFlow()) {
-    trackEvent("preparation_approval_started", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "preparation_only" });
-    const items = [...approvalList.querySelectorAll(".approval-item")];
-
-    makeRealityButton.disabled = true;
-    bottomActions.hidden = true;
-    approvalPanel.hidden = false;
-    approvalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-
-    items.forEach((item) => {
-      item.classList.add("is-complete");
-      item.querySelector(".approval-check").textContent = "✓";
-    });
-
-    window.setTimeout(() => {
-      renderV231PreparationContinuation();
-      trackEvent("approval_confirmed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", approval_scope: "preparation_only" });
-      trackEvent("preparation_approved", { mission_type: currentResult?.type, language: activeLanguage, page: "results", provider_search_status: "not_started" });
-      window.requestAnimationFrame(() => {
-        const headerHeight = document.querySelector(".results-header")?.getBoundingClientRect().height || 76;
-        const targetTop = window.scrollY + completionMessage.getBoundingClientRect().top - headerHeight - 28;
-        window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
-      });
-    }, 320);
-    return;
-  }
-
   trackEvent("simulated_execution_started", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "prototype_simulation" });
   const items = [...approvalList.querySelectorAll(".approval-item")];
 
@@ -5432,6 +5461,12 @@ const enableCustomization = () => {
         const marker = option.querySelector("span");
         if (marker) marker.textContent = selected ? "✓" : "+";
       });
+      currentResult.alpha03PreviewSelections = {
+        ...(currentResult.alpha03PreviewSelections || {}),
+        [group]: Number(previewOption.dataset.previewIndex || 0)
+      };
+      sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+      sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
       trackEvent("option_selected", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: group || "travel-preview" });
       return;
     }
@@ -5557,14 +5592,14 @@ const applyRevisionCommand = async () => {
     const baseMissionText = currentResult.rawInput || currentResult.mission || currentResult.originalMission || "";
     currentResult.rawInput = [baseMissionText, value].filter(Boolean).join(" · ");
     currentResult.mission = currentResult.rawInput;
+    currentResult.alpha15LastAddition = { text: value, at: new Date().toISOString() };
     sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
     sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
-    const sections = [[result.summary.added, result.diff.added], [result.summary.changed, result.diff.changed], [result.summary.removed, result.diff.removed], [result.summary.verify, result.diff.needsVerification]];
-    additionalServiceList.innerHTML = `<h3>${result.summary.title}</h3>${sections.filter(([,items])=>items.length).map(([label,items])=>`<p><strong>${label}:</strong> ${items.map(escapeSummaryText).join(", ")}</p>`).join("")}<p><strong>${result.summary.approval}:</strong> ${escapeSummaryText(result.diff.approval)}</p>`;
     if (revisionStatus) revisionStatus.textContent = t("revisionComplete");
     trackEvent("mission_revision_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", revision_type: result.intent.type, approval_invalidated: result.impact.material, provider: "OPENAI" });
     additionalServiceInput.value = "";
     renderMission();
+    renderRevisionAdditionNote();
     additionalServiceInput.focus();
   } catch {
     if (revisionStatus) revisionStatus.textContent = t("revisionError");
@@ -5621,7 +5656,8 @@ document.addEventListener("click", (event) => {
   if (v231LiveSearch) {
     event.preventDefault();
     v231LiveSearch.disabled = true;
-    renderV231PreparationContinuation({ state: "live_search_requested" });
+    buildExecutionSummary();
+    completionMessage.hidden = false;
     trackEvent("live_provider_search_requested", { mission_type: currentResult?.type, language: activeLanguage, page: "results", status: "adapter_unavailable" });
     return;
   }

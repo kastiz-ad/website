@@ -245,6 +245,28 @@ html[data-theme="light"] .brand img {
   letter-spacing: -0.085em;
 }
 
+body.travel-premium-result-view .mission-hero {
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+body.travel-premium-result-view .mission-hero h1,
+body.travel-premium-result-view .mission-status-card {
+  display: none;
+}
+
+body.travel-premium-result-view .mission-hero .eyebrow {
+  margin-bottom: 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+body.travel-premium-result-view .mission-timeline {
+  display: none;
+}
+
 .mission-status-card {
   flex-shrink: 0;
   height: 48px;
@@ -2854,7 +2876,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .alpha03-recommendation-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
   gap: clamp(14px, 2.4vw, 24px);
   align-items: stretch;
   padding: clamp(16px, 2.7vw, 28px);
@@ -2868,6 +2890,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .alpha03-recommendation-map {
   min-width: 0;
+  display: grid;
 }
 
 .alpha03-recommendation-copy {
@@ -2923,7 +2946,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .alpha03-recommendation-metrics b {
   color: var(--text);
-  font-size: clamp(14px, 1.5vw, 20px);
+  font-size: clamp(12px, 1.15vw, 17px);
   font-weight: 950;
 }
 
@@ -2943,8 +2966,9 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
   min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
-  background: var(--text);
-  color: var(--surface);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
   font-size: 13px;
   font-weight: 950;
 }
@@ -3051,7 +3075,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .alpha03-map-canvas {
   position: relative;
-  min-height: 240px;
+  min-height: 100%;
   overflow: hidden;
   border-radius: 24px;
   background:
@@ -3138,6 +3162,8 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .alpha03-preview-group > div {
   display: grid;
   gap: 8px;
+  max-height: 420px;
+  overflow: auto;
 }
 
 .alpha03-preview-option {
@@ -3180,7 +3206,7 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
 .alpha03-preview-option strong {
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 950;
 }
 
@@ -3368,9 +3394,14 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .product-refined-results .v23-approval-preview {
   text-align: center;
   border-radius: 28px;
-  background:
-    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 40%),
-    var(--chip);
+  background: var(--chip);
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+}
+
+.product-refined-results .v23-approval-preview::after {
+  content: "";
 }
 
 @media (max-width: 840px) {
@@ -3483,6 +3514,10 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 .revision-summary{margin-top:14px;text-align:left}
 .revision-summary h3{text-align:center}
 .revision-summary p{margin:8px 0}
+.revision-added-note{display:grid;gap:7px;padding:16px 18px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:20px;background:color-mix(in srgb,var(--accent) 10%,var(--surface));text-align:center}
+.revision-added-note span{color:var(--text-muted);font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.revision-added-note strong{color:var(--text);font-size:18px;line-height:1.25}
+.revision-added-note p{margin:0;color:var(--text-muted);font-size:13px;line-height:1.45}
 .visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 @media(max-width:640px){.revision-command .additional-service-entry{display:grid;grid-template-columns:minmax(0,1fr) 58px}.revision-command textarea{min-height:72px;padding:14px}.revision-command #addServiceButton{min-width:58px}.pathway-opportunity-list{display:grid;grid-template-columns:1fr;width:100%}.pathway-opportunity-action{width:100%;border-radius:18px}}
 .execution-summary-item.is-schedule { text-align: center; }
