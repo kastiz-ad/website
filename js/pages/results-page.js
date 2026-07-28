@@ -122,7 +122,7 @@ const translations = {
     preparedByOne: "Prepared by ONE",
     customize: "Customize",
     makeItReality: "Start Live Search",
-    withOne: "with ONE",
+    withOne: "with NE",
     additionalServices: "Customize Services",
     optional: "Optional",
     additionalServicesHelp: "Add or request a new destination, flight, tutor subject, language, or any other service.",
@@ -188,7 +188,7 @@ const translations = {
     preparedByOne: "ONE 이 준비했습니다.",
     customize: "수정하기",
     makeItReality: "실시간 검색 시작",
-    withOne: "ONE과 함께",
+    withOne: "NE과 함께",
     additionalServices: "서비스 맞춤 설정",
     optional: "선택 사항",
     additionalServicesHelp: "새 목적지, 항공편, 튜터 과목, 언어 또는 원하는 서비스를 추가하거나 요청하세요.",
@@ -2668,14 +2668,24 @@ const createAlpha03VisualCard = (item, type, index) => `
 `;
 
 const createAlpha03JourneyMap = (days, restaurants, places) => {
+  const pinStyles = [
+    ["is-transport", "✈️"],
+    ["is-hotel", "🏨"],
+    ["is-food", "🍽️"],
+    ["is-place", "📍"],
+    ["is-dessert", "☕"],
+    ["is-activity", "🎡"],
+    ["is-shopping", "🛍️"]
+  ];
   const pins = days.slice(0, 7).map((day, index) => {
     const placeSlot = (day.slots || []).find((slot) => /Morning|Afternoon|Evening|오전|오후|저녁|Mañana|Tarde|Noche/i.test(slot[1])) || (day.slots || [])[0];
     const label = placeSlot?.[2] || places[index % Math.max(1, places.length)]?.name || restaurants[index % Math.max(1, restaurants.length)]?.name || day.title;
-    return [`day-${index}`, String(index + 1), label];
+    const [style, icon] = pinStyles[index % pinStyles.length];
+    return [`day-${index}`, style, icon, label];
   });
   return `
     <div class="alpha03-map-canvas" aria-label="${escapeSummaryText(alpha03Copy("Journey map", "여정 지도", "Mapa del viaje"))}">
-      ${pins.map((pin, index) => `<span class="alpha03-map-pin is-${pin[0]}" style="--pin:${index}"><i>${escapeSummaryText(pin[1])}</i><b>${escapeSummaryText(pin[2])}</b></span>`).join("")}
+      ${pins.map((pin, index) => `<span class="alpha03-map-pin is-${pin[0]} ${pin[1]}" style="--pin:${index}" title="${escapeSummaryText(pin[3])}" aria-label="${escapeSummaryText(pin[3])}"><i>${escapeSummaryText(pin[2])}</i></span>`).join("")}
     </div>
   `;
 };
@@ -5717,6 +5727,7 @@ const enableTimelineDragScroll = () => {
   document.addEventListener("pointerdown", (event) => {
     const strip = event.target.closest?.(".alpha03-timeline-strip");
     if (!strip || event.pointerType !== "mouse") return;
+    event.preventDefault();
     dragState = {
       strip,
       pointerId: event.pointerId,
