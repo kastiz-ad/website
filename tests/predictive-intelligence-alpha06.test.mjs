@@ -158,6 +158,6 @@ test("ALPHA-06 result page, CSS and cache-busted demo entry are integrated", () 
   assert.match(resultsPageSource, /predictionStorageKey/);
   assert.match(resultsCss, /\.alpha06-predictive-card/);
   assert.match(resultsCss, /\.alpha06-prediction-actions/);
-  assert.match(resultsHtml, /20260729-alpha06-predictive-intelligence/);
-  assert.match(resultsEntry, /20260729-alpha06-predictive-intelligence/);
+  assert.match(resultsHtml, /20260729-alpha07-personal-mission-memory/);
+  assert.match(resultsEntry, /20260729-alpha07-personal-mission-memory/);
 });

@@ -28,6 +28,12 @@ import {
   validatePredictiveIntelligence
 } from "../engine/workspace/predictive-intelligence-alpha06.js?v=20260729-alpha06-predictive-intelligence";
 import {
+  ALPHA07_PERSONAL_MISSION_MEMORY_VERSION,
+  applyPersonalMissionMemory,
+  explainMissionMemoryUse,
+  readPersonalMissionMemoryFromBrowser
+} from "../profile/personal-mission-memory-alpha07.js?v=20260729-alpha07-personal-mission-memory";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
@@ -3058,6 +3064,46 @@ const createPredictiveIntelligenceCard = (result, missionContext, orchestrator) 
   return { card, layer, validation };
 };
 
+const createPersonalMissionMemoryCard = (result) => {
+  const memory = readPersonalMissionMemoryFromBrowser();
+  const domain = getDomainKey(result);
+  const applied = applyPersonalMissionMemory(memory, {
+    domain,
+    explicitInstructions: result.rawInput || result.mission || result.originalMission || result.resolutionPlan?.userProblem || "",
+    language: activeLanguage
+  });
+  currentResult.alpha07PersonalMissionMemory = applied;
+  if (!applied.applied.length) return null;
+
+  const card = document.createElement("article");
+  card.className = "mission-card is-wide alpha07-memory-card";
+  card.dataset.cardId = "personal-mission-memory-alpha07";
+  const rows = applied.applied.slice(0, 6).map((entry) => `
+    <li>
+      <span>${escapeSummaryText(entry.category)}</span>
+      <strong>${escapeSummaryText(entry.value)}</strong>
+      <small>${escapeSummaryText(entry.explanation || explainMissionMemoryUse(entry, { language: activeLanguage }))}</small>
+    </li>
+  `).join("");
+  card.innerHTML = `
+    <div class="alpha07-header">
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA07_PERSONAL_MISSION_MEMORY_VERSION)} · ${escapeSummaryText(alpha06Local("Personal Mission Memory", "개인 미션 기억", "Memoria personal de misiones"))}</span>
+      <h2>${escapeSummaryText(alpha06Local("ONE used what helps, not everything", "ONE이 필요한 기억만 사용했어요", "ONE usó solo lo que ayuda"))}</h2>
+      <p>${escapeSummaryText(alpha06Local(
+        "These preferences reduced repeated questions for this mission.",
+        "이 기억은 같은 질문을 반복하지 않기 위해 사용되었습니다.",
+        "Estas preferencias redujeron preguntas repetidas para esta misión."
+      ))}</p>
+    </div>
+    <ul class="alpha07-memory-list">${rows}</ul>
+    <div class="alpha07-memory-actions">
+      <a href="personal-mission-memory.html">${escapeSummaryText(alpha06Local("Manage memory", "기억 관리", "Gestionar memoria"))}</a>
+      <span>${escapeSummaryText(alpha06Local("Sensitive data is never saved here.", "민감 정보는 여기에 저장하지 않습니다.", "Los datos sensibles nunca se guardan aquí."))}</span>
+    </div>
+  `;
+  return { card, applied };
+};
+
 const readAlpha04UiState = (result) => {
   try {
     return JSON.parse(localStorage.getItem(`${livingMissionStorageKey(result)}:ui`) || "{}");
@@ -3120,6 +3166,8 @@ const renderTravelMission = (result, missionContext) => {
   missionGrid.appendChild(executionOrchestrator.card);
   const predictiveCard = createPredictiveIntelligenceCard(result, missionContext, executionOrchestrator.orchestrator);
   if (predictiveCard) missionGrid.appendChild(predictiveCard.card);
+  const memoryCard = createPersonalMissionMemoryCard(result);
+  if (memoryCard) missionGrid.appendChild(memoryCard.card);
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
   const refinementCard = createProgressiveRefinementCard(result, missionContext);
@@ -3165,6 +3213,8 @@ const renderResolutionPlanMission = (result) => {
   missionGrid.appendChild(executionOrchestrator.card);
   const predictiveCard = createPredictiveIntelligenceCard(result, { resolutionPlan: plan }, executionOrchestrator.orchestrator);
   if (predictiveCard) missionGrid.appendChild(predictiveCard.card);
+  const memoryCard = createPersonalMissionMemoryCard(result);
+  if (memoryCard) missionGrid.appendChild(memoryCard.card);
 
   const recommended = plan.recommendedPath || plan.solutionPaths?.[0] || {};
 

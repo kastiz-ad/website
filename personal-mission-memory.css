@@ -1,0 +1,288 @@
+:root {
+  color-scheme: light;
+  --bg: #f6f3ec;
+  --surface: #fffaf1;
+  --surface-2: #ece7dc;
+  --text: #151515;
+  --muted: #6f6a61;
+  --border: rgba(20,20,20,.14);
+  --accent: #c8a85c;
+  --danger: #b74747;
+}
+
+[data-theme="midnight"] {
+  color-scheme: dark;
+  --bg: #101113;
+  --surface: #17191d;
+  --surface-2: #222429;
+  --text: #f4f0e7;
+  --muted: #aaa49a;
+  --border: rgba(255,255,255,.14);
+  --accent: #d8c38a;
+  --danger: #ff8b8b;
+}
+
+[data-theme="gray"] {
+  color-scheme: dark;
+  --bg: #3f4146;
+  --surface: #4a4c52;
+  --surface-2: #565960;
+  --text: #f4f0e7;
+  --muted: #d2cec4;
+  --border: rgba(255,255,255,.18);
+  --accent: #d8c38a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+a { color: inherit; }
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus {
+  left: 16px;
+  top: 16px;
+  z-index: 5;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+}
+.memory-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px clamp(18px, 4vw, 44px);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  backdrop-filter: blur(16px);
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+  font-size: 31px;
+  font-weight: 950;
+  letter-spacing: -.08em;
+}
+.brand img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
+.memory-header nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.memory-header a,
+.memory-header button,
+.memory-form button,
+.toolbar-actions button,
+.memory-card button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 850;
+  text-decoration: none;
+}
+.memory-header nav a,
+.memory-header button {
+  padding: 9px 13px;
+}
+.memory-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 42px 0 80px;
+}
+.memory-hero,
+.memory-toolbar,
+.memory-editor,
+.memory-card {
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: 0 20px 70px rgba(0,0,0,.08);
+}
+.memory-hero {
+  display: grid;
+  gap: 14px;
+  padding: clamp(28px, 6vw, 58px);
+  text-align: center;
+}
+.eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+h1, h2, p { margin: 0; }
+h1 {
+  font-size: clamp(2.2rem, 6vw, 4.7rem);
+  line-height: .95;
+  letter-spacing: -.07em;
+}
+h2 {
+  font-size: clamp(1.35rem, 3vw, 2.1rem);
+  letter-spacing: -.05em;
+}
+.memory-hero > p:not(.eyebrow),
+.memory-editor p,
+.memory-card p,
+.memory-card small,
+.safety-strip,
+#memoryStatus {
+  color: var(--muted);
+  line-height: 1.55;
+}
+.safety-strip {
+  justify-self: center;
+  width: min(100%, 760px);
+  padding: 13px 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-2);
+  font-weight: 750;
+}
+.memory-toolbar,
+.memory-editor {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 22px;
+}
+.memory-toolbar {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+.memory-toolbar label,
+.memory-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-weight: 850;
+}
+input,
+select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-weight: 750;
+}
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.toolbar-actions button,
+.memory-form button,
+.memory-card button {
+  min-height: 44px;
+  padding: 9px 14px;
+}
+.danger {
+  color: var(--danger) !important;
+  border-color: color-mix(in srgb, var(--danger) 42%, var(--border)) !important;
+}
+#memoryStatus {
+  grid-column: 1 / -1;
+  min-height: 22px;
+}
+.memory-editor {
+  grid-template-columns: minmax(220px, .65fr) minmax(0, 1fr);
+}
+.memory-form {
+  display: grid;
+  gap: 12px;
+}
+.memory-groups {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+.memory-category {
+  display: grid;
+  gap: 12px;
+}
+.memory-category h2 {
+  padding: 0 6px;
+}
+.memory-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+.memory-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.memory-card-head strong {
+  font-size: 1.1rem;
+}
+.memory-card .memory-value {
+  font-size: 1.35rem;
+  font-weight: 950;
+  letter-spacing: -.04em;
+}
+.memory-meta,
+.memory-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.memory-meta span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 850;
+}
+.empty-state {
+  padding: 36px;
+  border: 1px dashed var(--border);
+  border-radius: 28px;
+  color: var(--muted);
+  text-align: center;
+}
+@media (max-width: 760px) {
+  .memory-toolbar,
+  .memory-editor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .toolbar-actions,
+  .memory-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .brand img {
+    width: 44px;
+    height: 44px;
+  }
+  .brand {
+    font-size: 26px;
+  }
+}

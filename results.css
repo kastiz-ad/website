@@ -1757,6 +1757,89 @@ html[data-theme="light"] .brand img {
   font-size: .9rem;
 }
 
+/* ALPHA-07: personal mission memory explanation. */
+.alpha07-memory-card {
+  min-height: 0;
+  background:
+    radial-gradient(circle at 88% 0%, color-mix(in srgb, var(--accent, #d8c38a) 13%, transparent), transparent 34%),
+    var(--surface);
+}
+
+.alpha07-header {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.alpha07-header h2,
+.alpha07-header p {
+  margin: 0;
+}
+
+.alpha07-header p,
+.alpha07-memory-list small,
+.alpha07-memory-actions span {
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.alpha07-memory-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alpha07-memory-list li {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface-2) 84%, transparent);
+  text-align: center;
+}
+
+.alpha07-memory-list li > span {
+  justify-self: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--text-muted);
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.alpha07-memory-list strong {
+  font-size: clamp(1rem, 2vw, 1.16rem);
+}
+
+.alpha07-memory-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.alpha07-memory-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 850;
+}
+
 [data-section-id].is-recently-updated {
   position: relative;
   border-color: color-mix(in srgb, var(--accent) 58%, var(--border)) !important;
@@ -3042,6 +3125,9 @@ body {
   .alpha06-prediction-topline {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .alpha07-memory-list {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .information-review-dialog{box-sizing:border-box;width:min(580px,calc(100vw - 28px));max-height:88dvh;margin:auto;border:1px solid var(--border);border-radius:26px;padding:0;background:var(--surface,#fff);color:var(--text);box-shadow:0 30px 100px rgba(0,0,0,.4)}.information-review-dialog::backdrop{background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}.information-review-content{position:relative;display:grid;gap:16px;padding:30px}.information-review-content h2,.information-review-content p{margin:0}.information-review-close{position:absolute;right:18px;top:16px;border:0;background:none;color:inherit;font-size:26px;cursor:pointer}.review-kicker{color:var(--muted);font-size:.75rem;font-weight:800;letter-spacing:.12em}.information-review-content ul{display:grid;gap:8px;margin:0;padding:0;list-style:none}.information-review-content li{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid var(--border);border-radius:12px}.information-review-content li span{flex:0 0 auto;color:var(--muted);white-space:nowrap}.information-review-content li strong{min-width:0;text-align:right;overflow-wrap:anywhere}.information-review-content aside{padding:15px;border-radius:14px;background:var(--surface-strong)}.information-review-content aside p{margin:6px 0;color:var(--muted);line-height:1.5}.information-review-content code{font-size:.7rem;overflow-wrap:anywhere}.information-review-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.information-review-actions button{min-height:48px;border:1px solid var(--border);border-radius:999px;background:transparent;color:inherit;font-weight:750;cursor:pointer}.information-review-actions .primary{background:var(--text);color:var(--bg)}@media(max-width:520px){.information-review-content{padding:28px 20px 22px}.information-review-actions{grid-template-columns:1fr}.information-review-content li{display:flex;gap:10px}.information-review-content li strong{font-size:.92rem}}
