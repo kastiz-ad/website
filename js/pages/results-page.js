@@ -38,6 +38,11 @@ import {
   validateMissionDirectorBrief
 } from "../engine/agents/mission-director-alpha08.js?v=20260729-alpha08-multi-agent-collaboration";
 import {
+  buildProviderTrustBrief,
+  trustBadgeLabel,
+  validateProviderTrustBrief
+} from "../engine/trust/provider-trust-network-alpha09.js?v=20260729-alpha09-provider-trust-network";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
@@ -3136,6 +3141,78 @@ const attachMissionDirectorBrief = (result) => {
   }
 };
 
+const createProviderTrustNetworkCard = (brief) => {
+  if (!brief || !brief.topProviders?.length) return null;
+  const local = v22Local;
+  const categoryLabel = (category = "") => ({
+    flight: local("Flights", "항공", "Vuelos"),
+    hotel: local("Hotels", "호텔", "Hoteles"),
+    restaurant: local("Restaurants", "레스토랑", "Restaurantes"),
+    transport: local("Transport", "이동", "Transporte"),
+    hospital: local("Healthcare", "의료", "Salud"),
+    insurance: local("Insurance", "보험", "Seguro"),
+    banking: local("Banking", "은행", "Banca")
+  }[category] || localizeDomainText(category || local("Provider", "제공업체", "Proveedor")));
+  const language = activeLanguage === "ko" ? "ko" : activeLanguage === "es" ? "es" : "en";
+  const title = local("Provider Trust Network", "제공업체 신뢰 네트워크", "Red de confianza de proveedores");
+  const subtitle = local(
+    "Ranked by trust signals, mission fit, public evidence, and approval-safe verification needs — never by ads.",
+    "광고가 아니라 신뢰 신호, 미션 적합성, 공개 근거, 승인 전 확인 필요성을 기준으로 정리했습니다.",
+    "Ordenado por señales de confianza, ajuste a la misión, evidencia pública y verificación segura; nunca por anuncios."
+  );
+  const topRows = brief.topProviders.slice(0, 6).map((provider) => `
+    <li>
+      <strong>${escapeSummaryText(provider.providerName)}</strong>
+      <span>${escapeSummaryText(categoryLabel(provider.category))} · ${escapeSummaryText(provider.badgeLabel || trustBadgeLabel(provider.badge, language))}</span>
+      <small>${escapeSummaryText(provider.explanation || provider.reasons?.join("; ") || "")}</small>
+    </li>
+  `).join("");
+  const warnings = brief.warnings?.length
+    ? `<div class="v22-chip-list">${brief.warnings.slice(0, 2).map((warning) => createV22Chip(warning)).join("")}</div>`
+    : "";
+  const article = document.createElement("article");
+  article.className = "mission-card v22-card is-wide alpha09-provider-trust-card";
+  article.dataset.cardId = "provider-trust-network";
+  article.innerHTML = `
+    <div class="v22-card-heading">
+      <span class="v22-kicker">ALPHA-09 · Trust, not advertising</span>
+      <h2>${escapeSummaryText(title)}</h2>
+    </div>
+    <p class="v22-card-body">${escapeSummaryText(subtitle)}</p>
+    <ul class="v22-clean-list">${topRows}</ul>
+    ${warnings}
+  `;
+  return article;
+};
+
+const attachProviderTrustBrief = (result) => {
+  try {
+    const brief = buildProviderTrustBrief({
+      result,
+      context: result.missionContext,
+      missionDirector: result.alpha08MissionDirector,
+      personalMissionMemory: result.alpha07PersonalMissionMemory,
+      worldIntelligence: result.worldIntelligence,
+      language: activeLanguage
+    });
+    const validation = validateProviderTrustBrief(brief);
+    currentResult.alpha09ProviderTrust = brief;
+    currentResult.alpha09ProviderTrustValidation = validation;
+    missionGrid.dataset.alpha09ProviderTrust = validation.ok ? "ready" : "degraded";
+    const card = createProviderTrustNetworkCard(brief);
+    if (card && !missionGrid.querySelector('[data-card-id="provider-trust-network"]')) {
+      missionGrid.appendChild(card);
+    }
+  } catch (error) {
+    currentResult.alpha09ProviderTrust = {
+      version: "ALPHA-09",
+      status: "degraded",
+      failureReason: String(error?.message || "provider_trust_unavailable").slice(0, 120)
+    };
+    missionGrid.dataset.alpha09ProviderTrust = "degraded";
+  }
+};
+
 const readAlpha04UiState = (result) => {
   try {
     return JSON.parse(localStorage.getItem(`${livingMissionStorageKey(result)}:ui`) || "{}");
@@ -3652,6 +3729,7 @@ const renderMission = () => {
   missionGrid.appendChild(additionalServicesForm);
   missionGrid.appendChild(createApprovalCard(currentResult));
   attachMissionDirectorBrief(currentResult);
+  attachProviderTrustBrief(currentResult);
   renderMissionUnderstanding();
   organizeProgressiveResults();
 };
