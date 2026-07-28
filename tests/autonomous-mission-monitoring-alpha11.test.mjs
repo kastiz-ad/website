@@ -152,6 +152,6 @@ test("result page and cache entries wire ALPHA-11 monitoring dashboard", () => {
   assert.match(page, /createMissionWatcherLayer/);
   assert.match(page, /autonomous-mission-monitoring/);
   assert.match(page, /alpha11MissionMonitoring/);
-  assert.match(html, /20260729-alpha15-travel-duration-party/);
-  assert.match(entry, /20260729-alpha15-travel-duration-party/);
+  assert.match(html, /20260729-alpha15-results-cleanup/);
+  assert.match(entry, /20260729-alpha15-results-cleanup/);
 });

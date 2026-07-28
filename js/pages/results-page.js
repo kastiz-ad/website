@@ -1453,7 +1453,12 @@ const cityProfileOverride = (code, city) => {
 const cityRestaurantProfiles = {
   "new york": [
     ["The Modern", 4.6, 85000, 180000], ["Keens Steakhouse", 4.5, 90000, 190000],
-    ["Rubirosa", 4.6, 35000, 75000], ["Joe's Shanghai", 4.3, 25000, 60000]
+    ["Rubirosa", 4.6, 35000, 75000], ["Joe's Shanghai", 4.3, 25000, 60000],
+    ["Katz's Delicatessen", 4.5, 30000, 65000], ["Joe's Pizza", 4.4, 12000, 30000],
+    ["Los Tacos No. 1", 4.6, 18000, 42000], ["Levain Bakery", 4.6, 12000, 28000],
+    ["Russ & Daughters", 4.5, 28000, 65000], ["Chelsea Market", 4.5, 25000, 70000],
+    ["Balthazar", 4.4, 60000, 140000], ["Dominique Ansel Bakery", 4.5, 15000, 35000],
+    ["Eataly Flatiron", 4.4, 30000, 80000], ["Magnolia Bakery", 4.4, 10000, 28000]
   ],
   "los angeles": [
     ["Bestia", 4.6, 65000, 140000], ["Republique", 4.6, 45000, 110000],
@@ -2213,6 +2218,62 @@ const getScenarioSourceState = (result, key, fallback = "estimated") => {
   return fallback;
 };
 
+const buildSpecificCityJourneys = (result, destination, duration) => {
+  const key = `${destination || ""} ${result.rawInput || result.mission || ""}`.toLowerCase();
+  const seed = `${result.missionSeed || result.id || result.rawInput || ""}-${result.schedule?.startDate || ""}`;
+  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const specific = /new york|nyc|뉴욕/.test(key)
+    ? [
+        ["NYC first-timer essentials", "뉴욕 핵심 일정", "Nueva York esencial", "Manhattan icons, Brooklyn, food, shopping, and night views without forcing every famous place into one day.", "맨해튼 대표 명소, 브루클린, 음식, 쇼핑, 야경을 날짜별로 나눠 무리 없이 보는 구성입니다.", ["Statue of Liberty", "Broadway", "Central Park", "Brooklyn"]],
+        ["Broadway, museums and skyline", "브로드웨이·미술관·전망", "Broadway, museos y vistas", "Best when culture, indoor options, and skyline moments matter more than rushing.", "공연, 미술관, 실내 대안, 전망대를 중심으로 차분하게 즐기는 구성입니다.", ["Broadway", "MoMA", "The Met", "Top of the Rock"]],
+        ["Shopping and food New York", "쇼핑과 맛집 뉴욕", "Compras y comida en Nueva York", "Built around SoHo, Fifth Avenue, Chelsea Market, bakeries, steak, pizza, and outlet time if you want it.", "소호, 5번가, 첼시마켓, 베이커리, 스테이크, 피자, 아울렛 선택지를 중심으로 구성합니다.", ["SoHo", "Macy's", "Chelsea Market", "Woodbury"]],
+        ["Brooklyn and local neighborhoods", "브루클린과 로컬 뉴욕", "Brooklyn y barrios locales", "More neighborhoods, photos, parks, cafés, and less tourist checklist pressure.", "관광 체크리스트보다 동네 산책, 사진, 공원, 카페 시간을 더 살린 구성입니다.", ["DUMBO", "High Line", "Village", "Cafés"]]
+      ]
+    : /sapporo|삿포로/.test(key)
+      ? [
+          ["Sapporo winter highlights", "삿포로 겨울 하이라이트", "Sapporo invierno", "Snow, ramen, markets, beer culture, and warm indoor breaks.", "눈, 라멘, 시장, 맥주 문화, 따뜻한 실내 휴식을 섞은 구성입니다.", ["Snow", "Ramen", "Beer Museum", "Market"]],
+          ["Sapporo food route", "삿포로 미식 코스", "Ruta gastronómica de Sapporo", "Ramen, soup curry, seafood, cafés, and Susukino evening food.", "라멘, 수프카레, 해산물, 카페, 스스키노 저녁 맛집 중심입니다.", ["Ramen", "Soup curry", "Seafood", "Café"]],
+          ["Hokkaido nature plus city", "홋카이도 자연과 도시", "Hokkaido naturaleza y ciudad", "Adds nature and views without losing central Sapporo convenience.", "삿포로 중심 편의성과 자연·전망을 함께 넣은 구성입니다.", ["Odori", "View", "Nature", "Shopping"]],
+          ["Easy family Sapporo", "가족과 편한 삿포로", "Sapporo fácil en familia", "Shorter moves, food halls, indoor stops, and snow-friendly pacing.", "짧은 이동, 푸드홀, 실내 장소, 눈길에 맞춘 여유 동선입니다.", ["Family", "Indoor", "Food", "Easy"]]
+        ]
+      : [];
+  if (!specific.length) return null;
+  return rotateList(specific, seed).map((item, index) => ({
+    id: `v23-specific-journey-${index}`,
+    name: local(item[0], item[1], item[2]),
+    purpose: local(item[3], item[4], item[3]),
+    tags: item[5],
+    reason: local(
+      "This option is built from actual destination highlights, not a generic travel template.",
+      "일반 템플릿이 아니라 실제 목적지에서 할 만한 것들을 기준으로 구성했습니다.",
+      "Esta opción usa puntos reales del destino, no una plantilla genérica."
+    ),
+    duration,
+    tone: ["balanced", "culture", "food", "local"][index] || "balanced",
+    comfort: local("Practical", "실용적", "Práctico"),
+    budget: getTravelBudgetLabel(result, index === 2 ? "food" : "balanced"),
+    timeline: item[5],
+    selected: index === 0,
+    details: {
+      flight: local("Round-trip options are compared after approval for live price and schedule.", "왕복 항공권은 승인 후 실시간 가격과 일정을 확인합니다.", "Vuelos ida y vuelta se comparan tras aprobación."),
+      hotel: local("Hotel candidates are matched to the route, walking load, and room count.", "숙소 후보는 동선, 도보 부담, 객실 수에 맞춰 비교합니다.", "Hoteles según ruta, caminata y habitaciones."),
+      transport: local("Daily movement is grouped by neighborhood to avoid unnecessary backtracking.", "불필요한 왕복 이동을 줄이도록 날짜별 지역을 묶습니다.", "Se agrupa por zonas para evitar traslados inútiles."),
+      food: local("Food candidates are placed near the day route instead of as a random list.", "맛집 후보는 무작위 목록이 아니라 그날 동선 근처로 배치합니다.", "Comida cerca de la ruta del día."),
+      entry: local("Entry and document rules are rechecked through official sources before action.", "입국·서류 요건은 실행 전 공식 출처로 다시 확인합니다.", "Requisitos se verifican con fuentes oficiales."),
+      insurance: local("Insurance and cancellation rules are prepared for review before booking.", "예약 전 보험과 취소 규정을 검토할 수 있게 준비합니다.", "Seguro y cancelación se preparan antes de reservar.")
+    },
+    sourceStates: {
+      flight: getScenarioSourceState(result, "flight", "estimated"),
+      hotel: getScenarioSourceState(result, "hotel", "estimated"),
+      transport: getScenarioSourceState(result, "transport", "placeholder"),
+      food: getScenarioSourceState(result, "food", "cached_public"),
+      entry: getScenarioSourceState(result, "entry", "unavailable"),
+      insurance: getScenarioSourceState(result, "insurance", "placeholder")
+    }
+  }));
+};
+
+
 const providerSourceNote = (state) => {
   const copy = {
     verified_live: { en: "Confirmed by a live provider source.", ko: "실시간 제공업체 정보로 확인되었습니다.", es: "Confirmado por fuente en vivo." },
@@ -2233,6 +2294,8 @@ const buildV23TravelJourneys = (result, missionContext) => {
   const isFood = /맛집|food|gourmet|comida/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-food";
   const isBudget = /실속|저렴|budget|cheap|econ[oó]mico/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-budget";
   const destinationCode = result.destination?.countryCode || result.countryProfile?.code || result.country;
+  const specificJourneys = buildSpecificCityJourneys(result, destination, duration);
+  if (specificJourneys) return specificJourneys;
   if (destinationCode === "JP" || /japan|일본|tokyo|osaka|kyoto|도쿄|오사카|교토/i.test(`${destination} ${result.rawInput || result.mission || ""}`)) {
     return buildJapanCreativeJourneys(result, destination, duration);
   }
@@ -2305,6 +2368,36 @@ const alpha03Copy = (en, ko, es) => v22Local(en, ko, es);
 
 const getAlpha03DestinationProfile = (destination) => {
   const key = String(destination || "").toLowerCase();
+  if (/new york|nyc|ë‰´ìš•/.test(key)) {
+    return {
+      restaurants: [
+        { icon: "🥯", name: "Russ & Daughters", tags: ["bagel", "Lower East Side"], source: "cached_public" },
+        { icon: "🥪", name: "Katz's Delicatessen", tags: ["deli", "classic"], source: "cached_public" },
+        { icon: "🍕", name: "Joe's Pizza", tags: ["slice", "casual"], source: "cached_public" },
+        { icon: "🌮", name: "Los Tacos No. 1", tags: ["Chelsea Market", "quick"], source: "cached_public" },
+        { icon: "🍪", name: "Levain Bakery", tags: ["dessert", "cookie"], source: "cached_public" },
+        { icon: "🥩", name: "Keens Steakhouse", tags: ["steak", "Midtown"], source: "cached_public" },
+        { icon: "🍝", name: "Rubirosa", tags: ["Italian", "Nolita"], source: "cached_public" },
+        { icon: "☕", name: "Balthazar", tags: ["SoHo", "brunch"], source: "cached_public" },
+        { icon: "🍰", name: "Magnolia Bakery", tags: ["dessert", "classic"], source: "cached_public" },
+        { icon: "🛒", name: "Chelsea Market", tags: ["food hall", "rain plan"], source: "cached_public" }
+      ],
+      places: [
+        { icon: "🗽", name: "Statue of Liberty and Ellis Island", tags: ["iconic", "ferry"], source: "cached_public" },
+        { icon: "🌳", name: "Central Park", tags: ["walk", "classic"], source: "cached_public" },
+        { icon: "🌉", name: "Brooklyn Bridge and DUMBO", tags: ["photo", "walk"], source: "cached_public" },
+        { icon: "🎭", name: "Broadway or Times Square", tags: ["night", "show"], source: "cached_public" },
+        { icon: "🏙️", name: "Top of the Rock or Empire State Building", tags: ["view", "skyline"], source: "cached_public" },
+        { icon: "🛍️", name: "Fifth Avenue and Macy's Herald Square", tags: ["shopping", "Midtown"], source: "cached_public" },
+        { icon: "📷", name: "B&H Photo Video", tags: ["camera", "shopping"], source: "cached_public" },
+        { icon: "🏛️", name: "The Met or MoMA", tags: ["museum", "rain plan"], source: "cached_public" },
+        { icon: "🚶", name: "High Line and Chelsea Market", tags: ["walk", "food"], source: "cached_public" },
+        { icon: "🕊️", name: "9/11 Memorial and One World Observatory", tags: ["history", "view"], source: "cached_public" },
+        { icon: "🛍️", name: "Woodbury Common Premium Outlets", tags: ["day trip", "shopping"], source: "estimated" },
+        { icon: "⛸️", name: "Bryant Park or Rockefeller Center skating", tags: ["winter", "seasonal"], source: "estimated" }
+      ]
+    };
+  }
   if (/japan|tokyo|osaka|kyoto|일본|도쿄|오사카|교토/.test(key)) {
     return {
       restaurants: [
@@ -2355,18 +2448,13 @@ const getAlpha03DestinationProfile = (destination) => {
     };
   }
   return {
-    restaurants: [
-      { icon: "🍽️", name: `${destination} local table`, tags: ["local food", "central area"], source: "estimated" },
-      { icon: "☕", name: `${destination} café stop`, tags: ["coffee", "rest"], source: "estimated" },
-      { icon: "🥘", name: `${destination} signature meal`, tags: ["regional", "recommended check"], source: "estimated" },
-      { icon: "🌙", name: `${destination} evening dining area`, tags: ["dinner", "walkable"], source: "estimated" }
-    ],
-    places: [
-      { icon: "📍", name: `${destination} central landmark`, tags: ["orientation", "photo"], source: "estimated" },
-      { icon: "🧭", name: `${destination} old town / main district`, tags: ["walk", "culture"], source: "estimated" },
-      { icon: "🏛️", name: `${destination} museum or indoor highlight`, tags: ["rain plan", "culture"], source: "estimated" },
-      { icon: "🌿", name: `${destination} park or viewpoint`, tags: ["view", "slow time"], source: "estimated" }
-    ]
+    restaurants: [],
+    places: [],
+    fallbackNote: alpha03Copy(
+      "Specific local candidates need live or curated destination data. ONE can still prepare the trip structure without inventing fake place names.",
+      "구체적인 현지 후보는 실시간 또는 큐레이션 데이터가 필요합니다. ONE은 가짜 장소명을 만들지 않고 여행 구조만 준비합니다.",
+      "Los candidatos locales específicos requieren datos en vivo o curados. ONE prepara la estructura sin inventar nombres."
+    )
   };
 };
 
@@ -2382,53 +2470,37 @@ const selectAlpha03Items = (items, tone, targetCount) => {
   return ranked.slice(0, targetCount);
 };
 
-const buildAlpha03DayCards = (journey, destination, result) => {
-  const ko = activeLanguage === "ko";
-  const es = activeLanguage === "es";
-  const tone = journey.tone || "balanced";
-  const daySets = {
-    food: [
-      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Check-in", "호텔 체크인", "Check-in"), alpha03Copy("Market dinner", "시장 저녁", "Cena de mercado"), alpha03Copy("Night dessert", "야경과 디저트", "Postre nocturno")],
-      [alpha03Copy("Morning café", "아침 카페", "Café de mañana"), alpha03Copy("Local market", "현지 시장", "Mercado local"), alpha03Copy("Signature lunch", "대표 점심", "Almuerzo especial"), alpha03Copy("Relaxed shopping", "가벼운 쇼핑", "Compras tranquilas")],
-      [alpha03Copy("Slow breakfast", "느린 아침", "Desayuno lento"), alpha03Copy("Final walk", "마지막 산책", "Paseo final"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
-    ],
-    value: [
-      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Transit to hotel", "대중교통으로 숙소 이동", "Traslado económico"), alpha03Copy("Neighborhood walk", "숙소 주변 산책", "Paseo por la zona")],
-      [alpha03Copy("Core landmark", "핵심 명소", "Lugar principal"), alpha03Copy("Local lunch", "현지 점심", "Almuerzo local"), alpha03Copy("Free viewpoint", "무료 전망/산책", "Mirador o paseo gratis")],
-      [alpha03Copy("Flexible morning", "여유 아침", "Mañana flexible"), alpha03Copy("Souvenir stop", "기념품", "Recuerdos"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
-    ],
-    rest: [
-      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Easy check-in", "느린 체크인", "Check-in tranquilo"), alpha03Copy("Warm dinner", "편안한 저녁", "Cena cómoda")],
-      [alpha03Copy("Late morning", "늦은 아침", "Mañana lenta"), alpha03Copy("Spa or indoor rest", "온천/실내 휴식", "Spa o descanso interior"), alpha03Copy("Quiet café", "조용한 카페", "Café tranquilo")],
-      [alpha03Copy("Park walk", "공원 산책", "Paseo por parque"), alpha03Copy("Light lunch", "가벼운 점심", "Almuerzo ligero"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
-    ],
-    balanced: [
-      [alpha03Copy("Arrival", "도착", "Llegada"), alpha03Copy("Hotel check-in", "호텔 체크인", "Check-in"), alpha03Copy("First city walk", "첫 도시 산책", "Primer paseo"), alpha03Copy("Comfort dinner", "편안한 저녁", "Cena cómoda")],
-      [alpha03Copy("Market", "시장", "Mercado"), alpha03Copy("Landmark", "대표 명소", "Lugar icónico"), alpha03Copy("Café break", "카페 휴식", "Pausa de café"), alpha03Copy("Night view", "야경", "Vista nocturna")],
-      [alpha03Copy("Free morning", "자유 오전", "Mañana libre"), alpha03Copy("Shopping", "쇼핑", "Compras"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
-    ]
-  };
-  const baseDays = (daySets[tone] || daySets.balanced);
+const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
   const { tripDays } = calculateTripDayCounts(result);
-  const journeyTimeline = Array.isArray(journey.timeline) ? journey.timeline : [];
+  const selectedProfile = profile || getAlpha03DestinationProfile(destination);
+  const places = Array.isArray(selectedProfile.places) ? selectedProfile.places : [];
+  const restaurants = Array.isArray(selectedProfile.restaurants) ? selectedProfile.restaurants : [];
+  const local = alpha03Copy;
+  const dayTitle = (index) => {
+    if (index === 0) return local("Arrival and first taste", "도착과 첫 분위기", "Llegada y primer ambiente");
+    if (index === tripDays - 1) return local("Checkout and departure", "체크아웃과 출발", "Checkout y salida");
+    return local(`${destination} day ${index + 1}`, `${destination} ${index + 1}일차`, `Día ${index + 1} en ${destination}`);
+  };
+  const middleItems = (index) => {
+    const a = places[(index * 2) % Math.max(1, places.length)]?.name;
+    const b = places[(index * 2 + 1) % Math.max(1, places.length)]?.name;
+    const meal = restaurants[index % Math.max(1, restaurants.length)]?.name;
+    const fallback = journey.timeline?.[index % Math.max(1, journey.timeline.length)];
+    return [a, meal, b, fallback].filter(Boolean).filter((item, cursor, list) => list.indexOf(item) === cursor).slice(0, 4);
+  };
   return Array.from({ length: tripDays }, (_, index) => {
-    const baseItems = baseDays[index % baseDays.length];
-    const timelineItem = journeyTimeline[index % Math.max(1, journeyTimeline.length)];
-    const items = timelineItem && !baseItems.includes(timelineItem) ? [timelineItem, ...baseItems].slice(0, 4) : baseItems;
-    return {
-    day: `DAY ${index + 1}`,
-    title: index === 0
-      ? alpha03Copy("Arrive softly", "부담 없이 도착", "Llegada tranquila")
-      : index === tripDays - 1
-        ? alpha03Copy("Leave with space", "여유 있게 마무리", "Cierre con calma")
-        : index === 1
-        ? alpha03Copy(`${destination} highlight day`, `${destination} 하이라이트`, `Día especial en ${destination}`)
-        : alpha03Copy(`Experience day ${index + 1}`, `${index + 1}일차 경험`, `Día de experiencia ${index + 1}`),
-    items
-    };
+    const isFirst = index === 0;
+    const isFinal = index === tripDays - 1;
+    const arrivalMeal = restaurants[0]?.name || local("Nearby dinner", "숙소 근처 저녁", "Cena cerca del hotel");
+    const finalMeal = restaurants[(tripDays - 1) % Math.max(1, restaurants.length)]?.name || local("Light breakfast", "가벼운 아침", "Desayuno ligero");
+    const items = isFirst
+      ? [local("Arrival", "도착", "Llegada"), local("Hotel check-in", "호텔 체크인", "Check-in del hotel"), arrivalMeal, places[0]?.name].filter(Boolean).slice(0, 4)
+      : isFinal
+        ? [finalMeal, local("Hotel checkout", "호텔 체크아웃", "Checkout del hotel"), local("Airport transfer", "공항 이동", "Traslado al aeropuerto"), local("Departure", "출발", "Salida")]
+        : middleItems(index);
+    return { day: `DAY ${index + 1}`, title: dayTitle(index), items };
   });
 };
-
 const createAlpha03Card = ({ className, icon, title, badge, tags = [], text = "" }) => `
   <article class="${className}">
     <span class="alpha03-card-icon" aria-hidden="true">${escapeSummaryText(icon)}</span>
@@ -2436,7 +2508,6 @@ const createAlpha03Card = ({ className, icon, title, badge, tags = [], text = ""
       <strong>${escapeSummaryText(title)}</strong>
       ${text ? `<p>${escapeSummaryText(text)}</p>` : ""}
       <div class="alpha03-tag-row">
-        ${badge ? `<span class="alpha03-truth-badge">${escapeSummaryText(badge)}</span>` : ""}
         ${tags.map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}
       </div>
     </div>
@@ -2448,9 +2519,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const ko = activeLanguage === "ko";
   const profile = getAlpha03DestinationProfile(destination);
   const workspace = result.alpha04Workspace || null;
-  const restaurants = selectAlpha03Items(profile.restaurants, journey.tone, journey.tone === "food" ? 8 : 6);
-  const places = selectAlpha03Items(profile.places, journey.tone, 8);
-  const days = buildAlpha03DayCards(journey, destination, result);
+  const { tripDays } = calculateTripDayCounts(result);
+  const restaurants = selectAlpha03Items(profile.restaurants, journey.tone, Math.min(12, Math.max(6, tripDays + 3)));
+  const places = selectAlpha03Items(profile.places, journey.tone, Math.min(12, Math.max(8, tripDays + 2)));
+  const days = buildAlpha03DayCards(journey, destination, result, profile);
   const truthLabel = (state) => sourceStateLabel(state || "estimated");
   const transportationSummary = journey.tone === "value"
     ? alpha03Copy("Transit-first route with licensed taxi only when it saves energy.", "대중교통 중심, 꼭 필요할 때만 허가된 택시를 사용합니다.", "Ruta con transporte público y taxi autorizado solo cuando ahorra energía.")
@@ -2482,36 +2554,39 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         ${journey.tags.slice(0, 4).map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}
       </div>
     </section>
+    ${restaurants.length ? `
     <section ${alpha04SectionAttrs(workspace, "restaurants", "alpha03-section")}>
       <div class="alpha03-section-heading">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Restaurants", "추천 맛집", "Restaurantes"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Places to taste the trip", "여행을 맛보는 장소", "Lugares para saborear el viaje"))}</h3>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "음식", "Comida"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Food worth planning around", "일정에 넣을 만한 음식", "Comida que vale planear"))}</h3>
+        <p>${escapeSummaryText(alpha03Copy("Candidates only. Hours and reservations are checked after approval.", "추천 후보입니다. 영업시간과 예약 가능 여부는 승인 후 확인합니다.", "Solo candidatos. Horarios y reservas se verifican tras aprobación."))}</p>
       </div>
       <div class="alpha03-card-grid is-restaurants">
         ${restaurants.map((item) => createAlpha03Card({
           className: "alpha03-visual-card",
           icon: item.icon,
           title: item.name,
-          badge: truthLabel(item.source),
           tags: item.tags
         })).join("")}
       </div>
     </section>
+    ` : profile.fallbackNote ? `<section class="alpha03-section"><p>${escapeSummaryText(profile.fallbackNote)}</p></section>` : ""}
+    ${places.length ? `
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "추천 명소", "Lugares"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Moments worth remembering", "기억에 남을 장면", "Momentos para recordar"))}</h3>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Places that make the trip feel real", "여행이 살아나는 장소", "Lugares que hacen real el viaje"))}</h3>
       </div>
       <div class="alpha03-card-grid">
         ${places.map((item) => createAlpha03Card({
           className: "alpha03-visual-card",
           icon: item.icon,
           title: item.name,
-          badge: truthLabel(item.source),
           tags: item.tags
         })).join("")}
       </div>
     </section>
+    ` : ""}
     <section ${alpha04SectionAttrs(workspace, "timeline", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Day preview", "하루씩 보기", "Vista por día"))}</span>
@@ -2570,25 +2645,20 @@ const createTravelPackagesCard = (result, missionContext) => {
   const journeys = buildV23TravelJourneys(result, missionContext);
   const selectedIndex = Math.max(0, journeys.findIndex((journey) => journey.selected));
   const destination = getTravelDestinationLabel(result);
+  const { tripDays } = calculateTripDayCounts(result);
+  const { travelerCount } = getTravelPartyDetails(result);
   const article = document.createElement("article");
   article.className = "mission-card is-wide travel-package-card v23-travel-experience";
   article.dataset.cardId = "travel-experiences";
   article.innerHTML = `
     <div class="v23-travel-heading">
-      <span class="v23-eyebrow">${v22Local("ONE Recommendation", "ONE 추천", "ONE recomienda")}</span>
-      <h2>${escapeSummaryText(v22Local(
-        `${destination} trip prepared four ways`,
-        `${destination} 여행을 네 가지 방식으로 준비했습니다.`,
-        `Viaje a ${destination} preparado en cuatro formas`
-      ))}</h2>
+      <span class="v23-eyebrow">${escapeSummaryText(v22Local("Recommended trip", "추천 여행", "Viaje recomendado"))}</span>
+      <h2>${escapeSummaryText(destination)}</h2>
       <p>${escapeSummaryText(v22Local(
-        "Choose the experience first. Providers stay underneath the journey, where they belong.",
-        "먼저 원하는 경험을 고르세요. 항공·숙소·식당은 선택한 여정 안에서 조용히 정리됩니다.",
-        "Elige primero la experiencia. Los proveedores quedan dentro del viaje seleccionado."
+        `${tripDays} days · ${travelerCount} traveler${travelerCount > 1 ? "s" : ""} · choose the route that feels right.`,
+        `${tripDays}일 · ${travelerCount}명 · 마음에 드는 여정을 선택하세요.`,
+        `${tripDays} días · ${travelerCount} viajero${travelerCount > 1 ? "s" : ""} · elige la ruta que encaja.`
       ))}</p>
-    </div>
-    <div class="v23-style-chips" aria-label="${escapeSummaryText(v22Local("Travel style", "여행 스타일", "Estilo de viaje"))}">
-      ${["편안함", "맛집", "실속", "휴식", "쇼핑", "가족"].map((chip) => `<button type="button" class="v23-style-chip">${chip}</button>`).join("")}
     </div>
     <div class="v23-journey-layout">
       <button class="v23-journey-card is-featured${selectedIndex === 0 ? " is-selected" : ""}" type="button" data-journey-index="0" aria-pressed="${selectedIndex === 0}">
@@ -2613,14 +2683,11 @@ function renderV23JourneyCardInner(journey, featured) {
     <span class="v23-selected-badge">${journey.selected ? v22Local("Selected", "선택됨", "Seleccionado") : v22Local("Choose", "선택", "Elegir")}</span>
     <strong>${escapeSummaryText(journey.name)}</strong>
     <small>${escapeSummaryText(journey.purpose)}</small>
-    <div class="v23-journey-tags">${journey.tags.map((tag) => `<span>${escapeSummaryText(tag)}</span>`).join("")}</div>
     <div class="v23-journey-meta">
       <span>${escapeSummaryText(journey.duration)}</span>
-      <span>${escapeSummaryText(journey.comfort)}</span>
       <span>${escapeSummaryText(journey.budget)}</span>
     </div>
     <p>${escapeSummaryText(journey.reason)}</p>
-    ${featured ? `<em>${v22Local("Recommended because it reduces decisions.", "결정 부담을 줄여 주기 때문에 추천합니다.", "Recomendado porque reduce decisiones.")}</em>` : ""}
   `;
 }
 
@@ -2792,8 +2859,8 @@ const createProgressiveRefinementCard = (result, context) => {
   article.dataset.alpha02Wired = "direct";
   article.innerHTML = `
     <div class="alpha02-heading">
-      <span class="v23-eyebrow">${escapeSummaryText(ALPHA02_REFINEMENT_VERSION)} · Progressive Refinement</span>
-      <h2>${escapeSummaryText(v22Local("Help me improve this plan", "이 계획을 더 좋게 만들기", "Ayúdame a mejorar este plan"))}</h2>
+      <span class="v23-eyebrow">${escapeSummaryText(v22Local("Quick adjustment", "빠른 맞춤 설정", "Ajuste rápido"))}</span>
+      <h2>${escapeSummaryText(v22Local("Make this fit you better", "원하는 방식에 더 맞춰볼까요?", "Hacer que encaje mejor contigo"))}</h2>
       <p>${escapeSummaryText(v22Local(
         "This recommendation is already good. Answering only what matters can make it more personal.",
         "이 추천은 이미 진행할 수 있어요. 중요한 것만 답하면 더 개인화됩니다.",
@@ -2911,6 +2978,11 @@ const alpha04SectionAttrs = (workspace, sectionKey, className) => {
   const updated = sectionWasRecentlyUpdated(workspace, sectionKey);
   const reason = updated ? ` data-alpha04-update-reason="${escapeSummaryText(getSectionUpdateReason(workspace, sectionKey))}"` : "";
   return `class="${className}${updated ? " is-recently-updated" : ""}" data-section-id="${sectionKey}"${reason}`;
+};
+
+const isFounderDiagnosticsMode = () => {
+  const params = new URLSearchParams(window.location.search);
+  return ["1", "true", "yes"].includes(String(params.get("debug") || params.get("founder") || params.get("diagnostics") || "").toLowerCase());
 };
 
 const createLivingMissionWorkspaceCard = (result, missionContext) => {
@@ -3800,41 +3872,44 @@ const trackAlpha04Details = (result) => {
 
 const renderTravelMission = (result, missionContext) => {
   const destination = getTravelDestinationLabel(result);
-  missionTitle.textContent = v22Local(
-    `${destination} trip prepared four ways`,
-    `${destination} 여행을 네 가지 방식으로 준비했습니다.`,
-    `Viaje a ${destination} preparado en cuatro formas`
-  );
+  const { tripDays } = calculateTripDayCounts(result);
+  missionTitle.textContent = destination;
   missionGrid.innerHTML = "";
   currentResult.v22TravelPackages = false;
   currentResult.v23TravelExperience = true;
   missionGrid.classList.add("is-v23-travel-layout");
   const disclosure = document.querySelector(".prototype-disclosure");
   if (disclosure) disclosure.textContent = v22Local(
-    "Prototype · experience-first travel plan · no booking or payment",
-    "프로토타입 · 경험 중심 여행 계획 · 예약과 결제 없음",
-    "Prototipo · viaje centrado en experiencia · sin reservas ni pagos"
+    `${tripDays}-day plan prepared for your trip. No booking or payment yet.`,
+    `${tripDays}일 여행으로 준비했습니다. 아직 예약이나 결제는 없습니다.`,
+    `Plan de ${tripDays} días preparado. Aún no hay reserva ni pago.`
   );
+
   const livingWorkspace = createLivingMissionWorkspaceCard(result, missionContext);
-  missionGrid.appendChild(livingWorkspace.card);
-  const conversationCard = createNaturalConversationCard(result, missionContext);
-  if (conversationCard) missionGrid.appendChild(conversationCard);
   const executionOrchestrator = createExecutionOrchestratorCard(result, livingWorkspace.workspace);
-  missionGrid.appendChild(executionOrchestrator.card);
-  const predictiveCard = createPredictiveIntelligenceCard(result, missionContext, executionOrchestrator.orchestrator);
-  if (predictiveCard) missionGrid.appendChild(predictiveCard.card);
-  const memoryCard = createPersonalMissionMemoryCard(result);
-  if (memoryCard) missionGrid.appendChild(memoryCard.card);
-  const travelExperience = createTravelPackagesCard(result, missionContext);
-  missionGrid.appendChild(travelExperience);
   const refinementCard = createProgressiveRefinementCard(result, missionContext);
   if (refinementCard) missionGrid.appendChild(refinementCard);
-  const insightsCard = createMissionInsightsCard(result, missionContext);
-  if (insightsCard) missionGrid.appendChild(insightsCard);
-  const worldSourceCard = createWorldIntelligenceSourceCard(result);
-  if (worldSourceCard) missionGrid.appendChild(worldSourceCard);
-  trackAlpha04Details(result);
-  restoreAlpha04UiState(result);
+
+  const travelExperience = createTravelPackagesCard(result, missionContext);
+  missionGrid.appendChild(travelExperience);
+
+  if (isFounderDiagnosticsMode()) {
+    missionGrid.appendChild(livingWorkspace.card);
+    const conversationCard = createNaturalConversationCard(result, missionContext);
+    if (conversationCard) missionGrid.appendChild(conversationCard);
+    missionGrid.appendChild(executionOrchestrator.card);
+    const predictiveCard = createPredictiveIntelligenceCard(result, missionContext, executionOrchestrator.orchestrator);
+    if (predictiveCard) missionGrid.appendChild(predictiveCard.card);
+    const memoryCard = createPersonalMissionMemoryCard(result);
+    if (memoryCard) missionGrid.appendChild(memoryCard.card);
+    const insightsCard = createMissionInsightsCard(result, missionContext);
+    if (insightsCard) missionGrid.appendChild(insightsCard);
+    const worldSourceCard = createWorldIntelligenceSourceCard(result);
+    if (worldSourceCard) missionGrid.appendChild(worldSourceCard);
+    trackAlpha04Details(result);
+    restoreAlpha04UiState(result);
+  }
+
   updateV23JourneySelection(travelExperience, Math.max(0, travelExperience._v23Journeys.findIndex((journey) => journey.selected)), result);
   travelExperience.querySelectorAll(".v23-journey-card").forEach((card) => {
     card.addEventListener("click", () => updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), result));
@@ -3844,9 +3919,6 @@ const renderTravelMission = (result, missionContext) => {
         updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), result);
       }
     });
-  });
-  travelExperience.querySelectorAll(".v23-style-chip").forEach((chip) => {
-    chip.addEventListener("click", () => chip.classList.toggle("is-selected"));
   });
 };
 
@@ -4284,14 +4356,20 @@ const renderMission = () => {
   }
 
   renderPathwayOpportunities();
-  missionGrid.insertBefore(pathwayOpportunityPanel, missionGrid.firstChild);
+  if (!isTravelResult(currentResult) || isFounderDiagnosticsMode()) {
+    missionGrid.insertBefore(pathwayOpportunityPanel, missionGrid.firstChild);
+  } else {
+    pathwayOpportunityPanel.hidden = true;
+  }
   missionGrid.appendChild(additionalServicesForm);
   missionGrid.appendChild(createApprovalCard(currentResult));
-  attachMissionDirectorBrief(currentResult);
-  attachProviderTrustBrief(currentResult);
-  attachMissionMonitoringLayer(currentResult);
-  attachLifeTimelineLayer(currentResult);
-  attachExplainableIntelligenceLayer(currentResult);
+  if (!isTravelResult(currentResult) || isFounderDiagnosticsMode()) {
+    attachMissionDirectorBrief(currentResult);
+    attachProviderTrustBrief(currentResult);
+    attachMissionMonitoringLayer(currentResult);
+    attachLifeTimelineLayer(currentResult);
+    attachExplainableIntelligenceLayer(currentResult);
+  }
   renderMissionUnderstanding();
   organizeProgressiveResults();
 };

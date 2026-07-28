@@ -137,6 +137,6 @@ test("results page integrates ALPHA-09 without exposing agent clutter", () => {
   assert.match(resultsPage, /buildProviderTrustBrief/);
   assert.match(resultsPage, /alpha09ProviderTrust/);
   assert.match(resultsPage, /provider-trust-network/);
-  assert.match(resultsHtml, /20260729-alpha15-travel-duration-party/);
-  assert.match(resultsEntry, /20260729-alpha15-travel-duration-party/);
+  assert.match(resultsHtml, /20260729-alpha15-results-cleanup/);
+  assert.match(resultsEntry, /20260729-alpha15-results-cleanup/);
 });

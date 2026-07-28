@@ -20,7 +20,7 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
   assert.match(resultsPageSource, /createProgressiveRefinementCard/);
 
   const experienceIndex = travelDetailSource.indexOf("alpha03-story-panel");
-  const restaurantIndex = travelDetailSource.indexOf("Restaurants");
+  const restaurantIndex = travelDetailSource.indexOf("Food");
   const placesIndex = travelDetailSource.indexOf("Places");
   const dayIndex = travelDetailSource.indexOf("Day preview");
   const hotelIndex = travelDetailSource.indexOf("Hotel direction");
@@ -68,6 +68,6 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260729-alpha15-travel-duration-party/);
-  assert.match(resultsEntry, /20260729-alpha15-travel-duration-party/);
+  assert.match(resultsHtml, /20260729-alpha15-results-cleanup/);
+  assert.match(resultsEntry, /20260729-alpha15-results-cleanup/);
 });
