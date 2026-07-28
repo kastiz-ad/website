@@ -50,7 +50,7 @@ import {
   createMissionWatcherLayer,
   validateMissionWatcherLayer,
   watcherLabel
-} from "../engine/monitoring/mission-watchers-alpha11.js?v=20260729-alpha14-explainable-intelligence";
+} from "../engine/monitoring/mission-watchers-alpha11.js?v=20260729-alpha14-selection-fix";
 import {
   createLifeTimelineLayer,
   deleteLifeTimeline,
@@ -60,13 +60,13 @@ import {
   pauseLifeTimeline,
   relationshipLabel,
   validateLifeTimelineLayer
-} from "../engine/timeline/life-timeline-alpha12.js?v=20260729-alpha14-explainable-intelligence";
+} from "../engine/timeline/life-timeline-alpha12.js?v=20260729-alpha14-selection-fix";
 import {
   EXPLANATION_DETAIL_LEVELS,
   createExplanationLayer,
   setExplanationDetailLevel,
   validateExplanationLayer
-} from "../engine/explanations/explainable-intelligence-alpha14.js?v=20260729-alpha14-explainable-intelligence";
+} from "../engine/explanations/explainable-intelligence-alpha14.js?v=20260729-alpha14-selection-fix";
 import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
@@ -1070,6 +1070,8 @@ const makeOptionList = (options) => {
     </div>
   `;
 };
+
+const normalizeOptionLabel = (value) => String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
 
 const getFlightName = (flight) => {
   const name = activeLanguage === "ko" ? flight.providerKo || flight.provider : flight.provider;
@@ -4067,7 +4069,11 @@ const renderGeneratedExperienceMission = (result) => {
     label: "ONE Pick",
     value: one.transportation,
     reason: result.missionContext.nearbyFirst ? local("Less transit, more time together.", "이동은 줄이고 함께하는 시간을 늘렸어요.", "Menos traslado y más tiempo juntos.") : local("Balanced for distance and time.", "거리와 시간을 함께 고려했어요.", "Equilibrado según distancia y tiempo."),
-    options: result.missionContext.transport.map((option, index) => makeOptionRow(option, "", { index, label: option })),
+    options: result.missionContext.transport.map((option, index) => makeOptionRow(option, "", {
+      index,
+      label: option,
+      selected: normalizeOptionLabel(option) === normalizeOptionLabel(one.transportation)
+    })),
     editable: true
   }));
   missionGrid.appendChild(createListCard({
@@ -5009,7 +5015,7 @@ const enableCustomization = () => {
       const exclusive = card?.classList.contains("exclusive-choice-card") && !card.classList.contains("is-editing");
       if (exclusive) {
         const recommendation = card.querySelector(".selectable-recommendation");
-        const recommendedDetail = card.querySelector(".option-list .selectable-option");
+        const recommendedDetail = card.querySelector('.option-list .selectable-option[aria-pressed="true"]:not(.is-excluded)') || card.querySelector(".option-list .selectable-option");
         const choosingRecommended = selectable === recommendation || selectable === recommendedDetail;
         const chosen = choosingRecommended ? recommendedDetail : selectable;
         card.querySelectorAll(".selectable-option").forEach((option) => {

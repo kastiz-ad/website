@@ -68,6 +68,6 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260729-alpha14-explainable-intelligence/);
-  assert.match(resultsEntry, /20260729-alpha14-explainable-intelligence/);
+  assert.match(resultsHtml, /20260729-alpha14-selection-fix/);
+  assert.match(resultsEntry, /20260729-alpha14-selection-fix/);
 });
