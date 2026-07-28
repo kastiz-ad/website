@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
@@ -152,6 +152,6 @@ test("result page and cache entries wire ALPHA-11 monitoring dashboard", () => {
   assert.match(page, /createMissionWatcherLayer/);
   assert.match(page, /autonomous-mission-monitoring/);
   assert.match(page, /alpha11MissionMonitoring/);
-  assert.match(html, /20260729-product-refinement-ux/);
-  assert.match(entry, /20260729-product-refinement-ux/);
+  assert.match(html, /20260729-conversion-polish/);
+  assert.match(entry, /20260729-conversion-polish/);
 });

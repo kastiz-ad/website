@@ -89,6 +89,6 @@ test("ALPHA-02 UI is wired without homepage redesign", () => {
   assert.match(resultsPage, /renderMission\(\)/);
   assert.match(css, /\.alpha02-refinement-card/);
   assert.match(css, /@media \(max-width: 760px\)/);
-  assert.match(resultsHtml, /20260729-product-refinement-ux/);
-  assert.match(resultsEntry, /20260729-product-refinement-ux/);
+  assert.match(resultsHtml, /20260729-conversion-polish/);
+  assert.match(resultsEntry, /20260729-conversion-polish/);
 });

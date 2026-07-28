@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
@@ -158,6 +158,6 @@ test("ALPHA-06 result page, CSS and cache-busted demo entry are integrated", () 
   assert.match(resultsPageSource, /predictionStorageKey/);
   assert.match(resultsCss, /\.alpha06-predictive-card/);
   assert.match(resultsCss, /\.alpha06-prediction-actions/);
-  assert.match(resultsHtml, /20260729-product-refinement-ux/);
-  assert.match(resultsEntry, /20260729-product-refinement-ux/);
+  assert.match(resultsHtml, /20260729-conversion-polish/);
+  assert.match(resultsEntry, /20260729-conversion-polish/);
 });

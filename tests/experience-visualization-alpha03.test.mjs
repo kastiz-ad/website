@@ -19,7 +19,8 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
   assert.match(resultsPageSource, /createMissionInsightsCard/);
   assert.match(resultsPageSource, /createProgressiveRefinementCard/);
 
-  const experienceIndex = travelDetailSource.indexOf("alpha03-story-panel");
+  const experienceIndex = travelDetailSource.indexOf("alpha03-premium-hero");
+  const mapIndex = travelDetailSource.indexOf("createAlpha03JourneyMap");
   const restaurantIndex = travelDetailSource.indexOf("Food");
   const placesIndex = travelDetailSource.indexOf("Places");
   const dayIndex = travelDetailSource.indexOf("Timeline");
@@ -28,7 +29,8 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
   const prepIndex = travelDetailSource.indexOf("alpha03-preparation-details");
 
   assert.ok(experienceIndex >= 0);
-  assert.ok(restaurantIndex > experienceIndex);
+  assert.ok(mapIndex > experienceIndex);
+  assert.ok(restaurantIndex > mapIndex);
   assert.ok(placesIndex > restaurantIndex);
   assert.ok(dayIndex > placesIndex);
   assert.ok(hotelIndex > dayIndex);
@@ -58,7 +60,6 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
   assert.match(travelDetailSource, /alpha04SectionAttrs\(workspace, "preparation", "alpha03-preparation-details"\)/);
   assert.doesNotMatch(travelDetailSource, /alpha03-preparation-details" open/);
   [
-    ".alpha03-story-panel",
     ".alpha03-premium-hero",
     ".alpha03-journey-map",
     ".alpha03-budget-breakdown",
@@ -72,6 +73,6 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260729-product-refinement-ux/);
-  assert.match(resultsEntry, /20260729-product-refinement-ux/);
+  assert.match(resultsHtml, /20260729-conversion-polish/);
+  assert.match(resultsEntry, /20260729-conversion-polish/);
 });

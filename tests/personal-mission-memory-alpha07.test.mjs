@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
@@ -138,8 +138,8 @@ test("ALPHA-07 management page and result integration are wired and noindexed", 
   assert.match(resultsSource, /createPersonalMissionMemoryCard/);
   assert.match(resultsSource, /readPersonalMissionMemoryFromBrowser/);
   assert.match(resultsCss, /\.alpha07-memory-card/);
-  assert.match(resultsHtml, /20260729-product-refinement-ux/);
-  assert.match(resultsEntry, /20260729-product-refinement-ux/);
+  assert.match(resultsHtml, /20260729-conversion-polish/);
+  assert.match(resultsEntry, /20260729-conversion-polish/);
   assert.match(page, /noindex,nofollow/);
   assert.match(page, /personal-mission-memory\.js/);
   assert.match(pageJs, /seedFounderPreviewMemory/);

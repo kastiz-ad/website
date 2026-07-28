@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
@@ -169,6 +169,6 @@ test("Results page wires ALPHA-08 as internal metadata only", () => {
   assert.match(resultsPage, /createMissionDirectorBrief/);
   assert.match(resultsPage, /alpha08VisibleAgents/);
   assert.doesNotMatch(resultsPage, /alpha08-agent-card/);
-  assert.match(resultsHtml, /20260729-product-refinement-ux/);
-  assert.match(resultsEntry, /20260729-product-refinement-ux/);
+  assert.match(resultsHtml, /20260729-conversion-polish/);
+  assert.match(resultsEntry, /20260729-conversion-polish/);
 });

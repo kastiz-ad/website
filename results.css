@@ -2817,6 +2817,19 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
   justify-content: flex-start;
 }
 
+.product-refined-results .v23-card-cta {
+  display: inline-flex;
+  justify-self: start;
+  margin-top: auto;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--surface);
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 950;
+}
+
 .alpha03-premium-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 0.42fr);
@@ -3087,17 +3100,30 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
   letter-spacing: -0.04em;
 }
 
-.alpha03-timeline-card div {
+.alpha03-timeline-card .alpha03-day-slot {
   padding-top: 10px;
   border-top: 1px solid var(--border);
 }
 
-.alpha03-timeline-card b {
-  display: block;
+.alpha03-timeline-card .alpha03-day-slot b {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   margin-bottom: 4px;
   color: var(--text);
   font-size: 12px;
   font-weight: 950;
+}
+
+.alpha03-timeline-card .alpha03-day-slot i {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  font-style: normal;
+  font-size: 13px;
 }
 
 .alpha03-timeline-card p {
