@@ -68,6 +68,6 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260729-alpha07-personal-mission-memory/);
-  assert.match(resultsEntry, /20260729-alpha07-personal-mission-memory/);
+  assert.match(resultsHtml, /20260729-alpha08-multi-agent-collaboration/);
+  assert.match(resultsEntry, /20260729-alpha08-multi-agent-collaboration/);
 });

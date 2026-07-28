@@ -34,6 +34,10 @@ import {
   readPersonalMissionMemoryFromBrowser
 } from "../profile/personal-mission-memory-alpha07.js?v=20260729-alpha07-personal-mission-memory";
 import {
+  createMissionDirectorBrief,
+  validateMissionDirectorBrief
+} from "../engine/agents/mission-director-alpha08.js?v=20260729-alpha08-multi-agent-collaboration";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
@@ -3104,6 +3108,34 @@ const createPersonalMissionMemoryCard = (result) => {
   return { card, applied };
 };
 
+const attachMissionDirectorBrief = (result) => {
+  try {
+    const brief = createMissionDirectorBrief({
+      result,
+      context: result.missionContext,
+      worldIntelligence: result.worldIntelligence,
+      personalMissionMemory: result.alpha07PersonalMissionMemory,
+      predictiveIntelligence: result.alpha06PredictiveIntelligence,
+      orchestrator: result.alpha05ExecutionOrchestrator,
+      language: activeLanguage
+    });
+    const validation = validateMissionDirectorBrief(brief);
+    currentResult.alpha08MissionDirector = brief;
+    currentResult.alpha08MissionDirectorValidation = validation;
+    missionGrid.dataset.alpha08Director = validation.ok ? "ready" : "degraded";
+    missionGrid.dataset.alpha08VisibleAgents = "0";
+  } catch (error) {
+    currentResult.alpha08MissionDirector = {
+      version: "ALPHA-08",
+      status: "degraded",
+      userFacingMode: "single-one-response",
+      failureReason: String(error?.message || "mission_director_unavailable").slice(0, 120)
+    };
+    missionGrid.dataset.alpha08Director = "degraded";
+    missionGrid.dataset.alpha08VisibleAgents = "0";
+  }
+};
+
 const readAlpha04UiState = (result) => {
   try {
     return JSON.parse(localStorage.getItem(`${livingMissionStorageKey(result)}:ui`) || "{}");
@@ -3619,6 +3651,7 @@ const renderMission = () => {
   missionGrid.insertBefore(pathwayOpportunityPanel, missionGrid.firstChild);
   missionGrid.appendChild(additionalServicesForm);
   missionGrid.appendChild(createApprovalCard(currentResult));
+  attachMissionDirectorBrief(currentResult);
   renderMissionUnderstanding();
   organizeProgressiveResults();
 };
