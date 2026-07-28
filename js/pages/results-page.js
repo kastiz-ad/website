@@ -5711,6 +5711,43 @@ window.addEventListener("scroll", () => {
   });
 }, { passive: true });
 
+const enableTimelineDragScroll = () => {
+  let dragState = null;
+
+  document.addEventListener("pointerdown", (event) => {
+    const strip = event.target.closest?.(".alpha03-timeline-strip");
+    if (!strip || event.pointerType !== "mouse") return;
+    dragState = {
+      strip,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      scrollLeft: strip.scrollLeft
+    };
+    strip.classList.add("is-dragging");
+    strip.setPointerCapture?.(event.pointerId);
+  });
+
+  document.addEventListener("pointermove", (event) => {
+    if (!dragState) return;
+    dragState.strip.scrollLeft = dragState.scrollLeft - (event.clientX - dragState.startX);
+    event.preventDefault();
+  }, { passive: false });
+
+  const endDrag = () => {
+    if (!dragState) return;
+    dragState.strip.classList.remove("is-dragging");
+    try {
+      dragState.strip.releasePointerCapture?.(dragState.pointerId);
+    } catch {
+      // Some browsers release pointer capture automatically.
+    }
+    dragState = null;
+  };
+
+  document.addEventListener("pointerup", endDrag);
+  document.addEventListener("pointercancel", endDrag);
+};
+
 returnHomeButton.addEventListener("click", returnHome);
 makeRealityButton.addEventListener("click", () => {
   trackEvent("make_it_reality_clicked", { mission_type: currentResult?.type, language: activeLanguage, page: "results", schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate) });
@@ -5763,6 +5800,7 @@ renderMission();
 initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
+enableTimelineDragScroll();
 applyV231ManualApprovalScenario();
 const requestedReference = new URLSearchParams(location.search).get("reference")?.toUpperCase();
 if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {

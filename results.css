@@ -3330,6 +3330,16 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
   overflow-x: auto;
   padding-bottom: 4px;
   scroll-snap-type: x mandatory;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
+  user-select: none;
+}
+
+.alpha03-timeline-strip.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
 }
 
 .alpha03-timeline-card {
@@ -3469,6 +3479,57 @@ html[data-theme="midnight"] .primary-action small img { filter: invert(1); }
 
   .alpha03-logistics-strip {
     grid-template-columns: 1fr;
+  }
+
+  .alpha03-timeline-redesign {
+    margin-inline: -4px;
+  }
+
+  .alpha03-timeline-strip {
+    gap: 10px;
+    padding: 0 12px 8px;
+    scroll-padding-inline: 12px;
+  }
+
+  .alpha03-timeline-card {
+    flex: 0 0 min(310px, calc(100vw - 92px));
+    padding: 16px;
+    border-radius: 22px;
+    gap: 10px;
+  }
+
+  .alpha03-timeline-card > span {
+    font-size: 10px;
+  }
+
+  .alpha03-timeline-card strong {
+    font-size: clamp(21px, 6vw, 27px);
+    line-height: 1.12;
+  }
+
+  .alpha03-timeline-card .alpha03-day-slot {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 10px;
+    align-items: center;
+    padding-top: 8px;
+  }
+
+  .alpha03-timeline-card .alpha03-day-slot b {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  .alpha03-timeline-card .alpha03-day-slot i {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+
+  .alpha03-timeline-card p {
+    grid-column: 2;
+    font-size: 14px;
+    line-height: 1.35;
   }
 }
 .completion-blocked-view .mission-layout { padding-top: clamp(20px, 4vw, 44px); }
