@@ -142,3 +142,11 @@ test("ALPHA-14 is wired into result page and cache key", () => {
   assert.match(entry, /20260729-alpha14-explainable-intelligence/);
 });
 
+test("ALPHA-14 demo result shell has no mojibake and refreshes stale demo links", () => {
+  const html = readFileSync(new URL("../results.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /Ã|Â|â/);
+  assert.match(html, /Kastiz ONE — Mission Ready/);
+  assert.match(html, /Prototype · approval protected · no external action/);
+  assert.match(html, /Anything you’d like ONE to change or add\?/);
+  assert.match(html, /funding-demo-final\.website-42u\.pages\.dev/);
+});
