@@ -50,7 +50,7 @@ import {
   createMissionWatcherLayer,
   validateMissionWatcherLayer,
   watcherLabel
-} from "../engine/monitoring/mission-watchers-alpha11.js?v=20260729-alpha12-life-timeline";
+} from "../engine/monitoring/mission-watchers-alpha11.js?v=20260729-alpha14-explainable-intelligence";
 import {
   createLifeTimelineLayer,
   deleteLifeTimeline,
@@ -60,7 +60,13 @@ import {
   pauseLifeTimeline,
   relationshipLabel,
   validateLifeTimelineLayer
-} from "../engine/timeline/life-timeline-alpha12.js?v=20260729-alpha12-life-timeline";
+} from "../engine/timeline/life-timeline-alpha12.js?v=20260729-alpha14-explainable-intelligence";
+import {
+  EXPLANATION_DETAIL_LEVELS,
+  createExplanationLayer,
+  setExplanationDetailLevel,
+  validateExplanationLayer
+} from "../engine/explanations/explainable-intelligence-alpha14.js?v=20260729-alpha14-explainable-intelligence";
 import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
@@ -3480,6 +3486,97 @@ const attachLifeTimelineLayer = (result) => {
   }
 };
 
+const alpha14ExplanationStorageKey = (result) => `kastiz-one-alpha14-explanations:${result?.missionId || result?.id || result?.rawInput || "mission"}`;
+
+const readAlpha14ExplanationState = (result) => {
+  try {
+    return JSON.parse(localStorage.getItem(alpha14ExplanationStorageKey(result)) || "{}");
+  } catch {
+    return {};
+  }
+};
+
+const writeAlpha14ExplanationState = (result, state) => {
+  try {
+    localStorage.setItem(alpha14ExplanationStorageKey(result), JSON.stringify(state));
+  } catch {
+    // Explanation preference is local convenience only.
+  }
+};
+
+const createExplainableIntelligenceCard = (layer) => {
+  if (!layer || !layer.explanations?.length) return null;
+  const local = v22Local;
+  const explanations = layer.explanations.slice(0, layer.detailLevel === "minimal" ? 4 : 8).map((explanation) => `
+    <li>
+      <strong>${escapeSummaryText(explanation.question)}</strong>
+      <span>${escapeSummaryText(explanation.answer)}</span>
+    </li>
+  `).join("");
+  const selected = (level) => layer.detailLevel === level ? " aria-pressed=\"true\" class=\"is-active\"" : " aria-pressed=\"false\"";
+  const article = document.createElement("article");
+  article.className = "mission-card v22-card is-wide alpha14-explainable-card";
+  article.dataset.cardId = "explainable-intelligence";
+  article.dataset.alpha14DetailLevel = layer.detailLevel;
+  article.dataset.alpha14ExplanationCount = String(layer.explanations.length);
+  article.innerHTML = `
+    <div class="v22-card-heading">
+      <span class="v22-kicker">ALPHA-14 · Explainable Intelligence</span>
+      <h2>${escapeSummaryText(local("Why ONE recommends this", "ONE이 이렇게 추천한 이유", "Por qué ONE recomienda esto"))}</h2>
+    </div>
+    <p class="v22-card-body">${escapeSummaryText(local(
+      "Short explanations from visible mission signals. No internal reasoning, prompts, or hidden agent discussion is shown.",
+      "보이는 미션 신호만 짧게 설명합니다. 내부 추론, 프롬프트, 숨겨진 에이전트 논의는 보여주지 않습니다.",
+      "Explicaciones breves con señales visibles de la misión. No muestra razonamiento interno, prompts ni discusiones ocultas."
+    ))}</p>
+    <div class="v22-chip-list">
+      ${createV22Chip(`${local("Explanations", "설명", "Explicaciones")}: ${layer.explanations.length}`)}
+      ${createV22Chip(local("Approval-first", "승인 우선", "Aprobación primero"), "primary")}
+    </div>
+    <ul class="v22-clean-list">${explanations}</ul>
+    <div class="alpha14-explanation-actions" role="group" aria-label="${escapeSummaryText(local("Explanation detail", "설명 자세히 보기", "Detalle de explicación"))}">
+      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.MINIMAL}"${selected(EXPLANATION_DETAIL_LEVELS.MINIMAL)}>${escapeSummaryText(local("Minimal", "간단히", "Mínimo"))}</button>
+      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.STANDARD}"${selected(EXPLANATION_DETAIL_LEVELS.STANDARD)}>${escapeSummaryText(local("Standard", "표준", "Estándar"))}</button>
+      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.DETAILED}"${selected(EXPLANATION_DETAIL_LEVELS.DETAILED)}>${escapeSummaryText(local("Detailed", "자세히", "Detallado"))}</button>
+    </div>
+  `;
+  return article;
+};
+
+const attachExplainableIntelligenceLayer = (result) => {
+  try {
+    const state = readAlpha14ExplanationState(result);
+    const layer = createExplanationLayer({
+      result,
+      detailLevel: state.detailLevel || EXPLANATION_DETAIL_LEVELS.STANDARD,
+      language: activeLanguage,
+      history: state.history || []
+    });
+    const validation = validateExplanationLayer(layer);
+    currentResult.alpha14ExplainableIntelligence = layer;
+    currentResult.alpha14ExplainableIntelligenceValidation = validation;
+    missionGrid.dataset.alpha14ExplainableIntelligence = validation.ok ? "ready" : "degraded";
+    const card = createExplainableIntelligenceCard(layer);
+    if (card && !missionGrid.querySelector('[data-card-id="explainable-intelligence"]')) {
+      missionGrid.appendChild(card);
+      card.querySelectorAll("[data-alpha14-detail]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const currentState = readAlpha14ExplanationState(currentResult);
+          writeAlpha14ExplanationState(currentResult, setExplanationDetailLevel(currentState, button.dataset.alpha14Detail));
+          renderMission();
+        });
+      });
+    }
+  } catch (error) {
+    currentResult.alpha14ExplainableIntelligence = {
+      version: "ALPHA-14",
+      status: "degraded",
+      failureReason: String(error?.message || "explainable_intelligence_unavailable").slice(0, 120)
+    };
+    missionGrid.dataset.alpha14ExplainableIntelligence = "degraded";
+  }
+};
+
 const createMissionMonitoringCard = (layer) => {
   if (!layer || !layer.watchers?.length) return null;
   const local = v22Local;
@@ -4097,6 +4194,7 @@ const renderMission = () => {
   attachProviderTrustBrief(currentResult);
   attachMissionMonitoringLayer(currentResult);
   attachLifeTimelineLayer(currentResult);
+  attachExplainableIntelligenceLayer(currentResult);
   renderMissionUnderstanding();
   organizeProgressiveResults();
 };
