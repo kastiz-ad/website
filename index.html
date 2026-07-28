@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260722-theme-logo-1" />
+  <link rel="stylesheet" href="style.css?v=20260729-alpha15-travel-duration-party" />
 </head>
 
 <body>
@@ -185,11 +185,37 @@
           <option value="evening" data-i18n="evening">Evening · 17:00–22:00</option>
         </select>
       </label>
+      <div class="schedule-trip-details" aria-label="Travel details">
+        <label><span data-i18n="travelerCount">Travelers</span>
+          <select id="scheduleTravelerCount">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5+</option>
+          </select>
+        </label>
+        <label><span data-i18n="roomCount">Rooms</span>
+          <select id="scheduleRoomCount">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3+</option>
+          </select>
+        </label>
+        <label class="is-wide"><span data-i18n="departureAirport">Departure airport</span>
+          <select id="scheduleDepartureAirport">
+            <option value="ICN">ICN · Incheon</option>
+            <option value="GMP">GMP · Gimpo</option>
+            <option value="current">Current location</option>
+            <option value="unsure">Not sure yet</option>
+          </select>
+        </label>
+      </div>
       <div class="schedule-summary" id="scheduleSummary" aria-live="polite"></div>
       <button class="schedule-confirm" type="submit" data-i18n="confirmSchedule">Confirm and Continue</button>
     </form>
   </dialog>
 
-  <script type="module" src="script.js?v=20260722-mobile-country-fallback-1"></script>
+  <script type="module" src="script.js?v=20260729-alpha15-travel-duration-party"></script>
 </body>
 </html>

@@ -40,6 +40,9 @@ const scheduleEndDate = document.getElementById("scheduleEndDate");
 const scheduleStartDateValue = document.getElementById("scheduleStartDateValue");
 const scheduleEndDateValue = document.getElementById("scheduleEndDateValue");
 const scheduleTimePreference = document.getElementById("scheduleTimePreference");
+const scheduleTravelerCount = document.getElementById("scheduleTravelerCount");
+const scheduleRoomCount = document.getElementById("scheduleRoomCount");
+const scheduleDepartureAirport = document.getElementById("scheduleDepartureAirport");
 const scheduleSummary = document.getElementById("scheduleSummary");
 let pendingMissionText = "";
 let pendingFollowUp = null;
@@ -132,6 +135,9 @@ const translations = {
     morning: "Morning · 06:00–12:00",
     afternoon: "Afternoon · 12:00–17:00",
     evening: "Evening · 17:00–22:00",
+    travelerCount: "Travelers",
+    roomCount: "Rooms",
+    departureAirport: "Departure airport",
     confirmSchedule: "Confirm and Continue",
     searchLabel: "Enter your mission",
     searchDefault: "Plan my Japan trip.",
@@ -203,6 +209,9 @@ const translations = {
     morning: "오전 · 06:00–12:00",
     afternoon: "오후 · 12:00–17:00",
     evening: "저녁 · 17:00–22:00",
+    travelerCount: "여행 인원",
+    roomCount: "객실 수",
+    departureAirport: "출발 공항",
     confirmSchedule: "확인 후 계속",
     searchLabel: "미션 입력",
     searchDefault: "일본 여행 계획해줘",
@@ -249,7 +258,12 @@ const translations = {
   }
 };
 
-translations.es = localeSection("es", "home");
+translations.es = {
+  ...localeSection("es", "home"),
+  travelerCount: localeSection("es", "home").travelerCount || "Viajeros",
+  roomCount: localeSection("es", "home").roomCount || "Habitaciones",
+  departureAirport: localeSection("es", "home").departureAirport || "Aeropuerto de salida"
+};
 
 const countryNamesByRegion = {
   KR: "South Korea",
@@ -1499,6 +1513,32 @@ const saveMission = (mission, schedule = null) => {
   payload.aiMode = aiModeEnabled;
   payload.schedule = schedule;
   payload.followUp = pendingFollowUp;
+  payload.missionSeed = payload.missionSeed || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  if (payload.type === "travel" && schedule) {
+    const travelerCount = normalizeScheduleCount(schedule.travelerCount || schedule.travelers || schedule.adults, 1);
+    const roomCount = normalizeScheduleCount(schedule.rooms || schedule.roomCount, Math.max(1, Math.ceil(travelerCount / 2)));
+    const originAirport = schedule.originAirport || schedule.departureAirport || "ICN";
+    payload.travelerCount = travelerCount;
+    payload.travelers = travelerCount;
+    payload.rooms = roomCount;
+    payload.roomCount = roomCount;
+    payload.originAirport = originAirport;
+    payload.departureAirport = originAirport;
+    payload.groupType = travelerCount <= 1 ? "solo" : travelerCount === 2 ? "couple" : travelerCount >= 4 ? "family_or_group" : "small_group";
+    payload.followUp = {
+      ...(pendingFollowUp || { type: "travel" }),
+      type: "travel",
+      answers: {
+        ...(pendingFollowUp?.answers || {}),
+        adults: travelerCount,
+        travelers: travelerCount,
+        rooms: roomCount,
+        roomCount,
+        originAirport,
+        departureAirport: originAirport
+      }
+    };
+  }
   payload.interfaceLanguage = activeLanguage;
   payload.missionLanguage = detectMissionLanguage(cleanMission).value;
   const selectedDestination = pendingFollowUp?.answers || (pendingDetectedDestination ? {
@@ -1894,6 +1934,34 @@ const toLocalIsoDate = (date) => {
   return new Date(date.getTime() - offset).toISOString().slice(0, 10);
 };
 
+const normalizeScheduleCount = (value, fallback = 1) => {
+  const count = Number(value);
+  return Number.isFinite(count) && count > 0 ? Math.round(count) : fallback;
+};
+
+const scheduleAirportLabel = (value) => {
+  const labels = {
+    ICN: activeLanguage === "ko" ? "인천공항" : "Incheon",
+    GMP: activeLanguage === "ko" ? "김포공항" : "Gimpo",
+    current: activeLanguage === "ko" ? "현재 위치 기준" : activeLanguage === "es" ? "Ubicación actual" : "Current location",
+    unsure: activeLanguage === "ko" ? "나중에 확인" : activeLanguage === "es" ? "Confirmar después" : "Confirm later"
+  };
+  return labels[value] || labels.ICN;
+};
+
+const collectScheduleDetails = () => ({
+  startDate: scheduleStartDate.value,
+  endDate: scheduleEndDate.value,
+  timePreference: scheduleTimePreference.value,
+  travelerCount: normalizeScheduleCount(scheduleTravelerCount?.value, 1),
+  travelers: normalizeScheduleCount(scheduleTravelerCount?.value, 1),
+  adults: normalizeScheduleCount(scheduleTravelerCount?.value, 1),
+  rooms: normalizeScheduleCount(scheduleRoomCount?.value, 1),
+  roomCount: normalizeScheduleCount(scheduleRoomCount?.value, 1),
+  departureAirport: scheduleDepartureAirport?.value || "ICN",
+  originAirport: scheduleDepartureAirport?.value || "ICN"
+});
+
 const updateScheduleSummary = () => {
   const start = scheduleStartDate.value;
   const end = scheduleEndDate.value;
@@ -1909,10 +1977,14 @@ const updateScheduleSummary = () => {
   const outgoingLabel = activeLanguage === "ko" ? "출국 날짜" : "Outgoing date";
   const returningLabel = activeLanguage === "ko" ? "귀국 날짜" : "Returning date";
   const timeHeading = activeLanguage === "ko" ? "시간" : "Time";
+  const details = collectScheduleDetails();
   scheduleSummary.innerHTML = `
     <span class="schedule-summary-row"><strong>${outgoingLabel}</strong><span>${startLabel}</span></span>
     <span class="schedule-summary-row"><strong>${returningLabel}</strong><span>${endLabel}</span></span>
     <span class="schedule-summary-row"><strong>${timeHeading}</strong><span>${timeLabel}</span></span>
+    <span class="schedule-summary-row"><strong>${getTranslation("travelerCount")}</strong><span>${details.travelerCount}</span></span>
+    <span class="schedule-summary-row"><strong>${getTranslation("roomCount")}</strong><span>${details.rooms}</span></span>
+    <span class="schedule-summary-row"><strong>${getTranslation("departureAirport")}</strong><span>${scheduleAirportLabel(details.departureAirport)}</span></span>
   `;
   scheduleSummary.classList.add("has-valid-range");
 };
@@ -1928,6 +2000,9 @@ const openScheduleModal = (mission) => {
   scheduleEndDate.min = scheduleStartDate.value;
   scheduleEndDate.value = toLocalIsoDate(defaultEnd);
   scheduleTimePreference.value = "any";
+  if (scheduleTravelerCount) scheduleTravelerCount.value = "1";
+  if (scheduleRoomCount) scheduleRoomCount.value = "1";
+  if (scheduleDepartureAirport) scheduleDepartureAirport.value = "ICN";
   updateScheduleSummary();
   if (typeof scheduleModal.showModal === "function") scheduleModal.showModal();
   else scheduleModal.setAttribute("open", "");
@@ -1936,6 +2011,9 @@ const openScheduleModal = (mission) => {
 scheduleStartDate?.addEventListener("change", updateScheduleSummary);
 scheduleEndDate?.addEventListener("change", updateScheduleSummary);
 scheduleTimePreference?.addEventListener("change", updateScheduleSummary);
+scheduleTravelerCount?.addEventListener("change", updateScheduleSummary);
+scheduleRoomCount?.addEventListener("change", updateScheduleSummary);
+scheduleDepartureAirport?.addEventListener("change", updateScheduleSummary);
 scheduleModalClose?.addEventListener("click", () => scheduleModal.close());
 scheduleModal?.addEventListener("click", (event) => { if (event.target === scheduleModal) scheduleModal.close(); });
 scheduleModal?.addEventListener("keydown", (event) => {
@@ -1947,7 +2025,7 @@ scheduleModal?.addEventListener("keydown", (event) => {
 scheduleForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!scheduleForm.reportValidity()) return;
-  const schedule = { startDate: scheduleStartDate.value, endDate: scheduleEndDate.value, timePreference: scheduleTimePreference.value };
+  const schedule = collectScheduleDetails();
   trackEvent("schedule_confirmed", {
     mission_type: detectMissionType(normalizeMission(pendingMissionText)),
     language: activeLanguage,

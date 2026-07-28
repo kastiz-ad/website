@@ -1526,6 +1526,30 @@ const TRAVEL_OPTION_TARGETS = Object.freeze({
   restaurants: 12
 });
 
+const calculateTripDayCounts = (result) => {
+  const startDate = result?.schedule?.startDate;
+  const endDate = result?.schedule?.endDate;
+  if (startDate && endDate) {
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T00:00:00`);
+    if (!Number.isNaN(start.valueOf()) && !Number.isNaN(end.valueOf())) {
+      const tripDays = Math.max(1, Math.round((end - start) / 86400000) + 1);
+      return { tripDays, tripNights: Math.max(1, tripDays - 1) };
+    }
+  }
+  const tripDays = Math.max(1, Number(result?.durationDays || 3));
+  return { tripDays, tripNights: Math.max(1, tripDays - 1) };
+};
+
+const getTravelPartyDetails = (result) => {
+  const answers = result?.followUp?.answers || {};
+  const travelerCount = Math.max(1, Number(answers.adults || answers.travelers || result?.travelerCount || result?.travelers || 1));
+  const rooms = Math.max(1, Number(answers.rooms || answers.roomCount || result?.rooms || result?.roomCount || Math.ceil(travelerCount / 2)));
+  const originAirport = answers.originAirport || answers.departureAirport || result?.originAirport || result?.departureAirport || "ICN";
+  const groupType = result?.groupType || (travelerCount <= 1 ? "solo" : travelerCount === 2 ? "couple" : travelerCount >= 4 ? "family_or_group" : "small_group");
+  return { travelerCount, rooms, originAirport, groupType };
+};
+
 const airlineFallbackOptions = [
   ["Korean Air", "대한항공"],
   ["Asiana Airlines", "아시아나항공"],
@@ -1670,9 +1694,8 @@ function adaptTravelResultToDestination(result) {
     [`Best budget option for keeping accommodation costs lower while retaining practical access.`, `실용적인 접근성을 유지하면서 숙박비를 낮추기 좋은 예산형 옵션입니다.`]
   ];
   const tripMultiplier = result.tripType === "one_way" ? 0.62 : 1;
-  const travelerCount = Math.max(1, Number(
-    result.followUp?.answers?.adults || result.travelerCount || result.travelers || 1
-  ));
+  const { tripDays, tripNights } = calculateTripDayCounts(result);
+  const { travelerCount, rooms, originAirport, groupType } = getTravelPartyDetails(result);
   const priceFor = (index) => {
     const range = profile.flightPrices?.[index] || profile.flightPrices?.[0] || [420000, 760000];
     return {
@@ -1744,22 +1767,24 @@ function adaptTravelResultToDestination(result) {
     recommendationKo: `${cityKo} 일정에 맞춘 프로토타입 식당 옵션입니다. 가격과 예약 가능 여부는 제공업체 최종 확인이 필요합니다.`,
     editable: true
   }));
-  const startDate = result.schedule?.startDate;
-  const endDate = result.schedule?.endDate;
-  const tripNights = startDate && endDate
-    ? Math.max(1, Math.round((new Date(`${endDate}T00:00:00`) - new Date(`${startDate}T00:00:00`)) / 86400000))
-    : Math.max(1, Number(result.durationDays || 2) - 1);
   const flightsBudget = flights[0]?.estimatedPrice || result.budget?.flights;
   const nightlyBudget = hotels[0]?.estimatedNightlyPrice || result.budget?.hotel;
   const hotelBudget = nightlyBudget ? {
     currency: nightlyBudget.currency || "KRW",
-    min: Number(nightlyBudget.min || 0) * tripNights,
-    max: Number(nightlyBudget.max || 0) * tripNights
+    min: Number(nightlyBudget.min || 0) * tripNights * rooms,
+    max: Number(nightlyBudget.max || 0) * tripNights * rooms
   } : result.budget?.hotel;
+  const averageRestaurantMin = restaurants.length
+    ? Math.round(restaurants.reduce((sum, restaurant) => sum + Number(restaurant.estimatedPrice?.min || 0), 0) / restaurants.length)
+    : 0;
+  const averageRestaurantMax = restaurants.length
+    ? Math.round(restaurants.reduce((sum, restaurant) => sum + Number(restaurant.estimatedPrice?.max || 0), 0) / restaurants.length)
+    : 0;
+  const plannedMealsPerDay = tripDays <= 3 ? 2 : 2.5;
   const foodBudget = {
     currency: "KRW",
-    min: restaurants.reduce((sum, restaurant) => sum + Number(restaurant.estimatedPrice?.min || 0), 0),
-    max: restaurants.reduce((sum, restaurant) => sum + Number(restaurant.estimatedPrice?.max || 0), 0)
+    min: Math.round(averageRestaurantMin * plannedMealsPerDay * tripDays * travelerCount / 10000) * 10000,
+    max: Math.round(averageRestaurantMax * plannedMealsPerDay * tripDays * travelerCount / 10000) * 10000
   };
   const budgetParts = [flightsBudget, hotelBudget, foodBudget, result.budget?.transport, result.budget?.activities].filter(Boolean);
   const estimatedTotal = {
@@ -1775,6 +1800,27 @@ function adaptTravelResultToDestination(result) {
     flights,
     hotels,
     restaurants,
+    durationDays: tripDays,
+    travelerCount,
+    travelers: travelerCount,
+    rooms,
+    roomCount: rooms,
+    groupType,
+    originAirport,
+    departureAirport: originAirport,
+    followUp: {
+      ...(result.followUp || { type: "travel" }),
+      type: "travel",
+      answers: {
+        ...(result.followUp?.answers || {}),
+        adults: travelerCount,
+        travelers: travelerCount,
+        rooms,
+        roomCount: rooms,
+        originAirport,
+        departureAirport: originAirport
+      }
+    },
     budget: { ...result.budget, flights: flightsBudget, hotel: hotelBudget, food: foodBudget, estimatedTotal },
     airportTransfer: {
       ...result.airportTransfer,
@@ -2186,6 +2232,10 @@ const buildV23TravelJourneys = (result, missionContext) => {
   const isFamily = /가족|family|familia/i.test(result.rawInput || result.mission || "");
   const isFood = /맛집|food|gourmet|comida/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-food";
   const isBudget = /실속|저렴|budget|cheap|econ[oó]mico/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-budget";
+  const destinationCode = result.destination?.countryCode || result.countryProfile?.code || result.country;
+  if (destinationCode === "JP" || /japan|일본|tokyo|osaka|kyoto|도쿄|오사카|교토/i.test(`${destination} ${result.rawInput || result.mission || ""}`)) {
+    return buildJapanCreativeJourneys(result, destination, duration);
+  }
   const names = [
     ko ? `편안한 ${destination}` : es ? `${destination} cómodo` : `Comfortable ${destination}`,
     ko ? `맛집 중심 ${destination}` : es ? `${destination} gastronómico` : `Food-focused ${destination}`,
@@ -2255,6 +2305,37 @@ const alpha03Copy = (en, ko, es) => v22Local(en, ko, es);
 
 const getAlpha03DestinationProfile = (destination) => {
   const key = String(destination || "").toLowerCase();
+  if (/japan|tokyo|osaka|kyoto|일본|도쿄|오사카|교토/.test(key)) {
+    return {
+      restaurants: [
+        { icon: "🍣", name: "Tsukiji / Toyosu sushi counter", tags: ["sushi", "market"], source: "estimated" },
+        { icon: "🍜", name: "Tokyo ramen alley", tags: ["ramen", "casual"], source: "estimated" },
+        { icon: "🥩", name: "Wagyu yakiniku table", tags: ["wagyu", "dinner"], source: "estimated" },
+        { icon: "🍢", name: "Osaka kushikatsu stop", tags: ["Osaka", "street food"], source: "estimated" },
+        { icon: "🍵", name: "Kyoto tea and wagashi", tags: ["tea", "dessert"], source: "estimated" },
+        { icon: "🍛", name: "Japanese curry house", tags: ["comfort", "budget"], source: "estimated" },
+        { icon: "☕", name: "Kissaten coffee break", tags: ["retro café", "slow"], source: "estimated" },
+        { icon: "🍱", name: "Ekiben train lunch", tags: ["rail", "local"], source: "estimated" }
+      ],
+      places: [
+        { icon: "🌃", name: "Shibuya Sky or Tokyo Tower view", tags: ["skyline", "night"], source: "estimated" },
+        { icon: "🖼️", name: "teamLab Planets / Borderless", tags: ["immersive", "indoor"], source: "estimated" },
+        { icon: "🎢", name: "Universal Studios Japan", tags: ["theme park", "family"], source: "estimated" },
+        { icon: "🐠", name: "Sunshine Aquarium or Osaka Aquarium", tags: ["rain plan", "family"], source: "estimated" },
+        { icon: "⛩️", name: "Fushimi Inari early walk", tags: ["Kyoto", "photo"], source: "estimated" },
+        { icon: "🎋", name: "Arashiyama bamboo and river", tags: ["Kyoto", "walk"], source: "estimated" },
+        { icon: "🦌", name: "Nara deer park day trip", tags: ["day trip", "family"], source: "estimated" },
+        { icon: "♨️", name: "Hakone onsen and Mt. Fuji view", tags: ["onsen", "view"], source: "estimated" },
+        { icon: "🎮", name: "Akihabara retro arcade", tags: ["games", "indoor"], source: "estimated" },
+        { icon: "🎤", name: "Karaoke or live jazz night", tags: ["night", "friends"], source: "estimated" },
+        { icon: "👘", name: "Kimono photo walk", tags: ["couple", "memory"], source: "estimated" },
+        { icon: "🛍️", name: "Ginza / Harajuku / Dotonbori shopping", tags: ["shopping", "rain plan"], source: "estimated" },
+        { icon: "🧑‍🍳", name: "Sushi or ramen making class", tags: ["activity", "food"], source: "estimated" },
+        { icon: "🧸", name: "Ghibli Museum or character café", tags: ["ticket needed", "family"], source: "estimated" },
+        { icon: "🤝", name: "Legal local guide or social companion experience", tags: ["solo", "verified terms"], source: "estimated" }
+      ]
+    };
+  }
   if (/sapporo|삿포로/.test(key)) {
     return {
       restaurants: [
@@ -2301,7 +2382,7 @@ const selectAlpha03Items = (items, tone, targetCount) => {
   return ranked.slice(0, targetCount);
 };
 
-const buildAlpha03DayCards = (journey, destination) => {
+const buildAlpha03DayCards = (journey, destination, result) => {
   const ko = activeLanguage === "ko";
   const es = activeLanguage === "es";
   const tone = journey.tone || "balanced";
@@ -2327,15 +2408,25 @@ const buildAlpha03DayCards = (journey, destination) => {
       [alpha03Copy("Free morning", "자유 오전", "Mañana libre"), alpha03Copy("Shopping", "쇼핑", "Compras"), alpha03Copy("Return prep", "귀국 준비", "Preparación de regreso")]
     ]
   };
-  return (daySets[tone] || daySets.balanced).map((items, index) => ({
+  const baseDays = (daySets[tone] || daySets.balanced);
+  const { tripDays } = calculateTripDayCounts(result);
+  const journeyTimeline = Array.isArray(journey.timeline) ? journey.timeline : [];
+  return Array.from({ length: tripDays }, (_, index) => {
+    const baseItems = baseDays[index % baseDays.length];
+    const timelineItem = journeyTimeline[index % Math.max(1, journeyTimeline.length)];
+    const items = timelineItem && !baseItems.includes(timelineItem) ? [timelineItem, ...baseItems].slice(0, 4) : baseItems;
+    return {
     day: `DAY ${index + 1}`,
     title: index === 0
       ? alpha03Copy("Arrive softly", "부담 없이 도착", "Llegada tranquila")
-      : index === 1
+      : index === tripDays - 1
+        ? alpha03Copy("Leave with space", "여유 있게 마무리", "Cierre con calma")
+        : index === 1
         ? alpha03Copy(`${destination} highlight day`, `${destination} 하이라이트`, `Día especial en ${destination}`)
-        : alpha03Copy("Leave with space", "여유 있게 마무리", "Cierre con calma"),
+        : alpha03Copy(`Experience day ${index + 1}`, `${index + 1}일차 경험`, `Día de experiencia ${index + 1}`),
     items
-  }));
+    };
+  });
 };
 
 const createAlpha03Card = ({ className, icon, title, badge, tags = [], text = "" }) => `
@@ -2357,9 +2448,9 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const ko = activeLanguage === "ko";
   const profile = getAlpha03DestinationProfile(destination);
   const workspace = result.alpha04Workspace || null;
-  const restaurants = selectAlpha03Items(profile.restaurants, journey.tone, journey.tone === "food" ? 5 : 4);
-  const places = selectAlpha03Items(profile.places, journey.tone, 5);
-  const days = buildAlpha03DayCards(journey, destination);
+  const restaurants = selectAlpha03Items(profile.restaurants, journey.tone, journey.tone === "food" ? 8 : 6);
+  const places = selectAlpha03Items(profile.places, journey.tone, 8);
+  const days = buildAlpha03DayCards(journey, destination, result);
   const truthLabel = (state) => sourceStateLabel(state || "estimated");
   const transportationSummary = journey.tone === "value"
     ? alpha03Copy("Transit-first route with licensed taxi only when it saves energy.", "대중교통 중심, 꼭 필요할 때만 허가된 택시를 사용합니다.", "Ruta con transporte público y taxi autorizado solo cuando ahorra energía.")
@@ -4560,6 +4651,83 @@ const getV231SourceStateLabel = (state) => {
   return labels[normalized];
 };
 
+const simpleHash = (value) => [...String(value || "")].reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) | 0, 0);
+const rotateList = (items, seed) => {
+  if (!items.length) return [];
+  const offset = Math.abs(simpleHash(seed)) % items.length;
+  return [...items.slice(offset), ...items.slice(0, offset)];
+};
+
+const buildJapanCreativeJourneys = (result, destination, duration) => {
+  const ko = activeLanguage === "ko";
+  const es = activeLanguage === "es";
+  const raw = result.rawInput || result.mission || "";
+  const { travelerCount, groupType } = getTravelPartyDetails(result);
+  const seed = `${result.missionSeed || result.id || raw}-${result.schedule?.startDate || ""}-${travelerCount}`;
+  const isSolo = groupType === "solo";
+  const isFamily = groupType === "family_or_group" || /가족|아이|family|children|familia/i.test(raw);
+  const label = (en, koText, esText) => ko ? koText : es ? esText : en;
+  const names = rotateList(isFamily
+    ? [
+        ["Japan family memory route", "일본 가족 추억 코스", "Japón en familia"],
+        ["Theme park + food Japan", "테마파크와 맛집 일본", "Japón parques y comida"],
+        ["Easy kids-friendly Japan", "아이와 편한 일본", "Japón fácil con niños"],
+        ["Nature + city Japan", "자연과 도시 일본", "Japón naturaleza y ciudad"]
+      ]
+    : isSolo
+      ? [
+          ["Solo discovery Japan", "혼자 즐기는 일본", "Japón solo discovery"],
+          ["Food-photo Japan", "맛집·사진 일본", "Japón comida y fotos"],
+          ["Social local Japan", "현지 교류 일본", "Japón social local"],
+          ["Slow healing Japan", "혼행 힐링 일본", "Japón tranquilo solo"]
+        ]
+      : [
+          ["Creative Japan highlights", "창의적인 일본 하이라이트", "Japón creativo"],
+          ["Food + night view Japan", "맛집과 야경 일본", "Japón comida y noche"],
+          ["Kyoto-style memory trip", "교토 감성 추억 여행", "Viaje memorable estilo Kioto"],
+          ["Skyline + hidden cafés", "전망과 숨은 카페 일본", "Vistas y cafés ocultos"]
+        ], seed);
+  const timelinePool = rotateList([
+    label(["Arrival setup", "Market lunch", "Skyline or night view", "Theme park / aquarium", "Kyoto-style walk", "Shopping and cafés", "Return prep"], ["도착·동네 적응", "시장 점심", "전망대 또는 야경", "테마파크/수족관", "교토 감성 산책", "쇼핑·카페", "귀국 준비"], ["Llegada", "Mercado", "Vistas", "Parque/acuario", "Paseo estilo Kioto", "Compras y cafés", "Regreso"]),
+    label(["First meal", "teamLab / exhibit", "Sushi or ramen", "Shrine and alleys", "Local experience", "Night dessert", "Souvenirs"], ["첫 식사", "팀랩/전시", "스시 또는 라멘", "신사·골목 산책", "현지 체험", "야경 디저트", "기념품"], ["Primera comida", "teamLab/exposición", "Sushi o ramen", "Templo y callejones", "Experiencia local", "Postre nocturno", "Recuerdos"]),
+    label(["Easy start", "Dotonbori / Shibuya", "Cooking class", "Onsen or spa", "Café tour", "Indoor mall", "Easy return"], ["가벼운 시작", "도톤보리/시부야", "쿠킹 클래스", "온천 또는 스파", "카페 투어", "실내 쇼핑몰", "여유 귀국"], ["Inicio fácil", "Dotonbori/Shibuya", "Clase de cocina", "Onsen/spa", "Cafés", "Centro comercial", "Regreso fácil"])
+  ], seed);
+  const soloNotice = label(
+    "For a solo traveler, ONE can also compare legal local guide or social companion experiences. Adult or illegal services are excluded and provider terms, safety, and price must be verified before approval.",
+    "혼자 여행이면 합법적인 현지 가이드·친구형 동행 서비스도 색다른 경험 후보로 비교할 수 있습니다. 성인 서비스나 불법 서비스는 제외하고 약관·안전·비용은 승인 전 확인합니다.",
+    "Para viajar solo, ONE puede comparar guías locales o acompañamiento social legal. No incluye servicios adultos o ilegales; términos, seguridad y precio se verifican antes de aprobar."
+  );
+  return names.map((name, index) => ({
+    id: `v23-japan-journey-${index}`,
+    name: name[ko ? 1 : es ? 2 : 0],
+    purpose: label("A fuller Japan plan built around one memorable moment each day.", "하루에 하나씩 기억에 남는 순간을 넣은 더 풍성한 일본 일정입니다.", "Un viaje a Japón con un momento memorable cada día."),
+    tags: isFamily ? label(["Family", "Aquarium", "Theme park", "Easy"], ["가족", "아쿠아리움", "테마파크", "편한 이동"], ["Familia", "Acuario", "Parques", "Fácil"]) : isSolo ? label(["Solo", "Food", "Photo", "Flexible"], ["혼행", "맛집", "사진", "자유"], ["Solo", "Comida", "Fotos", "Flexible"]) : label(["Food", "Skyline", "Culture", "Indoor backup"], ["맛집", "전망", "문화", "실내 대안"], ["Comida", "Vistas", "Cultura", "Interior"]),
+    reason: index === 0 && isSolo ? soloNotice : label("This rotates iconic places, food, indoor backup, and recovery time so Japan does not feel repetitive.", "명소, 맛집, 실내 대안, 휴식 시간을 다양하게 섞어 일본 일정이 반복적으로 느껴지지 않게 했습니다.", "Rota lugares icónicos, comida, planes interiores y descanso para no repetir."),
+    duration,
+    tone: ["balanced", "food", "value", "rest"][index],
+    comfort: label(index === 2 ? "Efficient" : "Comfortable", index === 2 ? "실속" : "편안함", index === 2 ? "Eficiente" : "Cómodo"),
+    budget: getTravelBudgetLabel(result, ["balanced", "food", "value", "rest"][index]),
+    timeline: timelinePool[index % timelinePool.length],
+    selected: index === 0,
+    details: {
+      flight: label("Compare round-trip flights from the selected departure airport.", "선택한 출발 공항 기준 왕복 항공편을 비교합니다.", "Comparar vuelos ida y vuelta desde el aeropuerto elegido."),
+      hotel: label(`${destination} hotels are priced for the full stay and room count.`, `${destination} 숙소는 전체 숙박 기간과 객실 수 기준으로 계산합니다.`, `Hoteles en ${destination} calculados por duración completa y habitaciones.`),
+      transport: label("Compare JR, subway, official airport transfer, and taxis by day.", "JR·지하철·공식 공항 이동·택시를 일정별로 비교합니다.", "Comparar JR, metro, traslado oficial y taxi por día."),
+      food: label("Spread ramen, sushi, market food, cafés, and desserts across the trip.", "라멘, 스시, 시장 음식, 카페, 디저트를 일정별로 분산합니다.", "Distribuir ramen, sushi, mercados, cafés y postres."),
+      entry: label("Re-check entry requirements through official channels before execution.", "입국 요건은 실행 전 공식 채널로 다시 확인합니다.", "Revisar requisitos oficiales antes de ejecutar."),
+      insurance: label("Prepare insurance and schedule-change risk review.", "여행자 보험과 일정 변경 리스크를 준비합니다.", "Preparar seguro y riesgo de cambios.")
+    },
+    sourceStates: {
+      flight: getScenarioSourceState(result, "flight", "estimated"),
+      hotel: getScenarioSourceState(result, "hotel", "estimated"),
+      transport: getScenarioSourceState(result, "transport", "placeholder"),
+      food: getScenarioSourceState(result, "food", "placeholder"),
+      entry: getScenarioSourceState(result, "entry", "unavailable"),
+      insurance: getScenarioSourceState(result, "insurance", "placeholder")
+    }
+  }));
+};
+
 const getV231MissingTravelFields = () => {
   const schedule = currentResult?.schedule || {};
   const answers = currentResult?.followUp?.answers || {};
@@ -4754,6 +4922,8 @@ const buildExecutionSummary = () => {
   const restaurants = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .selectable-option[aria-pressed="true"] .option-value')].map((item) => item.textContent.trim()).filter(Boolean);
   const schedule = currentResult.schedule || {};
   const dateRange = schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : (ko ? "날짜 확인 필요" : "Dates pending");
+  const { tripNights } = calculateTripDayCounts(currentResult);
+  const { rooms } = getTravelPartyDetails(currentResult);
   const timeLabels = ko ? { any: "시간 미정", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" } : { any: "Time to be confirmed", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
   const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "American Airlines": "AA", "Avianca": "AV", "Aeromexico": "AM", "Copa Airlines": "CM", "Iberia": "IB", "LATAM Airlines": "LA", Lufthansa: "LH", "Air France": "AF", KLM: "KL", Emirates: "EK", "Qatar Airways": "QR", "Turkish Airlines": "TK" };
   const flightNumber = `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}`;
@@ -4809,7 +4979,7 @@ const buildExecutionSummary = () => {
   const rows = [
     [ko ? "여행 일정" : "Schedule", "", selectedTime, "is-wide is-schedule", { start: schedule.startDate, end: schedule.endDate }],
     ...flightRows,
-    [ko ? "호텔" : "Hotel", hotel ? getHotelName(hotel) : "—", `${dateRange} · ${formatRange(hotel?.estimatedNightlyPrice)} / ${ko ? "1박" : "night"}`],
+    [ko ? "호텔" : "Hotel", hotel ? getHotelName(hotel) : "—", `${dateRange} · ${tripNights}${ko ? "박" : " nights"} · ${rooms}${ko ? "객실" : " room(s)"} · ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice)}`],
     [ko ? "공항 이동" : "Airport transfer", localize(transfer), ko ? "선택한 이동 옵션 준비 완료" : "Selected transfer option prepared"],
     ...restaurantRows,
     [ko ? "프로토타입 참조 번호" : "Prototype reference", reference, ko ? "실제 예약 번호가 아닙니다" : "This is not a real booking number", "is-wide is-reference"]
