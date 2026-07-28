@@ -21,6 +21,13 @@ import {
   validateExecutionOrchestrator
 } from "../engine/workspace/execution-orchestrator-alpha05.js?v=20260729-alpha05-execution-orchestrator";
 import {
+  ALPHA06_PREDICTIVE_INTELLIGENCE_VERSION,
+  applyPredictionFeedback,
+  createPredictiveIntelligenceLayer,
+  predictionStorageKey,
+  validatePredictiveIntelligence
+} from "../engine/workspace/predictive-intelligence-alpha06.js?v=20260729-alpha06-predictive-intelligence";
+import {
   ALPHA02_REFINEMENT_VERSION,
   applyRefinementAnswer,
   archiveRefinementQuestion,
@@ -2943,6 +2950,114 @@ const createExecutionOrchestratorCard = (result, workspace) => {
   return { card, orchestrator, validation, workspace };
 };
 
+const alpha06Local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+
+const readAlpha06State = (result) => {
+  try {
+    return JSON.parse(localStorage.getItem(predictionStorageKey(result)) || "{}");
+  } catch {
+    return {};
+  }
+};
+
+const writeAlpha06State = (result, state = {}) => {
+  try {
+    localStorage.setItem(predictionStorageKey(result), JSON.stringify({ ...state, updatedAt: new Date().toISOString() }));
+  } catch {
+    // Predictive cards are assistive only. Storage must never block results.
+  }
+};
+
+const createPredictionCardMarkup = (prediction) => `
+  <article class="alpha06-prediction is-${escapeSummaryText(String(prediction.priority || "Helpful").toLowerCase())}" data-alpha06-id="${escapeSummaryText(prediction.id)}">
+    <div class="alpha06-prediction-icon" aria-hidden="true">${prediction.priority === "Critical" ? "!" : "✦"}</div>
+    <div class="alpha06-prediction-copy">
+      <div class="alpha06-prediction-topline">
+        <strong>${escapeSummaryText(prediction.title)}</strong>
+        <span>${escapeSummaryText(prediction.priority)}</span>
+      </div>
+      <p>${escapeSummaryText(prediction.explanation)}</p>
+      <small><b>${escapeSummaryText(alpha06Local("Why", "이유", "Motivo"))}:</b> ${escapeSummaryText(prediction.reason)}</small>
+      <div class="alpha06-prediction-meta">
+        <span>${escapeSummaryText(alpha06Local("Confidence", "확신도", "Confianza"))}: ${Math.round(Number(prediction.confidence || 0) * 100)}%</span>
+        <span>${escapeSummaryText(prediction.sourceSignals?.slice(0, 2).join(" · ") || prediction.source)}</span>
+      </div>
+    </div>
+    <div class="alpha06-prediction-actions" aria-label="${escapeSummaryText(alpha06Local("Prediction controls", "예측 제어", "Controles de predicción"))}">
+      <button type="button" data-alpha06-feedback="accepted">${escapeSummaryText(prediction.actionLabel || alpha06Local("Review", "검토", "Revisar"))}</button>
+      <button type="button" data-alpha06-feedback="dismissed">${escapeSummaryText(alpha06Local("Ignore", "무시", "Ignorar"))}</button>
+      <button type="button" data-alpha06-feedback="not_relevant">${escapeSummaryText(alpha06Local("Not relevant", "관련 없음", "No relevante"))}</button>
+    </div>
+  </article>
+`;
+
+const createPredictiveIntelligenceCard = (result, missionContext, orchestrator) => {
+  const state = readAlpha06State(result);
+  const layer = createPredictiveIntelligenceLayer({
+    result,
+    context: missionContext || {},
+    worldIntelligence: result.worldIntelligence || currentResult.worldIntelligence,
+    orchestrator,
+    language: activeLanguage,
+    state
+  });
+  const validation = validatePredictiveIntelligence(layer);
+  currentResult.alpha06PredictiveIntelligence = layer;
+  if (!layer.visible.length && !layer.collapsed.length) return null;
+
+  const card = document.createElement("article");
+  card.className = "mission-card is-wide alpha06-predictive-card";
+  card.dataset.cardId = "predictive-intelligence-alpha06";
+  card.dataset.alpha06Valid = validation.ok ? "true" : "false";
+
+  const visible = layer.visible.map(createPredictionCardMarkup).join("");
+  const collapsed = layer.collapsed.slice(0, 6).map(createPredictionCardMarkup).join("");
+  card.innerHTML = `
+    <div class="alpha06-header">
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA06_PREDICTIVE_INTELLIGENCE_VERSION)} · ${escapeSummaryText(alpha06Local("Predictive Intelligence", "예측 지능", "Inteligencia predictiva"))}</span>
+      <h2>${escapeSummaryText(alpha06Local(
+        "ONE noticed what may matter next",
+        "ONE이 다음에 중요할 일을 감지했어요",
+        "ONE detectó lo que puede importar después"
+      ))}</h2>
+      <p>${escapeSummaryText(alpha06Local(
+        "Quiet preparation only. Nothing executes without approval.",
+        "조용히 준비만 합니다. 승인 없이 실행하지 않습니다.",
+        "Solo preparación tranquila. Nada se ejecuta sin aprobación."
+      ))}</p>
+    </div>
+    <div class="alpha06-prediction-list">${visible}</div>
+    ${collapsed ? `
+      <details class="alpha06-collapsed">
+        <summary>${escapeSummaryText(alpha06Local("Helpful ideas kept quiet", "조용히 보관한 도움 아이디어", "Ideas útiles guardadas en silencio"))}</summary>
+        <div class="alpha06-prediction-list">${collapsed}</div>
+      </details>
+    ` : ""}
+    <p class="alpha06-safety-note">${escapeSummaryText(alpha06Local(
+      "Predictions prepare the mission. They never search, book, pay, submit, or contact providers by themselves.",
+      "예측은 미션 준비만 돕습니다. 스스로 검색, 예약, 결제, 제출, 제공업체 연락을 하지 않습니다.",
+      "Las predicciones preparan la misión. Nunca buscan, reservan, pagan, envían ni contactan proveedores solas."
+    ))}</p>
+  `;
+
+  card.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-alpha06-feedback]");
+    if (!button) return;
+    const predictionElement = button.closest("[data-alpha06-id]");
+    const prediction = layer.predictions.find((item) => item.id === predictionElement?.dataset.alpha06Id);
+    if (!prediction) return;
+    const nextState = applyPredictionFeedback(readAlpha06State(result), prediction, button.dataset.alpha06Feedback);
+    writeAlpha06State(result, nextState);
+    if (button.dataset.alpha06Feedback !== "accepted") {
+      predictionElement.hidden = true;
+    } else {
+      button.textContent = alpha06Local("Prepared", "준비됨", "Preparado");
+      button.disabled = true;
+    }
+  });
+  return { card, layer, validation };
+};
+
 const readAlpha04UiState = (result) => {
   try {
     return JSON.parse(localStorage.getItem(`${livingMissionStorageKey(result)}:ui`) || "{}");
@@ -3003,6 +3118,8 @@ const renderTravelMission = (result, missionContext) => {
   missionGrid.appendChild(livingWorkspace.card);
   const executionOrchestrator = createExecutionOrchestratorCard(result, livingWorkspace.workspace);
   missionGrid.appendChild(executionOrchestrator.card);
+  const predictiveCard = createPredictiveIntelligenceCard(result, missionContext, executionOrchestrator.orchestrator);
+  if (predictiveCard) missionGrid.appendChild(predictiveCard.card);
   const travelExperience = createTravelPackagesCard(result, missionContext);
   missionGrid.appendChild(travelExperience);
   const refinementCard = createProgressiveRefinementCard(result, missionContext);
@@ -3046,6 +3163,8 @@ const renderResolutionPlanMission = (result) => {
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
   const executionOrchestrator = createExecutionOrchestratorCard(result, null);
   missionGrid.appendChild(executionOrchestrator.card);
+  const predictiveCard = createPredictiveIntelligenceCard(result, { resolutionPlan: plan }, executionOrchestrator.orchestrator);
+  if (predictiveCard) missionGrid.appendChild(predictiveCard.card);
 
   const recommended = plan.recommendedPath || plan.solutionPaths?.[0] || {};
 
