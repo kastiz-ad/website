@@ -583,6 +583,183 @@ body.travel-premium-result-view .mission-timeline {
     linear-gradient(145deg, color-mix(in srgb, var(--surface) 92%, var(--accent) 8%), var(--surface));
 }
 
+.ai-concierge-card {
+  display: grid;
+  gap: clamp(16px, 2vw, 22px);
+  padding: clamp(18px, 2.4vw, 28px);
+  background:
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 26%),
+    var(--surface);
+}
+
+.ai-concierge-heading {
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+.ai-concierge-heading h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.ai-concierge-heading p {
+  margin: 0 auto;
+  max-width: 680px;
+  color: var(--text-muted);
+  font-size: var(--one-type-sm);
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.ai-concierge-score {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.ai-concierge-score strong {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.ai-concierge-list {
+  display: grid;
+  gap: 12px;
+}
+
+.ai-concierge-recommendation {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--surface-strong) 82%, var(--chip));
+  transition: transform 180ms ease, opacity 180ms ease, border-color 180ms ease;
+}
+
+.ai-concierge-recommendation:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+}
+
+.ai-concierge-recommendation.is-high,
+.ai-concierge-recommendation.is-critical {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.ai-concierge-recommendation.is-accepted {
+  border-color: color-mix(in srgb, var(--accent) 54%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
+.ai-concierge-recommendation.is-dismissed {
+  display: none;
+}
+
+.ai-concierge-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ai-concierge-row-head span,
+.ai-concierge-components span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.ai-concierge-row-head strong {
+  flex: 1;
+  color: var(--text);
+  font-size: clamp(16px, 1.5vw, 19px);
+  letter-spacing: -0.03em;
+}
+
+.ai-concierge-recommendation p,
+.ai-concierge-benefit,
+.ai-concierge-limited p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--one-type-sm);
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.ai-concierge-benefit {
+  color: var(--text);
+}
+
+.ai-concierge-meta,
+.ai-concierge-components,
+.ai-concierge-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-concierge-meta span {
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.ai-concierge-actions button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.ai-concierge-actions button:first-child {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.ai-concierge-limited,
+.ai-concierge-accepted {
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 18px;
+  background: var(--chip);
+  text-align: center;
+}
+
+.is-concierge-updated {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 3px;
+}
+
 .v23-travel-heading {
   display: grid;
   gap: 10px;

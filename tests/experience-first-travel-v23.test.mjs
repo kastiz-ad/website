@@ -79,6 +79,6 @@ test("V23 travel styling supports responsive, no-overflow layouts", () => {
 });
 
 test("V23 result cache key is active", () => {
-  assert.match(resultsEntry, /20260730-universal-execution/);
-  assert.match(resultsHtml, /20260730-universal-execution/);
+  assert.match(resultsEntry, /20260730-ai-travel-concierge/);
+  assert.match(resultsHtml, /20260730-ai-travel-concierge/);
 });

@@ -77,6 +77,13 @@ import {
   createEmptyRefinementState,
   refinementStorageKey
 } from "../engine/refinement/progressive-refinement-alpha02.js?v=20260727-alpha04-living-mission";
+import {
+  AI_TRAVEL_CONCIERGE_VERSION,
+  applyConciergeRecommendation,
+  conciergeStorageKey,
+  createAITravelConcierge,
+  createConciergeState
+} from "../engine/concierge/ai-travel-concierge.js?v=20260730-ai-travel-concierge";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -3089,6 +3096,159 @@ const createMissionInsightsCard = (result, context) => {
   return article;
 };
 
+const readConciergeState = (result) => {
+  try {
+    return createConciergeState(JSON.parse(localStorage.getItem(conciergeStorageKey(result)) || "{}"));
+  } catch {
+    return createConciergeState();
+  }
+};
+
+const writeConciergeState = (result, state) => {
+  try {
+    localStorage.setItem(conciergeStorageKey(result), JSON.stringify(state));
+  } catch {
+    // Concierge controls are helpful, but local persistence must never block mission review.
+  }
+};
+
+const conciergeSourceLabel = (state) => {
+  const labels = {
+    verified_live: v22Local("Provider evidence", "제공업체 근거", "Evidencia del proveedor"),
+    cached_public: v22Local("Public evidence", "공개 정보 근거", "Evidencia pública"),
+    estimated: v22Local("Estimated", "예상", "Estimado"),
+    demo: v22Local("Demo evidence", "데모 근거", "Evidencia demo"),
+    setup_required: v22Local("Setup required", "설정 필요", "Configuración necesaria"),
+    unavailable: v22Local("Temporarily limited", "일시 제한", "Limitado temporalmente")
+  };
+  return labels[state] || labels.estimated;
+};
+
+const conciergePriorityLabel = (priority) => {
+  const labels = {
+    critical: v22Local("Critical", "긴급", "Crítico"),
+    high: v22Local("High", "높음", "Alta"),
+    medium: v22Local("Medium", "보통", "Media"),
+    low: v22Local("Low", "낮음", "Baja")
+  };
+  return labels[priority] || labels.medium;
+};
+
+const conciergeBenefitText = (benefit = {}) => {
+  const parts = [];
+  if (Number.isFinite(Number(benefit.timeSavedMinutes))) parts.push(v22Local(`Saves ${benefit.timeSavedMinutes} min`, `${benefit.timeSavedMinutes}분 절약`, `Ahorra ${benefit.timeSavedMinutes} min`));
+  if (Number.isFinite(Number(benefit.walkingReducedKm))) parts.push(v22Local(`Walk ${benefit.walkingReducedKm} km less`, `도보 ${benefit.walkingReducedKm}km 감소`, `${benefit.walkingReducedKm} km menos`));
+  if (Number.isFinite(Number(benefit.moneySaved))) parts.push(v22Local(`Saves about ${formatKRW(Number(benefit.moneySaved))}`, `약 ${formatKRW(Number(benefit.moneySaved))} 절약`, `Ahorra aprox. ${formatKRW(Number(benefit.moneySaved))}`));
+  if (Number.isFinite(Number(benefit.comfortImproved))) parts.push(v22Local("Comfort improves", "편안함 개선", "Mejora comodidad"));
+  if (Number.isFinite(Number(benefit.accessibilityImproved))) parts.push(v22Local("Accessibility improves", "접근성 개선", "Mejora accesibilidad"));
+  if (Number.isFinite(Number(benefit.missionQuality))) parts.push(v22Local("Plan quality improves", "일정 완성도 개선", "Mejora calidad"));
+  return parts.length ? parts.join(" · ") : v22Local("No measurable live value yet", "아직 측정 가능한 실시간 수치 없음", "Sin valor medible en vivo aún");
+};
+
+const markConciergePatchAccepted = (recommendation) => {
+  if (!recommendation?.patch?.target) return;
+  const target = recommendation.patch.target;
+  missionGrid.querySelectorAll(`[data-section-id="${target}"], [data-card-id="${target}"], .alpha03-section`).forEach((node) => {
+    if (node.dataset.sectionId === target || node.dataset.cardId === target || node.textContent.toLowerCase().includes(target)) {
+      node.classList.add("is-concierge-updated");
+      node.dataset.conciergeUpdate = recommendation.title;
+    }
+  });
+};
+
+const createAIConciergeCard = (result) => {
+  if (!isExperienceMission(result, result?.missionContext) && result?.type !== "travel") return null;
+  const params = new URLSearchParams(window.location.search);
+  const state = readConciergeState(result);
+  const concierge = createAITravelConcierge({
+    result,
+    language: activeLanguage,
+    state,
+    scenario: params.get("conciergeScenario") || result.conciergeScenario || ""
+  });
+  if (concierge.status === "limited" && !isFounderDiagnosticsMode()) return null;
+  const article = document.createElement("article");
+  article.className = "mission-card is-wide ai-concierge-card";
+  article.dataset.cardId = "ai-travel-concierge";
+  const actions = {
+    accept: v22Local("Accept", "적용", "Aceptar"),
+    dismiss: v22Local("Dismiss", "닫기", "Descartar"),
+    remind_later: v22Local("Remind later", "나중에", "Recordar"),
+    never_ask_again: v22Local("Never ask again", "다시 묻지 않기", "No preguntar")
+  };
+  const recommendations = concierge.recommendations.length ? concierge.recommendations.map((rec) => `
+    <article class="ai-concierge-recommendation is-${escapeSummaryText(rec.priority)}" data-concierge-id="${escapeSummaryText(rec.id)}">
+      <div class="ai-concierge-row-head">
+        <span>${escapeSummaryText(conciergePriorityLabel(rec.priority))}</span>
+        <strong>${escapeSummaryText(rec.title)}</strong>
+      </div>
+      <p>${escapeSummaryText(rec.reason)}</p>
+      <div class="ai-concierge-benefit">${escapeSummaryText(rec.expectedBenefit)}</div>
+      <div class="ai-concierge-meta">
+        <span>${escapeSummaryText(conciergeBenefitText(rec.benefit))}</span>
+        <span>${escapeSummaryText(v22Local("Confidence", "신뢰도", "Confianza"))}: ${Math.round(rec.confidence)}%</span>
+        <span>${escapeSummaryText(conciergeSourceLabel(rec.sourceState))}${rec.retrievedAt ? ` · ${escapeSummaryText(formatAlpha04Time(rec.retrievedAt))}` : ""}</span>
+      </div>
+      <div class="ai-concierge-components">
+        ${rec.affectedComponents.map((component) => `<span>${escapeSummaryText(component)}</span>`).join("")}
+      </div>
+      <div class="ai-concierge-actions">
+        ${Object.entries(actions).map(([action, label]) => `<button type="button" data-concierge-action="${action}">${escapeSummaryText(label)}</button>`).join("")}
+      </div>
+    </article>
+  `).join("") : `
+    <div class="ai-concierge-limited">
+      <strong>${escapeSummaryText(v22Local("Concierge is standing by", "컨시어지가 대기 중입니다", "Concierge está listo"))}</strong>
+      <p>${escapeSummaryText(concierge.limitations[0] || v22Local("Live provider updates are not available right now.", "지금은 실시간 제공업체 업데이트가 없습니다.", "No hay actualizaciones en vivo ahora."))}</p>
+    </div>
+  `;
+  const accepted = concierge.acceptedRecommendations.length ? `
+    <details class="ai-concierge-accepted">
+      <summary>${escapeSummaryText(v22Local("Accepted improvements", "적용한 개선", "Mejoras aceptadas"))} · ${concierge.acceptedRecommendations.length}</summary>
+      <ul>${concierge.acceptedRecommendations.map((rec) => `<li>${escapeSummaryText(rec.title)}</li>`).join("")}</ul>
+    </details>
+  ` : "";
+  article.innerHTML = `
+    <div class="ai-concierge-heading">
+      <span class="v23-eyebrow">${escapeSummaryText(AI_TRAVEL_CONCIERGE_VERSION)}</span>
+      <h2>${escapeSummaryText(v22Local("ONE Concierge", "ONE 컨시어지", "Concierge ONE"))}</h2>
+      <p>${escapeSummaryText(v22Local(
+        "Helpful improvements only. Nothing changes unless you choose it.",
+        "도움 되는 개선만 보여드립니다. 선택하기 전에는 아무것도 바꾸지 않습니다.",
+        "Solo mejoras útiles. Nada cambia hasta que tú lo eliges."
+      ))}</p>
+      <div class="ai-concierge-score">
+        <span>${escapeSummaryText(v22Local("Mission score", "미션 점수", "Puntuación"))}</span>
+        <strong>${Math.round(concierge.missionScore)}</strong>
+      </div>
+    </div>
+    <div class="ai-concierge-list">${recommendations}</div>
+    ${accepted}
+  `;
+  article.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-concierge-action]");
+    if (!button) return;
+    const row = button.closest("[data-concierge-id]");
+    const recommendation = concierge.recommendations.find((rec) => rec.id === row?.dataset.conciergeId);
+    if (!recommendation) return;
+    const nextState = applyConciergeRecommendation(readConciergeState(result), recommendation, button.dataset.conciergeAction);
+    writeConciergeState(result, nextState);
+    if (button.dataset.conciergeAction === "accept") {
+      markConciergePatchAccepted(recommendation);
+      row.classList.add("is-accepted");
+      row.querySelector(".ai-concierge-actions").innerHTML = `<button type="button" data-concierge-action="undo">${escapeSummaryText(v22Local("Undo", "되돌리기", "Deshacer"))}</button>`;
+    } else if (button.dataset.conciergeAction === "undo") {
+      const undoneState = applyConciergeRecommendation(readConciergeState(result), recommendation, "undo");
+      writeConciergeState(result, undoneState);
+      row.classList.remove("is-accepted");
+    } else {
+      row.classList.add("is-dismissed");
+      row.setAttribute("aria-hidden", "true");
+    }
+  });
+  return article;
+};
+
 const readRefinementState = (result) => {
   const embedded = result.alpha02Refinements || createEmptyRefinementState();
   try {
@@ -4178,7 +4338,9 @@ const renderTravelMission = (result, missionContext) => {
   const refinementCard = createProgressiveRefinementCard(result, missionContext);
 
   const travelExperience = createTravelPackagesCard(result, missionContext);
+  const conciergeCard = createAIConciergeCard(result);
   missionGrid.appendChild(travelExperience);
+  if (conciergeCard) missionGrid.appendChild(conciergeCard);
   if (refinementCard && isFounderDiagnosticsMode()) missionGrid.appendChild(refinementCard);
 
   if (isFounderDiagnosticsMode()) {
