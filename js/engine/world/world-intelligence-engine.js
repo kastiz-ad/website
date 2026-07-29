@@ -184,15 +184,88 @@ export const WORLD_AMBIGUOUS_DESTINATIONS = Object.freeze({
 });
 
 const AMBIGUOUS_ALIASES = Object.freeze({
-  산티아고: "santiago",
-  santiago: "santiago",
-  paris: "paris",
-  파리: "paris",
-  parís: "paris",
-  london: "london",
-  런던: "london",
-  londres: "london"
+  "산티아고": "santiago",
+  "santiago": "santiago",
+  "paris": "paris",
+  "파리": "paris",
+  "parís": "paris",
+  "london": "london",
+  "런던": "london",
+  "londres": "london"
 });
+const EXTRA_DESTINATION_ALIASES = Object.freeze({
+  seoul: ["서울", "서울시", "ソウル", "Seúl"],
+  busan: ["부산", "부산시", "Busán"],
+  jeju: ["제주", "제주도", "Jeju Island", "Isla de Jeju"],
+  tokyo: ["도쿄", "東京", "Tokio"],
+  osaka: ["오사카", "大阪"],
+  kyoto: ["교토", "京都", "Kioto"],
+  "ho-chi-minh-city": ["호치민", "호찌민", "Ho Chi Minh", "Saigon", "HCMC", "Ciudad Ho Chi Minh"],
+  hanoi: ["하노이", "Hà Nội", "Hanói"],
+  singapore: ["싱가포르", "Singapur"],
+  bangkok: ["방콕", "Bangkok Thailand"],
+  taipei: ["타이베이", "타이페이", "台北", "Taipéi"],
+  "hong-kong": ["홍콩", "香港", "Hong Kong"],
+  lima: ["리마", "Lima Perú", "Lima Peru"],
+  cusco: ["쿠스코", "Cuzco"],
+  "machu-picchu": ["마추픽추", "Machu Picchu Perú", "Machu Picchu Peru"],
+  "new-york": ["뉴욕", "New York", "NYC", "Nueva York"],
+  "los-angeles": ["로스앤젤레스", "엘에이", "LA", "L.A.", "Los Ángeles"],
+  london: ["런던", "Londres"],
+  paris: ["파리", "París"],
+  rome: ["로마", "Roma"],
+  barcelona: ["바르셀로나"],
+  sydney: ["시드니", "Sídney"],
+  melbourne: ["멜버른"],
+  "cape-town": ["케이프타운", "Ciudad del Cabo"],
+  dubai: ["두바이", "Dubái"],
+  "mexico-city": ["멕시코시티", "멕시코 시티", "Ciudad de México", "CDMX"],
+  santiago: ["산티아고", "Santiago de Chile", "Santiago Chile"],
+  reykjavik: ["레이캬비크", "Reykjavík"],
+  auckland: ["오클랜드"],
+  stockholm: ["스톡홀름", "Estocolmo"],
+  "sao-paulo": ["상파울루", "상파울로", "São Paulo", "Sao Paulo", "San Pablo"],
+  bogota: ["보고타", "Bogotá", "Bogota"],
+  "guatemala-city": ["과테말라", "과테말라시티", "Ciudad de Guatemala", "Guatemala City"],
+  "paris-fr": ["Paris France", "París Francia", "파리 프랑스"],
+  "santiago-cl": ["Santiago Chile", "Santiago de Chile", "산티아고 칠레"],
+  "santiago-es": ["Santiago Spain", "Santiago de Compostela", "산티아고 데 콤포스텔라"],
+  "london-gb": ["London England", "London United Kingdom", "런던 영국"],
+  "london-on": ["London Ontario"]
+});
+
+const EXTRA_COUNTRY_ALIASES = Object.freeze({
+  AR: ["아르헨티나", "Argentina"], AU: ["호주", "Australia"], BR: ["브라질", "Brasil", "Brazil"], CA: ["캐나다", "Canadá"],
+  CL: ["칠레", "Chile"], CO: ["콜롬비아", "Colombia"], DE: ["독일", "Alemania"], ES: ["스페인", "España"],
+  FR: ["프랑스", "Francia"], GB: ["영국", "Reino Unido", "UK", "Britain"], GT: ["과테말라", "Guatemala"],
+  ID: ["인도네시아", "Indonesia"], IN: ["인도", "India"], IT: ["이탈리아", "Italia"], JP: ["일본", "日本", "Japón", "Japan"],
+  KH: ["캄보디아", "Camboya"], KR: ["한국", "대한민국", "Corea del Sur", "South Korea", "Korea"], MG: ["마다가스카르", "Madagascar"],
+  MX: ["멕시코", "México", "Mexico"], MY: ["말레이시아", "Malasia"], NZ: ["뉴질랜드", "Nueva Zelanda"], PE: ["페루", "Perú"],
+  PH: ["필리핀", "Filipinas", "Philippines"], PT: ["포르투갈", "Portugal"], SE: ["스웨덴", "Suecia"], SG: ["싱가포르", "Singapur"],
+  TH: ["태국", "Tailandia"], TW: ["대만", "Taiwán"], US: ["미국", "미합중국", "Estados Unidos", "USA", "America"],
+  VN: ["베트남", "Vietnam"], ZA: ["남아프리카", "남아공", "Sudáfrica", "South Africa"], SV: ["엘살바도르", "살바도르", "El Salvador"],
+  NI: ["니카라과", "Nicaragua"], PA: ["파나마", "Panamá", "Panama"], PG: ["파푸아뉴기니", "Papúa Nueva Guinea", "Papua New Guinea"],
+  CG: ["콩고", "República del Congo"], CD: ["콩고민주공화국", "Democratic Republic of the Congo"]
+});
+
+const EXTRA_AMBIGUOUS_ALIASES = Object.freeze({
+  "산티아고": "santiago",
+  "santiago": "santiago",
+  "paris": "paris",
+  "파리": "paris",
+  "parís": "paris",
+  "london": "london",
+  "런던": "london",
+  "londres": "london"
+});
+
+const isUsableStoredAlias = (value) => !/[ÃÂêëìíîïð]/.test(String(value || ""));
+
+const allCandidateAliases = (item) => Object.freeze([...new Set([
+  ...(item?.aliases || []).filter(isUsableStoredAlias).filter((alias) => item?.placeType === "country" || clean(alias) !== clean(item?.country)),
+  ...(EXTRA_DESTINATION_ALIASES[item?.id] || []),
+  ...(item?.placeType === "country" ? (EXTRA_COUNTRY_ALIASES[String(item?.countryCode || "").toUpperCase()] || []) : [])
+].filter(Boolean).map(clean))]);
 
 export function detectMissionLanguage(value) {
   const source = String(value || "");
@@ -210,10 +283,11 @@ const boundaryIncludes = (source, alias) => {
 
 const phraseAmbiguityKey = (value) => {
   const compactValue = compact(value);
-  const exact = Object.entries(AMBIGUOUS_ALIASES).find(([alias]) => compact(alias) === compactValue);
+  const ambiguousAliases = { ...AMBIGUOUS_ALIASES, ...EXTRA_AMBIGUOUS_ALIASES };
+  const exact = Object.entries(ambiguousAliases).find(([alias]) => compact(alias) === compactValue);
   if (exact) return exact[1];
   const normalized = clean(value);
-  return Object.entries(AMBIGUOUS_ALIASES).find(([alias]) => {
+  return Object.entries(ambiguousAliases).find(([alias]) => {
     const cleanedAlias = clean(alias);
     return normalized === cleanedAlias
       || normalized.startsWith(`${cleanedAlias} `)
@@ -226,16 +300,16 @@ const qualifiedAmbiguousDestination = (value) => {
   const key = phraseAmbiguityKey(value);
   const matches = WORLD_AMBIGUOUS_DESTINATIONS[key] || [];
   if (!matches.length) return null;
-  return matches.find((item) => item.aliases.some((alias) => alias !== key && boundaryIncludes(value, alias))) || null;
+  return matches.find((item) => allCandidateAliases(item).some((alias) => alias !== key && boundaryIncludes(value, alias))) || null;
 };
 
 const scoreDestination = (source, item) => {
   const normalizedSource = ` ${clean(source)} `;
-  return Math.max(0, ...item.aliases.map((alias) => {
+  return Math.max(0, ...allCandidateAliases(item).map((alias) => {
     if (!alias) return 0;
     if (normalizedSource === ` ${alias} `) return 10000 + alias.length + Math.round((item.importance || 0) * 100);
     const index = normalizedSource.lastIndexOf(` ${alias} `);
-    return index >= 0 ? (index * 100) + alias.length + Math.round((item.importance || 0) * 100) : 0;
+    return index >= 0 ? ((item.placeType === "country" ? 1000 : 6000) + index + (alias.length * 10) + Math.round((item.importance || 0) * 100)) : 0;
   }));
 };
 
@@ -256,7 +330,7 @@ export function resolveWorldDestination(value) {
     .sort((a, b) => b.score - a.score);
   if (matches[0]?.item) return matches[0].item;
   const compactSource = compact(value);
-  const country = WORLD_DESTINATIONS.find((item) => item.placeType === "country" && item.aliases.some((alias) => compact(alias) === compactSource));
+  const country = WORLD_DESTINATIONS.find((item) => item.placeType === "country" && allCandidateAliases(item).some((alias) => compact(alias) === compactSource));
   return country || null;
 }
 
