@@ -1,1 +1,1 @@
-﻿import "./js/pages/results-page.js?v=20260729-transport-restaurant-cleanup";
+﻿import "./js/pages/results-page.js?v=20260729-live-provider-foundation";

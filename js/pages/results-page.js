@@ -123,6 +123,8 @@ const translations = {
     customize: "Customize",
     makeItReality: "Start Live Search",
     withOne: "with NE",
+    withOnePrefix: "with",
+    withOneSuffix: "",
     additionalServices: "Customize Services",
     optional: "Optional",
     additionalServicesHelp: "Add or request a new destination, flight, tutor subject, language, or any other service.",
@@ -189,6 +191,8 @@ const translations = {
     customize: "수정하기",
     makeItReality: "실시간 검색 시작",
     withOne: "NE과 함께",
+    withOnePrefix: "",
+    withOneSuffix: "과 함께",
     additionalServices: "서비스 맞춤 설정",
     optional: "선택 사항",
     additionalServicesHelp: "새 목적지, 항공편, 튜터 과목, 언어 또는 원하는 서비스를 추가하거나 요청하세요.",
@@ -2919,8 +2923,7 @@ const createTravelPackagesCard = (result, missionContext) => {
   article.className = "mission-card is-wide travel-package-card v23-travel-experience product-refined-results";
   article.dataset.cardId = "travel-experiences";
   article.innerHTML = `
-    <section class="v23-selected-journey" aria-live="polite">${createV23TravelDetailHtml(journeys[selectedIndex], result)}</section>
-    <div class="v23-journey-layout product-journey-layout is-compact" hidden>
+    <div class="v23-journey-layout product-journey-layout is-compact">
       <div class="v23-alternative-journeys" aria-label="${escapeSummaryText(v22Local("Compare alternatives", "다른 선택지 비교", "Comparar alternativas"))}">
         ${journeys.slice(0, 4).map((journey, index) => `
           <button class="v23-journey-card${selectedIndex === index ? " is-selected" : ""}" type="button" data-journey-index="${index}" aria-pressed="${selectedIndex === index}">
@@ -2929,6 +2932,7 @@ const createTravelPackagesCard = (result, missionContext) => {
         `).join("")}
       </div>
     </div>
+    <section class="v23-selected-journey" aria-live="polite">${createV23TravelDetailHtml(journeys[selectedIndex], result)}</section>
   `;
   article._v23Journeys = journeys;
   return article;
