@@ -119,26 +119,26 @@ This is the practical activation checklist. Do not paste API keys into Codex cha
 
 ## 6. Flight provider
 
-1. Provider name: future flight search provider
-2. Current status: Provider approval or contract required
-3. What Codex completed: provider contract and setup-required state
-4. Founder must complete manually: select provider, create account, accept terms, obtain approved credentials
-5. Console/account area: Amadeus, Duffel, airline, GDS, or approved travel inventory provider portal
-6. Required API/service: flight search; booking only if separately approved
-7. Billing required: usually yes or contract-based
-8. Provider approval/contract required: yes
-9. Required credential names: provider-specific client ID/key/secret/webhook secret
-10. Environment variables: future provider-specific server-only variables
+1. Provider name: Amadeus Flight Offers Search
+2. Current status: Code ready — credentials required
+3. What Codex completed: server-side Amadeus OAuth, Flight Offers Search adapter, fare-rules adapter, health check, normalized result schema, setup-required state
+4. Founder must complete manually: create/approve an Amadeus for Developers account, accept provider terms, create an app, obtain approved credentials, and configure environment variables
+5. Console/account area: https://developers.amadeus.com/
+6. Required API/service: Self-Service Flight Offers Search; Flight Offers Price / detailed fare rules for fare-rule inspection; booking/ticketing is not enabled
+7. Billing required: Amadeus terms/quota apply; production access may require additional approval
+8. Provider approval/contract required: required for production access and any booking/ticketing capability
+9. Required credential names: AMADEUS_CLIENT_ID, AMADEUS_CLIENT_SECRET
+10. Environment variables: FLIGHT_PROVIDER_ENABLED=true, FLIGHT_PROVIDER_NAME=amadeus, FLIGHT_PROVIDER_ENV=test or production, AMADEUS_ENV=test or production, AMADEUS_CLIENT_ID, AMADEUS_CLIENT_SECRET, FLIGHT_PROVIDER_TIMEOUT_MS
 11. Browser-safe/server-only: server-only
 12. Local development location: ignored `.env.local`
 13. Deployed location: Cloudflare Pages protected environment variables
 14. Restrictions: provider-approved redirect/webhook domains if applicable
-15. Verification: authenticated flight search returns real itinerary/fare response and normalizes successfully
-16. Expected success: current prices/schedules appear only from provider evidence
-17. Common setup errors: showing sandbox/sample fares as real
-18. Security warnings: separate search, booking, payment permissions
-19. Environment: not implemented beyond contract
-20. Estimated API-cost exposure: unknown until provider selected
+15. Verification: call `/api/v1/providers/flights/health`, then `/api/v1/providers/flights/search` with ICN → HND and confirm Amadeus-backed normalized offers include provider evidence and retrieval timestamp
+16. Expected success: current prices/schedules appear only from Amadeus provider evidence; UI still says prices may change until booking
+17. Common setup errors: using production mode with test credentials, enabling FLIGHT_PROVIDER_ENABLED before credentials are valid, treating sandbox/test fares as guaranteed, exposing AMADEUS_CLIENT_SECRET to browser code
+18. Security warnings: never paste Amadeus secrets into Codex chat; keep credentials server-only; do not log OAuth tokens or raw provider payloads
+19. Environment: server-side adapter implemented; demo remains setup-required until credentials are configured
+20. Estimated API-cost exposure: depends on Amadeus quota/plan and must be reviewed in the Amadeus console
 
 ## 7. Accommodation provider
 

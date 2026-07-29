@@ -22,6 +22,7 @@ const configured = (value) => Boolean(String(value || "").trim());
 export function createBrowserProviderRegistry(config = (typeof window !== "undefined" ? window.KASTIZ_PROVIDER_CONFIG || {} : {})) {
   const mapsConfigured = configured(config.GOOGLE_MAPS_BROWSER_KEY || config.GOOGLE_MAPS_API_KEY);
   const tossConfigured = configured(config.TOSS_CLIENT_KEY) && String(config.TOSS_MODE || "test") === "test";
+  const flightConfigured = config.FLIGHT_PROVIDER_ENABLED === true || config.FLIGHT_PROVIDER_ENABLED === "true";
   const entry = ({ id, type, enabled, credentialStatus, capabilities = [], environment = "browser" }) => ({
     id,
     name: id,
@@ -42,7 +43,7 @@ export function createBrowserProviderRegistry(config = (typeof window !== "undef
       entry({ id: "google-places", type: PROVIDER_TYPES.PLACES, enabled: true, credentialStatus: "server_checked", capabilities: ["server_text_search"] }),
       entry({ id: "google-routes", type: PROVIDER_TYPES.ROUTES, enabled: true, credentialStatus: "server_checked", capabilities: ["server_routes"] }),
       entry({ id: "toss-payments-test", type: PROVIDER_TYPES.PAYMENT, enabled: tossConfigured, credentialStatus: tossConfigured ? "test_client_key_configured" : "missing_toss_client_key", capabilities: ["external_test_payment"] }),
-      entry({ id: "flight-provider", type: PROVIDER_TYPES.FLIGHT, enabled: false, credentialStatus: "not_connected", capabilities: ["setup_required"], environment: "future" }),
+      entry({ id: "amadeus-flight-offers", type: PROVIDER_TYPES.FLIGHT, enabled: flightConfigured, credentialStatus: flightConfigured ? "server_checked" : "missing_amadeus_credentials", capabilities: flightConfigured ? ["server_flight_search", "fare_rules", "health_check"] : ["setup_required"], environment: "server" }),
       entry({ id: "accommodation-provider", type: PROVIDER_TYPES.ACCOMMODATION, enabled: false, credentialStatus: "not_connected", capabilities: ["setup_required"], environment: "future" }),
       entry({ id: "reservation-provider", type: PROVIDER_TYPES.RESERVATION, enabled: false, credentialStatus: "not_connected", capabilities: ["setup_required"], environment: "future" })
     ]),

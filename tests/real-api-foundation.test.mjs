@@ -157,13 +157,13 @@ test("browser registry and provider interfaces do not expose server-only credent
   const registry = createBrowserProviderRegistry({ GOOGLE_MAPS_BROWSER_KEY: "browser", TOSS_CLIENT_KEY: "test_ck", TOSS_MODE: "test" });
   assert.equal(registry.secretExposure.googleServerKeysExposedToBrowser, false);
   assert.equal(registry.secretExposure.tossSecretExposedToBrowser, false);
-  assert.equal(registry.providers.find((provider) => provider.id === "flight-provider").enabled, false);
+  assert.equal(registry.providers.find((provider) => provider.id === "amadeus-flight-offers").enabled, false);
 
   const payment = new PaymentProvider();
   const raw = payment.rejectRawPaymentCredentials({ cvv: "123" });
   assert.equal(raw.ok, false);
   const reservation = await new ReservationProvider().prepareReservation({ hotel: "x" });
-  const flight = await new FlightProvider().searchFlights({ destination: "Tokyo" });
+  const flight = await new FlightProvider({ fetcher: null }).searchFlights({ destination: "Tokyo" });
   const accommodation = await new AccommodationProvider().searchAccommodations({ destination: "Tokyo" });
   assert.equal(reservation.error.code, "provider_not_configured");
   assert.equal(flight.error.code, "provider_not_configured");
