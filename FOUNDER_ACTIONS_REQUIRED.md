@@ -142,26 +142,26 @@ This is the practical activation checklist. Do not paste API keys into Codex cha
 
 ## 7. Accommodation provider
 
-1. Provider name: future accommodation inventory provider
-2. Current status: Provider approval or contract required
-3. What Codex completed: provider contract and setup-required state
-4. Founder must complete manually: select provider, create account, accept terms, obtain inventory/search credentials
-5. Console/account area: Booking, Agoda, Expedia, hotel partner, affiliate, or approved inventory portal
-6. Required API/service: accommodation search/inventory; booking only if separately approved
-7. Billing required: usually contract/affiliate/commercial terms
-8. Provider approval/contract required: yes
-9. Required credential names: provider-specific key/client ID/secret
-10. Environment variables: future provider-specific server-only variables
+1. Provider name: Amadeus Hotel List + Hotel Search V3
+2. Current status: Code ready — credentials required
+3. What Codex completed: server-side Amadeus hotel list, live hotel offers, offer detail/cancellation inspection, health check, normalized hotel schema, mission scoring, setup-required state
+4. Founder must complete manually: create/approve an Amadeus for Developers account, accept hotel API terms, create an app, obtain credentials, and configure environment variables
+5. Console/account area: https://developers.amadeus.com/
+6. Required API/service: Hotel List API and Hotel Search V3; booking is not enabled
+7. Billing required: Amadeus terms/quota apply; production access may require additional approval
+8. Provider approval/contract required: required for production access and any booking/reservation capability
+9. Required credential names: AMADEUS_CLIENT_ID, AMADEUS_CLIENT_SECRET
+10. Environment variables: ACCOMMODATION_PROVIDER_ENABLED=true, ACCOMMODATION_PROVIDER_NAME=amadeus, HOTEL_PROVIDER_ENV=test or production, AMADEUS_ENV=test or production, AMADEUS_CLIENT_ID, AMADEUS_CLIENT_SECRET, HOTEL_PROVIDER_TIMEOUT_MS
 11. Browser-safe/server-only: server-only
 12. Local development location: ignored `.env.local`
 13. Deployed location: Cloudflare Pages protected environment variables
 14. Restrictions: provider-approved domains/webhooks if applicable
-15. Verification: authenticated room search returns availability/pricing/cancellation evidence and normalizes successfully
-16. Expected success: availability appears only from inventory provider, not Google Places
-17. Common setup errors: treating Google Places hotel location as room availability
-18. Security warnings: avoid logging guest/payment details
-19. Environment: not implemented beyond contract
-20. Estimated API-cost exposure: unknown until provider selected
+15. Verification: call `/api/v1/providers/hotels/health`, then `/api/v1/providers/hotels/search` with city code, dates, guests, and rooms; confirm normalized offers include provider evidence, total price, taxes/fees when returned, cancellation policy when returned, and retrieval timestamp
+16. Expected success: availability/prices appear only from Amadeus Hotel Search V3 evidence, not Google Places or static hotel names
+17. Common setup errors: using Hotel List results as availability, using production mode with test credentials, showing test inventory as guaranteed, exposing AMADEUS_CLIENT_SECRET to browser code
+18. Security warnings: never paste Amadeus secrets into Codex chat; keep credentials server-only; do not log OAuth tokens, guest data, or raw provider payloads
+19. Environment: server-side adapter implemented; demo remains setup-required until credentials are configured
+20. Estimated API-cost exposure: depends on Amadeus quota/plan and must be reviewed in the Amadeus console
 
 ## 8. Reservation provider
 

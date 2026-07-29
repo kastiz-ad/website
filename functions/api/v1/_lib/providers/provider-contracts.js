@@ -190,6 +190,7 @@ export function createProviderRegistry(env = {}) {
   const tossSecret = hasEnv(env, ["TOSS_SECRET_KEY"]);
   const tossTestMode = String(env.TOSS_MODE || "test").toLowerCase() === "test";
   const amadeusFlight = env.FLIGHT_PROVIDER_ENABLED === "true" && hasEnv(env, ["AMADEUS_CLIENT_ID", "AMADEUS_CLIENT_SECRET"]);
+  const amadeusHotel = env.ACCOMMODATION_PROVIDER_ENABLED === "true" && hasEnv(env, ["AMADEUS_CLIENT_ID", "AMADEUS_CLIENT_SECRET"]);
 
   const entry = ({ id, type, enabled, credentialStatus, capabilities = [], environment = "test", lastErrorCategory = null }) => ({
     id,
@@ -213,7 +214,7 @@ export function createProviderRegistry(env = {}) {
       entry({ id: "google-routes", type: PROVIDER_TYPES.ROUTES, enabled: googleRoutes, credentialStatus: googleRoutes ? "api_key_configured" : "missing_google_routes_api_key", capabilities: ["walking", "driving", "transit", "polyline"], environment: "server" }),
       entry({ id: "toss-payments-test", type: PROVIDER_TYPES.PAYMENT, enabled: tossClient && tossSecret && tossTestMode, credentialStatus: tossClient && tossSecret ? "test_credentials_configured" : "missing_toss_test_credentials", capabilities: ["test_payment_order", "server_confirm", "idempotency_guard"], environment: "test" }),
       entry({ id: "amadeus-flight-offers", type: PROVIDER_TYPES.FLIGHT, enabled: amadeusFlight, credentialStatus: amadeusFlight ? "server_credentials_configured" : "missing_amadeus_credentials", capabilities: ["searchFlights", "searchRoundTrip", "searchOneWay", "searchMultiCity", "getFareRules", "getFlightDetails", "healthCheck", "normalizeResponse"], environment: env.AMADEUS_ENV || "test", lastErrorCategory: amadeusFlight ? null : "setup_required" }),
-      entry({ id: "accommodation-provider", type: PROVIDER_TYPES.ACCOMMODATION, enabled: false, credentialStatus: "not_connected", capabilities: ["setup_required"], environment: "future", lastErrorCategory: "provider_not_connected" }),
+      entry({ id: "amadeus-hotel-offers", type: PROVIDER_TYPES.ACCOMMODATION, enabled: amadeusHotel, credentialStatus: amadeusHotel ? "server_credentials_configured" : "missing_amadeus_credentials", capabilities: ["listHotels", "searchAccommodations", "searchAvailability", "searchRates", "getCancellationPolicy", "getHotelDetails", "healthCheck", "missionScoring"], environment: env.AMADEUS_ENV || "test", lastErrorCategory: amadeusHotel ? null : "setup_required" }),
       entry({ id: "reservation-provider", type: PROVIDER_TYPES.RESERVATION, enabled: false, credentialStatus: "not_connected", capabilities: ["setup_required"], environment: "future", lastErrorCategory: "provider_not_connected" })
     ],
     publicConfig: {

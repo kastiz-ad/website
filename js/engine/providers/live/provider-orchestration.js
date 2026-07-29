@@ -98,12 +98,12 @@ export const createProviderOrchestrationFromMissionData = (result = {}) => {
     version: PROVIDER_ORCHESTRATION_VERSION,
     mode: "mission_data_only",
     connectedProviders: ["google-places", "google-routes"].filter(Boolean),
-    unavailableProviders: ["amadeus-flight-offers", "accommodation-provider"],
+    unavailableProviders: ["amadeus-flight-offers", "amadeus-hotel-offers"],
     normalized: { flights, accommodations, transport },
     comparison: createProviderComparison({ flights, accommodations, transport }),
     providerStatuses: {
       flights: createProviderStatus("amadeus-flight-offers"),
-      accommodations: createProviderStatus("accommodation-provider"),
+      accommodations: createProviderStatus("amadeus-hotel-offers"),
       transport: transport.length ? { id: "google-routes", state: PROVIDER_STATES.SUCCESS, sourceState: PROVIDER_SOURCE_STATES.CACHED, retryAvailable: false, retrievedAt: new Date().toISOString(), errorCode: null } : createProviderStatus("google-routes")
     },
     approvalWorkflow: {
@@ -124,7 +124,7 @@ export const searchAndCompareProviders = async (result = {}, { manager = createP
   if (requireApproval) {
     const allowed = [
       assertProviderActionAllowed(lifecycle, APPROVAL_SCOPES.SEARCH_FLIGHTS, { providerAction: "amadeus-flight-offers" }),
-      assertProviderActionAllowed(lifecycle, APPROVAL_SCOPES.SEARCH_HOTELS, { providerAction: "accommodation-provider" })
+      assertProviderActionAllowed(lifecycle, APPROVAL_SCOPES.SEARCH_HOTELS, { providerAction: "amadeus-hotel-offers" })
     ];
     if (allowed.some((item) => !item.allowed)) {
       return {
@@ -140,7 +140,7 @@ export const searchAndCompareProviders = async (result = {}, { manager = createP
         comparison: createProviderComparison({ flights: [], accommodations: [], transport: [] }),
         providerStatuses: {
           flights: createProviderStatus("amadeus-flight-offers"),
-          accommodations: createProviderStatus("accommodation-provider")
+          accommodations: createProviderStatus("amadeus-hotel-offers")
         },
         blocked: true,
         bookingEnabled: false,
@@ -165,7 +165,7 @@ export const searchAndCompareProviders = async (result = {}, { manager = createP
     comparison: createProviderComparison({ flights, accommodations, transport: [] }),
     providerStatuses: {
       flights: createProviderStatus(flightResult.provider || "amadeus-flight-offers", flightResult),
-      accommodations: createProviderStatus(hotelResult.provider || "accommodation-provider", hotelResult)
+      accommodations: createProviderStatus(hotelResult.provider || "amadeus-hotel-offers", hotelResult)
     },
     approvalWorkflow: {
       lifecycle,

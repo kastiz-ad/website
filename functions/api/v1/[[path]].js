@@ -9,6 +9,7 @@ import { runOneCoreAgent } from "./_lib/one/one-core-agent.js";
 import { createProviderRegistry } from "./_lib/providers/provider-contracts.js";
 import { geocodeWithGoogle, searchTextWithGooglePlaces, computeRoutesWithGoogle } from "./_lib/providers/google.js";
 import { amadeusFlightHealthCheck, getFareRulesWithAmadeus, searchFlightsWithAmadeus } from "./_lib/providers/amadeus-flights.js";
+import { amadeusHotelHealthCheck, getHotelOfferWithAmadeus, listHotelsWithAmadeus, searchHotelOffersWithAmadeus } from "./_lib/providers/amadeus-hotels.js";
 import { createTossTestPaymentOrder, confirmTossTestPayment } from "./_lib/providers/toss.js";
 import { createLogger } from "./_lib/logger.js";
 import { runtimeConfig } from "./_lib/runtime-config.js";
@@ -63,6 +64,17 @@ async function route(context, cfg) {
     if (action === "multi-city" && request.method === "POST") return json(await searchFlightsWithAmadeus(context.env, { ...data, tripType: "multi_city" }));
     if (action === "fare-rules" && request.method === "POST") return json(await getFareRulesWithAmadeus(context.env, data));
     if (action === "details" && request.method === "POST") return json({ ok: false, provider: "amadeus-flight-offers", dataState: "setup_required", error: { code: "details_require_selected_offer", message: "Flight details require a selected provider offer from search results. ONE does not invent details." }, items: [], retrievedAt: new Date().toISOString() }, 200);
+  }
+  if (group === "providers" && id === "hotels") {
+    await rateLimit(context, "providers-hotels", 20);
+    if (action === "health" && request.method === "GET") return json(await amadeusHotelHealthCheck(context.env));
+    const data = await request.json().catch(() => ({}));
+    if (action === "list" && request.method === "POST") return json(await listHotelsWithAmadeus(context.env, data));
+    if (action === "search" && request.method === "POST") return json(await searchHotelOffersWithAmadeus(context.env, data));
+    if (action === "availability" && request.method === "POST") return json(await searchHotelOffersWithAmadeus(context.env, data));
+    if (action === "rates" && request.method === "POST") return json(await searchHotelOffersWithAmadeus(context.env, data));
+    if (action === "details" && request.method === "POST") return json(await getHotelOfferWithAmadeus(context.env, data));
+    if (action === "cancellation" && request.method === "POST") return json(await getHotelOfferWithAmadeus(context.env, data));
   }
   if (group === "payments" && id === "toss" && request.method === "POST") {
     await rateLimit(context, "payments-toss", 10);
