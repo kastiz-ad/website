@@ -555,6 +555,15 @@ const setMetaThemeColor = (theme) => {
     ?.setAttribute("content", colors[theme] || colors.light);
 };
 
+const syncLogoTheme = (theme) => {
+  const isLight = theme === "light";
+  document.querySelectorAll(".header-mini-symbol,.one-symbol").forEach((image) => {
+    image.style.filter = isLight
+      ? "invert(1) drop-shadow(0 0 .65px currentColor)"
+      : "drop-shadow(0 0 .65px currentColor)";
+  });
+};
+
 const updateThemeControls = () => {
   const themeLabels = getTranslation("themes");
   const currentTheme = root.getAttribute("data-theme") || "light";
@@ -588,6 +597,7 @@ const setTheme = (theme) => {
   root.setAttribute("data-theme", nextTheme);
   localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
   setMetaThemeColor(nextTheme);
+  syncLogoTheme(nextTheme);
   updateThemeControls();
 };
 

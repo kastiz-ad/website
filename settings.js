@@ -176,6 +176,11 @@ function applyTheme(theme) {
 
   root.dataset.theme = theme;
   localStorage.setItem(STORAGE_KEYS.theme, theme);
+  document.querySelectorAll(".header-mini-symbol,.one-symbol,.logo img,.one-logo img").forEach((image) => {
+    image.style.filter = theme === "light"
+      ? "invert(1) drop-shadow(0 0 .65px currentColor)"
+      : "drop-shadow(0 0 .65px currentColor)";
+  });
 
   const colors = {
     light: "#ffffff",

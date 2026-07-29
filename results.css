@@ -3828,6 +3828,10 @@ body.travel-premium-result-view .alpha02-refinement-card {
 .all-in-one img { width: 1.45em; height: 1.45em; object-fit: contain; }
 .all-in-one strong { margin-left: 0; font-size: 1em; line-height: 1; letter-spacing: -0.09em; }
 html[data-theme="light"] .all-in-one img { filter: invert(1); }
+html[data-theme="gray"] .brand img,
+html[data-theme="midnight"] .brand img,
+html[data-theme="gray"] .all-in-one img,
+html[data-theme="midnight"] .all-in-one img { filter: drop-shadow(0 0 .65px currentColor) !important; }
 @media (max-width: 600px) { .execution-summary-grid { grid-template-columns: 1fr; } .execution-summary-item.is-wide { grid-column: auto; } }
 
 .return-home {

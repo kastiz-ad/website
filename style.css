@@ -1851,7 +1851,7 @@ html[data-theme="midnight"] .one-symbol {
 
 html[data-theme="gray"] .header-mini-symbol,
 html[data-theme="midnight"] .header-mini-symbol {
-  filter: none !important;
+  filter: drop-shadow(0 0 .65px currentColor) !important;
 }
 
 /* ONE Intelligence Layer: quiet secondary assistant row */
