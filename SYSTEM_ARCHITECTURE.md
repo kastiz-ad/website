@@ -60,6 +60,17 @@ module/
 - Health signals report freshness; unknown is yellow, never green.
 - Admin outage cannot affect homepage, mission preparation, or approval protection.
 
+## Production engineering layer
+
+Cloudflare Pages Functions share a small production-hardening layer:
+
+- `runtimeConfig()` centralizes environment, release, log level, and upstream timeout values.
+- `createLogger()` emits structured, redacted logs with request id, environment, service, status, and latency.
+- `fetchWithTimeout()` gives backend upstream calls bounded failure behavior.
+- CI runs static quality checks, syntax checks, the security scan, and automated tests.
+
+Provider code must fail closed. Adapter code alone is not a live connection; a provider is connected only when credentials authenticate, a provider response is received, normalized, and truthfully displayed.
+
 ## Current static implementation
 
 The current branch includes only a sample-data local prototype and Cloudflare Pages middleware that returns `404` for founder paths. Legacy analytics pages remain local-development tools. This is an architectural foundation, not production authentication.

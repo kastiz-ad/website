@@ -7,12 +7,17 @@ const resultsSource = fs.readFileSync(new URL("../js/pages/results-page.js", imp
 
 test("travel missions open the schedule step before starting", () => {
   assert.match(homeSource, /if \(type === "travel"\) \{\s*pendingFollowUp = null;\s*openScheduleModal\(mission\);/);
-  assert.match(homeSource, /const schedule = \{ startDate: scheduleStartDate\.value, endDate: scheduleEndDate\.value, timePreference: scheduleTimePreference\.value \};/);
+  assert.match(homeSource, /const schedule = collectScheduleDetails\(\);/);
+  assert.match(homeSource, /travelerCount: normalizeScheduleCount\(scheduleTravelerCount\?\.value, 1\)/);
+  assert.match(homeSource, /originAirport: scheduleDepartureAirport\?\.value \|\| "ICN"/);
   assert.match(homeSource, /startMission\(pendingMissionText, schedule\);/);
 });
 
 test("the final summary renders and preserves the selected dates", () => {
-  assert.match(resultsSource, /metadata\?\.start \|\|/);
-  assert.match(resultsSource, /metadata\?\.end \|\|/);
+  assert.match(resultsSource, /schedule\.startDate \|\| "—"/);
+  assert.match(resultsSource, /schedule\.endDate \|\| "—"/);
   assert.match(resultsSource, /s: \[schedule\.startDate \|\| "", schedule\.endDate \|\| "", schedule\.timePreference \|\| "any"\]/);
+  assert.match(resultsSource, /const \{ tripDays, tripNights \} = calculateTripDayCounts\(result\);/);
+  assert.match(resultsSource, /Number\(nightlyBudget\.min \|\| 0\) \* tripNights \* rooms/);
+  assert.match(resultsSource, /plannedMealsPerDay \* tripDays \* travelerCount/);
 });

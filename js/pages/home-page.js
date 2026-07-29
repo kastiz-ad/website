@@ -1,10 +1,13 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
-import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260720-korean-date-fix";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-mobile-country-fallback-1";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
+import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
+import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
+import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260730-investor-demo-mode";
 
 const root = document.documentElement;
 const body = document.body;
@@ -38,9 +41,14 @@ const scheduleEndDate = document.getElementById("scheduleEndDate");
 const scheduleStartDateValue = document.getElementById("scheduleStartDateValue");
 const scheduleEndDateValue = document.getElementById("scheduleEndDateValue");
 const scheduleTimePreference = document.getElementById("scheduleTimePreference");
+const scheduleTravelerCount = document.getElementById("scheduleTravelerCount");
+const scheduleRoomCount = document.getElementById("scheduleRoomCount");
+const scheduleDepartureAirport = document.getElementById("scheduleDepartureAirport");
 const scheduleSummary = document.getElementById("scheduleSummary");
 let pendingMissionText = "";
 let pendingFollowUp = null;
+let pendingDetectedDestination = null;
+let pendingDestinationMatches = [];
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -128,6 +136,9 @@ const translations = {
     morning: "Morning · 06:00–12:00",
     afternoon: "Afternoon · 12:00–17:00",
     evening: "Evening · 17:00–22:00",
+    travelerCount: "Travelers",
+    roomCount: "Rooms",
+    departureAirport: "Departure airport",
     confirmSchedule: "Confirm and Continue",
     searchLabel: "Enter your mission",
     searchDefault: "Plan my Japan trip.",
@@ -199,6 +210,9 @@ const translations = {
     morning: "오전 · 06:00–12:00",
     afternoon: "오후 · 12:00–17:00",
     evening: "저녁 · 17:00–22:00",
+    travelerCount: "여행 인원",
+    roomCount: "객실 수",
+    departureAirport: "출발 공항",
     confirmSchedule: "확인 후 계속",
     searchLabel: "미션 입력",
     searchDefault: "일본 여행 계획해줘",
@@ -245,7 +259,12 @@ const translations = {
   }
 };
 
-translations.es = localeSection("es", "home");
+translations.es = {
+  ...localeSection("es", "home"),
+  travelerCount: localeSection("es", "home").travelerCount || "Viajeros",
+  roomCount: localeSection("es", "home").roomCount || "Habitaciones",
+  departureAirport: localeSection("es", "home").departureAirport || "Aeropuerto de salida"
+};
 
 const countryNamesByRegion = {
   KR: "South Korea",
@@ -537,6 +556,15 @@ const setMetaThemeColor = (theme) => {
     ?.setAttribute("content", colors[theme] || colors.light);
 };
 
+const syncLogoTheme = (theme) => {
+  const isLight = theme === "light";
+  document.querySelectorAll(".header-mini-symbol,.one-symbol").forEach((image) => {
+    image.style.filter = isLight
+      ? "invert(1) drop-shadow(0 0 .65px currentColor)"
+      : "drop-shadow(0 0 .65px currentColor)";
+  });
+};
+
 const updateThemeControls = () => {
   const themeLabels = getTranslation("themes");
   const currentTheme = root.getAttribute("data-theme") || "light";
@@ -570,6 +598,7 @@ const setTheme = (theme) => {
   root.setAttribute("data-theme", nextTheme);
   localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
   setMetaThemeColor(nextTheme);
+  syncLogoTheme(nextTheme);
   updateThemeControls();
 };
 
@@ -1457,12 +1486,37 @@ const buildTravelMission = (mission) => {
 };
 
 const buildGeneralMission = (mission) => {
-  return buildMissionObject(mission);
+  const base = buildMissionObject(mission);
+  try {
+    const output = createHOSKernel().run({
+      mission,
+      language: activeLanguage,
+      currentLocation: activeLanguage === "ko" ? "서울" : "Seoul"
+    });
+    const plan = output.resolutionPlan;
+    return {
+      ...base,
+      type: plan?.domain || output.classification?.providerType || base.type,
+      domain: plan?.domain || output.classification?.providerType || base.type,
+      missionType: plan?.missionType || output.classification?.providerType || base.type,
+      classification: output.classification,
+      humanReasoning: output.humanReasoning,
+      missionIntelligence: output.missionIntelligence,
+      resolutionPlan: plan
+    };
+  } catch {
+    return base;
+  }
 };
 
 const saveMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
-  const missionType = pendingFollowUp?.type || classifyMission(cleanMission);
+  const classifiedType = classifyMission(cleanMission);
+  const destinationTravelIntent = Boolean(pendingDetectedDestination)
+    && /travel|trip|vacation|honeymoon|flight|hotel|airport|viaje|viajar|vacaciones|luna de miel|vuelo|aeropuerto/i.test(cleanMission);
+  const missionType = pendingFollowUp?.type === "travel" || classifiedType === "travel" || destinationTravelIntent
+    ? "travel"
+    : pendingFollowUp?.type || classifiedType;
   const payload = missionType === "travel"
     ? buildTravelMission(cleanMission)
     : buildGeneralMission(cleanMission);
@@ -1470,7 +1524,44 @@ const saveMission = (mission, schedule = null) => {
   payload.aiMode = aiModeEnabled;
   payload.schedule = schedule;
   payload.followUp = pendingFollowUp;
-  const selectedDestination = pendingFollowUp?.answers;
+  payload.missionSeed = payload.missionSeed || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  if (payload.type === "travel" && schedule) {
+    const travelerCount = normalizeScheduleCount(schedule.travelerCount || schedule.travelers || schedule.adults, 1);
+    const roomCount = normalizeScheduleCount(schedule.rooms || schedule.roomCount, Math.max(1, Math.ceil(travelerCount / 2)));
+    const originAirport = schedule.originAirport || schedule.departureAirport || "ICN";
+    payload.travelerCount = travelerCount;
+    payload.travelers = travelerCount;
+    payload.rooms = roomCount;
+    payload.roomCount = roomCount;
+    payload.originAirport = originAirport;
+    payload.departureAirport = originAirport;
+    payload.groupType = travelerCount <= 1 ? "solo" : travelerCount === 2 ? "couple" : travelerCount >= 4 ? "family_or_group" : "small_group";
+    payload.followUp = {
+      ...(pendingFollowUp || { type: "travel" }),
+      type: "travel",
+      answers: {
+        ...(pendingFollowUp?.answers || {}),
+        adults: travelerCount,
+        travelers: travelerCount,
+        rooms: roomCount,
+        roomCount,
+        originAirport,
+        departureAirport: originAirport
+      }
+    };
+  }
+  payload.interfaceLanguage = activeLanguage;
+  payload.missionLanguage = detectMissionLanguage(cleanMission).value;
+  const selectedDestination = pendingFollowUp?.answers || (pendingDetectedDestination ? {
+    destination: pendingDetectedDestination.city,
+    destinationCountry: pendingDetectedDestination.country,
+    destinationCountryCode: pendingDetectedDestination.countryCode || pendingDetectedDestination.code,
+    destinationCurrency: pendingDetectedDestination.currency,
+    destinationContinent: pendingDetectedDestination.continent,
+    destinationLatitude: pendingDetectedDestination.latitude,
+    destinationLongitude: pendingDetectedDestination.longitude,
+    destinationState: pendingDetectedDestination.state
+  } : null);
   if (payload.type === "travel" && selectedDestination?.destination) {
     payload.destination = {
       ...payload.destination,
@@ -1479,6 +1570,8 @@ const saveMission = (mission, schedule = null) => {
       city: selectedDestination.destination,
       cityKo: selectedDestination.destination,
       continent: selectedDestination.destinationContinent || "",
+      state: selectedDestination.destinationState || "",
+      countryCode: selectedDestination.destinationCountryCode || "",
       latitude: Number(selectedDestination.destinationLatitude) || undefined,
       longitude: Number(selectedDestination.destinationLongitude) || undefined
     };
@@ -1538,6 +1631,7 @@ const saveMission = (mission, schedule = null) => {
 
   sessionStorage.removeItem(STORAGE_KEYS.results);
   sessionStorage.removeItem(STORAGE_KEYS.enrichedMission);
+  pendingDetectedDestination = null;
   sessionStorage.removeItem(STORAGE_KEYS.executionState);
 
   return payload;
@@ -1563,6 +1657,86 @@ const startMission = (mission, schedule = null) => {
   window.setTimeout(() => {
     window.location.href = "loading.html";
   }, 360);
+};
+
+const destinationFlag = (code = "") => String(code).toUpperCase().replace(/[A-Z]/g, (letter) => String.fromCodePoint(127397 + letter.charCodeAt(0)));
+const MISSION_AMBIGUITIES = Object.freeze([
+  { aliases: ["paris", "parís", "\uD30C\uB9AC"], places: [
+    { city: "Paris", state: "Île-de-France", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 48.8566, longitude: 2.3522 },
+    { city: "Paris", state: "Texas", country: "United States", code: "US", continent: "North America", currency: "USD", latitude: 33.6609, longitude: -95.5555 },
+    { city: "Paris", state: "Ontario", country: "Canada", code: "CA", continent: "North America", currency: "CAD", latitude: 43.194, longitude: -80.3845 }
+  ]},
+  { aliases: ["london", "londres", "\uB7F0\uB358"], places: [
+    { city: "London", state: "England", country: "United Kingdom", code: "GB", continent: "Europe", currency: "GBP", latitude: 51.5074, longitude: -0.1278 },
+    { city: "London", state: "Ontario", country: "Canada", code: "CA", continent: "North America", currency: "CAD", latitude: 42.9849, longitude: -81.2453 }
+  ]},
+  { aliases: ["surat", "\uC218\uB77C\uD2B8"], places: [
+    { city: "Surat", state: "Gujarat", country: "India", code: "IN", continent: "Asia", currency: "INR", latitude: 21.1702, longitude: 72.8311 },
+    { city: "Surat", state: "Puy-de-Dôme", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 45.965, longitude: 3.255 }
+  ]},
+  { aliases: ["santiago", "\uC0B0\uD2F0\uC544\uACE0"], places: [
+    { city: "Santiago", state: "Santiago Metropolitan Region", country: "Chile", code: "CL", continent: "South America", currency: "CLP", latitude: -33.4489, longitude: -70.6693 },
+    { city: "Santiago de Compostela", state: "Galicia", country: "Spain", code: "ES", continent: "Europe", currency: "EUR", latitude: 42.8782, longitude: -8.5448 },
+    { city: "Santiago de los Caballeros", state: "Santiago", country: "Dominican Republic", code: "DO", continent: "North America", currency: "DOP", latitude: 19.4517, longitude: -70.697 }
+  ]}
+]);
+const missionAmbiguityMatches = (mission) => {
+  const shared = ambiguousWorldDestinationMatches(mission);
+  if (shared.length > 1) return shared.map((place) => ({
+    city: place.city,
+    state: place.state,
+    country: place.country,
+    countryKo: place.country,
+    countryEs: place.country,
+    code: place.countryCode,
+    continent: place.continent,
+    currency: place.currency,
+    latitude: place.latitude,
+    longitude: place.longitude,
+    description: [place.placeType || "Destination", place.state, place.country].filter(Boolean).join(" · ")
+  }));
+  const normalized = String(mission || "").normalize("NFKC").toLocaleLowerCase();
+  const entry = MISSION_AMBIGUITIES.find(({ aliases }) => aliases.some((alias) => normalized.includes(alias)));
+  if (!entry) return [];
+  const explicitlyQualified = entry.places.some((place) => [place.country, place.state].filter(Boolean).some((qualifier) => normalized.includes(qualifier.toLocaleLowerCase())));
+  return explicitlyQualified ? [] : entry.places;
+};
+const destinationDisplayName = (place) => {
+  const country = activeLanguage === "ko" ? (place.countryKo || place.country) : activeLanguage === "es" ? (place.countryEs || place.country) : place.country;
+  return [place.city, place.state, country].filter(Boolean).join(", ");
+};
+const openDestinationChoice = (mission, schedule) => {
+  let dialog = document.getElementById("destinationChoiceModal");
+  if (!dialog) {
+    dialog = document.createElement("dialog");
+    dialog.id = "destinationChoiceModal";
+    dialog.className = "schedule-modal destination-choice-modal";
+    document.body.append(dialog);
+  }
+  const heading = activeLanguage === "ko" ? "어느 목적지를 말씀하셨나요?" : activeLanguage === "es" ? "¿Qué destino quisiste decir?" : "Which destination did you mean?";
+  const detail = activeLanguage === "ko" ? "계획을 시작하기 전에 정확한 위치를 선택하세요." : activeLanguage === "es" ? "Elige la ubicación exacta antes de preparar el plan." : "Choose the exact location before ONE prepares the plan.";
+  dialog.innerHTML = `<div class="schedule-modal-card destination-choice-card"><button type="button" class="schedule-modal-close" data-close aria-label="Close">×</button><p class="login-modal-kicker">KASTIZ ONE</p><h2>${heading}</h2><p>${detail}</p><div class="destination-choice-list">${pendingDestinationMatches.map((place, index) => `<button type="button" data-destination-index="${index}"><strong>${destinationFlag(place.code)} ${destinationDisplayName(place)}</strong>${place.description ? `<span>${place.description}</span>` : ""}</button>`).join("")}</div></div>`;
+  dialog.querySelector("[data-close]")?.addEventListener("click", () => dialog.close());
+  dialog.querySelectorAll("[data-destination-index]").forEach((button) => button.addEventListener("click", () => {
+    const place = pendingDestinationMatches[Number(button.dataset.destinationIndex)];
+    if (!place) return;
+    pendingDetectedDestination = {
+      id: String(place.city || place.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),
+      city: place.city,
+      country: place.country,
+      countryCode: place.code,
+      continent: place.continent,
+      currency: place.currency,
+      state: place.state,
+      latitude: place.latitude,
+      longitude: place.longitude
+    };
+    pendingDestinationMatches = [];
+    dialog.close();
+    startMission(mission, schedule);
+  }));
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
 };
 
 const syncInputState = () => {
@@ -1771,6 +1945,34 @@ const toLocalIsoDate = (date) => {
   return new Date(date.getTime() - offset).toISOString().slice(0, 10);
 };
 
+const normalizeScheduleCount = (value, fallback = 1) => {
+  const count = Number(value);
+  return Number.isFinite(count) && count > 0 ? Math.round(count) : fallback;
+};
+
+const scheduleAirportLabel = (value) => {
+  const labels = {
+    ICN: activeLanguage === "ko" ? "인천공항" : "Incheon",
+    GMP: activeLanguage === "ko" ? "김포공항" : "Gimpo",
+    current: activeLanguage === "ko" ? "현재 위치 기준" : activeLanguage === "es" ? "Ubicación actual" : "Current location",
+    unsure: activeLanguage === "ko" ? "나중에 확인" : activeLanguage === "es" ? "Confirmar después" : "Confirm later"
+  };
+  return labels[value] || labels.ICN;
+};
+
+const collectScheduleDetails = () => ({
+  startDate: scheduleStartDate.value,
+  endDate: scheduleEndDate.value,
+  timePreference: scheduleTimePreference.value,
+  travelerCount: normalizeScheduleCount(scheduleTravelerCount?.value, 1),
+  travelers: normalizeScheduleCount(scheduleTravelerCount?.value, 1),
+  adults: normalizeScheduleCount(scheduleTravelerCount?.value, 1),
+  rooms: normalizeScheduleCount(scheduleRoomCount?.value, 1),
+  roomCount: normalizeScheduleCount(scheduleRoomCount?.value, 1),
+  departureAirport: scheduleDepartureAirport?.value || "ICN",
+  originAirport: scheduleDepartureAirport?.value || "ICN"
+});
+
 const updateScheduleSummary = () => {
   const start = scheduleStartDate.value;
   const end = scheduleEndDate.value;
@@ -1786,10 +1988,14 @@ const updateScheduleSummary = () => {
   const outgoingLabel = activeLanguage === "ko" ? "출국 날짜" : "Outgoing date";
   const returningLabel = activeLanguage === "ko" ? "귀국 날짜" : "Returning date";
   const timeHeading = activeLanguage === "ko" ? "시간" : "Time";
+  const details = collectScheduleDetails();
   scheduleSummary.innerHTML = `
     <span class="schedule-summary-row"><strong>${outgoingLabel}</strong><span>${startLabel}</span></span>
     <span class="schedule-summary-row"><strong>${returningLabel}</strong><span>${endLabel}</span></span>
     <span class="schedule-summary-row"><strong>${timeHeading}</strong><span>${timeLabel}</span></span>
+    <span class="schedule-summary-row"><strong>${getTranslation("travelerCount")}</strong><span>${details.travelerCount}</span></span>
+    <span class="schedule-summary-row"><strong>${getTranslation("roomCount")}</strong><span>${details.rooms}</span></span>
+    <span class="schedule-summary-row"><strong>${getTranslation("departureAirport")}</strong><span>${scheduleAirportLabel(details.departureAirport)}</span></span>
   `;
   scheduleSummary.classList.add("has-valid-range");
 };
@@ -1805,6 +2011,9 @@ const openScheduleModal = (mission) => {
   scheduleEndDate.min = scheduleStartDate.value;
   scheduleEndDate.value = toLocalIsoDate(defaultEnd);
   scheduleTimePreference.value = "any";
+  if (scheduleTravelerCount) scheduleTravelerCount.value = "1";
+  if (scheduleRoomCount) scheduleRoomCount.value = "1";
+  if (scheduleDepartureAirport) scheduleDepartureAirport.value = "ICN";
   updateScheduleSummary();
   if (typeof scheduleModal.showModal === "function") scheduleModal.showModal();
   else scheduleModal.setAttribute("open", "");
@@ -1813,6 +2022,9 @@ const openScheduleModal = (mission) => {
 scheduleStartDate?.addEventListener("change", updateScheduleSummary);
 scheduleEndDate?.addEventListener("change", updateScheduleSummary);
 scheduleTimePreference?.addEventListener("change", updateScheduleSummary);
+scheduleTravelerCount?.addEventListener("change", updateScheduleSummary);
+scheduleRoomCount?.addEventListener("change", updateScheduleSummary);
+scheduleDepartureAirport?.addEventListener("change", updateScheduleSummary);
 scheduleModalClose?.addEventListener("click", () => scheduleModal.close());
 scheduleModal?.addEventListener("click", (event) => { if (event.target === scheduleModal) scheduleModal.close(); });
 scheduleModal?.addEventListener("keydown", (event) => {
@@ -1824,7 +2036,7 @@ scheduleModal?.addEventListener("keydown", (event) => {
 scheduleForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!scheduleForm.reportValidity()) return;
-  const schedule = { startDate: scheduleStartDate.value, endDate: scheduleEndDate.value, timePreference: scheduleTimePreference.value };
+  const schedule = collectScheduleDetails();
   trackEvent("schedule_confirmed", {
     mission_type: detectMissionType(normalizeMission(pendingMissionText)),
     language: activeLanguage,
@@ -1832,6 +2044,10 @@ scheduleForm?.addEventListener("submit", (event) => {
     schedule_used: true
   });
   scheduleModal.close();
+  if (pendingDestinationMatches.length > 1) {
+    openDestinationChoice(pendingMissionText, schedule);
+    return;
+  }
   startMission(pendingMissionText, schedule);
 });
 
@@ -1848,8 +2064,31 @@ missionForm.addEventListener("submit", async (event) => {
     return;
   }
   let type = classifyMission(mission);
-  if (type === "general_mission") {
-    const destinationMatches = await detectWorldwideTravelDestination(mission, activeLanguage);
+  pendingDestinationMatches = [];
+  pendingDetectedDestination = resolveWorldDestination(mission);
+  if (type === "travel" || type === "general_mission") {
+    const knownAmbiguityMatches = missionAmbiguityMatches(mission);
+    const destinationMatches = knownAmbiguityMatches.length
+      ? knownAmbiguityMatches
+      : await Promise.race([
+        detectWorldwideTravelDestination(mission, activeLanguage).catch(() => []),
+        new Promise((resolve) => setTimeout(() => resolve([]), 4200))
+      ]);
+    if (destinationMatches.length) {
+      pendingDestinationMatches = destinationMatches;
+      const detected = destinationMatches[0];
+      pendingDetectedDestination = {
+        id: String(detected.city || detected.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),
+        city: detected.city,
+        country: detected.country,
+        countryCode: detected.code,
+        continent: detected.continent,
+        currency: detected.currency,
+        state: detected.state,
+        latitude: detected.latitude,
+        longitude: detected.longitude
+      };
+    }
     if (destinationMatches.length) type = "travel";
   }
   const startOneFirstPass = () => {
@@ -1910,5 +2149,6 @@ trackEvent("page_visit", { page: "home", language: getInitialLanguage() });
 trackEvent("homepage_loaded", { page: "home", language: getInitialLanguage() });
 setLanguage(getInitialLanguage());
 syncInputState();
+mountInvestorDemoHome({ language: getInitialLanguage() });
 
 

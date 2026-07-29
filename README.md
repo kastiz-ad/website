@@ -10,11 +10,19 @@ ONE prepares and explains mission options. It never books, buys, pays, reserves,
 
 The repository now includes a staging-ready Supabase Auth/PostgreSQL design, RLS migration, and Cloudflare Pages Functions API under `/api/v1`. It remains disabled until the environment variables are configured. No real provider execution is enabled, and no founder password is stored in source. See `SECURE_BACKEND_SETUP.md` and `SECURE_BACKEND_API.md`.
 
+Authentication, profile and memory persistence are implemented through Supabase Auth plus Cloudflare Pages Functions. Email/password, Google Sign-In and Apple Sign-In are environment-gated; missing credentials produce setup-required states rather than fake accounts. See `AUTH_PROFILE_MEMORY_REPORT.md`.
+
 ONE Pass adds a protected travel-profile, loyalty/payment reference, provider-handoff, passkey, Identity Vault, exact approval, and booking-coordinator architecture. Sensitive identity persistence, WebAuthn verification, real booking, and real payment fail closed until audited external services are configured. See `ONE_PASS_ARCHITECTURE.md` and `ONE_PASS_EXTERNAL_SETUP.md`.
 
 ## Run locally
 
 Run `npm install`, then `npx wrangler pages dev .`. A plain static server still supports the prototype UI, but secure account APIs require Pages Functions and configured Supabase staging credentials.
+
+## Quality checks
+
+Run `npm run ci` before opening a pull request or deploying a preview. The CI command runs static quality checks, backend syntax checks, the security scan, and the automated test suite.
+
+Production hardening now includes centralized backend runtime configuration, redacted structured logging, upstream timeouts, deployment header checks, and GitHub Actions CI. See `PRODUCTION_READINESS_REPORT.md`, `PRODUCTION_DEPLOYMENT_GUIDE.md`, and `DEVELOPER_ONBOARDING.md`.
 
 ## Product routes
 

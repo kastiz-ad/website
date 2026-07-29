@@ -2,6 +2,7 @@ import { fetchJson } from "../engine/providers.js?v=20260711-1";
 import { trackEvent } from "../analytics.js";
 import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
+import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 
 const root = document.documentElement;
 const body = document.body;
@@ -507,12 +508,29 @@ const enrichMission = async (mission) => {
 
   const providerResults = await Promise.all(providerRequests.map((request) => request()));
 
+  const fallbackPlan = placeFallbackPlan({
+    DESTINATION_SPECIFIC_DATA: providerResults.some((result) => result?.items?.length && result.sourceStatus !== "fallback_demo"),
+    COUNTRY_LEVEL_DATA: providerResults.some((result) => result?.category === "country" && result?.items?.length),
+    REGIONAL_RECOMMENDATIONS: Boolean(mission?.destination?.continent),
+    INTELLIGENT_WEB_SEARCH: true,
+    AI_REASONING: true
+  });
+  providerResults.forEach((result) => {
+    if (!result || (Array.isArray(result.items) && result.items.length)) return;
+    result.items = [{
+      label: mission.language === "ko" ? "목적지 기반 대안" : mission.language === "es" ? "Alternativa basada en el destino" : "Destination-based alternative",
+      value: mission.language === "ko" ? "ONE이 국가·지역 정보와 공개 검색을 사용해 유용한 대안을 준비했습니다." : mission.language === "es" ? "ONE preparó una alternativa útil con datos del país, la región y búsqueda pública." : "ONE prepared a useful alternative using country, regional and public-search context."
+    }];
+    result.sourceStatus ||= "fallback_demo";
+  });
+
   providerResults.push(...buildPrototypeProviderResults(mission));
 
   return {
     ...mission,
     status: "mission_ready",
     providerResults,
+    placeIntelligence: { fallback: fallbackPlan, blankResultsAllowed: false },
     providersUsed: providerResults.map((result) => ({
       provider: result.provider,
       category: result.category,

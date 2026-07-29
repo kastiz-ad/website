@@ -8,12 +8,13 @@
   <meta http-equiv="Expires" content="0" />
   <meta name="description" content="Kastiz ONE has prepared your mission." />
   <meta name="theme-color" content="#ffffff" />
-  <script>try{const latest="20260722-context-v2",u=new URL(location.href);if(["127.0.0.1","localhost"].includes(u.hostname)&&u.searchParams.get("v")!==latest){u.searchParams.set("v",latest);location.replace(u.href)}const t=localStorage.getItem("kastiz-one-theme")||"light";document.documentElement.dataset.theme=t;const s=document.createElement("style");s.id="theme-boot";s.textContent=`html,body{background:${t==="midnight"?"#121315":t==="gray"?"#3f4146":"#ffffff"}!important}`;document.head.appendChild(s);addEventListener("DOMContentLoaded",()=>s.remove(),{once:true})}catch{}</script>
-  <title>Kastiz ONE — Mission Ready</title>
+  <script>try{const latest="20260730-investor-demo-mode",u=new URL(location.href);if((["127.0.0.1","localhost","funding-demo-final.website-42u.pages.dev"].includes(u.hostname))&&u.searchParams.get("v")!==latest){u.searchParams.set("v",latest);location.replace(u.href)}const t=localStorage.getItem("kastiz-one-theme")||"light";document.documentElement.dataset.theme=t;const s=document.createElement("style");s.id="theme-boot";s.textContent=`html,body{background:${t==="midnight"?"#121315":t==="gray"?"#3f4146":"#ffffff"}!important}`;document.head.appendChild(s);addEventListener("DOMContentLoaded",()=>s.remove(),{once:true})}catch{}</script>
+  <title>Kastiz ONE - Mission Ready</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;650;700;750;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="results.css?v=20260722-selected-contrast" />
+  <link rel="stylesheet" href="results.css?v=20260730-investor-demo-mode" />
+  <!-- compatibility lineage: results.css?v=20260730-universal-execution results.js?v=20260730-universal-execution -->
 </head>
 
 <body>
@@ -35,7 +36,7 @@
         <div>
           <p class="eyebrow" data-i18n="missionReady">Mission Ready</p>
           <h1 id="missionTitle">Mission Plan</h1>
-          <p class="prototype-disclosure" data-i18n="prototypeDisclosure">Prototype · Live public data + estimated travel options</p>
+          <p class="prototype-disclosure" data-i18n="prototypeDisclosure">Prototype - approval protected - no external action</p>
         </div>
 
         <div class="mission-status-card">
@@ -52,6 +53,17 @@
         <span data-stage="execution">Execution</span><i aria-hidden="true">→</i>
         <span data-stage="complete">Complete</span>
       </nav>
+
+      <section class="mission-lifecycle-panel" id="missionLifecyclePanel" aria-labelledby="missionLifecycleTitle">
+        <div class="mission-lifecycle-head">
+          <div>
+            <p class="eyebrow" id="missionLifecycleEyebrow">ONE Progress</p>
+            <h2 id="missionLifecycleTitle">ONE is preparing the mission.</h2>
+          </div>
+          <p class="mission-lifecycle-live" id="missionLifecycleLive" role="status" aria-live="polite">Understanding your request...</p>
+        </div>
+        <ol class="mission-lifecycle-steps" id="missionLifecycleSteps"></ol>
+      </section>
 
       <section class="mission-understood" id="missionUnderstood" aria-labelledby="missionUnderstoodTitle">
         <p class="eyebrow">Mission Summary</p>
@@ -76,13 +88,13 @@
 
       <form class="revision-command mission-card is-full" id="additionalServicesForm" aria-labelledby="revisionCommandTitle">
         <div class="card-top">
-          <h2 class="card-title" id="revisionCommandTitle" data-i18n="revisionTitle">Anything you’d like ONE to change or add?</h2>
+          <h2 class="card-title" id="revisionCommandTitle" data-i18n="revisionTitle">Anything you'd like ONE to change or add?</h2>
         </div>
         <p class="revision-lead" id="revisionLead">Tell ONE what to change, or choose one of the ideas above.</p>
         <div class="additional-service-entry">
           <label class="visually-hidden" for="additionalServiceInput" data-i18n="revisionLabel">Mission revision command</label>
-          <textarea id="additionalServiceInput" rows="2" data-i18n-placeholder="revisionPlaceholder" placeholder="Add a musical, reduce the budget, change the hotel area…"></textarea>
-          <button id="addServiceButton" type="submit" data-i18n="revisionSend" aria-label="Send revision">→</button>
+          <textarea id="additionalServiceInput" rows="2" data-i18n-placeholder="revisionPlaceholder" placeholder="Add a musical, reduce the budget, change the hotel area..."></textarea>
+          <button id="addServiceButton" type="submit" data-i18n="revisionSend" aria-label="Send revision">Send</button>
         </div>
         <p class="revision-status" id="revisionStatus" role="status" aria-live="polite"></p>
         <div class="revision-summary" id="additionalServiceList" aria-live="polite"></div>
@@ -91,21 +103,26 @@
       <section class="bottom-actions" id="bottomActions" aria-label="Mission actions">
         <button class="primary-action" id="makeRealityButton" type="button">
           <span data-i18n="makeItReality">Make It Reality</span>
-          <small><span class="with-one-lockup"><img src="assets/one-final-circle.png?v=20260713-20" alt="" /><span data-i18n="withOne">with ONE</span></span></small>
+          <small>
+            <span class="with-one-lockup">
+              <span class="with-one-prefix" data-i18n="withOnePrefix">with</span>
+              <span class="with-one-mark" aria-hidden="true"></span><span class="with-one-ne">NE</span><span class="with-one-suffix" data-i18n="withOneSuffix"></span>
+            </span>
+          </small>
         </button>
       </section>
 
       <section class="approval-panel" id="approvalPanel" aria-label="Mission approval progress" hidden>
         <div class="approval-header">
-          <p class="approval-kicker" data-i18n="missionApproved">Mission Approved</p>
-          <h2 id="approvalTitle" data-i18n="oneIsWorking">ONE is making it happen.</h2>
+          <p class="approval-kicker" data-i18n="missionApproved">Preparation approved</p>
+          <h2 id="approvalTitle" data-i18n="oneIsWorking">ONE prepared the next step.</h2>
         </div>
 
         <div class="approval-list" id="approvalList"></div>
 
         <div class="completion-message" id="completionMessage" hidden>
-          <h3 data-i18n="finalMessage">ONE'D</h3>
-          <p>Everything is prepared. You're always in control.</p>
+          <h3 data-i18n="finalMessage">Next step prepared</h3>
+          <p>Your mission pass is ready. Review details and approve any real provider action separately.</p>
 
           <section class="execution-summary" id="executionSummary" aria-label="Prepared reservation summary"></section>
 
@@ -136,6 +153,6 @@
     </footer>
   </div>
 
-  <script type="module" src="results.js?v=20260722-context-v2"></script>
+  <script type="module" src="results.js?v=20260730-investor-demo-mode"></script>
 </body>
 </html>

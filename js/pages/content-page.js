@@ -72,6 +72,7 @@ const genericSections = (key, lang) => {
     {h:"Consent and use",p:"Save consent is never preselected. Turning memory off stops use of saved values but does not delete them; deletion is a separate action. Saved values are offered as editable suggestions for later missions."},
     {h:"Sharing and retention",p:"External autofill and provider data sharing are disabled. Nothing is transmitted externally before information review and explicit approval. Device-local preferences remain until the user deletes them and can be exported as a readable summary."}
   ];
+  const es = lang === "es";
   if (key === "pricing") return ko ? [
     {h:"ONE Free · ₩0",p:"월 5개 자동화 미션 · 기본 실시간 공개 데이터 · 활성 저장 미션 1개 · 기본 맞춤 설정 · 사람의 검토 또는 실행 없음"},
     {h:"ONE Plus · 베타 출시가 ₩9,900/월",p:"예정 정상가 ₩14,900/월 · 공정 사용 기준 확대된 자동화 미션 · 미션 기록 및 메모리 · 고급 비교 및 맞춤 설정 · 알림 및 선호 설정 · 우선 처리 · 월 1회 제한된 지원/검토 크레딧"},
@@ -79,6 +80,13 @@ const genericSections = (key, lang) => {
     {h:"ONE Complete · 복잡한 미션 ₩39,000부터",p:"승인 전 맞춤 견적 표시 · 이주, 복잡한 여행, 사업 준비 또는 여러 제공업체 조율용"},
     {h:"파운딩 멤버 혜택",p:"조건을 충족하는 선착순 100명 · 첫 3개월 월 ₩4,900 · 사람 검토가 포함된 베타 미션 1개"},
     {h:"중요 안내",p:"제3자 가격은 항상 별도입니다. 명시적 승인 없이 구매, 예약, 결제, 제공업체 연락 또는 어떠한 약속도 진행되지 않습니다. 사업자 등록, 결제 처리, 환불 운영 및 법률 검토가 완료될 때까지 결제는 비활성화됩니다."}
+  ] : es ? [
+    {h:"ONE Free · ₩0",p:"5 misiones automatizadas al mes · Datos públicos básicos en vivo · Una misión guardada activa · Personalización básica · Sin revisión humana ni ejecución"},
+    {h:"ONE Plus · Beta introductoria ₩9,900/mes",p:"Precio estándar previsto ₩14,900/mes · Misiones automatizadas ampliadas sujetas a uso razonable · Historial y memoria de misiones · Comparación y personalización avanzadas · Notificaciones y preferencias · Procesamiento prioritario · Un crédito mensual limitado de soporte/revisión"},
+    {h:"ONE Assist · Complemento opcional por misión",p:"₩9,900 para misiones simples · ₩19,900 para misiones estándar · Revisión humana · Comprobación de proveedores preseleccionados · Una revisión · Resumen listo para aprobación"},
+    {h:"ONE Complete · Desde ₩39,000",p:"Cotización personalizada antes de aprobar · Para reubicación, viajes complejos, creación de negocios o coordinación con varios proveedores"},
+    {h:"Oferta Founding Member",p:"Primeros 100 usuarios que califiquen · ₩4,900/mes durante los primeros tres meses · Una misión beta con revisión humana incluida"},
+    {h:"Importante",p:"Los precios de terceros siempre son separados. No se compra, reserva, paga, contacta a proveedores ni se crea compromiso alguno sin aprobación explícita. Los pagos permanecen desactivados hasta completar registro comercial, procesamiento de pagos, operación de reembolsos y revisión legal."}
   ] : [
     {h:"ONE Free · ₩0",p:"5 automated missions per month · Basic live public data · One active saved mission · Basic customization · No human review or execution"},
     {h:"ONE Plus · Introductory beta ₩9,900/month",p:"Planned standard price ₩14,900/month · Expanded automated missions subject to fair use · Mission history and memory · Advanced comparison and customization · Notifications and preferences · Priority processing · One limited support/review credit monthly"},
@@ -95,6 +103,12 @@ const genericSections = (key, lang) => {
       {h:"제3자와 제한",p:"독립 제공업체의 가격, 가용성, 자격, 정책 및 결과는 변경될 수 있습니다. Kastiz는 별도로 권한을 부여받지 않은 규제 서비스 제공업체라고 주장하지 않습니다."},
       {h:"권리와 문의",p:"사용자는 계정·미션 기록·업로드 파일 삭제, 데이터 내보내기, 정정 및 처리 제한을 요청할 수 있습니다. 개인정보 문의: privacy@kastiz.com"},
       {h:"관할 및 변경",p:"출시 관할은 대한민국입니다. 정책은 서비스, 법률 및 제공업체 연동 변화에 따라 갱신될 수 있으며 중요한 변경은 합리적인 방식으로 고지합니다."}
+    ] : es ? [
+      {h:"Alcance",p:`Esta política cubre ${focus} para la experiencia de acceso anticipado de Kastiz ONE. Las funciones no conectadas se etiquetan como Prototipo, Planificadas o Próximamente.`},
+      {h:"Control del usuario",p:"Kastiz usa solo la información necesaria para la misión actual. Antes de una acción importante o de compartir datos con proveedores, ONE muestra la acción seleccionada, proveedor, total estimado, impuestos o cargos conocidos, condiciones de cancelación, datos compartidos, riesgos materiales y una confirmación final explícita."},
+      {h:"Terceros y limitaciones",p:"Los precios, disponibilidad, calificaciones, políticas y resultados de proveedores independientes pueden cambiar. Kastiz no afirma ser un proveedor regulado salvo autorización separada."},
+      {h:"Derechos y contacto",p:"Los usuarios pueden solicitar eliminación de cuenta, historial de misiones y archivos subidos; exportación; corrección; o restricción de procesamiento. Contacto de privacidad: privacy@kastiz.com."},
+      {h:"Jurisdicción y cambios",p:"La jurisdicción de lanzamiento es la República de Corea. Las políticas pueden cambiar con el servicio, la ley y las integraciones de proveedores; los cambios materiales se comunicarán de forma razonable."}
     ] : [
       {h:"Scope",p:`This policy covers ${focus} for the Kastiz ONE early-access experience. Capabilities that are not connected are labeled Prototype, Planned, or Coming Soon.`},
       {h:"User control",p:"Kastiz uses only information needed for the current mission. Before consequential action or provider data sharing, ONE presents the selected action, provider, estimated total, known taxes or fees, cancellation terms, data shared, material risks, and a final explicit confirmation."},
@@ -108,6 +122,11 @@ const genericSections = (key, lang) => {
     {h:"승인 보호",p:"ONE은 모든 선택지를 준비하고 설명하지만 사용자가 명시적으로 승인하기 전에는 예약, 구매, 결제, 서명, 제출 또는 법적 약속을 하지 않습니다."},
     {h:"정직한 상태 표시",p:"실제 상태에 따라 추천, 파트너, 신원 확인, 면허 확인, 신원조회 완료, 커뮤니티 리뷰, 프로토타입 프로필, 공개 출처 또는 미확인으로 표시합니다."},
     {h:"다음 단계",p:"얼리 액세스 요청, 피드백 또는 관련 문의를 제출할 수 있습니다. 팀은 수신 내용을 검토하지만 응답 시간이나 액세스를 보장하지 않습니다."}
+  ] : es ? [
+    {h:"Alcance actual",p:"Kastiz ONE es un prototipo de acceso anticipado. Las consultas de datos públicos y los flujos de preparación pueden funcionar, mientras que reservas, compras, pagos y servicios regulados siguen simulados hasta que existan integraciones de producción autorizadas."},
+    {h:"Protección de aprobación",p:"ONE prepara y explica opciones, pero no reserva, compra, paga, firma, envía ni crea un compromiso legal hasta que el usuario aprueba explícitamente."},
+    {h:"Etiquetas honestas de estado",p:"El estado del proveedor se muestra como Recomendado, Socio, Identidad verificada, Licencia verificada, Antecedentes verificados, Revisado por la comunidad, Perfil prototipo, Fuente pública o No verificado—solo cuando está respaldado."},
+    {h:"Siguiente paso",p:"Puedes enviar una solicitud de acceso anticipado, comentarios o una consulta relevante. El equipo revisa los envíos, pero no garantiza acceso ni tiempo de respuesta."}
   ] : [
     {h:"Current scope",p:"Kastiz ONE is an early-access prototype. Public-data lookups and preparation workflows may operate, while booking, purchasing, payment, and regulated services remain simulated until authorized production integrations exist."},
     {h:"Approval protection",p:"ONE prepares and explains options, but does not book, buy, pay, sign, submit, or create a legal commitment until the user explicitly approves."},
@@ -117,19 +136,32 @@ const genericSections = (key, lang) => {
   return shared;
 };
 const forms = new Set(["early-access","contact","partners","business","developers","careers","press","help","provider-standards","responsible-disclosure"]);
-const language = localStorage.getItem("kastiz-one-language") || (navigator.language.startsWith("ko") ? "ko" : "en");
+const language = localStorage.getItem("kastiz-one-language") || (navigator.language.startsWith("ko") ? "ko" : navigator.language.startsWith("es") ? "es" : "en");
 const theme = localStorage.getItem("kastiz-one-theme") || "light";
 document.documentElement.dataset.theme = theme; document.documentElement.lang = language;
-const ko = language === "ko"; const title = titles[PAGE] || ["Kastiz ONE","Kastiz ONE"];
+const ko = language === "ko"; const es = language === "es";
+const titleEs = {
+  pricing:"Precios", "early-access":"Acceso anticipado", services:"Servicios", partners:"Socios", business:"Empresas", developers:"Desarrolladores", help:"Centro de ayuda", contact:"Contacto", faq:"Preguntas frecuentes", privacy:"Política de privacidad", terms:"Términos del servicio", "how-one-works":"Cómo funciona ONE", "approval-protection":"Protección de aprobación", "supported-missions":"Misiones compatibles", security:"Resumen de seguridad", safety:"Seguridad", "ai-transparency":"Transparencia de IA", roadmap:"Hoja de ruta", status:"Estado del servicio", about:"Acerca de Kastiz", mission:"Misión", vision:"Visión"
+};
+const descEs = {
+  pricing:"Precios de acceso anticipado aprobados por el fundador. Los pagos permanecen desactivados hasta completar los requisitos operativos y legales de lanzamiento.",
+  "early-access":"La Alpha privada apunta a agosto o septiembre de 2026, seguida por una Beta pública prevista para el cuarto trimestre de 2026. Las fechas pueden cambiar.",
+  services:"ONE actualmente demuestra planificación de misiones, comparación, personalización, consultas de datos públicos, preparación de proveedores y ejecución simulada.",
+  "approval-protection":"ONE nunca reserva, compra, paga, firma, envía, comparte datos personales con un proveedor ni crea una obligación legal sin aprobación explícita."
+};
+const pick = (pair, esText = "") => es ? esText || pair[0] : pair[ko ? 1 : 0];
+const title = titles[PAGE] || ["Kastiz ONE","Kastiz ONE"];
 const desc = descriptions[PAGE] || (POLICY_KEYS.has(PAGE) ? ["Operational policy for the Kastiz ONE early-access service.","Kastiz ONE 얼리 액세스 서비스를 위한 운영 정책입니다."] : ["Kastiz ONE launch information.","Kastiz ONE 출시 정보입니다."]);
 const sections = genericSections(PAGE, language);
 const app = document.getElementById("content");
-document.title = `${title[ko?1:0]} — Kastiz ONE`;
-const draft = POLICY_KEYS.has(PAGE) ? `<p class="policy-draft"><strong>${ko?"운영 검토용 초안입니다. 상업 출시 전 자격을 갖춘 한국 법률 전문가의 최종 검토를 권장합니다.":"Draft for operational review. Final review by qualified Korean legal counsel is recommended before commercial launch."}</strong></p>` : "";
-const form = forms.has(PAGE) ? `<section class="content-card wide"><h2>${ko?"요청 보내기":"Send a request"}</h2><form class="request-form" data-request-type="${PAGE}"><label>${ko?"이름":"Name"}<input name="name" autocomplete="name" required maxlength="80"></label><label>${ko?"이메일":"Email"}<input name="email" type="email" autocomplete="email" required maxlength="120"></label><label>${ko?"요청 유형":"Request type"}<select name="kind"><option>${title[ko?1:0]}</option><option>${ko?"피드백":"Feedback"}</option><option>${ko?"버그 신고":"Bug report"}</option><option>${ko?"안전 신고":"Safety report"}</option><option>${ko?"제공업체 관심":"Provider interest"}</option></select></label><label>${ko?"내용":"Message"}<textarea name="message" required maxlength="2000"></textarea></label><label class="form-consent"><input type="checkbox" required><span>${ko?"이 요청을 검토하는 데 필요한 정보 처리에 동의합니다. 마케팅 동의와는 별개입니다.":"I consent to processing the information needed to review this request. This is separate from marketing consent."}</span></label><button class="button primary" type="submit">${ko?"안전하게 저장":"Save request safely"}</button><p class="form-status" role="status"></p></form></section>` : "";
-app.innerHTML=`<section class="hero"><p class="eyebrow">KASTIZ ONE · ${POLICY_KEYS.has(PAGE)?(ko?"정책":"POLICY"):(ko?"얼리 액세스":"EARLY ACCESS")}</p><h1>${title[ko?1:0]}</h1><p class="lead">${desc[ko?1:0]}</p><span class="status">${ko?"얼리 액세스 · 프로토타입":"EARLY ACCESS · PROTOTYPE"}</span>${draft}</section><section class="content-grid">${sections.map((s,i)=>`<article class="content-card ${i===0?"wide":""}"><h2>${s.h}</h2><p>${s.p}</p></article>`).join("")}${form}</section><div class="actions"><a class="button primary" href="early-access.html">${ko?"얼리 액세스 참여":"Join Early Access"}</a><a class="button" href="help.html">${ko?"도움말":"Help Center"}</a></div>`;
-document.getElementById("languageButton").textContent=ko?"English":"한국어";
-document.getElementById("languageButton").addEventListener("click",()=>{localStorage.setItem("kastiz-one-language",ko?"en":"ko");location.reload()});
+const pageTitle = pick(title, titleEs[PAGE]);
+const pageDesc = pick(desc, descEs[PAGE]);
+document.title = `${pageTitle} — Kastiz ONE`;
+const draft = POLICY_KEYS.has(PAGE) ? `<p class="policy-draft"><strong>${ko?"운영 검토용 초안입니다. 상업 출시 전 자격을 갖춘 한국 법률 전문가의 최종 검토를 권장합니다.":es?"Borrador para revisión operativa. Se recomienda revisión final por asesoría legal coreana calificada antes del lanzamiento comercial.":"Draft for operational review. Final review by qualified Korean legal counsel is recommended before commercial launch."}</strong></p>` : "";
+const form = forms.has(PAGE) ? `<section class="content-card wide"><h2>${ko?"요청 보내기":es?"Enviar solicitud":"Send a request"}</h2><form class="request-form" data-request-type="${PAGE}"><label>${ko?"이름":es?"Nombre":"Name"}<input name="name" autocomplete="name" required maxlength="80"></label><label>${ko?"이메일":es?"Email":"Email"}<input name="email" type="email" autocomplete="email" required maxlength="120"></label><label>${ko?"요청 유형":es?"Tipo de solicitud":"Request type"}<select name="kind"><option>${pageTitle}</option><option>${ko?"피드백":es?"Comentarios":"Feedback"}</option><option>${ko?"버그 신고":es?"Reporte de error":"Bug report"}</option><option>${ko?"안전 신고":es?"Reporte de seguridad":"Safety report"}</option><option>${ko?"제공업체 관심":es?"Interés de proveedor":"Provider interest"}</option></select></label><label>${ko?"내용":es?"Mensaje":"Message"}<textarea name="message" required maxlength="2000"></textarea></label><label class="form-consent"><input type="checkbox" required><span>${ko?"이 요청을 검토하는 데 필요한 정보 처리에 동의합니다. 마케팅 동의와는 별개입니다.":es?"Acepto el procesamiento de la información necesaria para revisar esta solicitud. Esto es independiente del consentimiento de marketing.":"I consent to processing the information needed to review this request. This is separate from marketing consent."}</span></label><button class="button primary" type="submit">${ko?"안전하게 저장":es?"Guardar de forma segura":"Save request safely"}</button><p class="form-status" role="status"></p></form></section>` : "";
+app.innerHTML=`<section class="hero"><p class="eyebrow">KASTIZ ONE · ${POLICY_KEYS.has(PAGE)?(ko?"정책":es?"POLÍTICA":"POLICY"):(ko?"얼리 액세스":es?"ACCESO ANTICIPADO":"EARLY ACCESS")}</p><h1>${pageTitle}</h1><p class="lead">${pageDesc}</p><span class="status">${ko?"얼리 액세스 · 프로토타입":es?"ACCESO ANTICIPADO · PROTOTIPO":"EARLY ACCESS · PROTOTYPE"}</span>${draft}</section><section class="content-grid">${sections.map((s,i)=>`<article class="content-card ${i===0?"wide":""}"><h2>${s.h}</h2><p>${s.p}</p></article>`).join("")}${form}</section><div class="actions"><a class="button primary" href="early-access.html">${ko?"얼리 액세스 참여":es?"Unirme al acceso anticipado":"Join Early Access"}</a><a class="button" href="help.html">${ko?"도움말":es?"Centro de ayuda":"Help Center"}</a></div>`;
+document.getElementById("languageButton").textContent=ko?"Español":es?"English":"한국어";
+document.getElementById("languageButton").addEventListener("click",()=>{localStorage.setItem("kastiz-one-language",ko?"es":es?"en":"ko");location.reload()});
 document.querySelectorAll(".brand img").forEach(img=>img.classList.toggle("light-logo",theme==="light"));
 document.querySelectorAll(".request-form").forEach(formEl=>formEl.addEventListener("submit",event=>{event.preventDefault();const payload={type:formEl.dataset.requestType,createdAt:new Date().toISOString()};const requests=JSON.parse(localStorage.getItem("kastiz-one-local-requests")||"[]");localStorage.setItem("kastiz-one-local-requests",JSON.stringify([...requests.slice(-19),payload]));formEl.reset();formEl.querySelector(".form-status").textContent=ko?"요청이 이 브라우저에 저장되었습니다. 전송 서비스가 연결되기 전에는 외부로 전송되지 않습니다.":"Saved in this browser. It is not transmitted externally until a submission service is connected.";trackEvent(PAGE==="early-access"?"early_access_request":PAGE==="partners"?"partner_inquiry":PAGE==="provider-standards"?"provider_inquiry":"contact_submission",{page:PAGE,language});}));
 trackEvent("page_visit",{page:PAGE,language});

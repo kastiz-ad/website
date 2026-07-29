@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Manage mission preferences Kastiz ONE can remember to reduce repeated questions.">
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("kastiz-one-theme")||"light"}catch{}</script>
+  <title>Personal Mission Memory — Kastiz ONE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="personal-mission-memory.css?v=20260729-alpha07-personal-mission-memory">
+</head>
+<body>
+  <a class="skip" href="#memoryMain">Skip to content</a>
+  <header class="memory-header">
+    <a class="brand" href="index.html" aria-label="Kastiz ONE home"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></a>
+    <nav>
+      <a href="results.html?v=20260729-alpha07-personal-mission-memory" data-copy="results">Results</a>
+      <button id="languageButton" type="button">한국어</button>
+    </nav>
+  </header>
+  <main id="memoryMain" class="memory-shell">
+    <section class="memory-hero">
+      <p class="eyebrow">ALPHA-07 · PERSONAL MISSION MEMORY</p>
+      <h1 data-copy="title">ONE remembers what helps, not everything.</h1>
+      <p data-copy="intro">Mission memory stores useful preferences only, so future missions need fewer repeated questions.</p>
+      <div class="safety-strip" data-copy="safety">No passwords, payment credentials, passport numbers, identity numbers, medical records, private conversations, or authentication secrets are stored here.</div>
+    </section>
+
+    <section class="memory-toolbar" aria-label="Memory controls">
+      <label>
+        <span data-copy="search">Search memory</span>
+        <input id="memorySearch" type="search" autocomplete="off" placeholder="airline, hotel, food...">
+      </label>
+      <div class="toolbar-actions">
+        <button id="seedPreview" type="button" data-copy="seed">Load founder preview</button>
+        <button id="exportMemory" type="button" data-copy="export">Export</button>
+        <button id="clearMemory" type="button" class="danger" data-copy="clear">Clear all</button>
+      </div>
+      <p id="memoryStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="memory-editor" aria-labelledby="editorTitle">
+      <div>
+        <p class="eyebrow" data-copy="addEyebrow">ADD MEMORY</p>
+        <h2 id="editorTitle" data-copy="addTitle">Save a useful mission preference</h2>
+        <p data-copy="addCopy">Add only something you want ONE to use later. Sensitive data will be rejected.</p>
+      </div>
+      <form id="memoryForm" class="memory-form">
+        <label><span data-copy="category">Category</span><select name="category" required></select></label>
+        <label><span data-copy="key">Preference type</span><input name="key" required maxlength="80" placeholder="airlinePreference"></label>
+        <label><span data-copy="value">Preference</span><input name="value" required maxlength="180" placeholder="Aisle seat, central hotel, avoid seafood..."></label>
+        <button type="submit" data-copy="save">Remember</button>
+      </form>
+    </section>
+
+    <section id="memoryGroups" class="memory-groups" aria-label="Saved mission memory"></section>
+  </main>
+  <script type="module" src="personal-mission-memory.js?v=20260729-alpha07-personal-mission-memory"></script>
+</body>
+</html>

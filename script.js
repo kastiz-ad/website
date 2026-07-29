@@ -1,1 +1,1 @@
-import "./js/pages/home-page.js?v=20260722-travel-schedule-v1";
+import "./js/pages/home-page.js?v=20260730-investor-demo-mode";

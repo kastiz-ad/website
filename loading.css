@@ -1,4 +1,11 @@
 :root {
+  --one-type-xs: clamp(11px, .72vw, 12px);
+  --one-type-sm: clamp(13px, .9vw, 14px);
+  --one-type-body: clamp(15px, 1.05vw, 17px);
+  --one-type-title: clamp(26px, 4vw, 42px);
+  --one-type-display: clamp(58px, 9vw, 86px);
+  --one-leading-tight: 1.08;
+  --one-leading-body: 1.55;
   --bg: #ffffff;
   --text: #111111;
   --text-muted: #686868;
