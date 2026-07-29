@@ -1,7 +1,7 @@
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
-import { reviseMission } from "../engine/revision/mission-revision-engine.js";
+import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260730-mission-orchestration";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
 import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js?v=20260722-context-v2";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
@@ -2543,12 +2543,25 @@ const selectAlpha03Items = (items, tone, targetCount) => {
 };
 
 const refineAlpha03ItemsForCommand = (items = [], result = {}, type = "places") => {
-  const text = `${result.rawInput || ""} ${result.mission || ""} ${(result.revisionHistory || []).map((item) => item.command).join(" ")}`.toLowerCase();
+  const missionState = result.missionState || {};
+  const structuredText = [
+    ...(missionState.hardConstraints || []),
+    ...(missionState.foodPreferences || []),
+    ...(missionState.interests || []),
+    ...(missionState.mobilityRequirements || []),
+    ...(missionState.hotelPreferences || [])
+  ].join(" ");
+  const text = `${result.rawInput || ""} ${result.mission || ""} ${(result.revisionHistory || []).map((item) => item.command).join(" ")} ${structuredText}`.toLowerCase();
   let refined = [...items];
   if (/hate museums|no museums|avoid museums|without museums|박물관 싫|박물관 제외|미술관 제외|sin museos|no museos/.test(text)) {
     refined = refined.filter((item) => !/museum|moma|met|gallery|exhibit|박물관|미술관|전시|museo|galer/i.test(`${item.name} ${(item.tags || []).join(" ")}`));
   }
+  if (type === "restaurants" && /no seafood|without seafood|avoid seafood|해산물|생선|sin mariscos/.test(text)) {
+    refined = refined.filter((item) => !/seafood|fish|sushi|crab|lobster|oyster|해산물|생선|스시|초밥|mariscos/i.test(`${item.name} ${(item.tags || []).join(" ")}`));
+  }
   const priorities = [
+    [/matcha|말차|green tea/i, /matcha|말차|green tea|tea|dessert|wagashi|café|cafe|카페|디저트/i],
+    [/sushi|스시|초밥/i, /sushi|스시|초밥|tsukiji|toyosu|market/i],
     [/shopping|shop|stores|outlet|쇼핑|아울렛|compras|tiendas/i, /shopping|shop|market|mall|outlet|soho|macy|ginza|harajuku|dotonbori|쇼핑|시장|몰|아울렛|compras|mercado/i],
     [/nightlife|night view|bars|jazz|late|야경|밤|재즈|바|나이트|vida nocturna|noche/i, /night|view|jazz|broadway|skytree|tower|bar|rooftop|야경|전망|재즈|noche/i],
     [/food|restaurant|gourmet|맛집|음식|먹|comida|restaurante/i, /food|restaurant|market|ramen|sushi|deli|pizza|steak|café|맛집|시장|라멘|스시|comida|restaurante/i]
@@ -2560,6 +2573,16 @@ const refineAlpha03ItemsForCommand = (items = [], result = {}, type = "places") 
   }
   if (type === "restaurants" && /dessert|cafe|coffee|디저트|카페|커피|postre|caf[eé]/i.test(text)) {
     refined.sort((a, b) => Number(/dessert|bakery|café|coffee|cookie|tea|카페|디저트/i.test(`${b.name} ${(b.tags || []).join(" ")}`)) - Number(/dessert|bakery|café|coffee|cookie|tea|카페|디저트/i.test(`${a.name} ${(a.tags || []).join(" ")}`)));
+  }
+  const injections = result.orchestrationInjections?.[type] || [];
+  if (injections.length) {
+    const seen = new Set();
+    refined = [...injections, ...refined].filter((item) => {
+      const name = String(item?.name || "").toLowerCase();
+      if (!name || seen.has(name)) return false;
+      seen.add(name);
+      return true;
+    });
   }
   return refined;
 };
@@ -2819,7 +2842,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   let places = selectAlpha03Items(profile.places, journey.tone, Math.min(12, Math.max(8, tripDays + 2)));
   restaurants = refineAlpha03ItemsForCommand(restaurants, result, "restaurants");
   places = refineAlpha03ItemsForCommand(places, result, "places");
-  const days = buildAlpha03DayCards(journey, destination, result, profile);
+  const days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
   const hero = getAlpha03HeroTone(destination);
   const transportationSummary = journey.tone === "value"
     ? alpha03Copy("Transit-first route with licensed taxi only when it saves energy.", "대중교통 중심, 꼭 필요할 때만 허가된 택시를 사용합니다.", "Ruta con transporte público y taxi autorizado solo cuando ahorra energía.")
@@ -4589,15 +4612,21 @@ const renderRevisionAdditionNote = () => {
   }
   const label = v22Local("Added to this mission", "미션에 추가됨", "Añadido a la misión");
   const body = v22Local(
-    "ONE refreshed the plan around this request. Live provider checks still happen only after approval.",
-    "ONE이 이 요청을 기준으로 계획을 다시 반영했습니다. 실시간 제공업체 확인은 승인 후에만 진행됩니다.",
-    "ONE actualizó el plan con esta solicitud. La verificación en vivo solo ocurre tras aprobar."
+    note.summary || "ONE updated only the affected mission parts. Live provider checks still happen only after approval.",
+    note.summary || "ONE이 영향받은 미션 부분만 업데이트했습니다. 실시간 제공업체 확인은 승인 후에만 진행됩니다.",
+    note.summary || "ONE actualizó solo las partes afectadas. La verificación en vivo solo ocurre tras aprobar."
   );
+  const affected = Array.isArray(note.affectedSections) && note.affectedSections.length
+    ? note.affectedSections.map((section) => `<span>${escapeSummaryText(section)}</span>`).join("")
+    : "";
+  const undo = note.previousResult ? `<button type="button" class="revision-undo-button" data-mission-undo="last">${escapeSummaryText(v22Local("Undo", "되돌리기", "Deshacer"))}</button>` : "";
   additionalServiceList.innerHTML = `
     <div class="revision-added-note">
       <span>${escapeSummaryText(label)}</span>
       <strong>${escapeSummaryText(note.text)}</strong>
       <p>${escapeSummaryText(body)}</p>
+      ${affected ? `<div class="revision-affected-parts">${affected}</div>` : ""}
+      ${undo}
     </div>
   `;
 };
@@ -5643,16 +5672,26 @@ const applyRevisionCommand = async () => {
   if (revisionStatus) revisionStatus.textContent = t("revisionLoading");
   await new Promise((resolve) => window.setTimeout(resolve, 120));
   try {
-    const result = reviseMission(currentResult, value, { language: activeLanguage, provider: "OPENAI" });
+    const result = applyMissionEdit(currentResult, value, { language: activeLanguage, provider: "OPENAI" });
     currentResult = result.mission;
     const baseMissionText = currentResult.rawInput || currentResult.mission || currentResult.originalMission || "";
     currentResult.rawInput = [baseMissionText, value].filter(Boolean).join(" · ");
     currentResult.mission = currentResult.rawInput;
-    currentResult.alpha15LastAddition = { text: value, at: new Date().toISOString() };
+    currentResult.alpha15LastAddition = {
+      text: value,
+      summary: result.summary,
+      affectedSections: result.affectedSections,
+      previousResult: result.mission?.missionOrchestration?.previousResult || null,
+      at: new Date().toISOString()
+    };
     sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
     sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
-    if (revisionStatus) revisionStatus.textContent = t("revisionComplete");
-    trackEvent("mission_revision_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", revision_type: result.intent.type, approval_invalidated: result.impact.material, provider: "OPENAI" });
+    if (revisionStatus) revisionStatus.textContent = v22Local(
+      `Updated ${result.affectedSections.length} parts of your mission.`,
+      `미션 ${result.affectedSections.length}곳을 업데이트했습니다.`,
+      `Se actualizaron ${result.affectedSections.length} partes de la misión.`
+    );
+    trackEvent("mission_revision_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", revision_type: result.intent.type, approval_invalidated: result.affectedSections.includes("approval"), affected_sections: result.affectedSections.join("|"), provider: "MISSION_ORCHESTRATION_ENGINE" });
     additionalServiceInput.value = "";
     renderMission();
     renderRevisionAdditionNote();
@@ -5681,6 +5720,20 @@ additionalServiceInput?.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const undoButton = event.target.closest?.("[data-mission-undo]");
+  if (undoButton) {
+    const previous = currentResult?.alpha15LastAddition?.previousResult;
+    if (previous) {
+      currentResult = previous;
+      currentResult.alpha15LastAddition = null;
+      sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+      sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+      if (revisionStatus) revisionStatus.textContent = v22Local("Undone.", "되돌렸습니다.", "Deshecho.");
+      renderMission();
+      trackEvent("mission_revision_undone", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
+    }
+    return;
+  }
   const alpha02Answer = event.target.closest?.(".alpha02-answer-chip");
   if (alpha02Answer) {
     const question = alpha02Answer.closest("[data-question-id]");

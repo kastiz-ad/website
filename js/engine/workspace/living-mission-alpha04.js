@@ -201,21 +201,22 @@ export const createLivingMissionWorkspace = (result = {}, options = {}) => {
   const language = normalizeLanguage(options.language || result.interfaceLanguage || result.language);
   const scenario = options.scenario || result.alpha04Scenario || "";
   const definition = SCENARIO_DEFINITIONS[scenario] || null;
+  const orchestration = result.alpha04Orchestration || result.missionOrchestration || null;
   const schedule = result.schedule || {};
   const missingDates = result.type === "travel" && (!schedule.startDate || !schedule.endDate) && !result.v23TravelScenario;
   const statusCode = definition?.status || (missingDates ? "waiting_dates" : "ready");
   const status = {
     code: statusCode,
     label: choose(STATUS_LABELS[statusCode] || STATUS_LABELS.ready, language),
-    explanation: definition
+    explanation: orchestration?.explanation || orchestration?.summary || (definition
       ? choose(definition.event, language)
       : choose({
           en: "ONE has a prepared workspace. Nothing executes until approval.",
           ko: "ONE이 작업 공간을 준비했습니다. 승인 전에는 실행되지 않습니다.",
           es: "ONE preparó el espacio de trabajo. Nada se ejecuta sin aprobación."
-        }, language)
+        }, language))
   };
-  const affectedSections = new Set(definition?.affectedSections || ["journey"]);
+  const affectedSections = new Set(orchestration?.affectedSections || definition?.affectedSections || ["journey"]);
   const sectionStates = Object.keys(SECTION_LABELS).map((key) => ({
     key,
     label: choose(SECTION_LABELS[key], language),
@@ -253,7 +254,13 @@ export const createLivingMissionWorkspace = (result = {}, options = {}) => {
       at: result.createdAt || new Date().toISOString(),
       sections: ["journey"]
     },
-    ...(definition ? [{
+    ...(orchestration ? [{
+      id: `orchestration-${result.missionState?.version || Date.now()}`,
+      type: "mission_orchestration",
+      label: orchestration.explanation || orchestration.summary || "Mission updated",
+      at: orchestration.at || orchestration.updatedAt || new Date().toISOString(),
+      sections: [...affectedSections]
+    }] : definition ? [{
       id: scenario,
       type: definition.event.type,
       label: choose(definition.event, language),
