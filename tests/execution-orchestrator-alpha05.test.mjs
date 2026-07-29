@@ -94,6 +94,6 @@ test("ALPHA-05 integrates with results page, CSS, and cache-busted demo entry", 
   assert.match(resultsPageSource, /alpha05Scenario/);
   assert.match(resultsCss, /\.alpha05-orchestrator-card/);
   assert.match(resultsCss, /\.alpha05-board/);
-  assert.match(resultsHtml, /20260730-mission-orchestration/);
-  assert.match(resultsEntry, /20260730-mission-orchestration/);
+  assert.match(resultsHtml, /20260730-ai-decision-engine/);
+  assert.match(resultsEntry, /20260730-ai-decision-engine/);
 });

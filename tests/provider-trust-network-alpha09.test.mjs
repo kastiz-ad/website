@@ -137,6 +137,6 @@ test("results page integrates ALPHA-09 without exposing agent clutter", () => {
   assert.match(resultsPage, /buildProviderTrustBrief/);
   assert.match(resultsPage, /alpha09ProviderTrust/);
   assert.match(resultsPage, /provider-trust-network/);
-  assert.match(resultsHtml, /20260730-mission-orchestration/);
-  assert.match(resultsEntry, /20260730-mission-orchestration/);
+  assert.match(resultsHtml, /20260730-ai-decision-engine/);
+  assert.match(resultsEntry, /20260730-ai-decision-engine/);
 });

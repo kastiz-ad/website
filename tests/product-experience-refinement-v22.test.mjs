@@ -61,6 +61,6 @@ test("V22 has responsive premium result styling", () => {
 });
 
 test("V23 travel-first cache key is active in results entry files", () => {
-  assert.match(resultsEntry, /20260730-mission-orchestration/);
-  assert.match(resultsHtml, /20260730-mission-orchestration/);
+  assert.match(resultsEntry, /20260730-ai-decision-engine/);
+  assert.match(resultsHtml, /20260730-ai-decision-engine/);
 });

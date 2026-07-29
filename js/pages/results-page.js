@@ -2,6 +2,7 @@ import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260730-mission-orchestration";
+import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
 import { buildMissionContext, isDomesticContext } from "../engine/context/mission-context-intelligence.js?v=20260722-context-v2";
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
@@ -4631,6 +4632,54 @@ const renderRevisionAdditionNote = () => {
   `;
 };
 
+const createAIDecisionPanel = (result) => {
+  if (!isTravelResult(result) || isFounderDiagnosticsMode()) return null;
+  const key = decisionMemoryKey(result);
+  let memory = {};
+  try {
+    memory = JSON.parse(localStorage.getItem(key) || "{}");
+  } catch {
+    memory = {};
+  }
+  const layer = createAIDecisionLayer(result, { language: activeLanguage, memory });
+  result.aiDecisionLayer = layer;
+  if (!layer.visibleRecommendations.length) return null;
+  const panel = document.createElement("section");
+  panel.className = "mission-card is-full ai-decision-panel";
+  panel.dataset.cardId = "ai-decision-engine";
+  const copy = {
+    title: v22Local("ONE noticed something better", "ONE이 더 나은 선택을 찾았어요", "ONE encontró una mejor opción"),
+    lead: v22Local("These are suggestions only. ONE will not change confirmed choices unless you accept.", "제안일 뿐입니다. 승인한 선택은 사용자가 수락하기 전에는 바꾸지 않습니다.", "Son sugerencias. ONE no cambia decisiones confirmadas sin tu aceptación."),
+    health: v22Local("Mission condition", "미션 상태", "Estado de la misión"),
+    accept: v22Local("Accept", "적용", "Aceptar"),
+    dismiss: v22Local("Dismiss", "닫기", "Descartar"),
+    why: v22Local("Ask ONE why", "왜인지 보기", "Preguntar por qué")
+  };
+  panel.innerHTML = `
+    <div class="card-top">
+      <h2 class="card-title">${escapeSummaryText(copy.title)}</h2>
+      <span class="ai-decision-health">${escapeSummaryText(copy.health)} · ${escapeSummaryText(layer.statusLabel)}</span>
+    </div>
+    <p class="ai-decision-lead">${escapeSummaryText(copy.lead)}</p>
+    <div class="ai-decision-list">
+      ${layer.visibleRecommendations.map((item) => `
+        <article class="ai-decision-card" data-decision-id="${escapeSummaryText(item.id)}">
+          <strong>${escapeSummaryText(item.suggestion)}</strong>
+          <p>${escapeSummaryText(item.reason)}</p>
+          <span>${escapeSummaryText(item.expectedBenefit)}</span>
+          <div class="ai-decision-actions">
+            <button type="button" data-decision-action="accept" data-decision-id="${escapeSummaryText(item.id)}">${escapeSummaryText(copy.accept)}</button>
+            <button type="button" data-decision-action="dismiss" data-decision-id="${escapeSummaryText(item.id)}">${escapeSummaryText(copy.dismiss)}</button>
+            <button type="button" data-decision-action="why" data-decision-id="${escapeSummaryText(item.id)}">${escapeSummaryText(copy.why)}</button>
+          </div>
+          <p class="ai-decision-why" hidden>${escapeSummaryText((item.evidence || []).join(" · "))}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  return panel;
+};
+
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
@@ -4673,6 +4722,8 @@ const renderMission = () => {
   } else {
     pathwayOpportunityPanel.hidden = true;
   }
+  const decisionPanel = createAIDecisionPanel(currentResult);
+  if (decisionPanel) missionGrid.appendChild(decisionPanel);
   missionGrid.appendChild(additionalServicesForm);
   renderRevisionAdditionNote();
   missionGrid.appendChild(createApprovalCard(currentResult));
@@ -5720,6 +5771,54 @@ additionalServiceInput?.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const decisionButton = event.target.closest?.("[data-decision-action]");
+  if (decisionButton) {
+    const action = decisionButton.dataset.decisionAction;
+    const id = decisionButton.dataset.decisionId;
+    const key = decisionMemoryKey(currentResult || {});
+    const recommendation = currentResult?.aiDecisionLayer?.visibleRecommendations?.find((item) => item.id === id)
+      || currentResult?.aiDecisionLayer?.recommendations?.find((item) => item.id === id);
+    if (!recommendation) return;
+    if (action === "why") {
+      const card = decisionButton.closest(".ai-decision-card");
+      const why = card?.querySelector(".ai-decision-why");
+      if (why) why.hidden = !why.hidden;
+      trackEvent("ai_decision_explained", { mission_type: currentResult?.type, language: activeLanguage, page: "results", decision_id: id });
+      return;
+    }
+    if (action === "dismiss") {
+      recordDecisionFeedback(localStorage, key, id, "dismissed");
+      trackEvent("ai_decision_dismissed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", decision_id: id });
+      renderMission();
+      return;
+    }
+    if (action === "accept") {
+      const result = applyMissionEdit(currentResult, recommendation.command, { language: activeLanguage, provider: "AI_DECISION_ENGINE" });
+      currentResult = result.mission;
+      currentResult.aiDecisionAccepted = [
+        ...(currentResult.aiDecisionAccepted || []),
+        { id, command: recommendation.command, acceptedAt: new Date().toISOString() }
+      ];
+      currentResult.alpha15LastAddition = {
+        text: recommendation.suggestion,
+        summary: result.summary,
+        affectedSections: result.affectedSections,
+        previousResult: result.mission?.missionOrchestration?.previousResult || null,
+        at: new Date().toISOString()
+      };
+      recordDecisionFeedback(localStorage, key, id, "accepted");
+      sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+      sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+      if (revisionStatus) revisionStatus.textContent = v22Local(
+        `Applied. Updated ${result.affectedSections.length} parts.`,
+        `적용했습니다. ${result.affectedSections.length}곳을 업데이트했습니다.`,
+        `Aplicado. Se actualizaron ${result.affectedSections.length} partes.`
+      );
+      trackEvent("ai_decision_accepted", { mission_type: currentResult?.type, language: activeLanguage, page: "results", decision_id: id, affected_sections: result.affectedSections.join("|") });
+      renderMission();
+      return;
+    }
+  }
   const undoButton = event.target.closest?.("[data-mission-undo]");
   if (undoButton) {
     const previous = currentResult?.alpha15LastAddition?.previousResult;

@@ -127,6 +127,6 @@ test("results page and cache-busted entries wire the ALPHA-10 panel", () => {
   assert.match(page, /buildConversationUnderstandingLayer/);
   assert.match(page, /natural-mission-conversation/);
   assert.match(page, /alpha10NaturalConversation/);
-  assert.match(html, /20260730-mission-orchestration/);
-  assert.match(entry, /20260730-mission-orchestration/);
+  assert.match(html, /20260730-ai-decision-engine/);
+  assert.match(entry, /20260730-ai-decision-engine/);
 });
