@@ -77,5 +77,5 @@ test("results page wires AI decision cards to orchestration accept, dismiss, why
   assert.match(source, /recordDecisionFeedback/);
   assert.match(source, /ai_decision_accepted/);
   assert.match(css, /ai-decision-panel/);
-  assert.match(html, /20260730-approval-engine/);
+  assert.match(html, /20260730-universal-execution/);
 });

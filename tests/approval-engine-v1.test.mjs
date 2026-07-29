@@ -174,5 +174,5 @@ test("results and provider orchestration are wired to Approval Engine V1 cache k
   assert.match(providerOrchestration, /approvalWorkflow/);
   assert.match(providerOrchestration, /assertProviderActionAllowed/);
   assert.match(resultsPage, /providerOrchestration/);
-  assert.match(resultsHtml, /20260730-approval-engine/);
+  assert.match(resultsHtml, /20260730-universal-execution/);
 });

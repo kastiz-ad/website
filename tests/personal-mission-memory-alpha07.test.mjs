@@ -138,8 +138,8 @@ test("ALPHA-07 management page and result integration are wired and noindexed", 
   assert.match(resultsSource, /createPersonalMissionMemoryCard/);
   assert.match(resultsSource, /readPersonalMissionMemoryFromBrowser/);
   assert.match(resultsCss, /\.alpha07-memory-card/);
-  assert.match(resultsHtml, /20260730-approval-engine/);
-  assert.match(resultsEntry, /20260730-approval-engine/);
+  assert.match(resultsHtml, /20260730-universal-execution/);
+  assert.match(resultsEntry, /20260730-universal-execution/);
   assert.match(page, /noindex,nofollow/);
   assert.match(page, /personal-mission-memory\.js/);
   assert.match(pageJs, /seedFounderPreviewMemory/);

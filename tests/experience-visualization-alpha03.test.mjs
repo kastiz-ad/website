@@ -75,8 +75,8 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260730-approval-engine/);
-  assert.match(resultsEntry, /20260730-approval-engine/);
+  assert.match(resultsHtml, /20260730-universal-execution/);
+  assert.match(resultsEntry, /20260730-universal-execution/);
 });
 
 test("ALPHA-03 keeps map pins clean and transport choices top-aligned", () => {
