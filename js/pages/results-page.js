@@ -84,6 +84,10 @@ import {
   createAITravelConcierge,
   createConciergeState
 } from "../engine/concierge/ai-travel-concierge.js?v=20260730-ai-travel-concierge";
+import {
+  isInvestorDemoMode,
+  mountInvestorDemoResults
+} from "../engine/demo/investor-demo-mode.js?v=20260730-investor-demo-mode";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -6460,6 +6464,9 @@ initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
 enableTimelineDragScroll();
+if (isInvestorDemoMode(window.location)) {
+  mountInvestorDemoResults({ result: currentResult, language: activeLanguage });
+}
 applyV231ManualApprovalScenario();
 const requestedReference = new URLSearchParams(location.search).get("reference")?.toUpperCase();
 if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
