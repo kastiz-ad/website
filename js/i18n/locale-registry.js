@@ -107,13 +107,19 @@ export function normalizeInterfaceLocale(value, fallback = "en") {
 
 export function localeSection(locale, section) {
   const normalized = normalizeInterfaceLocale(locale);
+  const englishSection = LOCALE_RESOURCES.en?.[section] || {};
+  const localizedResource = LOCALE_RESOURCES[normalized] || LOCALE_RESOURCES.en;
+  const localizedCommon = localizedResource?.common || {};
+  const localizedSection = localizedResource?.[section] || {};
   return {
     ...LOCALE_RESOURCES.en.common,
-    ...LOCALE_RESOURCES.en[section],
-    ...LOCALE_RESOURCES[normalized].common,
-    ...LOCALE_RESOURCES[normalized][section],
+    ...englishSection,
+    ...localizedCommon,
+    ...localizedSection,
     themes: themeLabels[normalized] || themeLabels.en,
-    languages: LANGUAGE_LABELS
+    languages: LANGUAGE_LABELS,
+    locale: normalized,
+    fallbackLocale: localizedResource === LOCALE_RESOURCES.en && normalized !== "en" ? "en" : null
   };
 }
 

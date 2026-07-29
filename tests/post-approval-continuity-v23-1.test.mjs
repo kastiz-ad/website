@@ -98,6 +98,15 @@ test("V23.1 styling supports the continuation and blocked states", () => {
 
 test("static HTML no longer defaults to fake ONE'D completion copy", () => {
   assert.match(resultsHtml, /Next step prepared/);
-  assert.match(resultsHtml, /No booking, payment, or provider execution has occurred/);
+  assert.match(resultsHtml, /Your mission pass is ready/);
   assert.doesNotMatch(resultsHtml, /Everything is prepared\. You're always in control\./);
+});
+
+test("approval completion renders a mission pass instead of a dry execution receipt", () => {
+  assert.match(resultsPageSource, /mission-pass-summary/);
+  assert.match(resultsPageSource, /Your mission pass/);
+  assert.match(resultsPageSource, /Plan ready · Nothing booked yet/);
+  assert.match(resultsPageSource, /Mission pass reference/);
+  assert.match(resultsCss, /\.mission-pass-summary/);
+  assert.match(resultsCss, /\.mission-pass-card/);
 });

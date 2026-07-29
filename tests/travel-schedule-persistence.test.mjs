@@ -14,8 +14,8 @@ test("travel missions open the schedule step before starting", () => {
 });
 
 test("the final summary renders and preserves the selected dates", () => {
-  assert.match(resultsSource, /metadata\?\.start \|\|/);
-  assert.match(resultsSource, /metadata\?\.end \|\|/);
+  assert.match(resultsSource, /schedule\.startDate \|\| "—"/);
+  assert.match(resultsSource, /schedule\.endDate \|\| "—"/);
   assert.match(resultsSource, /s: \[schedule\.startDate \|\| "", schedule\.endDate \|\| "", schedule\.timePreference \|\| "any"\]/);
   assert.match(resultsSource, /const \{ tripDays, tripNights \} = calculateTripDayCounts\(result\);/);
   assert.match(resultsSource, /Number\(nightlyBudget\.min \|\| 0\) \* tripNights \* rooms/);

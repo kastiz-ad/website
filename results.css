@@ -2912,7 +2912,7 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
   *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
 
-.completion-message > p { white-space: nowrap; }
+.completion-message > p { white-space: normal; }
 
 .execution-summary { width: 100%; margin: 28px 0 8px; text-align: left; }
 .execution-summary-head { margin-bottom: 14px; text-align: center; }
@@ -4619,4 +4619,32 @@ textarea:focus-visible,
   .investor-demo-mode .results-shell {
     padding-bottom: 0;
   }
+}
+
+/* Mission pass approval summary */
+.mission-pass-summary { display: grid; gap: 14px; }
+.mission-pass-head { padding: clamp(18px, 3vw, 28px); border: 1px solid var(--border); border-radius: 28px; background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 46%), color-mix(in srgb, var(--chip) 88%, transparent); }
+.mission-pass-head .execution-summary-status { margin-top: 0; margin-bottom: 12px; }
+.mission-pass-head h4 { font-size: clamp(30px, 6vw, 56px); letter-spacing: -0.07em; white-space: normal; }
+.mission-pass-head p { max-width: 780px; margin: 0 auto; white-space: normal; font-size: clamp(12px, 1.45vw, 15px); }
+.mission-pass-route { padding: clamp(18px, 3vw, 28px); border-radius: 26px; background: linear-gradient(135deg, color-mix(in srgb, var(--surface-strong) 72%, transparent), color-mix(in srgb, var(--chip) 95%, transparent)); }
+.mission-pass-grid { align-items: stretch; }
+.mission-pass-card { position: relative; display: grid; align-content: start; gap: 5px; min-height: 138px; padding-top: 42px; text-align: left; }
+.mission-pass-card .execution-summary-label,
+.mission-pass-card .execution-summary-value,
+.mission-pass-card .execution-summary-detail { text-align: left; }
+.mission-pass-card .execution-summary-value { font-size: clamp(15px, 2vw, 19px); font-weight: 900; letter-spacing: -0.035em; }
+.mission-pass-card .execution-summary-detail { font-size: 12px; }
+.mission-pass-icon { position: absolute; top: 13px; left: 14px; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; background: var(--surface-strong); border: 1px solid var(--border); color: var(--text); font-size: 14px; }
+.mission-pass-reference { background: radial-gradient(circle at 50% 12%, color-mix(in srgb, #d4af37 20%, transparent), transparent 44%), var(--chip); }
+.mission-pass-next { padding: 18px; text-align: center; }
+.mission-pass-next ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+.mission-pass-next li { padding: 8px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-muted); font-size: 12px; font-weight: 800; }
+@media (max-width: 600px) {
+  .mission-pass-head { border-radius: 22px; }
+  .mission-pass-head h4 { font-size: clamp(28px, 10vw, 42px); }
+  .mission-pass-route { border-radius: 22px; }
+  .mission-pass-card { min-height: 118px; padding: 40px 14px 14px; }
+  .mission-pass-next ul { display: grid; grid-template-columns: 1fr; }
+  .mission-pass-next li { border-radius: 16px; }
 }

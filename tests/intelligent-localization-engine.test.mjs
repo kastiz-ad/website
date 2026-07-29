@@ -93,3 +93,19 @@ test("central locale registry contains no mojibake or replacement characters", (
   assert.match(text, /日本語/);
   assert.match(text, /中文（繁體）/);
 });
+
+test("partial and unsupported interface languages fall back without blocking results", () => {
+  for (const locale of ["fr", "de", "it", "pt", "zh-CN", "zh-TW", "nl-NL", "xx"] ) {
+    assert.doesNotThrow(() => localeSection(locale, "results"));
+    const results = localeSection(locale, "results");
+    assert.equal(typeof results.missionReady, "string");
+    assert.equal(typeof results.makeItReality, "string");
+    assert.equal(typeof results.revisionSend, "string");
+    assert.equal(typeof results.approvalProtection, "string");
+    assert.ok(results.missionReady.length > 0);
+    assert.ok(results.makeItReality.length > 0);
+  }
+  assert.doesNotThrow(() => localeSection("fr", "missing-section"));
+  assert.equal(localeSection("fr", "missing-section").languageName, LOCALE_RESOURCES.fr.common.languageName);
+  assert.equal(localeSection("nl-NL", "results").locale, "en");
+});
