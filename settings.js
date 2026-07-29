@@ -132,6 +132,28 @@ const countries = {
 
 translations.es = { ...localeSection("es", "home"), settings: "Configuración", settingsTitle: "Controla cómo trabaja ONE para ti.", appearance: "Apariencia", appearanceCopy: "Elige el modo visual de Kastiz ONE.", language: "Idioma", languageCopy: "Elige el idioma de la interfaz.", approvalProtection: "Protección de aprobación", approvalProtectionCopy: localeSection("es", "results").approvalProtection, approvalRequired: "Se requiere aprobación", missionMemory: "Memoria de misiones", missionMemoryCopy: "Conserva la última misión entre páginas.", profileMemory: "Perfil y memoria", profileMemoryCopy: "Revisa, exporta, pausa o elimina la información que decidiste guardar.", reviewProfile: "Revisar información guardada", privacyChoices: "Opciones de privacidad", privacyChoicesCopy: "Revisa las preferencias y el consentimiento de analítica.", manageConsent: "Gestionar consentimiento", clearMission: "Borrar misión actual", executionStyle: "Estilo de ejecución", executionStyleCopy: "Elige la estrategia de recomendaciones.", balanced: "Equilibrado", premium: "Mejor calidad", saving: "Ahorrar dinero", speed: "Más rápido" };
 
+for (const locale of OFFICIAL_LOCALES) {
+  translations[locale] = {
+    ...translations.en,
+    ...localeSection(locale, "home"),
+    ...(translations[locale] || {})
+  };
+}
+
+translations.es = {
+  ...translations.es,
+  settings: "Configuración",
+  settingsTitle: "Controla cómo trabaja ONE para ti.",
+  approvalProtection: "Protección de aprobación",
+  approvalRequired: "Se requiere aprobación",
+  missionMemoryCopy: "Conserva la última misión entre páginas.",
+  profileMemoryCopy: "Revisa, exporta, pausa o elimina la información que decidiste guardar.",
+  privacyChoicesCopy: "Revisa las preferencias y el consentimiento de analítica.",
+  executionStyle: "Estilo de ejecución",
+  executionStyleCopy: "Elige la estrategia de recomendaciones.",
+  speed: "Más rápido"
+};
+
 let language =
   localStorage.getItem(STORAGE_KEYS.language) ||
   normalizeInterfaceLocale(navigator.language);

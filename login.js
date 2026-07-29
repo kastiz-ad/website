@@ -1,7 +1,8 @@
 import { trackEvent } from "./js/analytics.js";
 import { getOAuthUrl, getSession, loginWithEmail, registerWithEmail, requestPasswordReset } from "./js/auth/account-client.js";
+import { localeSection, normalizeInterfaceLocale } from "./js/i18n/locale-registry.js";
 
-const language = localStorage.getItem("kastiz-one-language") || (navigator.language.startsWith("ko") ? "ko" : navigator.language.startsWith("es") ? "es" : "en");
+const language = normalizeInterfaceLocale(localStorage.getItem("kastiz-one-language") || navigator.language);
 const theme = localStorage.getItem("kastiz-one-theme") || "light";
 document.documentElement.lang = language;
 document.documentElement.dataset.theme = theme;
@@ -17,6 +18,19 @@ const copy = {
     pricing:"Precios", settings:"Ajustes", status:"ACCESO SEGURO", title:"Iniciar sesión en Kastiz ONE", copy:"Protege tu perfil, memoria y próximas misiones con tu cuenta.", email:"Email", password:"Contraseña", displayName:"Nombre visible", signIn:"Iniciar sesión", createAccount:"Crear cuenta", resetPassword:"Restablecer contraseña", waitlist:"Unirse a la lista", request:"Solicitar acceso", support:"Soporte", forgot:"Olvidé mi contraseña", privacy:"Privacidad", deletion:"Eliminar cuenta y exportar datos", preferences:"Historial, notificaciones, idioma y tema", emailOpen:"Escribe tu email y contraseña.", oauthPending:"Abriendo inicio seguro con {provider}...", oauthSetup:"{provider} todavía no está configurado en este entorno.", offline:"Las cuentas seguras no están configuradas en esta vista previa. No se guardó ninguna contraseña.", sent:"Si la cuenta existe, se enviaron instrucciones.", registered:"Revisa tu email para verificar la cuenta antes de iniciar sesión.", registerHelp:"Escribe nombre, email y contraseña; luego pulsa Crear cuenta otra vez.", signedIn:"Ya iniciaste sesión. Abriendo tu perfil..."
   }
 }[language] || {};
+
+const commonCopy = localeSection(language, "home");
+Object.assign(copy, {
+  pricing: commonCopy.pricing || copy.pricing,
+  settings: commonCopy.settings || copy.settings,
+  email: copy.email || "Email",
+  password: language === "ko" ? "비밀번호" : language === "es" ? "Contraseña" : copy.password,
+  signIn: commonCopy.login || copy.signIn,
+  createAccount: language === "ko" ? "계정 만들기" : language === "es" ? "Crear cuenta" : copy.createAccount,
+  resetPassword: language === "ko" ? "비밀번호 재설정" : language === "es" ? "Restablecer contraseña" : copy.resetPassword,
+  title: language === "ko" ? "Kastiz ONE 로그인" : language === "es" ? "Iniciar sesión en Kastiz ONE" : copy.title,
+  copy: language === "ko" ? "프로필, 메모리, 다음 미션을 계정으로 안전하게 보호하세요." : language === "es" ? "Protege tu perfil, memoria y próximas misiones con tu cuenta." : copy.copy
+});
 
 document.querySelectorAll("[data-i18n]").forEach(el => { if (copy[el.dataset.i18n]) el.textContent = copy[el.dataset.i18n]; });
 document.querySelectorAll(".logo img,.one-logo img").forEach(img => img.classList.toggle("light-logo", theme === "light"));

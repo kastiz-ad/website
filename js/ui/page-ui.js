@@ -1,5 +1,5 @@
 export const SUPPORTED_THEMES = Object.freeze(["light", "gray", "midnight"]);
-export const SUPPORTED_LANGUAGES = Object.freeze(["en", "ko"]);
+export const SUPPORTED_LANGUAGES = Object.freeze(["en", "ko", "ja", "es", "fr", "de", "it", "pt", "zh-Hans", "zh-Hant"]);
 
 export function readPreference(storage, key, supported, fallback) {
   const value = storage.getItem(key);
