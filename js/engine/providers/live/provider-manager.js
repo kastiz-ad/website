@@ -1,11 +1,21 @@
 import { MapProvider } from "./map-provider.js";
 import { PlacesProvider } from "./places-provider.js";
 import { RouteProvider } from "./route-provider.js";
+import { FlightProvider } from "./flight-provider.js";
+import { AccommodationProvider } from "./accommodation-provider.js";
+import { ExperienceProvider } from "./experience-provider.js";
+import { RestaurantProvider } from "./restaurant-provider.js";
 import {
   LIVE_PROVIDER_FOUNDATION_VERSION,
   PROVIDER_SOURCE_STATES,
   createProviderResult
 } from "./provider-result.js";
+import {
+  compareAccommodationOffers,
+  compareFlightOffers,
+  normalizeProviderResultSet,
+  normalizeTransportJourney
+} from "./provider-normalization.js";
 
 const currentDayKey = (now = Date.now()) => new Date(now).toISOString().slice(0, 10);
 
@@ -77,6 +87,10 @@ export class ProviderManager {
     mapProvider = new MapProvider(),
     placesProvider = new PlacesProvider(),
     routeProvider = new RouteProvider(),
+    flightProvider = new FlightProvider(),
+    accommodationProvider = new AccommodationProvider(),
+    experienceProvider = new ExperienceProvider(),
+    restaurantProvider = new RestaurantProvider(),
     cache = createMemoryCache(),
     deduper = createRequestDeduper(),
     quotaGuard = createQuotaGuard()
@@ -85,6 +99,10 @@ export class ProviderManager {
     this.mapProvider = mapProvider;
     this.placesProvider = placesProvider;
     this.routeProvider = routeProvider;
+    this.flightProvider = flightProvider;
+    this.accommodationProvider = accommodationProvider;
+    this.experienceProvider = experienceProvider;
+    this.restaurantProvider = restaurantProvider;
     this.cache = cache;
     this.deduper = deduper;
     this.quotaGuard = quotaGuard;
@@ -137,7 +155,59 @@ export class ProviderManager {
     const cacheKey = `route:${providerId}:${JSON.stringify(request)}`;
     return this.withProtection(providerId, cacheKey, 1, () => this.routeProvider.computeRoute(request));
   }
+
+  async searchFlights(request = {}) {
+    const providerId = this.flightProvider.providerId || "flight-provider";
+    const cacheKey = `flights:${providerId}:${JSON.stringify(request)}`;
+    const result = await this.withProtection(providerId, cacheKey, 2, () => this.flightProvider.searchFlights(request));
+    const normalized = normalizeProviderResultSet("flight", result, { provider: providerId });
+    return {
+      ...result,
+      normalized,
+      comparison: compareFlightOffers(normalized, { sort: request.sort || "best_overall" })
+    };
+  }
+
+  async searchAccommodations(request = {}) {
+    const providerId = this.accommodationProvider.providerId || "accommodation-provider";
+    const cacheKey = `accommodation:${providerId}:${JSON.stringify(request)}`;
+    const result = await this.withProtection(providerId, cacheKey, 2, () => this.accommodationProvider.searchAccommodations(request));
+    const normalized = normalizeProviderResultSet("accommodation", result, { provider: providerId });
+    return {
+      ...result,
+      normalized,
+      comparison: compareAccommodationOffers(normalized)
+    };
+  }
+
+  async searchTransport(request = {}) {
+    const providerId = this.routeProvider.providerId || "route-provider";
+    const result = await this.computeRoute(request);
+    const normalized = normalizeProviderResultSet("transport", result, { provider: providerId });
+    return {
+      ...result,
+      normalized: normalized.length ? normalized : (result.ok ? [normalizeTransportJourney({ provider: providerId, steps: result.data?.[0]?.legs || result.data?.[0]?.steps || [], liveStatus: result.sourceState })] : []),
+      comparison: normalized
+    };
+  }
+
+  async searchRestaurants(request = {}) {
+    const providerId = this.restaurantProvider.providerId || this.placesProvider.providerId || "restaurant-provider";
+    if (this.restaurantProvider.searchRestaurants !== RestaurantProvider.prototype.searchRestaurants) {
+      const cacheKey = `restaurants:${providerId}:${JSON.stringify(request)}`;
+      return this.withProtection(providerId, cacheKey, 1, () => this.restaurantProvider.searchRestaurants(request));
+    }
+    return this.searchPlaces({ ...request, textQuery: request.textQuery || request.query || "restaurants" });
+  }
+
+  async searchExperiences(request = {}) {
+    const providerId = this.experienceProvider.providerId || this.placesProvider.providerId || "experience-provider";
+    if (this.experienceProvider.searchExperiences !== ExperienceProvider.prototype.searchExperiences) {
+      const cacheKey = `experiences:${providerId}:${JSON.stringify(request)}`;
+      return this.withProtection(providerId, cacheKey, 1, () => this.experienceProvider.searchExperiences(request));
+    }
+    return this.searchPlaces({ ...request, textQuery: request.textQuery || request.query || "things to do" });
+  }
 }
 
 export const createProviderManager = (options = {}) => new ProviderManager(options);
-

@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
@@ -77,5 +77,5 @@ test("results page wires AI decision cards to orchestration accept, dismiss, why
   assert.match(source, /recordDecisionFeedback/);
   assert.match(source, /ai_decision_accepted/);
   assert.match(css, /ai-decision-panel/);
-  assert.match(html, /20260730-ai-decision-engine/);
+  assert.match(html, /20260730-provider-orchestration/);
 });
