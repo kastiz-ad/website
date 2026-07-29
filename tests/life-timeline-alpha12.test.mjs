@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
@@ -139,8 +139,8 @@ test("ALPHA-12 is wired into the results page and cache key", () => {
   assert.match(page, /createLifeTimelineLayer/);
   assert.match(page, /attachLifeTimelineLayer\(currentResult\)/);
   assert.match(page, /data-card-id="life-timeline"/);
-  assert.match(html, /20260730-provider-orchestration/);
-  assert.match(entry, /20260730-provider-orchestration/);
+  assert.match(html, /20260730-approval-engine/);
+  assert.match(entry, /20260730-approval-engine/);
 });
 
 test("ALPHA-12 validation catches broken layers", () => {

@@ -143,5 +143,5 @@ test("results page wires provider orchestration and cache-busted demo entry", ()
   assert.match(source, /providerOrchestration/);
   assert.match(manager, /searchFlights/);
   assert.match(manager, /searchAccommodations/);
-  assert.match(html, /20260730-provider-orchestration/);
+  assert.match(html, /20260730-approval-engine/);
 });

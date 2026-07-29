@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
@@ -61,6 +61,6 @@ test("V22 has responsive premium result styling", () => {
 });
 
 test("V23 travel-first cache key is active in results entry files", () => {
-  assert.match(resultsEntry, /20260730-provider-orchestration/);
-  assert.match(resultsHtml, /20260730-provider-orchestration/);
+  assert.match(resultsEntry, /20260730-approval-engine/);
+  assert.match(resultsHtml, /20260730-approval-engine/);
 });

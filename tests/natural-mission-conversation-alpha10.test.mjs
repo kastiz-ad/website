@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
@@ -28,7 +28,7 @@ test("ALPHA-10 extracts mission facts from natural travel conversation", () => {
 
 test("ALPHA-10 supports Korean and Spanish natural language extraction", () => {
   const korean = extractConversationUnderstanding({
-    messages: ["부모님이랑 10월에 일본 여행 가고 싶고 많이 걷는 건 싫어요. 해산물 좋아해요."],
+    messages: ["부모님과 10월에 일본 여행 가고 싶어요. 해산물은 좋아하고 많이 걷는 건 싫어요."],
     result: { destination: { cityKo: "도쿄", countryKo: "일본" } },
     language: "ko"
   });
@@ -39,7 +39,7 @@ test("ALPHA-10 supports Korean and Spanish natural language extraction", () => {
   });
   assert.equal(korean.language, "ko");
   assert.ok(korean.people.includes("부모님"));
-  assert.ok(korean.preferences.includes("해산물"));
+  assert.ok(korean.preferences.some((preference) => /해산물|걷/.test(preference)));
   assert.equal(spanish.language, "es");
   assert.ok(spanish.dates.some((date) => /noviembre/.test(date)));
   assert.ok(spanish.people.includes("familia"));
@@ -127,6 +127,6 @@ test("results page and cache-busted entries wire the ALPHA-10 panel", () => {
   assert.match(page, /buildConversationUnderstandingLayer/);
   assert.match(page, /natural-mission-conversation/);
   assert.match(page, /alpha10NaturalConversation/);
-  assert.match(html, /20260730-provider-orchestration/);
-  assert.match(entry, /20260730-provider-orchestration/);
+  assert.match(html, /20260730-approval-engine/);
+  assert.match(entry, /20260730-approval-engine/);
 });

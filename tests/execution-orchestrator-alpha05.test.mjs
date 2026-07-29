@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
@@ -94,6 +94,6 @@ test("ALPHA-05 integrates with results page, CSS, and cache-busted demo entry", 
   assert.match(resultsPageSource, /alpha05Scenario/);
   assert.match(resultsCss, /\.alpha05-orchestrator-card/);
   assert.match(resultsCss, /\.alpha05-board/);
-  assert.match(resultsHtml, /20260730-provider-orchestration/);
-  assert.match(resultsEntry, /20260730-provider-orchestration/);
+  assert.match(resultsHtml, /20260730-approval-engine/);
+  assert.match(resultsEntry, /20260730-approval-engine/);
 });

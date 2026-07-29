@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
@@ -79,6 +79,6 @@ test("V23 travel styling supports responsive, no-overflow layouts", () => {
 });
 
 test("V23 result cache key is active", () => {
-  assert.match(resultsEntry, /20260730-provider-orchestration/);
-  assert.match(resultsHtml, /20260730-provider-orchestration/);
+  assert.match(resultsEntry, /20260730-approval-engine/);
+  assert.match(resultsHtml, /20260730-approval-engine/);
 });

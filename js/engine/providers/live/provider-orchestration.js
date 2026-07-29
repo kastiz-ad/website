@@ -1,4 +1,10 @@
 import { createProviderManager } from "./provider-manager.js";
+import {
+  APPROVAL_SCOPES,
+  assertProviderActionAllowed,
+  createExecutionPreview,
+  createMissionLifecycle
+} from "../../approval/approval-engine-v1.js";
 import { PROVIDER_SOURCE_STATES, unavailableProviderResult } from "./provider-result.js";
 import {
   PROVIDER_ORCHESTRATION_VERSION,
@@ -83,6 +89,7 @@ export const createProviderComparison = ({ flights = [], accommodations = [], tr
 };
 
 export const createProviderOrchestrationFromMissionData = (result = {}) => {
+  const lifecycle = createMissionLifecycle(result, { state: "ready_for_approval" });
   const flights = asArray(result.flights).map((item) => normalizeFlightOffer(item, { provider: item.provider || "mission-estimate" }));
   const accommodations = asArray(result.hotels).map((item) => normalizeAccommodationOffer(item, { provider: item.provider || "mission-estimate" }));
   const transport = asArray(result.transportation?.routes || result.transportRoutes || result.airportTransfer ? [result.transportation?.routes, result.transportRoutes, result.airportTransfer].flat().filter(Boolean) : [])
@@ -99,6 +106,12 @@ export const createProviderOrchestrationFromMissionData = (result = {}) => {
       accommodations: createProviderStatus("accommodation-provider"),
       transport: transport.length ? { id: "google-routes", state: PROVIDER_STATES.SUCCESS, sourceState: PROVIDER_SOURCE_STATES.CACHED, retryAvailable: false, retrievedAt: new Date().toISOString(), errorCode: null } : createProviderStatus("google-routes")
     },
+    approvalWorkflow: {
+      lifecycle,
+      requiredScopes: [APPROVAL_SCOPES.SEARCH_FLIGHTS, APPROVAL_SCOPES.SEARCH_HOTELS, APPROVAL_SCOPES.SEARCH_TRANSPORTATION],
+      preview: createExecutionPreview([APPROVAL_SCOPES.SEARCH_FLIGHTS, APPROVAL_SCOPES.SEARCH_HOTELS, APPROVAL_SCOPES.SEARCH_TRANSPORTATION], { language: result.language || "en" }),
+      message: "ONE is ready to search live providers. Nothing will be booked without another confirmation."
+    },
     bookingEnabled: false,
     paymentEnabled: false,
     secretsExposed: false,
@@ -106,7 +119,36 @@ export const createProviderOrchestrationFromMissionData = (result = {}) => {
   };
 };
 
-export const searchAndCompareProviders = async (result = {}, { manager = createProviderManager(), language = "en" } = {}) => {
+export const searchAndCompareProviders = async (result = {}, { manager = createProviderManager(), language = "en", approvalLifecycle = null, requireApproval = false } = {}) => {
+  const lifecycle = approvalLifecycle || createMissionLifecycle(result, { state: "approved_for_search" });
+  if (requireApproval) {
+    const allowed = [
+      assertProviderActionAllowed(lifecycle, APPROVAL_SCOPES.SEARCH_FLIGHTS, { providerAction: "flight-provider" }),
+      assertProviderActionAllowed(lifecycle, APPROVAL_SCOPES.SEARCH_HOTELS, { providerAction: "accommodation-provider" })
+    ];
+    if (allowed.some((item) => !item.allowed)) {
+      return {
+        version: PROVIDER_ORCHESTRATION_VERSION,
+        mode: "provider_search_blocked",
+        approvalWorkflow: {
+          lifecycle,
+          requiredScopes: [APPROVAL_SCOPES.SEARCH_FLIGHTS, APPROVAL_SCOPES.SEARCH_HOTELS],
+          preview: createExecutionPreview([APPROVAL_SCOPES.SEARCH_FLIGHTS, APPROVAL_SCOPES.SEARCH_HOTELS], { language }),
+          message: allowed.find((item) => !item.allowed)?.userMessage || "Approval required before provider search."
+        },
+        normalized: { flights: [], accommodations: [], transport: [] },
+        comparison: createProviderComparison({ flights: [], accommodations: [], transport: [] }),
+        providerStatuses: {
+          flights: createProviderStatus("flight-provider"),
+          accommodations: createProviderStatus("accommodation-provider")
+        },
+        blocked: true,
+        bookingEnabled: false,
+        paymentEnabled: false,
+        secretsExposed: false
+      };
+    }
+  }
   const flightRequest = oneWayRequest(result);
   const hotelRequest = accommodationRequest(result);
   const [flightResult, hotelResult] = await Promise.all([
@@ -124,6 +166,12 @@ export const searchAndCompareProviders = async (result = {}, { manager = createP
     providerStatuses: {
       flights: createProviderStatus(flightResult.provider || "flight-provider", flightResult),
       accommodations: createProviderStatus(hotelResult.provider || "accommodation-provider", hotelResult)
+    },
+    approvalWorkflow: {
+      lifecycle,
+      requiredScopes: [APPROVAL_SCOPES.SEARCH_FLIGHTS, APPROVAL_SCOPES.SEARCH_HOTELS],
+      preview: createExecutionPreview([APPROVAL_SCOPES.SEARCH_FLIGHTS, APPROVAL_SCOPES.SEARCH_HOTELS], { language }),
+      message: "Provider search requires a current scoped approval and never creates bookings or payments."
     },
     bookingEnabled: false,
     paymentEnabled: false,

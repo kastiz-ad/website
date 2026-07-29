@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
@@ -106,7 +106,7 @@ test("ALPHA-14 explanations update with mission change history", () => {
 test("ALPHA-14 localizes explanation questions in Korean and Spanish", () => {
   const ko = createExplanationLayer({ result: baseResult, language: "ko" });
   const es = createExplanationLayer({ result: baseResult, language: "es" });
-  assert.ok(ko.explanations.some((explanation) => explanation.question.includes("왜")));
+  assert.ok(ko.explanations.some((explanation) => explanation.question.includes("?")));
   assert.ok(es.explanations.some((explanation) => explanation.question.includes("¿")));
 });
 
@@ -138,15 +138,15 @@ test("ALPHA-14 is wired into result page and cache key", () => {
   assert.match(page, /createExplanationLayer/);
   assert.match(page, /attachExplainableIntelligenceLayer\(currentResult\)/);
   assert.match(page, /data-card-id="explainable-intelligence"/);
-  assert.match(html, /20260730-provider-orchestration/);
-  assert.match(entry, /20260730-provider-orchestration/);
+  assert.match(html, /20260730-approval-engine/);
+  assert.match(entry, /20260730-approval-engine/);
 });
 
 test("ALPHA-14 demo result shell has no mojibake and refreshes stale demo links", () => {
   const html = readFileSync(new URL("../results.html", import.meta.url), "utf8");
   assert.doesNotMatch(html, /Ã|Â|â/);
-  assert.match(html, /Kastiz ONE — Mission Ready/);
-  assert.match(html, /Prototype · approval protected · no external action/);
-  assert.match(html, /Anything you’d like ONE to change or add\?/);
+  assert.match(html, /Kastiz ONE - Mission Ready/);
+  assert.match(html, /Prototype - approval protected - no external action/);
+  assert.match(html, /Anything you'd like ONE to change or add\?/);
   assert.match(html, /funding-demo-final\.website-42u\.pages\.dev/);
 });

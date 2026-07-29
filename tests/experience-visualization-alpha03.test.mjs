@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
@@ -46,7 +46,7 @@ test("ALPHA-03 restaurant and place previews are truthful and do not fake rating
   assert.match(resultsPageSource, /cached_public/);
   assert.match(resultsPageSource, /estimated/);
   assert.doesNotMatch(travelDetailSource, /fake rating|review count|reservationStatus|availability confirmed/i);
-  assert.doesNotMatch(travelDetailSource, /4\.[0-9]\s*â˜…|stars/i);
+  assert.doesNotMatch(travelDetailSource, /4\.[0-9]\s*★|stars/i);
 });
 
 test("ALPHA-03 creates distinct founder preview experiences for Sapporo", () => {
@@ -75,8 +75,8 @@ test("ALPHA-03 preparation is collapsed and visual cards are responsive", () => 
 });
 
 test("ALPHA-03 cache key is active in result entry files", () => {
-  assert.match(resultsHtml, /20260730-provider-orchestration/);
-  assert.match(resultsEntry, /20260730-provider-orchestration/);
+  assert.match(resultsHtml, /20260730-approval-engine/);
+  assert.match(resultsEntry, /20260730-approval-engine/);
 });
 
 test("ALPHA-03 keeps map pins clean and transport choices top-aligned", () => {

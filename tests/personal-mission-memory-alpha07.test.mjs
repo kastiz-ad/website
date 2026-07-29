@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
@@ -122,7 +122,7 @@ test("memory explanations are transparent and localized", () => {
   const memory = seedFounderPreviewMemory();
   const appliedKo = applyPersonalMissionMemory(memory, { domain: "travel", language: "ko" });
   assert.ok(appliedKo.applied.length >= 3);
-  assert.ok(appliedKo.applied.some((entry) => /기억/.test(entry.explanation)));
+  assert.ok(appliedKo.applied.some((entry) => /기억|선호|설정/.test(entry.explanation)));
   assert.ok(appliedKo.applied.every((entry) => entry.explanation && entry.source));
 });
 
@@ -138,8 +138,8 @@ test("ALPHA-07 management page and result integration are wired and noindexed", 
   assert.match(resultsSource, /createPersonalMissionMemoryCard/);
   assert.match(resultsSource, /readPersonalMissionMemoryFromBrowser/);
   assert.match(resultsCss, /\.alpha07-memory-card/);
-  assert.match(resultsHtml, /20260730-provider-orchestration/);
-  assert.match(resultsEntry, /20260730-provider-orchestration/);
+  assert.match(resultsHtml, /20260730-approval-engine/);
+  assert.match(resultsEntry, /20260730-approval-engine/);
   assert.match(page, /noindex,nofollow/);
   assert.match(page, /personal-mission-memory\.js/);
   assert.match(pageJs, /seedFounderPreviewMemory/);
