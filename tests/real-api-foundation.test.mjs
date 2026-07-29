@@ -165,7 +165,7 @@ test("browser registry and provider interfaces do not expose server-only credent
   const reservation = await new ReservationProvider().prepareReservation({ hotel: "x" });
   const flight = await new FlightProvider({ fetcher: null }).searchFlights({ destination: "Tokyo" });
   const accommodation = await new AccommodationProvider().searchAccommodations({ destination: "Tokyo" });
-  assert.equal(reservation.error.code, "provider_not_configured");
+  assert.equal(reservation.error.code, "setup_required");
   assert.equal(flight.error.code, "provider_not_configured");
   assert.equal(accommodation.error.code, "provider_not_configured");
 });

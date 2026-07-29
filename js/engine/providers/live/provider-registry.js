@@ -8,6 +8,8 @@ export const PROVIDER_TYPES = Object.freeze({
   PAYMENT: "payment",
   FLIGHT: "flight",
   ACCOMMODATION: "accommodation",
+  WEATHER: "weather",
+  EVENT: "event",
   RESERVATION: "reservation"
 });
 
@@ -24,6 +26,8 @@ export function createBrowserProviderRegistry(config = (typeof window !== "undef
   const tossConfigured = configured(config.TOSS_CLIENT_KEY) && String(config.TOSS_MODE || "test") === "test";
   const flightConfigured = config.FLIGHT_PROVIDER_ENABLED === true || config.FLIGHT_PROVIDER_ENABLED === "true";
   const hotelConfigured = config.ACCOMMODATION_PROVIDER_ENABLED === true || config.ACCOMMODATION_PROVIDER_ENABLED === "true";
+  const weatherConfigured = config.WEATHER_PROVIDER_ENABLED === true || config.WEATHER_PROVIDER_ENABLED === "true";
+  const eventConfigured = config.EVENT_PROVIDER_ENABLED === true || config.EVENT_PROVIDER_ENABLED === "true";
   const entry = ({ id, type, enabled, credentialStatus, capabilities = [], environment = "browser" }) => ({
     id,
     name: id,
@@ -46,6 +50,8 @@ export function createBrowserProviderRegistry(config = (typeof window !== "undef
       entry({ id: "toss-payments-test", type: PROVIDER_TYPES.PAYMENT, enabled: tossConfigured, credentialStatus: tossConfigured ? "test_client_key_configured" : "missing_toss_client_key", capabilities: ["external_test_payment"] }),
       entry({ id: "amadeus-flight-offers", type: PROVIDER_TYPES.FLIGHT, enabled: flightConfigured, credentialStatus: flightConfigured ? "server_checked" : "missing_amadeus_credentials", capabilities: flightConfigured ? ["server_flight_search", "fare_rules", "health_check"] : ["setup_required"], environment: "server" }),
       entry({ id: "amadeus-hotel-offers", type: PROVIDER_TYPES.ACCOMMODATION, enabled: hotelConfigured, credentialStatus: hotelConfigured ? "server_checked" : "missing_amadeus_credentials", capabilities: hotelConfigured ? ["server_hotel_search", "availability", "rates", "cancellation", "mission_scoring"] : ["setup_required"], environment: "server" }),
+      entry({ id: "open-meteo-weather", type: PROVIDER_TYPES.WEATHER, enabled: weatherConfigured, credentialStatus: weatherConfigured ? "public_provider_enabled" : "weather_provider_disabled", capabilities: weatherConfigured ? ["forecast", "hazard_detection", "itinerary_impact"] : ["setup_required"], environment: "public" }),
+      entry({ id: "events-provider", type: PROVIDER_TYPES.EVENT, enabled: eventConfigured, credentialStatus: eventConfigured ? "server_checked" : "missing_event_provider_credentials", capabilities: eventConfigured ? ["event_search", "event_scoring", "schedule_conflict_check"] : ["setup_required"], environment: "server" }),
       entry({ id: "reservation-provider", type: PROVIDER_TYPES.RESERVATION, enabled: false, credentialStatus: "not_connected", capabilities: ["setup_required"], environment: "future" })
     ]),
     secretExposure: Object.freeze({
