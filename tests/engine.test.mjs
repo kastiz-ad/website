@@ -3,7 +3,7 @@ import { classifyMission } from "../js/engine/mission-classification.js";
 import { approvalPolicy, IRREVERSIBLE_ACTIONS } from "../js/engine/approval.js";
 import { executeAction } from "../js/engine/execution.js";
 import { fetchProviderResult } from "../js/engine/providers.js";
-import { authenticationEnabled } from "../js/config/authentication.js";
+import { authenticationEnabled, canAuthenticate } from "../js/config/authentication.js";
 import { paymentsEnabled } from "../js/config/commerce.js";
 import { documentVaultEnabled, externalAutofillEnabled, profileMemoryEnabled, providerDataSharingEnabled, sensitiveProfileEnabled } from "../js/config/profile-memory.js";
 import { analyticsEnabled, cloudflareAnalyticsEnabled, founderDashboardEnabled, googleAnalyticsEnabled, rawMissionTextTracking, sensitiveAnalyticsTracking } from "../js/config/analytics.js";
@@ -33,7 +33,8 @@ assert.equal(cloudflareAnalyticsEnabled, false);
 assert.equal(founderDashboardEnabled, true);
 assert.equal(rawMissionTextTracking, false);
 assert.equal(sensitiveAnalyticsTracking, false);
-assert.equal(authenticationEnabled, false);
+assert.equal(authenticationEnabled, true);
+assert.equal(canAuthenticate(), false);
 assert.equal(DISCLOSURE_VERSION, "1.0");
 assert.equal(DISCLOSURE_VERSION_KEY, "kastiz-one-disclosure-version");
 

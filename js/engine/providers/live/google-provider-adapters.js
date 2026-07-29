@@ -30,12 +30,15 @@ export const GOOGLE_ROUTES_FIELD_MASK = [
 
 export const createGoogleProviderConfig = (env = {}) => {
   const browserConfig = typeof window !== "undefined" ? window.KASTIZ_PROVIDER_CONFIG || {} : {};
+  const isBrowser = typeof window !== "undefined";
   return {
     enabled: String(env.GOOGLE_PROVIDER_ENABLED ?? browserConfig.GOOGLE_PROVIDER_ENABLED ?? "false") === "true",
-    mapsApiKey: env.GOOGLE_MAPS_API_KEY || browserConfig.GOOGLE_MAPS_API_KEY || "",
-    placesApiKey: env.GOOGLE_PLACES_API_KEY || browserConfig.GOOGLE_PLACES_API_KEY || "",
-    routesApiKey: env.GOOGLE_ROUTES_API_KEY || browserConfig.GOOGLE_ROUTES_API_KEY || "",
-    mapId: env.GOOGLE_MAP_ID || browserConfig.GOOGLE_MAP_ID || ""
+    mapsApiKey: env.GOOGLE_MAPS_BROWSER_KEY || env.GOOGLE_MAPS_API_KEY || browserConfig.GOOGLE_MAPS_BROWSER_KEY || browserConfig.GOOGLE_MAPS_API_KEY || "",
+    geocodingKey: isBrowser ? "" : (env.GOOGLE_MAPS_SERVER_KEY || env.GOOGLE_MAPS_API_KEY || ""),
+    placesApiKey: isBrowser ? "" : (env.GOOGLE_PLACES_API_KEY || ""),
+    routesApiKey: isBrowser ? "" : (env.GOOGLE_ROUTES_API_KEY || ""),
+    mapId: env.GOOGLE_MAPS_MAP_ID || env.GOOGLE_MAP_ID || browserConfig.GOOGLE_MAPS_MAP_ID || browserConfig.GOOGLE_MAP_ID || "",
+    apiBase: env.KASTIZ_API_BASE || browserConfig.KASTIZ_API_BASE || "/api/v1"
   };
 };
 
@@ -63,13 +66,32 @@ export class GoogleMapProvider extends MapProvider {
   }
 
   async geocode(query, options = {}) {
-    if (!this.config.enabled || !this.config.mapsApiKey) {
-      return missingApiKeyResult(this.providerId, ["GOOGLE_PROVIDER_ENABLED=true", "GOOGLE_MAPS_API_KEY"]);
+    if (!this.config.enabled || (!this.config.geocodingKey && typeof window === "undefined")) {
+      return missingApiKeyResult(this.providerId, ["GOOGLE_PROVIDER_ENABLED=true", "GOOGLE_MAPS_SERVER_KEY"]);
+    }
+    if (typeof window !== "undefined") {
+      try {
+        const data = await jsonFetch(`${this.config.apiBase}/providers/google/geocode`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, ...options })
+        });
+        return createProviderResult({
+          ok: Array.isArray(data.items) && data.items.length > 0,
+          provider: this.providerId,
+          sourceState: data.dataState || PROVIDER_SOURCE_STATES.LIVE,
+          data: data.items || [],
+          evidence: createProviderEvidence({ provider: this.providerId, sourceState: data.dataState || PROVIDER_SOURCE_STATES.LIVE, endpoint: "api/v1/providers/google/geocode" }),
+          error: data.error
+        });
+      } catch (error) {
+        return createProviderResult({ ok: false, provider: this.providerId, sourceState: PROVIDER_SOURCE_STATES.ERROR, error });
+      }
     }
     const endpoint = "https://maps.googleapis.com/maps/api/geocode/json";
     const url = new URL(endpoint);
     url.searchParams.set("address", query);
-    url.searchParams.set("key", this.config.mapsApiKey);
+    url.searchParams.set("key", this.config.geocodingKey);
     if (options.language) url.searchParams.set("language", options.language);
     try {
       const data = await jsonFetch(url.toString());
@@ -112,6 +134,25 @@ export class GooglePlacesProvider extends PlacesProvider {
   }
 
   async searchPlaces({ textQuery, locationBias, languageCode = "en", maxResultCount = 10 } = {}) {
+    if (typeof window !== "undefined") {
+      try {
+        const data = await jsonFetch(`${this.config.apiBase}/providers/google/places`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ textQuery, locationBias, languageCode, maxResultCount })
+        });
+        return createProviderResult({
+          ok: Array.isArray(data.items) && data.items.length > 0,
+          provider: this.providerId,
+          sourceState: data.dataState || PROVIDER_SOURCE_STATES.LIVE,
+          data: data.items || [],
+          evidence: createProviderEvidence({ provider: this.providerId, sourceState: data.dataState || PROVIDER_SOURCE_STATES.LIVE, endpoint: "api/v1/providers/google/places", fieldMask: GOOGLE_PLACES_FIELD_MASK }),
+          error: data.error
+        });
+      } catch (error) {
+        return createProviderResult({ ok: false, provider: this.providerId, sourceState: PROVIDER_SOURCE_STATES.ERROR, error });
+      }
+    }
     if (!this.config.enabled || !this.config.placesApiKey) {
       return missingApiKeyResult(this.providerId, ["GOOGLE_PROVIDER_ENABLED=true", "GOOGLE_PLACES_API_KEY"]);
     }
@@ -181,6 +222,25 @@ export class GoogleRouteProvider extends RouteProvider {
   }
 
   async computeRoute({ origin, destination, travelMode = "TRANSIT", languageCode = "en" } = {}) {
+    if (typeof window !== "undefined") {
+      try {
+        const data = await jsonFetch(`${this.config.apiBase}/providers/google/routes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ origin, destination, travelMode, languageCode })
+        });
+        return createProviderResult({
+          ok: Array.isArray(data.items) && data.items.length > 0,
+          provider: this.providerId,
+          sourceState: data.dataState || PROVIDER_SOURCE_STATES.LIVE,
+          data: data.items || [],
+          evidence: createProviderEvidence({ provider: this.providerId, sourceState: data.dataState || PROVIDER_SOURCE_STATES.LIVE, endpoint: "api/v1/providers/google/routes", fieldMask: GOOGLE_ROUTES_FIELD_MASK }),
+          error: data.error
+        });
+      } catch (error) {
+        return createProviderResult({ ok: false, provider: this.providerId, sourceState: PROVIDER_SOURCE_STATES.ERROR, error });
+      }
+    }
     if (!this.config.enabled || !this.config.routesApiKey) {
       return missingApiKeyResult(this.providerId, ["GOOGLE_PROVIDER_ENABLED=true", "GOOGLE_ROUTES_API_KEY"]);
     }
@@ -220,4 +280,3 @@ export class GoogleRouteProvider extends RouteProvider {
     }
   }
 }
-

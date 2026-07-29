@@ -5,6 +5,8 @@ import { FlightProvider } from "./flight-provider.js";
 import { AccommodationProvider } from "./accommodation-provider.js";
 import { ExperienceProvider } from "./experience-provider.js";
 import { RestaurantProvider } from "./restaurant-provider.js";
+import { PaymentProvider } from "./payment-provider.js";
+import { ReservationProvider } from "./reservation-provider.js";
 import {
   LIVE_PROVIDER_FOUNDATION_VERSION,
   PROVIDER_SOURCE_STATES,
@@ -91,6 +93,8 @@ export class ProviderManager {
     accommodationProvider = new AccommodationProvider(),
     experienceProvider = new ExperienceProvider(),
     restaurantProvider = new RestaurantProvider(),
+    paymentProvider = new PaymentProvider(),
+    reservationProvider = new ReservationProvider(),
     cache = createMemoryCache(),
     deduper = createRequestDeduper(),
     quotaGuard = createQuotaGuard()
@@ -103,6 +107,8 @@ export class ProviderManager {
     this.accommodationProvider = accommodationProvider;
     this.experienceProvider = experienceProvider;
     this.restaurantProvider = restaurantProvider;
+    this.paymentProvider = paymentProvider;
+    this.reservationProvider = reservationProvider;
     this.cache = cache;
     this.deduper = deduper;
     this.quotaGuard = quotaGuard;
@@ -207,6 +213,17 @@ export class ProviderManager {
       return this.withProtection(providerId, cacheKey, 1, () => this.experienceProvider.searchExperiences(request));
     }
     return this.searchPlaces({ ...request, textQuery: request.textQuery || request.query || "things to do" });
+  }
+
+  async preparePayment(request = {}) {
+    const providerId = this.paymentProvider.providerId || "payment-provider";
+    return this.paymentProvider.preparePayment(request);
+  }
+
+  async searchReservations(request = {}) {
+    const providerId = this.reservationProvider.providerId || "reservation-provider";
+    const cacheKey = `reservation:${providerId}:${JSON.stringify(request)}`;
+    return this.withProtection(providerId, cacheKey, 1, () => this.reservationProvider.searchAvailability(request));
   }
 }
 

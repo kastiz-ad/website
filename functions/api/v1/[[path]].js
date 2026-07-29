@@ -1,31 +1,63 @@
-import { ApiError, json, noBody, requestId, safeError } from "./_lib/http.js";
+import { ApiError, json, noBody, parseCookies, requestId, safeError } from "./_lib/http.js";
 import { config } from "./_lib/config.js";
 import { enforceCsrf, enforceOrigin, rateLimit, securityHeaders } from "./_lib/security.js";
-import { currentUser, resetPassword, sessionHeaders, signIn, signUp } from "./_lib/auth.js";
+import { clearSessionHeaders, currentUser, oauthSignInUrl, refreshSession, resetPassword, sessionHeaders, signIn, signOut, signUp } from "./_lib/auth.js";
 import { audit, db, trustedDb } from "./_lib/database.js";
-import { approvalDecision, approvalRequest, body, consent, emailPassword, missionCreate, preference, profileUpdate, registration, ValidationError } from "./_lib/schemas.js";
+import { approvalDecision, approvalRequest, body, consent, emailPassword, memoryRecord, memoryUpdate, missionCreate, preference, profileUpdate, registration, ValidationError } from "./_lib/schemas.js";
 import { assertExecutable, payloadHash } from "./_lib/approval.js";
 import { runOneCoreAgent } from "./_lib/one/one-core-agent.js";
+import { createProviderRegistry } from "./_lib/providers/provider-contracts.js";
+import { geocodeWithGoogle, searchTextWithGooglePlaces, computeRoutesWithGoogle } from "./_lib/providers/google.js";
+import { createTossTestPaymentOrder, confirmTossTestPayment } from "./_lib/providers/toss.js";
+import { createLogger } from "./_lib/logger.js";
+import { runtimeConfig } from "./_lib/runtime-config.js";
 
 const parts = request => new URL(request.url).pathname.replace(/^\/api\/v1\/?/, "").split("/").filter(Boolean);
 const one = rows => Array.isArray(rows) ? rows[0] || null : rows;
 const userFilter = user => `user_id=eq.${encodeURIComponent(user.id)}`;
+const profileColumns = "id,display_name,preferred_language,timezone,country,city,preferred_airport,preferred_airlines,preferred_hotel_types,seat_preference,travel_style,dietary_preferences,accessibility_preferences,favorite_cuisines,disliked_foods,budget_preference,time_format,currency_preference,emergency_contact,memory_enabled,created_at,updated_at";
+const blankToNull = value => value === "" ? null : value;
+const cleanPatch = data => Object.fromEntries(Object.entries(data).map(([key, value]) => [key, blankToNull(value)]));
 
 async function route(context, cfg) {
   const { request } = context; const [group, id, action] = parts(request);
   if (group === "health" && request.method === "GET") return json({ status: "ok", service: "kastiz-one-api", version: "v1" });
   if (group === "readiness" && request.method === "GET") return json({ status: "ready", database: "configured", authentication: "configured" });
+  if (group === "providers" && id === "status" && request.method === "GET") {
+    const registry = createProviderRegistry(context.env);
+    return json({
+      version: registry.version,
+      providers: registry.providers,
+      publicConfig: registry.publicConfig,
+      secretExposure: registry.secretExposure
+    });
+  }
 
   if (group === "auth") {
     await rateLimit(context, "auth", 10);
     if (id === "register" && request.method === "POST") { const data=await body(request,registration); const result=await signUp(cfg,data.email,data.password,data.displayName,data.language); return json({ user: result.user ? { id: result.user.id, email: result.user.email, emailVerified: Boolean(result.user.email_confirmed_at) } : null, verificationRequired: !result.session }, 201); }
     if (id === "login" && request.method === "POST") { const data=await body(request,emailPassword); const session=await signIn(cfg,data.email,data.password); const csrf=crypto.randomUUID(); return json({ user:{ id:session.user.id,email:session.user.email,emailVerified:Boolean(session.user.email_confirmed_at) },csrfToken:csrf },200,sessionHeaders(cfg,session,csrf)); }
+    if (id === "oauth" && request.method === "GET") { const provider=action; if(!cfg.oauthProviders[provider]) throw new ApiError(503,"oauth_setup_required",`${provider || "OAuth"} sign-in is not configured on this environment.`); return json({provider,url:oauthSignInUrl(cfg,provider),status:"redirect_required"}); }
+    if (id === "refresh" && request.method === "POST") { const refreshToken=parseCookies(request)[cfg.refreshCookie]; const session=await refreshSession(cfg,refreshToken); const csrf=crypto.randomUUID(); return json({user:{id:session.user.id,email:session.user.email,emailVerified:Boolean(session.user.email_confirmed_at)},csrfToken:csrf},200,sessionHeaders(cfg,session,csrf)); }
     if (id === "password-reset" && request.method === "POST") { const data=await body(request,emailPassword.pick({email:true})); await resetPassword(cfg,data.email); return json({ message:"If the account exists, password reset instructions were sent." },202); }
     if (id === "session" && request.method === "GET") { const user=await currentUser(request,cfg,false); return json({ authenticated:Boolean(user), user:user?{id:user.id,email:user.email,emailVerified:Boolean(user.email_confirmed_at)}:null }); }
-    if (id === "logout" && request.method === "POST") return json({ authenticated:false },200,{"Set-Cookie":`${cfg.sessionCookie}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax, ${cfg.refreshCookie}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`});
+    if (id === "logout" && request.method === "POST") { const maybeUser=await currentUser(request,cfg,false); await signOut(cfg,maybeUser?.accessToken); return json({ authenticated:false },200,clearSessionHeaders(cfg)); }
   }
 
   const user = await currentUser(request, cfg);
+  if (group === "providers" && id === "google" && request.method === "POST") {
+    await rateLimit(context, "providers-google", 30);
+    const data = await request.json().catch(() => ({}));
+    if (action === "geocode") return json(await geocodeWithGoogle(context.env, data));
+    if (action === "places") return json(await searchTextWithGooglePlaces(context.env, data));
+    if (action === "routes") return json(await computeRoutesWithGoogle(context.env, data));
+  }
+  if (group === "payments" && id === "toss" && request.method === "POST") {
+    await rateLimit(context, "payments-toss", 10);
+    const data = await request.json().catch(() => ({}));
+    if (action === "test") return json(await createTossTestPaymentOrder(context.env, data));
+    if (action === "confirm") return json(await confirmTossTestPayment(context.env, data));
+  }
   if (group === "one-agent" && id === "missions" && request.method === "POST") {
     await rateLimit(context, "one-agent", 10);
     const data=await request.json();
@@ -35,15 +67,21 @@ async function route(context, cfg) {
   }
   if (group === "me") {
     if (!id && request.method === "GET") return json({ id:user.id,email:user.email,emailVerified:Boolean(user.email_confirmed_at) });
-    if (id === "profile" && request.method === "GET") return json({ profile:one(await db(cfg,user,"profiles",{query:`id=eq.${user.id}&select=id,display_name,preferred_language,timezone,created_at,updated_at`})) });
-    if (id === "profile" && request.method === "PATCH") { const data=await body(request,profileUpdate); return json({ profile:one(await db(cfg,user,"profiles",{method:"PATCH",query:`id=eq.${user.id}`,body:data})) }); }
-    if (id === "export" && request.method === "GET") { const [profile,preferences,missions,consents]=await Promise.all([db(cfg,user,"profiles",{query:`id=eq.${user.id}&select=*`}),db(cfg,user,"user_preferences",{query:`${userFilter(user)}&select=*`}),db(cfg,user,"missions",{query:`${userFilter(user)}&select=*`}),db(cfg,user,"consent_records",{query:`${userFilter(user)}&select=*`})]); return json({exportedAt:new Date().toISOString(),profile,preferences,missions,consents}); }
+    if (id === "profile" && request.method === "GET") return json({ profile:one(await db(cfg,user,"profiles",{query:`id=eq.${user.id}&select=${profileColumns}`})) });
+    if (id === "profile" && request.method === "PATCH") { const data=await body(request,profileUpdate); const profile=one(await db(cfg,user,"profiles",{method:"PATCH",query:`id=eq.${user.id}`,body:cleanPatch(data)})); await audit(cfg,user,"profile_updated","profile",user.id,requestId(request),{fields:Object.keys(data)}); return json({ profile }); }
+    if (id === "export" && request.method === "GET") { const [profile,preferences,memories,missions,consents]=await Promise.all([db(cfg,user,"profiles",{query:`id=eq.${user.id}&select=*`}),db(cfg,user,"user_preferences",{query:`${userFilter(user)}&select=*`}),db(cfg,user,"user_memories",{query:`${userFilter(user)}&select=*`}).catch(()=>[]),db(cfg,user,"missions",{query:`${userFilter(user)}&select=*`}),db(cfg,user,"consent_records",{query:`${userFilter(user)}&select=*`})]); return json({exportedAt:new Date().toISOString(),profile,preferences,memories,missions,consents}); }
     if (id === "deletion-request" && request.method === "POST") { const rows=await db(cfg,user,"account_deletion_requests",{method:"POST",body:{user_id:user.id,status:"pending_confirmation"}}); return json({request:one(rows),message:"Deletion request recorded. Recent authentication and confirmation are required before processing."},202); }
   }
   if (group === "preferences") {
-    if (request.method === "GET") return json({preferences:await db(cfg,user,"user_preferences",{query:`${userFilter(user)}&select=id,category,preference_key,preference_value,created_at,updated_at&order=category,preference_key`})});
-    if (request.method === "POST") { const data=await body(request,preference); return json({preference:one(await db(cfg,user,"user_preferences",{method:"POST",body:{...data,user_id:user.id},prefer:"resolution=merge-duplicates,return=representation"}))},201); }
+    if (request.method === "GET") return json({preferences:await db(cfg,user,"user_preferences",{query:`${userFilter(user)}&select=id,category,preference_key,preference_value,memory_scope,source_mission_id,user_confirmed,created_at,updated_at&order=category,preference_key`})});
+    if (request.method === "POST") { const data=await body(request,preference); if((data.memory_scope||"permanent_profile")==="permanent_profile"&&data.user_confirmed!==true)throw new ApiError(409,"explicit_memory_approval_required","Ask the user before saving this for future missions."); return json({preference:one(await db(cfg,user,"user_preferences",{method:"POST",body:{memory_scope:"permanent_profile",user_confirmed:true,...data,user_id:user.id},prefer:"resolution=merge-duplicates,return=representation"}))},201); }
     if (id && request.method === "DELETE") { await db(cfg,user,"user_preferences",{method:"DELETE",query:`id=eq.${id}&${userFilter(user)}`}); return noBody(204); }
+  }
+  if (group === "memory") {
+    if (request.method === "GET") return json({memories:await db(cfg,user,"user_memories",{query:`${userFilter(user)}&disabled_at=is.null&select=id,domain,memory_key,memory_value,memory_type,source_mission_id,explanation,user_confirmed,expires_at,created_at,updated_at&order=domain,memory_key`})});
+    if (request.method === "POST") { const data=await body(request,memoryRecord); const row={...data,user_id:user.id}; const memory=one(await db(cfg,user,"user_memories",{method:"POST",body:row,prefer:"resolution=merge-duplicates,return=representation"})); await audit(cfg,user,"memory_saved","user_memory",memory.id,requestId(request),{domain:data.domain,memory_type:data.memory_type}); return json({memory},201); }
+    if (id && request.method === "PATCH") { const data=await body(request,memoryUpdate); const patch={updated_at:new Date().toISOString(),...(data.memory_value!==undefined?{memory_value:data.memory_value}:{}),...(data.explanation!==undefined?{explanation:data.explanation}:{}),...(data.disabled!==undefined?{disabled_at:data.disabled?new Date().toISOString():null}: {})}; return json({memory:one(await db(cfg,user,"user_memories",{method:"PATCH",query:`id=eq.${id}&${userFilter(user)}`,body:patch}))}); }
+    if (id && request.method === "DELETE") { await db(cfg,user,"user_memories",{method:"PATCH",query:`id=eq.${id}&${userFilter(user)}`,body:{disabled_at:new Date().toISOString()}}); return noBody(204); }
   }
   if (group === "missions") {
     if (!id && request.method === "GET") return json({missions:await db(cfg,user,"missions",{query:`${userFilter(user)}&deleted_at=is.null&select=id,mission_type,title,status,risk_level,created_at,updated_at,completed_at&order=created_at.desc&limit=50`})});
@@ -67,6 +105,9 @@ async function route(context, cfg) {
 
 export async function onRequest(context) {
   const id=requestId(context.request);
-  try { const cfg=config(context.env); enforceOrigin(context.request,cfg); const pathname=new URL(context.request.url).pathname; const length=Number(context.request.headers.get("Content-Length")||0); if(length>1048576)throw new ApiError(413,"body_too_large","Request body is too large."); const csrfExempt=/\/auth\/(login|register|password-reset)$/.test(pathname)||pathname.endsWith("/health")||pathname.endsWith("/readiness"); if(!csrfExempt)enforceCsrf(context.request,cfg); const response=await route(context,cfg); const headers=new Headers(response.headers); Object.entries(securityHeaders({"X-Request-ID":id})).forEach(([k,v])=>headers.set(k,v)); return new Response(response.body,{status:response.status,headers}); }
-  catch(error){ if(error instanceof ValidationError)return json({error:{code:"validation_failed",message:"Check the submitted information.",fields:error.fields,requestId:id}},400); console.error(JSON.stringify({level:"error",requestId:id,code:error.code||"internal_error"})); return safeError(error,id); }
+  const startedAt=Date.now();
+  const runtime=runtimeConfig(context.env);
+  const logger=createLogger({requestId:id,environment:runtime.environment,service:runtime.service,logLevel:runtime.logLevel});
+  try { const pathname=new URL(context.request.url).pathname; if(context.request.method==="GET"&&pathname.endsWith("/providers/status")){const registry=createProviderRegistry(context.env);const response=json({version:registry.version,providers:registry.providers,publicConfig:registry.publicConfig,secretExposure:registry.secretExposure});const headers=new Headers(response.headers);Object.entries(securityHeaders({"X-Request-ID":id})).forEach(([k,v])=>headers.set(k,v));logger.info("request_completed",{path:pathname,method:context.request.method,status:response.status,latencyMs:Date.now()-startedAt});return new Response(response.body,{status:response.status,headers});} const cfg=config(context.env); enforceOrigin(context.request,cfg); const length=Number(context.request.headers.get("Content-Length")||0); if(length>1048576)throw new ApiError(413,"body_too_large","Request body is too large."); const csrfExempt=/\/auth\/(login|register|password-reset)$/.test(pathname)||pathname.endsWith("/health")||pathname.endsWith("/readiness"); if(!csrfExempt)enforceCsrf(context.request,cfg); const response=await route(context,cfg); const headers=new Headers(response.headers); Object.entries(securityHeaders({"X-Request-ID":id})).forEach(([k,v])=>headers.set(k,v)); logger.info("request_completed",{path:pathname,method:context.request.method,status:response.status,latencyMs:Date.now()-startedAt}); return new Response(response.body,{status:response.status,headers}); }
+  catch(error){ if(error instanceof ValidationError)return json({error:{code:"validation_failed",message:"Check the submitted information.",fields:error.fields,requestId:id}},400); logger.error("request_failed",{code:error.code||"internal_error",status:error.status||500,latencyMs:Date.now()-startedAt}); return safeError(error,id); }
 }

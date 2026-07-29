@@ -8,18 +8,18 @@ import {
 
 const CATEGORIES = Object.freeze(["identity", "travel", "food", "shopping", "housing", "education", "business", "accessibility"]);
 const ALLOWED_FIELDS = Object.freeze({
-  identity: ["preferredName", "country", "nationality", "language", "timezone", "cityRegion"],
-  travel: ["departureAirport", "airlines", "cabin", "seat", "maximumStops", "baggage", "hotelStyle", "room", "breakfast", "budgetStyle", "insurance", "transport", "loyaltyPrograms", "tripPace"],
-  food: ["cuisines", "dislikedFoods", "dietaryPreferences", "allergyWarning", "partySize", "reservationTime", "distance", "budgetRange"],
+  identity: ["preferredName", "country", "nationality", "language", "timezone", "cityRegion", "city", "timeFormat", "currencyPreference", "emergencyContact"],
+  travel: ["departureAirport", "preferredAirport", "airlines", "preferredAirlines", "cabin", "seat", "seatPreference", "maximumStops", "baggage", "hotelStyle", "preferredHotelTypes", "room", "breakfast", "budgetStyle", "budgetPreference", "insurance", "transport", "loyaltyPrograms", "tripPace", "travelStyle"],
+  food: ["cuisines", "favoriteCuisines", "dislikedFoods", "dietaryPreferences", "allergyWarning", "partySize", "reservationTime", "distance", "budgetRange"],
   shopping: ["brands", "budgetStyle", "deliveryCountry", "deliverySpeed", "warranty", "priorities", "sizes"],
   housing: ["area", "housingType", "monthlyBudget", "commute", "furnished", "pets"],
   education: ["goals", "subject", "level", "format", "schedule", "lessonBudget", "teachingStyle"],
   business: ["companyName", "country", "industry", "role", "invoicePreference", "meetingLanguage", "meetingTime"],
-  accessibility: ["interfacePreferences"]
+  accessibility: ["interfacePreferences", "accessibilityPreferences"]
 });
-const BLOCKED_KEY = /(passport|visa|national.?id|card|bank|health|medical|child|emergency|password|token|secret)/i;
-const clean = (value) => String(value ?? "").replace(/[<>]/g, "").trim().slice(0, 240);
-const emptyCategories = () => Object.fromEntries(CATEGORIES.map((category) => [category, {}]));
+const BLOCKED_KEY = /(passport|visa|national.?id|resident|card|cvv|bank|health|medical|child|password|token|secret|otp|biometric|document|provider.?password)/i;
+const clean = value => String(value ?? "").replace(/[<>]/g, "").trim().slice(0, 240);
+const emptyCategories = () => Object.fromEntries(CATEGORIES.map(category => [category, {}]));
 const emptyProfile = () => ({
   version: PROFILE_VERSION,
   userId: null,
@@ -32,7 +32,7 @@ const emptyProfile = () => ({
   categories: emptyCategories(),
   updatedAt: new Date().toISOString()
 });
-const normalize = (input) => {
+const normalize = input => {
   const profile = emptyProfile();
   if (!input || typeof input !== "object") return profile;
   profile.profileConsent = {
@@ -40,9 +40,9 @@ const normalize = (input) => {
     consentVersion: input.profileConsent?.consentVersion || null,
     consentedAt: input.profileConsent?.consentedAt || null
   };
-  CATEGORIES.forEach((category) => {
+  CATEGORIES.forEach(category => {
     const source = input.categories?.[category] || {};
-    ALLOWED_FIELDS[category].forEach((key) => {
+    ALLOWED_FIELDS[category].forEach(key => {
       const record = source[key];
       if (!record || BLOCKED_KEY.test(key)) return;
       const value = clean(typeof record === "object" ? record.value : record);
@@ -65,30 +65,34 @@ export const readProfile = () => {
   try { return normalize(JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "null")); }
   catch { return emptyProfile(); }
 };
-const writeProfile = (profile) => {
+const writeProfile = profile => {
   const safe = normalize(profile); safe.updatedAt = new Date().toISOString();
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(safe)); return safe;
 };
-export const setMemoryEnabled = (enabled) => {
+export const setMemoryEnabled = enabled => {
   const profile = readProfile();
   profile.profileConsent = enabled ? { enabled: true, consentVersion: PROFILE_CONSENT_VERSION, consentedAt: new Date().toISOString() } : { ...profile.profileConsent, enabled: false };
   return writeProfile(profile);
 };
-export const getProfileForMission = (type) => {
+export const getProfileForMission = type => {
   const profile = readProfile();
   if (!profileMemoryEnabled || !profile.profileConsent.enabled) return { enabled: false, category: {}, profile };
   const map = { tutoring: "education", language_exchange: "education", childcare: "identity", moving: "housing", general_mission: "identity" };
   return { enabled: true, category: profile.categories[map[type] || type] || {}, profile };
 };
-export const getSuggestedPrefill = (type) => {
+export const getSuggestedPrefill = type => {
   const { enabled, category } = getProfileForMission(type); if (!enabled) return {};
-  const value = (key) => category[key]?.value || "";
-  if (type === "travel") return { departure: value("departureAirport"), priority: value("tripPace")?.toLowerCase() || value("budgetStyle")?.toLowerCase(), preferences: [value("cabin"), value("seat"), value("hotelStyle")].filter(Boolean).join(" · ") };
+  const value = key => category[key]?.value || "";
+  if (type === "travel") return {
+    departure: value("departureAirport") || value("preferredAirport"),
+    priority: value("tripPace")?.toLowerCase() || value("travelStyle")?.toLowerCase() || value("budgetStyle")?.toLowerCase() || value("budgetPreference")?.toLowerCase(),
+    preferences: [value("cabin"), value("seat") || value("seatPreference"), value("hotelStyle") || value("preferredHotelTypes")].filter(Boolean).join(" · ")
+  };
   if (type === "tutoring" || type === "language_exchange") return { subject: value("subject"), level: value("level"), format: value("format"), schedule: value("schedule"), budget: value("lessonBudget") };
   if (type === "shopping") return { brands: value("brands"), budget: value("budgetStyle"), country: value("deliveryCountry"), priority: value("priorities") };
   return {};
 };
-export const getMissingMissionFields = (fields, suggested = {}) => fields.filter((field) => !suggested[field]);
+export const getMissingMissionFields = (fields, suggested = {}) => fields.filter(field => !suggested[field]);
 export const saveApprovedPreference = (category, key, value, sourceMissionId = "") => {
   if (!CATEGORIES.includes(category) || !ALLOWED_FIELDS[category].includes(key) || BLOCKED_KEY.test(key)) return readProfile();
   const profile = readProfile(); if (!profile.profileConsent.enabled) return profile;
@@ -99,11 +103,11 @@ export const saveApprovedPreference = (category, key, value, sourceMissionId = "
 export const confirmProfileValue = saveApprovedPreference;
 export const updatePreference = saveApprovedPreference;
 export const deletePreference = (category, key) => { const profile = readProfile(); if (profile.categories[category]) delete profile.categories[category][key]; return writeProfile(profile); };
-export const clearCategory = (category) => { const profile = readProfile(); if (CATEGORIES.includes(category)) profile.categories[category] = {}; return writeProfile(profile); };
+export const clearCategory = category => { const profile = readProfile(); if (CATEGORIES.includes(category)) profile.categories[category] = {}; return writeProfile(profile); };
 export const clearProfile = () => { localStorage.removeItem(PROFILE_STORAGE_KEY); return emptyProfile(); };
 export const exportProfileSummary = () => {
   const profile = readProfile();
-  return CATEGORIES.flatMap((category) => Object.entries(profile.categories[category]).map(([key, record]) => ({ category, field: key, value: record.value, storage: "device-local", source: record.sourceMissionId || "Saved by user" })));
+  return CATEGORIES.flatMap(category => Object.entries(profile.categories[category]).map(([key, record]) => ({ category, field: key, value: record.value, storage: "device-local", source: record.sourceMissionId || "Saved by user" })));
 };
 export const getSampleProfile = () => {
   try { return JSON.parse(sessionStorage.getItem(SAMPLE_PROFILE_SESSION_KEY) || "null"); } catch { return null; }

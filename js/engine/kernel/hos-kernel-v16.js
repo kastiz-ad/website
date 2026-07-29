@@ -7,6 +7,7 @@ import { buildTrustedActionGatewayPackage } from "../action/trusted-action-gatew
 import { buildMissionProgress } from "../completion/mission-completion-loop-v19.js";
 import { selectMissionPlaybook } from "../../mission-intelligence/mission-intelligence-registry-v21.js";
 import { buildLifeMemoryContext } from "../../profile/life-memory-engine.js";
+import { buildMissionPersonalization } from "../../profile/ai-mission-memory-engine.js";
 
 export const HOS_KERNEL_VERSION = "V16";
 
@@ -153,11 +154,17 @@ function defaultEngines() {
       id: "life-memory-v13",
       stage: "memory",
       version: "V13",
-      description: "Builds structured life-domain memory context.",
+      description: "Builds structured life-domain memory context plus consent-gated AI mission memory personalization.",
       handler(state) {
+        const lifeMemoryContext = state.lifeMemoryContext || buildLifeMemoryContext({
+          memory: state.input?.lifeMemory,
+          missionType: state.classification?.providerType,
+          explicitInstructions: state.classification?.mission || state.input?.mission,
+          language: state.language
+        });
         return {
-          lifeMemoryContext: state.lifeMemoryContext || buildLifeMemoryContext({
-            memory: state.input?.lifeMemory,
+          lifeMemoryContext,
+          aiMissionMemoryContext: state.aiMissionMemoryContext || buildMissionPersonalization(state.input?.aiMissionMemory || state.input?.missionMemory || {}, {
             missionType: state.classification?.providerType,
             explicitInstructions: state.classification?.mission || state.input?.mission,
             language: state.language

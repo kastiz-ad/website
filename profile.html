@@ -29,15 +29,22 @@
       <div class="starter-profile-head"><div><h2 data-copy="starterTitle">Help ONE understand you.</h2><p data-copy="starterCopy">Save optional preferences to make future missions faster and more personal.</p></div><span data-copy="optional">Optional</span></div>
       <div class="starter-profile-grid">
         <label><span data-copy="preferredName">Preferred name</span><input name="preferredName" maxlength="80" autocomplete="name"></label>
+        <label><span data-copy="country">Country</span><input name="country" maxlength="120" autocomplete="country-name"></label>
         <label><span data-copy="cityRegion">City or region</span><input name="cityRegion" maxlength="120" autocomplete="address-level2"></label>
         <label><span data-copy="languagePreference">Preferred language</span><input name="language" maxlength="80"></label>
         <label><span data-copy="departureAirport">Usual departure airport</span><input name="departureAirport" maxlength="120"></label>
         <label><span data-copy="airlines">Airline preferences</span><input name="airlines" maxlength="180"></label>
         <label><span data-copy="hotelStyle">Hotel preferences</span><input name="hotelStyle" maxlength="180"></label>
+        <label><span data-copy="seatPreference">Seat preference</span><input name="seatPreference" maxlength="80"></label>
         <label><span data-copy="tripPace">Travel style</span><input name="tripPace" maxlength="120"></label>
+        <label><span data-copy="budgetPreference">Budget preference</span><input name="budgetPreference" maxlength="120"></label>
+        <label><span data-copy="timeFormat">Time format</span><input name="timeFormat" maxlength="20" placeholder="12h or 24h"></label>
+        <label><span data-copy="currencyPreference">Currency</span><input name="currencyPreference" maxlength="3" placeholder="KRW"></label>
         <label><span data-copy="cuisines">Favorite cuisines</span><input name="cuisines" maxlength="180"></label>
         <label><span data-copy="dislikedFoods">Foods you dislike</span><input name="dislikedFoods" maxlength="180"></label>
         <label><span data-copy="dietaryPreferences">Dietary preferences</span><input name="dietaryPreferences" maxlength="180"></label>
+        <label><span data-copy="accessibilityPreferences">Accessibility preferences</span><input name="accessibilityPreferences" maxlength="180"></label>
+        <label><span data-copy="emergencyContact">Emergency contact optional</span><input name="emergencyContact" maxlength="180"></label>
       </div>
       <p class="starter-safety" data-copy="starterSafety">Do not enter a full address, payment information, passport, visa, health, child, password or emergency-contact data.</p>
       <button class="save-profile" type="submit" data-copy="saveProfile">Save preferences</button>
@@ -45,7 +52,7 @@
     <section class="memory-panel" aria-labelledby="memoryTitle">
       <div><h2 id="memoryTitle" data-copy="memory">Memory</h2><p data-copy="memoryCopy">ONE can remember information you choose to save so future missions require fewer steps.</p></div>
       <label class="memory-switch"><input id="memoryEnabled" type="checkbox"><span data-copy="enabled">Memory enabled</span></label>
-      <div class="memory-actions"><button id="exportProfile" type="button" data-copy="export">Export profile summary</button><button id="clearProfile" type="button" class="danger" data-copy="clearAll">Clear all saved preferences</button></div>
+      <div class="memory-actions"><button id="exportProfile" type="button" data-copy="export">Export profile summary</button><button id="exportAccount" type="button" data-copy="exportAccount">Export account data</button><button id="logoutAccount" type="button" data-copy="logout">Sign out</button><button id="deleteAccount" type="button" class="danger" data-copy="deleteAccount">Request account deletion</button><button id="clearProfile" type="button" class="danger" data-copy="clearAll">Clear all saved preferences</button></div>
       <p id="profileStatus" role="status" aria-live="polite"></p>
     </section>
     <section id="profileCategories" class="profile-categories" aria-label="Saved preferences"></section>

@@ -104,6 +104,11 @@ const experienceReviewConfidence = document.getElementById("experienceReviewConf
 const revisionLead = document.getElementById("revisionLead");
 const missionUnderstoodGoal = document.getElementById("missionUnderstoodGoal");
 const missionUnderstoodItems = document.getElementById("missionUnderstoodItems");
+const missionLifecyclePanel = document.getElementById("missionLifecyclePanel");
+const missionLifecycleTitle = document.getElementById("missionLifecycleTitle");
+const missionLifecycleEyebrow = document.getElementById("missionLifecycleEyebrow");
+const missionLifecycleLive = document.getElementById("missionLifecycleLive");
+const missionLifecycleSteps = document.getElementById("missionLifecycleSteps");
 
 const STORAGE_KEYS = {
   theme: "kastiz-one-theme",
@@ -4633,6 +4638,38 @@ const renderRevisionAdditionNote = () => {
   `;
 };
 
+const renderCompleteMissionRevisionState = () => {
+  if (!additionalServiceList) return;
+  const note = currentResult?.alpha15LastAddition;
+  const state = missionExperienceState();
+  if (!note?.text && !state.history.length) return;
+  const affected = Array.isArray(note?.affectedSections) && note.affectedSections.length
+    ? note.affectedSections.map((section) => `<span>${escapeSummaryText(section)}</span>`).join("")
+    : "";
+  const undo = state.undoStack.length || note?.previousResult
+    ? `<button type="button" class="revision-undo-button" data-mission-undo="last">${escapeSummaryText(completeMissionLocal("Undo", "되돌리기", "Deshacer"))}</button>`
+    : "";
+  const redo = state.redoStack.length
+    ? `<button type="button" class="revision-undo-button" data-mission-redo="last">${escapeSummaryText(completeMissionLocal("Redo", "다시 적용", "Rehacer"))}</button>`
+    : "";
+  const history = state.history.length ? `
+    <details class="mission-change-history">
+      <summary>${escapeSummaryText(completeMissionLocal("Change history", "변경 기록", "Historial de cambios"))}</summary>
+      <ol>${state.history.slice(0, 5).map((item) => `<li><strong>${escapeSummaryText(item.command)}</strong><span>${escapeSummaryText(item.summary || item.affectedSections?.join(", ") || "")}</span></li>`).join("")}</ol>
+    </details>
+  ` : "";
+  additionalServiceList.innerHTML = `
+    <div class="revision-added-note complete-mission-revision-state">
+      <span>${escapeSummaryText(completeMissionLocal("Latest change", "최근 변경", "Último cambio"))}</span>
+      <strong>${escapeSummaryText(note?.text || state.history[0]?.command || completeMissionLocal("Mission updated", "미션 업데이트", "Misión actualizada"))}</strong>
+      <p>${escapeSummaryText(note?.summary || state.history[0]?.summary || completeMissionLocal("ONE updated only the affected parts. Nothing external happened.", "ONE이 영향받은 부분만 업데이트했습니다. 외부 실행은 없었습니다.", "ONE actualizó solo las partes afectadas. No hubo acción externa."))}</p>
+      ${affected ? `<div class="revision-affected-parts">${affected}</div>` : ""}
+      <div class="mission-history-actions">${undo}${redo}</div>
+      ${history}
+    </div>
+  `;
+};
+
 const createAIDecisionPanel = (result) => {
   if (!isTravelResult(result) || isFounderDiagnosticsMode()) return null;
   const key = decisionMemoryKey(result);
@@ -4730,6 +4767,8 @@ const renderMission = () => {
   if (decisionPanel) missionGrid.appendChild(decisionPanel);
   missionGrid.appendChild(additionalServicesForm);
   renderRevisionAdditionNote();
+  renderCompleteMissionRevisionState();
+  missionGrid.appendChild(createMissionConfidenceCard(currentResult));
   missionGrid.appendChild(createApprovalCard(currentResult));
   if (!isTravelResult(currentResult) || isFounderDiagnosticsMode()) {
     attachMissionDirectorBrief(currentResult);
@@ -4741,6 +4780,8 @@ const renderMission = () => {
   const missionUnderstood = document.getElementById("missionUnderstood");
   if (missionUnderstood) missionUnderstood.hidden = isTravelResult(currentResult) && !isFounderDiagnosticsMode();
   renderMissionUnderstanding();
+  renderMissionLifecycle(currentResult);
+  enhanceEmptyStates();
   organizeProgressiveResults();
 };
 
@@ -4950,6 +4991,201 @@ const approvalMissionName = () => {
 };
 
 const escapeSummaryText = (value) => String(value ?? "—").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+
+const completeMissionLocal = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+const CHANGE_HISTORY_LIMIT = 8;
+
+const missionExperienceState = () => {
+  const state = currentResult?.completeMissionExperience || {};
+  return {
+    undoStack: Array.isArray(state.undoStack) ? state.undoStack : [],
+    redoStack: Array.isArray(state.redoStack) ? state.redoStack : [],
+    history: Array.isArray(state.history) ? state.history : []
+  };
+};
+
+const persistMissionExperienceState = (patch = {}) => {
+  if (!currentResult) return;
+  currentResult.completeMissionExperience = {
+    ...missionExperienceState(),
+    ...patch,
+    updatedAt: new Date().toISOString()
+  };
+  sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+  sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+};
+
+const pushMissionChangeHistory = ({ before, command, summary, affectedSections = [], source = "mission_edit" } = {}) => {
+  if (!before || !command) return;
+  const state = missionExperienceState();
+  const entry = {
+    id: `change-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    command: String(command).slice(0, 180),
+    summary: String(summary || "").slice(0, 260),
+    affectedSections: affectedSections.slice(0, 8),
+    source,
+    at: new Date().toISOString()
+  };
+  persistMissionExperienceState({
+    undoStack: [...state.undoStack, before].slice(-CHANGE_HISTORY_LIMIT),
+    redoStack: [],
+    history: [entry, ...state.history].slice(0, CHANGE_HISTORY_LIMIT)
+  });
+};
+
+const undoMissionEdit = () => {
+  const state = missionExperienceState();
+  const previous = state.undoStack[state.undoStack.length - 1] || currentResult?.alpha15LastAddition?.previousResult;
+  if (!previous) return false;
+  const redoSnapshot = JSON.parse(JSON.stringify(currentResult));
+  currentResult = previous;
+  currentResult.alpha15LastAddition = {
+    text: completeMissionLocal("Undo applied", "되돌리기 적용", "Deshacer aplicado"),
+    summary: completeMissionLocal("Restored the previous mission version.", "이전 미션 버전으로 되돌렸습니다.", "Se restauró la versión anterior."),
+    affectedSections: ["mission"],
+    at: new Date().toISOString()
+  };
+  currentResult.completeMissionExperience = {
+    undoStack: state.undoStack.slice(0, -1),
+    redoStack: [...state.redoStack, redoSnapshot].slice(-CHANGE_HISTORY_LIMIT),
+    history: [{
+      id: `undo-${Date.now()}`,
+      command: completeMissionLocal("Undo", "되돌리기", "Deshacer"),
+      summary: completeMissionLocal("Restored the previous mission version.", "이전 미션 버전으로 되돌렸습니다.", "Se restauró la versión anterior."),
+      affectedSections: ["mission"],
+      source: "undo",
+      at: new Date().toISOString()
+    }, ...state.history].slice(0, CHANGE_HISTORY_LIMIT)
+  };
+  sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+  sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+  return true;
+};
+
+const redoMissionEdit = () => {
+  const state = missionExperienceState();
+  const next = state.redoStack[state.redoStack.length - 1];
+  if (!next) return false;
+  const undoSnapshot = JSON.parse(JSON.stringify(currentResult));
+  currentResult = next;
+  currentResult.alpha15LastAddition = {
+    text: completeMissionLocal("Redo applied", "다시 적용", "Rehacer aplicado"),
+    summary: completeMissionLocal("Reapplied the last mission change.", "마지막 미션 변경을 다시 적용했습니다.", "Se volvió a aplicar el último cambio."),
+    affectedSections: ["mission"],
+    at: new Date().toISOString()
+  };
+  currentResult.completeMissionExperience = {
+    undoStack: [...state.undoStack, undoSnapshot].slice(-CHANGE_HISTORY_LIMIT),
+    redoStack: state.redoStack.slice(0, -1),
+    history: [{
+      id: `redo-${Date.now()}`,
+      command: completeMissionLocal("Redo", "다시 적용", "Rehacer"),
+      summary: completeMissionLocal("Reapplied the last mission change.", "마지막 미션 변경을 다시 적용했습니다.", "Se volvió a aplicar el último cambio."),
+      affectedSections: ["mission"],
+      source: "redo",
+      at: new Date().toISOString()
+    }, ...state.history].slice(0, CHANGE_HISTORY_LIMIT)
+  };
+  sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+  sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+  return true;
+};
+
+const missionLifecycleCopy = (result = currentResult) => {
+  const travel = isTravelResult(result);
+  const hasLiveProviders = Boolean(result?.providerOrchestration?.providers?.some?.((provider) => provider.status === "connected" || provider.sourceState === "live"));
+  return [
+    { id: "wish", label: completeMissionLocal("Wish", "요청", "Deseo"), detail: completeMissionLocal("ONE received the mission.", "ONE이 미션을 받았습니다.", "ONE recibió la misión."), status: "done" },
+    { id: "understanding", label: completeMissionLocal("Understanding", "이해", "Comprensión"), detail: completeMissionLocal("Goal, language, destination, and constraints are interpreted.", "목표, 언어, 목적지, 조건을 해석했습니다.", "Se interpretan objetivo, idioma, destino y condiciones."), status: "done" },
+    { id: "research", label: completeMissionLocal("Research", "조사", "Investigación"), detail: travel ? completeMissionLocal("Destination-locked travel structure is prepared.", "목적지에 맞춘 여행 구조를 준비했습니다.", "Se preparó una estructura de viaje fijada al destino.") : completeMissionLocal("Relevant mission paths are prepared.", "관련 미션 경로를 준비했습니다.", "Se prepararon rutas relevantes."), status: "done" },
+    { id: "provider-search", label: completeMissionLocal("Provider search", "제공업체 검색", "Búsqueda de proveedores"), detail: hasLiveProviders ? completeMissionLocal("Provider-backed results are available.", "제공업체 근거가 있는 결과를 사용할 수 있습니다.", "Hay resultados respaldados por proveedor.") : completeMissionLocal("Search criteria are ready. Live provider checks require approval or setup.", "검색 조건은 준비됐습니다. 실시간 제공업체 확인은 승인 또는 설정이 필요합니다.", "Los criterios están listos. La búsqueda en vivo requiere aprobación o configuración."), status: hasLiveProviders ? "done" : "prepared" },
+    { id: "assembly", label: completeMissionLocal("Mission assembly", "미션 구성", "Montaje"), detail: completeMissionLocal("Options, tradeoffs, and safe next steps are assembled.", "선택지, 비교점, 안전한 다음 단계를 구성했습니다.", "Se organizan opciones, comparaciones y próximos pasos seguros."), status: "done" },
+    { id: "review", label: completeMissionLocal("Review & edit", "검토 및 수정", "Revisión"), detail: completeMissionLocal("You can adjust the plan before approval.", "승인 전 계획을 수정할 수 있습니다.", "Puedes ajustar antes de aprobar."), status: "current" },
+    { id: "approval", label: completeMissionLocal("Approval", "승인", "Aprobación"), detail: completeMissionLocal("No external action happens until you approve.", "승인 전에는 외부 실행이 없습니다.", "No hay acción externa sin aprobación."), status: "next" }
+  ];
+};
+
+let lifecycleTimer = null;
+const runMissionLifecycleProgress = (steps = []) => {
+  if (!missionLifecycleLive) return;
+  window.clearTimeout(lifecycleTimer);
+  const messages = steps.filter((step) => step.status !== "next").map((step) => step.detail).concat(completeMissionLocal("Mission ready.", "미션 준비 완료.", "Misión lista."));
+  let index = 0;
+  const tick = () => {
+    missionLifecycleLive.textContent = messages[index] || messages[messages.length - 1];
+    index += 1;
+    if (index < messages.length && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      lifecycleTimer = window.setTimeout(tick, 420);
+    }
+  };
+  tick();
+};
+
+const renderMissionLifecycle = (result = currentResult) => {
+  if (!missionLifecyclePanel || !missionLifecycleSteps) return;
+  const steps = missionLifecycleCopy(result);
+  if (missionLifecycleEyebrow) missionLifecycleEyebrow.textContent = completeMissionLocal("ONE Progress", "ONE 진행 상황", "Progreso de ONE");
+  if (missionLifecycleTitle) missionLifecycleTitle.textContent = completeMissionLocal("Everything is being organized intentionally.", "필요한 것만 차분히 정리하고 있습니다.", "Todo se está organizando con intención.");
+  missionLifecycleSteps.innerHTML = steps.map((step) => `
+    <li class="mission-lifecycle-step is-${escapeSummaryText(step.status)}" data-lifecycle-step="${escapeSummaryText(step.id)}">
+      <span class="mission-lifecycle-dot" aria-hidden="true"></span>
+      <strong>${escapeSummaryText(step.label)}</strong>
+      <small>${escapeSummaryText(step.detail)}</small>
+    </li>
+  `).join("");
+  runMissionLifecycleProgress(steps);
+};
+
+const createMissionConfidenceCard = (result = currentResult) => {
+  const schedule = result?.schedule || {};
+  const budget = result?.budget?.estimatedTotal || result?.budget?.total || result?.budget || {};
+  const destination = getTravelDestinationLabel(result) || result?.destination?.city || result?.destination?.country || result?.display?.destination || approvalMissionName();
+  const limitations = [];
+  if (!result?.providerOrchestration?.providers?.some?.((provider) => provider.status === "connected" || provider.sourceState === "live")) limitations.push(completeMissionLocal("Live provider confirmation is still required.", "실시간 제공업체 확인이 아직 필요합니다.", "Aún falta confirmación en vivo del proveedor."));
+  if (!schedule.startDate || !schedule.endDate) limitations.push(completeMissionLocal("Dates can be confirmed before approval.", "날짜는 승인 전 확인할 수 있습니다.", "Las fechas pueden confirmarse antes de aprobar."));
+  const rows = [
+    [completeMissionLocal("Destination", "목적지", "Destino"), destination || completeMissionLocal("Prepared mission", "준비된 미션", "Misión preparada")],
+    [completeMissionLocal("Duration", "기간", "Duración"), schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : completeMissionLocal("Flexible", "유동적", "Flexible")],
+    [completeMissionLocal("Budget", "예산", "Presupuesto"), formatRange(budget) || completeMissionLocal("Flexible", "유동적", "Flexible")],
+    [completeMissionLocal("Transportation", "이동", "Transporte"), result?.airportTransfer?.recommended ? localize(result.airportTransfer.recommended) : completeMissionLocal("Prepared for comparison", "비교 준비됨", "Preparado para comparar")],
+    [completeMissionLocal("Accommodation", "숙소", "Alojamiento"), result?.hotels?.[0] ? getHotelName(result.hotels[0]) : completeMissionLocal("Optional or pending", "선택 또는 확인 필요", "Opcional o pendiente")],
+    [completeMissionLocal("Food", "음식", "Comida"), result?.restaurants?.length ? `${result.restaurants.length} ${completeMissionLocal("options", "개 후보", "opciones")}` : completeMissionLocal("Can be expanded", "확장 가능", "Se puede ampliar")],
+    [completeMissionLocal("Known limitations", "알려진 제한", "Limitaciones"), limitations.join(" ") || completeMissionLocal("No major issue found in the prepared plan.", "준비된 계획에서 큰 문제는 없습니다.", "No se detectó un problema principal.")]
+  ];
+  const article = document.createElement("article");
+  article.className = "mission-card is-full mission-confidence-card";
+  article.dataset.cardId = "mission-confidence";
+  article.innerHTML = `<div class="card-top"><h2 class="card-title">${escapeSummaryText(completeMissionLocal("Before approval", "승인 전 확인", "Antes de aprobar"))}</h2><span class="recommendation-label">${escapeSummaryText(completeMissionLocal("Confidence summary", "신뢰 요약", "Resumen"))}</span></div><div class="mission-confidence-grid">${rows.map(([label, value]) => `<div><span>${escapeSummaryText(label)}</span><strong>${escapeSummaryText(value)}</strong></div>`).join("")}</div>`;
+  return article;
+};
+
+const createIntelligentEmptyState = ({ title, detail, actions = [] } = {}) => {
+  const wrapper = document.createElement("div");
+  wrapper.className = "intelligent-empty-state";
+  wrapper.innerHTML = `<strong>${escapeSummaryText(title || completeMissionLocal("Nothing to show yet", "아직 표시할 정보가 없습니다", "Nada que mostrar todavía"))}</strong><p>${escapeSummaryText(detail || completeMissionLocal("ONE can retry, expand the search, or keep the mission ready while you decide.", "ONE이 다시 시도하거나 검색 범위를 넓히고, 결정 전까지 미션을 준비 상태로 유지할 수 있습니다.", "ONE puede reintentar, ampliar la búsqueda o mantener la misión lista."))}</p>${actions.length ? `<div>${actions.map((action) => `<button type="button" data-revision-command="${escapeSummaryText(action.command || action)}">${escapeSummaryText(action.label || action)}</button>`).join("")}</div>` : ""}`;
+  return wrapper;
+};
+
+const enhanceEmptyStates = () => {
+  if (!missionGrid.children.length) {
+    missionGrid.appendChild(createIntelligentEmptyState({
+      title: completeMissionLocal("ONE has the mission, but needs a clean result surface.", "ONE이 미션을 받았지만 결과 표시를 정리해야 합니다.", "ONE tiene la misión, pero necesita preparar la vista."),
+      detail: completeMissionLocal("Try again or add one missing detail. No external action happened.", "다시 시도하거나 필요한 정보 하나만 추가해 주세요. 외부 실행은 없었습니다.", "Reintenta o añade un dato. No hubo acción externa.")
+    }));
+  }
+  missionGrid.querySelectorAll(".option-list").forEach((list) => {
+    if (list.children.length || list.dataset.emptyEnhanced === "true") return;
+    list.dataset.emptyEnhanced = "true";
+    list.appendChild(createIntelligentEmptyState({
+      title: completeMissionLocal("No matching option yet", "아직 맞는 선택지가 없습니다", "Aún no hay opción compatible"),
+      detail: completeMissionLocal("ONE can expand the search radius, try another preference, or retry later.", "검색 범위를 넓히거나 다른 선호 조건으로 다시 볼 수 있습니다.", "ONE puede ampliar radio, probar otra preferencia o reintentar."),
+      actions: [
+        { label: completeMissionLocal("Expand search", "검색 넓히기", "Ampliar búsqueda"), command: completeMissionLocal("Expand the search radius", "검색 범위를 넓혀줘", "Amplía el radio de búsqueda") },
+        { label: completeMissionLocal("Retry", "다시 시도", "Reintentar"), command: completeMissionLocal("Retry this section", "이 부분 다시 확인해줘", "Reintenta esta sección") }
+      ]
+    }));
+  });
+};
 
 const selectedOptionIndex = (cardId) => {
   const option = missionGrid.querySelector(`[data-card-id="${cardId}"] .option-list .selectable-option[aria-pressed="true"]`);
@@ -5450,6 +5686,8 @@ const runApprovalSequence = () => {
   makeRealityButton.disabled = true;
   bottomActions.hidden = true;
   approvalPanel.hidden = false;
+  if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Approval received. Preparing the next step safely.", "승인을 받았습니다. 다음 단계를 안전하게 준비합니다.", "Aprobación recibida. Preparando el siguiente paso con seguridad.");
+  document.querySelector('[data-lifecycle-step="approval"]')?.classList.replace("is-next", "is-current");
   approvalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 
   items.forEach((item, index) => {
@@ -5469,6 +5707,7 @@ const runApprovalSequence = () => {
 
           buildExecutionSummary();
           completionMessage.hidden = false;
+          if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Ready. Nothing external happened without provider confirmation.", "준비 완료. 제공업체 확인 없이 외부 실행은 없었습니다.", "Listo. No hubo acción externa sin confirmación del proveedor.");
           trackEvent("execution_summary_shown", {
             mission_type: currentResult?.type,
             language: activeLanguage,
@@ -5727,6 +5966,7 @@ const applyRevisionCommand = async () => {
   if (revisionStatus) revisionStatus.textContent = t("revisionLoading");
   await new Promise((resolve) => window.setTimeout(resolve, 120));
   try {
+    const beforeRevision = JSON.parse(JSON.stringify(currentResult));
     const result = applyMissionEdit(currentResult, value, { language: activeLanguage, provider: "OPENAI" });
     currentResult = result.mission;
     const baseMissionText = currentResult.rawInput || currentResult.mission || currentResult.originalMission || "";
@@ -5739,6 +5979,13 @@ const applyRevisionCommand = async () => {
       previousResult: result.mission?.missionOrchestration?.previousResult || null,
       at: new Date().toISOString()
     };
+    pushMissionChangeHistory({
+      before: beforeRevision,
+      command: value,
+      summary: result.summary,
+      affectedSections: result.affectedSections,
+      source: "mission_revision"
+    });
     sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
     sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
     if (revisionStatus) revisionStatus.textContent = v22Local(
@@ -5750,9 +5997,14 @@ const applyRevisionCommand = async () => {
     additionalServiceInput.value = "";
     renderMission();
     renderRevisionAdditionNote();
+    renderCompleteMissionRevisionState();
     additionalServiceInput.focus();
   } catch {
-    if (revisionStatus) revisionStatus.textContent = t("revisionError");
+    if (revisionStatus) revisionStatus.textContent = completeMissionLocal(
+      "I couldn't apply that change safely. Your current mission is still available.",
+      "그 변경을 안전하게 적용하지 못했습니다. 현재 미션은 그대로 사용할 수 있습니다.",
+      "No pude aplicar ese cambio con seguridad. Tu misión actual sigue disponible."
+    );
   } finally {
     addServiceButton.disabled = false;
     addServiceButton.removeAttribute("aria-busy");
@@ -5775,6 +6027,30 @@ additionalServiceInput?.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("click", (event) => {
+  const completeUndoButton = event.target.closest?.("[data-mission-undo]");
+  if (completeUndoButton && missionExperienceState().undoStack.length) {
+    if (undoMissionEdit()) {
+      if (revisionStatus) revisionStatus.textContent = completeMissionLocal("Undone.", "되돌렸습니다.", "Deshecho.");
+      renderMission();
+      trackEvent("mission_revision_undone", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
+    }
+    return;
+  }
+  const completeRedoButton = event.target.closest?.("[data-mission-redo]");
+  if (completeRedoButton) {
+    if (redoMissionEdit()) {
+      if (revisionStatus) revisionStatus.textContent = completeMissionLocal("Redone.", "다시 적용했습니다.", "Rehecho.");
+      renderMission();
+      trackEvent("mission_revision_redone", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
+    }
+    return;
+  }
+  const emptyStateAction = event.target.closest?.("[data-revision-command]");
+  if (emptyStateAction && additionalServiceInput) {
+    additionalServiceInput.value = emptyStateAction.dataset.revisionCommand || emptyStateAction.textContent.trim();
+    additionalServiceInput.focus();
+    return;
+  }
   const decisionButton = event.target.closest?.("[data-decision-action]");
   if (decisionButton) {
     const action = decisionButton.dataset.decisionAction;
@@ -5797,6 +6073,7 @@ document.addEventListener("click", (event) => {
       return;
     }
     if (action === "accept") {
+      const beforeDecision = JSON.parse(JSON.stringify(currentResult));
       const result = applyMissionEdit(currentResult, recommendation.command, { language: activeLanguage, provider: "AI_DECISION_ENGINE" });
       currentResult = result.mission;
       currentResult.aiDecisionAccepted = [
@@ -5810,6 +6087,13 @@ document.addEventListener("click", (event) => {
         previousResult: result.mission?.missionOrchestration?.previousResult || null,
         at: new Date().toISOString()
       };
+      pushMissionChangeHistory({
+        before: beforeDecision,
+        command: recommendation.command,
+        summary: result.summary,
+        affectedSections: result.affectedSections,
+        source: "ai_decision"
+      });
       recordDecisionFeedback(localStorage, key, id, "accepted");
       sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
       sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
