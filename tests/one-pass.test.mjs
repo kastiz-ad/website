@@ -14,3 +14,23 @@ test("ONE Pass browser code does not collect provider passwords or sensitive ide
 test("ONE Pass API is protected by the shared rate limiter",async()=>{const api=await readFile(new URL("../functions/api/v1/one-pass/[[path]].js",import.meta.url),"utf8");assert.match(api,/rateLimit/);assert.match(api,/rateLimit\(context,\s*[""']one-pass[""'],\s*30\)/);});
 
 
+
+test("ONE Pass UI supports English Korean and Spanish without mojibake", async () => {
+  const html = await readFile(new URL("../one-pass.html", import.meta.url), "utf8");
+  const js = await readFile(new URL("../one-pass.js", import.meta.url), "utf8");
+  assert.doesNotMatch(html + js, /(?:â€¦|â€¢|í•|í”|ì•|ì„|ì—|ë¡|ë¯|�)/);
+  assert.match(js, /ko:\s*\{/);
+  assert.match(js, /es:\s*\{/);
+  assert.match(js, /한 번만 설정하면/);
+  assert.match(js, /Configúralo una vez/);
+  assert.match(js, /SUPPORTED_LANGUAGES = \["en", "ko", "es"\]/);
+});
+
+test("ONE Pass frontend exposes privacy controls but no raw sensitive collection", async () => {
+  const html = await readFile(new URL("../one-pass.html", import.meta.url), "utf8");
+  assert.match(html, /Export ONE Pass data/);
+  assert.match(html, /Delete Identity Pass/);
+  assert.match(html, /Request ONE Pass deletion/);
+  assert.doesNotMatch(html, /name=["'](?:passport|passport_number|card|card_number|cvv|provider_password|password)["']/i);
+});
+
