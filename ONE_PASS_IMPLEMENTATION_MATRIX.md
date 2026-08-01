@@ -77,3 +77,13 @@ Status language for this checkpoint:
 - Production passkey/WebAuthn ceremony: not yet configured.
 - User-facing sensitive actions: intentionally disabled until configuration.
 - Live database migration: not applied unless actually verified in Supabase.
+
+## Real WebAuthn verifier checkpoint update
+
+- Added `@simplewebauthn/server@13.3.2` as the maintained WebAuthn verification library.
+- Replaced the production verifier-binding concept with server-owned SimpleWebAuthn verification code.
+- Environment values now configure RP ID, RP name, and explicit expected origins; they do not act as cryptographic verification.
+- Added metadata migration `202608020002_one_pass_webauthn_metadata.sql` for credential device type, backup state, AAGUID, verification origin/RP, and challenge-bound RP/origins.
+- Added local Supabase config for reproducible development setup only; no production services were touched.
+- Local Supabase migration and RLS checks remain blocked in this environment because Supabase CLI and Docker are unavailable.
+- Browser E2E remains blocked because no Playwright/browser E2E runner is configured in this repository.

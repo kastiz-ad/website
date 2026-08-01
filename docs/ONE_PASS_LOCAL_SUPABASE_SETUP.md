@@ -58,3 +58,38 @@ Expected result:
 ## Current blocker
 
 This workspace has `supabase/migrations`, but no local Supabase project configuration file. Therefore this task can validate migration contents statically, but cannot truthfully claim a local or staging database migration was applied.
+
+## Real WebAuthn local configuration
+
+Safe local example values:
+
+```bash
+ONE_PASS_ENABLED=true
+PASSKEY_REAUTH_ENABLED=true
+WEBAUTHN_RP_ID=localhost
+WEBAUTHN_RP_NAME="Kastiz ONE Local"
+WEBAUTHN_EXPECTED_ORIGINS=http://localhost:8770,http://127.0.0.1:8770
+WEBAUTHN_CHALLENGE_TTL_SECONDS=300
+CBOR_NATIVE_ACCELERATION_DISABLED=true
+```
+
+Install dependencies before running passkey verifier tests:
+
+```bash
+pnpm install
+```
+
+Start only local Supabase when Docker and Supabase CLI are available:
+
+```bash
+supabase start
+supabase db reset
+```
+
+Create fictional users only. Never import production users into local Supabase.
+
+This checkpoint added `supabase/config.toml`, but this Codex environment does not have Docker or Supabase CLI installed. Therefore local migration reset, live RLS checks, and two-user database isolation checks were not executed here.
+
+## Browser E2E blocker
+
+Browser E2E requires an E2E runner such as Playwright plus a local backend, local Supabase, and virtual authenticator support. This repository currently has no browser E2E script or Playwright dependency, so browser E2E was not executed in this checkpoint.

@@ -1,4 +1,4 @@
-﻿const SUPPORTED_LANGUAGES = ["en", "ko", "es"];
+const SUPPORTED_LANGUAGES = ["en", "ko", "es"];
 const savedLanguage = localStorage.getItem("kastiz-one-language");
 const browserLanguage = navigator.language?.slice(0, 2);
 const language = SUPPORTED_LANGUAGES.includes(savedLanguage) ? savedLanguage : SUPPORTED_LANGUAGES.includes(browserLanguage) ? browserLanguage : "en";
@@ -68,7 +68,8 @@ const serializeCredential = credential => {
     id: credential.id,
     type: credential.type,
     rawId: credential.rawId ? bytesToB64u(credential.rawId) : credential.id,
-    response: Object.fromEntries(["clientDataJSON", "attestationObject", "authenticatorData", "signature", "userHandle"].filter(key => response[key]).map(key => [key, bytesToB64u(response[key])]))
+    response: { ...Object.fromEntries(["clientDataJSON", "attestationObject", "authenticatorData", "signature", "userHandle"].filter(key => response[key]).map(key => [key, bytesToB64u(response[key])])), transports: typeof response.getTransports === "function" ? response.getTransports() : undefined, publicKeyAlgorithm: response.publicKeyAlgorithm },
+    clientExtensionResults: typeof credential.getClientExtensionResults === "function" ? credential.getClientExtensionResults() : {}
   };
 };
 function publicKeyCreateOptions(options) {
