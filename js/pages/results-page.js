@@ -1,4 +1,4 @@
-﻿import { trackEvent } from "../analytics.js";
+import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260730-mission-orchestration";
@@ -9,7 +9,7 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildPreviewMapMarkers, mapTileUrlForProfile, previewItemAdvice, profileForResult } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-qa";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, profileForResult } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-repair";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -162,7 +162,7 @@ const translations = {
     terms: "Terms",
     settings: "Settings",
     unknownLocation: "Unknown Location",
-    recommended: "â­ ONE Pick",
+    recommended: "⭐ ONE Pick",
     reason: "Reason:",
     otherOptions: "Other options:",
     modify: "Modify",
@@ -203,72 +203,72 @@ const translations = {
     fallbackTitle: "Japan Trip"
   },
   ko: {
-    upgrade: "ì—…ê·¸ë ˆì´ë“œ",
-    login: "ë¡œê·¸ì¸",
-    missionReady: "ë¯¸ì…˜ ì¤€ë¹„ ì™„ë£Œ",
+    upgrade: "업그레이드",
+    login: "로그인",
+    missionReady: "미션 준비 완료",
     preparedByOne: "ONE 이 준비했습니다.",
-    customize: "ìˆ˜ì •í•˜ê¸°",
-    makeItReality: "ì‹¤ì‹œê°„ ê²€ìƒ‰ ì‹œìž‘",
-    withOne: "NEê³¼ í•¨ê»˜",
+    customize: "수정하기",
+    makeItReality: "실시간 검색 시작",
+    withOne: "NE과 함께",
     withOnePrefix: "",
-    withOneSuffix: "ê³¼ í•¨ê»˜",
-    additionalServices: "ì„œë¹„ìŠ¤ ë§žì¶¤ ì„¤ì •",
-    optional: "ì„ íƒ ì‚¬í•­",
-    additionalServicesHelp: "ìƒˆ ëª©ì ì§€, í•­ê³µíŽ¸, íŠœí„° ê³¼ëª©, ì–¸ì–´ ë˜ëŠ” ì›í•˜ëŠ” ì„œë¹„ìŠ¤ë¥¼ ì¶”ê°€í•˜ê±°ë‚˜ ìš”ì²­í•˜ì„¸ìš”.",
-    additionalServicesPlaceholder: "ì˜ˆ: LAXí–‰ í•­ê³µíŽ¸ ì¶”ê°€",
-    addService: "ì¶”ê°€",
-    missionApproved: "ë¯¸ì…˜ ìŠ¹ì¸ ì™„ë£Œ",
-    oneIsWorking: "ONEì´ ì‹¤í–‰í•˜ê³  ìžˆìŠµë‹ˆë‹¤.",
+    withOneSuffix: "과 함께",
+    additionalServices: "서비스 맞춤 설정",
+    optional: "선택 사항",
+    additionalServicesHelp: "새 목적지, 항공편, 튜터 과목, 언어 또는 원하는 서비스를 추가하거나 요청하세요.",
+    additionalServicesPlaceholder: "예: LAX행 항공편 추가",
+    addService: "추가",
+    missionApproved: "미션 승인 완료",
+    oneIsWorking: "ONE이 실행하고 있습니다.",
     finalMessage: "ONE'D",
     returnHomeNow: "HOME",
-    returningHome: "{seconds}ì´ˆ í›„ í™ˆìœ¼ë¡œ ëŒì•„ê°‘ë‹ˆë‹¤...",
-    partners: "íŒŒíŠ¸ë„ˆ",
-    business: "ë¹„ì¦ˆë‹ˆìŠ¤",
-    developers: "ê°œë°œìž",
-    poweredBy: "Kastiz ì œê³µ",
-    privacy: "ê°œì¸ì •ë³´",
-    terms: "ì•½ê´€",
-    settings: "ì„¤ì •",
-    unknownLocation: "ì•Œ ìˆ˜ ì—†ëŠ” ìœ„ì¹˜",
-    recommended: "â­ ONE Pick",
-    reason: "ì„ ì • ì´ìœ :",
-    otherOptions: "ë‹¤ë¥¸ ì˜µì…˜:",
-    modify: "ìˆ˜ì •",
-    editing: "ìˆ˜ì • ì¤‘",
-    remove: "ì œê±°",
-    restore: "ë³µêµ¬",
-    changeAirline: "í•­ê³µì‚¬ ë³€ê²½",
-    changeHotelType: "í˜¸í…” ìœ í˜• ë³€ê²½",
-    removeRestaurants: "ë ˆìŠ¤í† ëž‘ ì œì™¸",
-    reduceBudget: "ì˜ˆì‚° ì¤„ì´ê¸°",
-    upgradeQuality: "í’ˆì§ˆ ì—…ê·¸ë ˆì´ë“œ",
-    verifyVisa: "ì‹¤í–‰ ì „ í™•ì¸",
-    budgetFlights: "í•­ê³µê¶Œ",
-    budgetHotel: "í˜¸í…”",
-    budgetFood: "ì‹ë¹„",
-    budgetTransport: "êµí†µ",
-    budgetActivities: "í™œë™",
-    estimatedTotal: "ì˜ˆìƒ ì´ì•¡",
-    weather: "ë‚ ì”¨",
-    exchangeRate: "í™˜ìœ¨",
-    visa: "ë¹„ìž",
-    apiPlaceholder: "í”„ë¡œí† íƒ€ìž… ì˜ˆìƒ ì •ë³´",
-    prototypeDisclosure: "í”„ë¡œí† íƒ€ìž… · ê³µê°œ ì‹¤ì‹œê°„ ë°ì´í„° + ì—¬í–‰ ì˜ˆìƒ ì •ë³´",
-    flightEstimateNotice: "ì˜ˆìƒ ê°€ê²© ë²”ìœ„ · ì‹¤ì‹œê°„ ìš´ìž„ ì•„ë‹˜",
-    verifyLiveFares: "í˜„ìž¬ ìš´ìž„ í™•ì¸",
-    approvalProtectionTitle: "ìŠ¹ì¸ ë³´í˜¸",
+    returningHome: "{seconds}초 후 홈으로 돌아갑니다...",
+    partners: "파트너",
+    business: "비즈니스",
+    developers: "개발자",
+    poweredBy: "Kastiz 제공",
+    privacy: "개인정보",
+    terms: "약관",
+    settings: "설정",
+    unknownLocation: "알 수 없는 위치",
+    recommended: "⭐ ONE Pick",
+    reason: "선정 이유:",
+    otherOptions: "다른 옵션:",
+    modify: "수정",
+    editing: "수정 중",
+    remove: "제거",
+    restore: "복구",
+    changeAirline: "항공사 변경",
+    changeHotelType: "호텔 유형 변경",
+    removeRestaurants: "레스토랑 제외",
+    reduceBudget: "예산 줄이기",
+    upgradeQuality: "품질 업그레이드",
+    verifyVisa: "실행 전 확인",
+    budgetFlights: "항공권",
+    budgetHotel: "호텔",
+    budgetFood: "식비",
+    budgetTransport: "교통",
+    budgetActivities: "활동",
+    estimatedTotal: "예상 총액",
+    weather: "날씨",
+    exchangeRate: "환율",
+    visa: "비자",
+    apiPlaceholder: "프로토타입 예상 정보",
+    prototypeDisclosure: "프로토타입 · 공개 실시간 데이터 + 여행 예상 정보",
+    flightEstimateNotice: "예상 가격 범위 · 실시간 운임 아님",
+    verifyLiveFares: "현재 운임 확인",
+    approvalProtectionTitle: "승인 보호",
     approvalProtection:
-      "ì‚¬ìš©ìžê°€ ëª…í™•ížˆ ìŠ¹ì¸í•˜ê¸° ì „ê¹Œì§€ ì˜ˆì•½, êµ¬ë§¤, ê²°ì œ, ì„œëª…, ë²•ì  ì•½ì†ì€ ì ˆëŒ€ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
+      "사용자가 명확히 승인하기 전까지 예약, 구매, 결제, 서명, 법적 약속은 절대 진행되지 않습니다.",
     executionSteps: [
-      "í•­ê³µê¶Œ ì˜ˆì•½ ì¤€ë¹„ ì¤‘...",
-      "í˜¸í…” ì˜ˆì•½ ì¤€ë¹„ ì¤‘...",
-      "ì—¬í–‰ ì²´í¬ë¦¬ìŠ¤íŠ¸ ì¤€ë¹„ ì¤‘...",
-      "ë ˆìŠ¤í† ëž‘ ì˜µì…˜ ì¤€ë¹„ ì¤‘...",
-      "ê³µí•­ ì´ë™ ì¤€ë¹„ ì¤‘...",
-      "ë¯¸ì…˜ì„ ìµœì¢… ì¤€ë¹„ ì¤‘..."
+      "항공권 예약 준비 중...",
+      "호텔 예약 준비 중...",
+      "여행 체크리스트 준비 중...",
+      "레스토랑 옵션 준비 중...",
+      "공항 이동 준비 중...",
+      "미션을 최종 준비 중..."
     ],
-    fallbackMission: "ì¼ë³¸ ì—¬í–‰ ê³„íší•´ì¤˜",
-    fallbackTitle: "ì¼ë³¸ ì—¬í–‰"
+    fallbackMission: "일본 여행 계획해줘",
+    fallbackTitle: "일본 여행"
   }
 };
 
@@ -313,27 +313,27 @@ const getTheme = () => {
 };
 
 const t = (key) => {
-  return localeSection(activeLanguage, "results")[key] || translations[activeLanguage]?.[key] || translations.en[key] || "";
+  return localeSection(activeLanguage, "results")[key] ?? translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
 };
 
 const localize = (value) => {
   if (typeof value === "string") return value;
-  return value?.[activeLanguage] || value?.en || "";
+  return value?.[activeLanguage] ?? value?.en ?? "";
 };
 
 const formatKRW = (value) => {
   if (typeof value !== "number") return value;
 
   return activeLanguage === "ko"
-    ? `${Math.round(value / 10000).toLocaleString("ko-KR")}ë§Œ ì›`
-    : activeLanguage === "es" ? `${value.toLocaleString("es-ES")} KRW` : `â‚©${value.toLocaleString("en-US")}`;
+    ? `${Math.round(value / 10000).toLocaleString("ko-KR")}만 원`
+    : activeLanguage === "es" ? `${value.toLocaleString("es-ES")} KRW` : `₩${value.toLocaleString("en-US")}`;
 };
 
 const formatRange = (range) => {
   if (!range) return "";
 
   if (typeof range.min === "number" && typeof range.max === "number") {
-    return `${formatKRW(range.min)} â€“ ${formatKRW(range.max)}`;
+    return `${formatKRW(range.min)} – ${formatKRW(range.max)}`;
   }
 
   return "";
@@ -388,7 +388,7 @@ const getPortableSharedResult = () => {
     if (parsed?.p === 2) {
       const [recommendation = "", reasoning = "", transportation = "", rainPlan = ""] = parsed.q || [];
       const timeline = (parsed.t || []).map(([time, title, type]) => ({ time, title, type }));
-      const missionLabel = parsed.l === "ko" ? "ì €ìž¥ëœ ë§žì¶¤ ê²½í—˜" : parsed.l === "es" ? "Experiencia personalizada guardada" : "Saved personalized experience";
+      const missionLabel = parsed.l === "ko" ? "저장된 맞춤 경험" : parsed.l === "es" ? "Experiencia personalizada guardada" : "Saved personalized experience";
       return {
         portableShare: true, type: "experience", id: parsed.r, language: parsed.l || "en",
         originalMission: missionLabel,
@@ -413,7 +413,7 @@ const getPortableSharedResult = () => {
     const savedFoodMin = budgetValues.length === 2 ? 0 : foodMin;
     const savedFoodMax = budgetValues.length === 2 ? 0 : foodMax;
     const portableChecklist = parsed.l === "ko"
-      ? ["ì—¬ê¶Œ", "ì—¬í–‰ìž ë³´í—˜", "SIM / eSIM", "í™˜ì „", "êµí†µì¹´ë“œ", "í˜¸í…” ì˜ˆì•½ í™•ì¸ì„œ", "ë¹„ìƒ ì—°ë½ì²˜"]
+      ? ["여권", "여행자 보험", "SIM / eSIM", "환전", "교통카드", "호텔 예약 확인서", "비상 연락처"]
       : ["Passport", "Travel insurance", "SIM / eSIM", "Currency", "Transit card", "Hotel confirmation", "Emergency contacts"];
     const providerResults = [];
     if (parsed.w?.length) providerResults.push({ category: "weather", provider: "Open-Meteo", liveData: true, items: parsed.w.map(([label, value, humidity, precipitation]) => ({ label, value, humidity, precipitation })) });
@@ -422,7 +422,7 @@ const getPortableSharedResult = () => {
       portableShare: true, type: "travel", id: parsed.r, language: parsed.l || "en", country,
       destination: { country, countryKo: countryKo || country, city, cityKo: cityKo || city },
       display: {
-        title: parsed.l === "ko" ? `${countryKo || country} ì—¬í–‰` : `${country || city} Trip`,
+        title: parsed.l === "ko" ? `${countryKo || country} 여행` : `${country || city} Trip`,
         destination: parsed.l === "ko" ? (countryKo || country) : country,
         city: parsed.l === "ko" ? (cityKo || city) : city
       },
@@ -432,8 +432,8 @@ const getPortableSharedResult = () => {
       airportTransfer: { recommended: parsed.x || "", options: parsed.x ? [parsed.x] : [] },
       restaurants: (parsed.n || []).map((name) => ({ type: name, typeKo: name, venueName: name, venueNameKo: name })),
       checklist: (parsed.k?.length ? parsed.k : portableChecklist).map((text) => ({ en: text, ko: text })), providerResults,
-      weather: { status: parsed.w?.length ? "live" : "prototype", message: { en: "Weather data saved with this summary", ko: "ì´ ìš”ì•½ì— ì €ìž¥ëœ ë‚ ì”¨ ì •ë³´" } },
-      exchangeRate: { from: "KRW", to: parsed.c || "USD", status: parsed.e?.length ? "live" : "prototype", message: { en: "Currency data saved with this summary", ko: "ì´ ìš”ì•½ì— ì €ìž¥ëœ í™˜ìœ¨ ì •ë³´" } },
+      weather: { status: parsed.w?.length ? "live" : "prototype", message: { en: "Weather data saved with this summary", ko: "이 요약에 저장된 날씨 정보" } },
+      exchangeRate: { from: "KRW", to: parsed.c || "USD", status: parsed.e?.length ? "live" : "prototype", message: { en: "Currency data saved with this summary", ko: "이 요약에 저장된 환율 정보" } },
       budget: { currency: "KRW", flights: { currency: "KRW", min: flightMin, max: flightMax }, hotel: { currency: "KRW", min: hotelMin, max: hotelMax }, food: { currency: "KRW", min: savedFoodMin, max: savedFoodMax }, transport: { currency: "KRW", min: transportMin, max: transportMax }, activities: { currency: "KRW", min: activitiesMin, max: activitiesMax }, estimatedTotal: { currency: "KRW", min: budgetMin, max: budgetMax } },
       approvalRequired: true
     };
@@ -460,37 +460,37 @@ const getStoredResult = () => {
 };
 
 const MANUAL_V21_SCENARIOS = Object.freeze({
-  "child-english": "ì•„ì´ê°€ ì˜ì–´ê°€ ë¶€ì¡±í•œë° ì–´ë–»ê²Œ í• ê¹Œ?",
-  "academy-english": "ì¸ì²œ ì„œêµ¬ì—ì„œ ì¤‘í•™ìƒ ì˜ì–´ ë‚´ì‹  í•™ì› ì°¾ì•„ì¤˜",
-  "japan-travel": "ì¼ë³¸ ì—¬í–‰",
-  "tooth-pain": "ì´ê°€ ì•„í”ˆë° ì˜¤ëŠ˜ ê°ˆ ìˆ˜ ìžˆëŠ” ì¹˜ê³¼ ì°¾ì•„ì¤˜",
-  "sink-leak": "ì‹±í¬ëŒ€ ëˆ„ìˆ˜ ìˆ˜ë¦¬ì—…ì²´ ì°¾ì•„ì¤˜",
-  "unknown-help": "ë„ì™€ì¤˜"
+  "child-english": "아이가 영어가 부족한데 어떻게 할까?",
+  "academy-english": "인천 서구에서 중학생 영어 내신 학원 찾아줘",
+  "japan-travel": "일본 여행",
+  "tooth-pain": "이가 아픈데 오늘 갈 수 있는 치과 찾아줘",
+  "sink-leak": "싱크대 누수 수리업체 찾아줘",
+  "unknown-help": "도와줘"
 });
 
 const V22_VERSION = "20260726-v22-product-refinement";
 
 const MANUAL_V22_SCENARIOS = Object.freeze({
-  travel: "ì¼ë³¸ ì—¬í–‰",
-  education: "ì¸ì²œ ì„œêµ¬ì—ì„œ ì¤‘í•™ìƒ ì˜ì–´ ë‚´ì‹  í•™ì› ì°¾ì•„ì¤˜",
-  healthcare: "ì´ê°€ ì•„í”ˆë° ì˜¤ëŠ˜ ê°ˆ ìˆ˜ ìžˆëŠ” ì¹˜ê³¼ ì°¾ì•„ì¤˜",
-  business: "í•œêµ­ì—ì„œ ì™¸êµ­ì¸ì´ íšŒì‚¬ë¥¼ ì‹œìž‘í•˜ë ¤ë©´ ì¤€ë¹„í•´ ì¤˜",
-  "home-services": "ì‹±í¬ëŒ€ ëˆ„ìˆ˜ ìˆ˜ë¦¬ì—…ì²´ ì°¾ì•„ì¤˜",
-  home: "ì‹±í¬ëŒ€ ëˆ„ìˆ˜ ìˆ˜ë¦¬ì—…ì²´ ì°¾ì•„ì¤˜",
-  career: "í•œêµ­ì—ì„œ ì¼ìžë¦¬ë¥¼ ì°¾ê³  ì‹¶ì–´"
+  travel: "일본 여행",
+  education: "인천 서구에서 중학생 영어 내신 학원 찾아줘",
+  healthcare: "이가 아픈데 오늘 갈 수 있는 치과 찾아줘",
+  business: "한국에서 외국인이 회사를 시작하려면 준비해 줘",
+  "home-services": "싱크대 누수 수리업체 찾아줘",
+  home: "싱크대 누수 수리업체 찾아줘",
+  career: "한국에서 일자리를 찾고 싶어"
 });
 
 const MANUAL_V23_TRAVEL_SCENARIOS = Object.freeze({
-  "sapporo-general": "ì‚¿í¬ë¡œ ì—¬í–‰",
-  "sapporo-food": "ì‚¿í¬ë¡œ ë§›ì§‘ ì—¬í–‰",
-  "sapporo-family": "ê°€ì¡±ê³¼ ì‚¿í¬ë¡œ ì—¬í–‰",
-  "sapporo-budget": "ì‚¿í¬ë¡œ ì‹¤ì† ì—¬í–‰",
-  "missing-live-data": "ì‚¿í¬ë¡œ ì—¬í–‰",
-  "mixed-source-states": "ì‚¿í¬ë¡œ ì—¬í–‰",
-  "mobile": "ì‚¿í¬ë¡œ ì—¬í–‰",
-  "long-provider-names": "ì‚¿í¬ë¡œ ì—¬í–‰",
-  "no-visa-required": "ì‚¿í¬ë¡œ ì—¬í–‰",
-  "visa-unresolved": "ì‚¿í¬ë¡œ ì—¬í–‰"
+  "sapporo-general": "삿포로 여행",
+  "sapporo-food": "삿포로 맛집 여행",
+  "sapporo-family": "가족과 삿포로 여행",
+  "sapporo-budget": "삿포로 실속 여행",
+  "missing-live-data": "삿포로 여행",
+  "mixed-source-states": "삿포로 여행",
+  "mobile": "삿포로 여행",
+  "long-provider-names": "삿포로 여행",
+  "no-visa-required": "삿포로 여행",
+  "visa-unresolved": "삿포로 여행"
 });
 
 const MANUAL_V231_APPROVAL_SCENARIOS = Object.freeze({
@@ -512,7 +512,7 @@ const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => 
   const kernelOutput = createHOSKernel().run({
     mission: prompt,
     language,
-    currentLocation: language === "ko" ? "ì„œìš¸" : "Seoul"
+    currentLocation: language === "ko" ? "서울" : "Seoul"
   });
   const plan = kernelOutput.resolutionPlan;
   return {
@@ -567,28 +567,28 @@ function getManualScenarioResult() {
     result.destination = {
       ...(result.destination || {}),
       country: "Japan",
-      countryKo: "ì¼ë³¸",
+      countryKo: "일본",
       countryCode: "JP",
       city: "Sapporo",
-      cityKo: "ì‚¿í¬ë¡œ",
+      cityKo: "삿포로",
       continent: "Asia"
     };
     result.country = "JP";
-    result.countryProfile = { ...(result.countryProfile || {}), code: "JP", name: "Japan", nameKo: "ì¼ë³¸", capital: "Tokyo", currency: "JPY", continent: "Asia" };
+    result.countryProfile = { ...(result.countryProfile || {}), code: "JP", name: "Japan", nameKo: "일본", capital: "Tokyo", currency: "JPY", continent: "Asia" };
   }
   return result;
 }
 
 const createNeutralMissionResult = () => createResolutionResultFromPrompt(
-  activeLanguage === "ko" ? "ë„ì™€ì¤˜" : activeLanguage === "es" ? "AyÃºdame" : "Help me",
+  activeLanguage === "ko" ? "도와줘" : activeLanguage === "es" ? "Ayúdame" : "Help me",
   activeLanguage
 );
 
 const countryNamesKoByRegion = {
-  KR: "ëŒ€í•œë¯¼êµ­", US: "ë¯¸êµ­", ES: "ìŠ¤íŽ˜ì¸", FR: "í”„ëž‘ìŠ¤", JP: "ì¼ë³¸",
-  BR: "ë¸Œë¼ì§ˆ", DE: "ë…ì¼", CN: "ì¤‘êµ­", IT: "ì´íƒˆë¦¬ì•„", PT: "í¬ë¥´íˆ¬ê°ˆ",
-  CA: "ìºë‚˜ë‹¤", GB: "ì˜êµ­", AU: "í˜¸ì£¼", NZ: "ë‰´ì§ˆëžœë“œ", MX: "ë©•ì‹œì½”",
-  SG: "ì‹±ê°€í¬ë¥´", TH: "íƒœêµ­", VN: "ë² íŠ¸ë‚¨", PH: "í•„ë¦¬í•€", ID: "ì¸ë„ë„¤ì‹œì•„", IN: "ì¸ë„"
+  KR: "대한민국", US: "미국", ES: "스페인", FR: "프랑스", JP: "일본",
+  BR: "브라질", DE: "독일", CN: "중국", IT: "이탈리아", PT: "포르투갈",
+  CA: "캐나다", GB: "영국", AU: "호주", NZ: "뉴질랜드", MX: "멕시코",
+  SG: "싱가포르", TH: "태국", VN: "베트남", PH: "필리핀", ID: "인도네시아", IN: "인도"
 };
 
 const findLiveProvider = (result, category) => {
@@ -602,7 +602,7 @@ const makeLiveWeatherMessage = (provider) => {
 
   return {
     en: `Live weather from ${provider.provider}: ${summary}`,
-    ko: `${provider.provider} ì‹¤ì‹œê°„ ë‚ ì”¨: ${summary}`
+    ko: `${provider.provider} 실시간 날씨: ${summary}`
   };
 };
 
@@ -611,7 +611,7 @@ const makeLiveCurrencyMessage = (provider) => {
   const summary = item ? `${item.label}: ${item.value}` : "Rate unavailable";
   return {
     en: `Live exchange rate from ${provider.provider}: ${summary}`,
-    ko: `${provider.provider} ì‹¤ì‹œê°„ í™˜ìœ¨: ${summary}`
+    ko: `${provider.provider} 실시간 환율: ${summary}`
   };
 };
 
@@ -628,15 +628,15 @@ const createFallbackTravelResult = () => {
     display: {
       missionReady: t("missionReady"),
       title: t("fallbackTitle"),
-      destination: activeLanguage === "ko" ? "ì¼ë³¸" : "Japan",
-      city: activeLanguage === "ko" ? "ë„ì¿„" : "Tokyo",
+      destination: activeLanguage === "ko" ? "일본" : "Japan",
+      city: activeLanguage === "ko" ? "도쿄" : "Tokyo",
       approvalProtection: t("approvalProtection")
     },
     destination: {
       country: "Japan",
-      countryKo: "ì¼ë³¸",
+      countryKo: "일본",
       city: "Tokyo",
-      cityKo: "ë„ì¿„"
+      cityKo: "도쿄"
     },
     durationDays: 7,
     departureCountry: {
@@ -647,10 +647,10 @@ const createFallbackTravelResult = () => {
       {
         id: "flight-korean-air",
         provider: "Korean Air",
-        providerKo: "ëŒ€í•œí•­ê³µ",
+        providerKo: "대한항공",
         category: "recommended",
         reason: "Best balance of comfort, direct routes, and service quality.",
-        reasonKo: "íŽ¸ì•ˆí•¨, ì§í•­ ë…¸ì„ , ì„œë¹„ìŠ¤ í’ˆì§ˆì˜ ê· í˜•ì´ ê°€ìž¥ ì¢‹ìŠµë‹ˆë‹¤.",
+        reasonKo: "편안함, 직항 노선, 서비스 품질의 균형이 가장 좋습니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 420000,
@@ -661,10 +661,10 @@ const createFallbackTravelResult = () => {
       {
         id: "flight-asiana",
         provider: "Asiana Airlines",
-        providerKo: "ì•„ì‹œì•„ë‚˜í•­ê³µ",
+        providerKo: "아시아나항공",
         category: "quality",
         reason: "Strong service quality and convenient Korea to Japan schedules.",
-        reasonKo: "ì„œë¹„ìŠ¤ í’ˆì§ˆì´ ì¢‹ê³  í•œêµ­-ì¼ë³¸ ë…¸ì„  ì¼ì •ì´ íŽ¸ë¦¬í•©ë‹ˆë‹¤.",
+        reasonKo: "서비스 품질이 좋고 한국-일본 노선 일정이 편리합니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 390000,
@@ -675,10 +675,10 @@ const createFallbackTravelResult = () => {
       {
         id: "flight-jeju-air",
         provider: "Jeju Air",
-        providerKo: "ì œì£¼í•­ê³µ",
+        providerKo: "제주항공",
         category: "budget",
         reason: "Lower-cost option for flexible travelers.",
-        reasonKo: "ì¼ì •ì´ ìœ ì—°í•œ ì—¬í–‰ìžì—ê²Œ ì í•©í•œ ì €ê°€ ì˜µì…˜ìž…ë‹ˆë‹¤.",
+        reasonKo: "일정이 유연한 여행자에게 적합한 저가 옵션입니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 180000,
@@ -689,10 +689,10 @@ const createFallbackTravelResult = () => {
       {
         id: "flight-jal",
         provider: "Japan Airlines",
-        providerKo: "ì¼ë³¸í•­ê³µ",
+        providerKo: "일본항공",
         category: "premium",
         reason: "Premium Japan-based carrier with excellent reliability.",
-        reasonKo: "ì•ˆì •ì„±ì´ ë›°ì–´ë‚œ ì¼ë³¸ ê¸°ë°˜ í”„ë¦¬ë¯¸ì—„ í•­ê³µì‚¬ìž…ë‹ˆë‹¤.",
+        reasonKo: "안정성이 뛰어난 일본 기반 프리미엄 항공사입니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 460000,
@@ -703,10 +703,10 @@ const createFallbackTravelResult = () => {
       {
         id: "flight-united",
         provider: "United Airlines",
-        providerKo: "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ",
+        providerKo: "유나이티드항공",
         category: "alternative",
         reason: "Useful alternative depending on route availability.",
-        reasonKo: "ë…¸ì„  ê°€ëŠ¥ ì—¬ë¶€ì— ë”°ë¼ ì„ íƒí•  ìˆ˜ ìžˆëŠ” ëŒ€ì•ˆìž…ë‹ˆë‹¤.",
+        reasonKo: "노선 가능 여부에 따라 선택할 수 있는 대안입니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 430000,
@@ -719,10 +719,10 @@ const createFallbackTravelResult = () => {
       {
         id: "hotel-metropolitan",
         name: "Hotel Metropolitan Tokyo Marunouchi",
-        nameKo: "í˜¸í…” ë©”íŠ¸ë¡œí´ë¦¬íƒ„ ë„ì¿„ ë§ˆë£¨ë…¸ìš°ì¹˜",
+        nameKo: "호텔 메트로폴리탄 도쿄 마루노우치",
         category: "recommended",
         reason: "Central location, strong reviews, easy access to transport.",
-        reasonKo: "ì¤‘ì‹¬ ìœ„ì¹˜, ì¢‹ì€ ë¦¬ë·°, íŽ¸ë¦¬í•œ êµí†µ ì ‘ê·¼ì„±ì„ ê°–ì·„ìŠµë‹ˆë‹¤.",
+        reasonKo: "중심 위치, 좋은 리뷰, 편리한 교통 접근성을 갖췄습니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 240000,
@@ -733,10 +733,10 @@ const createFallbackTravelResult = () => {
       {
         id: "hotel-hilton-tokyo",
         name: "Hilton Tokyo",
-        nameKo: "ížíŠ¼ ë„ì¿„",
+        nameKo: "힐튼 도쿄",
         category: "premium",
         reason: "Premium comfort and reliable international service.",
-        reasonKo: "í”„ë¦¬ë¯¸ì—„ ìˆ™ë°• ê²½í—˜ê³¼ ì•ˆì •ì ì¸ ê¸€ë¡œë²Œ ì„œë¹„ìŠ¤ë¥¼ ì œê³µí•©ë‹ˆë‹¤.",
+        reasonKo: "프리미엄 숙박 경험과 안정적인 글로벌 서비스를 제공합니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 320000,
@@ -747,10 +747,10 @@ const createFallbackTravelResult = () => {
       {
         id: "hotel-tokyu-stay",
         name: "Tokyu Stay Shinjuku",
-        nameKo: "ë„í ìŠ¤í…Œì´ ì‹ ì£¼ì¿ ",
+        nameKo: "도큐 스테이 신주쿠",
         category: "value",
         reason: "Practical location and strong value for longer stays.",
-        reasonKo: "ì‹¤ìš©ì ì¸ ìœ„ì¹˜ì™€ ìž¥ê¸° ìˆ™ë°•ì— ì¢‹ì€ ê°€ì„±ë¹„ë¥¼ ì œê³µí•©ë‹ˆë‹¤.",
+        reasonKo: "실용적인 위치와 장기 숙박에 좋은 가성비를 제공합니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 160000,
@@ -761,10 +761,10 @@ const createFallbackTravelResult = () => {
       {
         id: "hotel-apa",
         name: "APA Hotel",
-        nameKo: "APA í˜¸í…”",
+        nameKo: "APA 호텔",
         category: "budget",
         reason: "Budget-friendly and widely available across Tokyo.",
-        reasonKo: "ë„ì¿„ ì „ì—­ì—ì„œ ì°¾ê¸° ì‰½ê³  ì˜ˆì‚°ì„ ì•„ë¼ê¸° ì¢‹ì€ ì˜µì…˜ìž…ë‹ˆë‹¤.",
+        reasonKo: "도쿄 전역에서 찾기 쉽고 예산을 아끼기 좋은 옵션입니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 95000,
@@ -776,24 +776,24 @@ const createFallbackTravelResult = () => {
     airportTransfer: {
       recommended: {
         en: "Narita Express or Airport Limousine Bus",
-        ko: "ë‚˜ë¦¬íƒ€ ìµìŠ¤í”„ë ˆìŠ¤ ë˜ëŠ” ê³µí•­ ë¦¬ë¬´ì§„ ë²„ìŠ¤"
+        ko: "나리타 익스프레스 또는 공항 리무진 버스"
       },
       reason: {
         en: "Best balance of reliability, luggage convenience, and access to central Tokyo.",
-        ko: "ì •ì‹œì„±, ìˆ˜í•˜ë¬¼ íŽ¸ì˜ì„±, ë„ì¿„ ì¤‘ì‹¬ ì ‘ê·¼ì„±ì˜ ê· í˜•ì´ ì¢‹ìŠµë‹ˆë‹¤."
+        ko: "정시성, 수하물 편의성, 도쿄 중심 접근성의 균형이 좋습니다."
       },
       options: [
         {
           en: "Narita Express",
-          ko: "ë‚˜ë¦¬íƒ€ ìµìŠ¤í”„ë ˆìŠ¤"
+          ko: "나리타 익스프레스"
         },
         {
           en: "Airport Limousine Bus",
-          ko: "ê³µí•­ ë¦¬ë¬´ì§„ ë²„ìŠ¤"
+          ko: "공항 리무진 버스"
         },
         {
           en: "Private airport transfer",
-          ko: "í”„ë¼ì´ë¹— ê³µí•­ í”½ì—…"
+          ko: "프라이빗 공항 픽업"
         }
       ],
       editable: true
@@ -802,7 +802,7 @@ const createFallbackTravelResult = () => {
       status: "placeholder",
       message: {
         en: "Weather will be checked with a live weather API before execution.",
-        ko: "ì‹¤í–‰ ì „ ì‹¤ì‹œê°„ ë‚ ì”¨ APIë¡œ ë‚ ì”¨ë¥¼ í™•ì¸í•©ë‹ˆë‹¤."
+        ko: "실행 전 실시간 날씨 API로 날씨를 확인합니다."
       }
     },
     exchangeRate: {
@@ -811,28 +811,28 @@ const createFallbackTravelResult = () => {
       to: "JPY",
       message: {
         en: "Exchange rate will be checked with a live currency API before execution.",
-        ko: "ì‹¤í–‰ ì „ ì‹¤ì‹œê°„ í™˜ìœ¨ APIë¡œ í™˜ìœ¨ì„ í™•ì¸í•©ë‹ˆë‹¤."
+        ko: "실행 전 실시간 환율 API로 환율을 확인합니다."
       }
     },
     visa: {
       status: "requires-verification",
       message: {
         en: "For many travelers visa-free entry may apply, but ONE must verify before execution.",
-        ko: "ë§Žì€ ì—¬í–‰ìžì—ê²Œ ë¬´ë¹„ìž ìž…êµ­ì´ ê°€ëŠ¥í•  ìˆ˜ ìžˆì§€ë§Œ, ì‹¤í–‰ ì „ ONEì´ ë°˜ë“œì‹œ í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤."
+        ko: "많은 여행자에게 무비자 입국이 가능할 수 있지만, 실행 전 ONE이 반드시 확인해야 합니다."
       }
     },
     checklist: [
       {
         id: "passport",
         en: "Passport",
-        ko: "ì—¬ê¶Œ",
+        ko: "여권",
         required: true,
         editable: true
       },
       {
         id: "travel-insurance",
         en: "Travel insurance",
-        ko: "ì—¬í–‰ìž ë³´í—˜",
+        ko: "여행자 보험",
         required: true,
         editable: true
       },
@@ -846,28 +846,28 @@ const createFallbackTravelResult = () => {
       {
         id: "currency",
         en: "Currency",
-        ko: "í™˜ì „",
+        ko: "환전",
         required: true,
         editable: true
       },
       {
         id: "transit-card",
         en: "Transit card",
-        ko: "êµí†µì¹´ë“œ",
+        ko: "교통카드",
         required: false,
         editable: true
       },
       {
         id: "hotel-confirmation",
         en: "Hotel confirmation",
-        ko: "í˜¸í…” ì˜ˆì•½ í™•ì¸ì„œ",
+        ko: "호텔 예약 확인서",
         required: true,
         editable: true
       },
       {
         id: "emergency-contacts",
         en: "Emergency contacts",
-        ko: "ë¹„ìƒ ì—°ë½ì²˜",
+        ko: "비상 연락처",
         required: true,
         editable: true
       }
@@ -876,41 +876,41 @@ const createFallbackTravelResult = () => {
       {
         id: "sushi",
         type: "Sushi",
-        typeKo: "ìŠ¤ì‹œ",
+        typeKo: "스시",
         recommendation: "Reservation-ready sushi options near your route.",
-        recommendationKo: "ë™ì„  ê·¼ì²˜ ì˜ˆì•½ ê°€ëŠ¥í•œ ìŠ¤ì‹œ ì˜µì…˜ì„ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "동선 근처 예약 가능한 스시 옵션을 준비합니다.",
         editable: true
       },
       {
         id: "ramen",
         type: "Ramen",
-        typeKo: "ë¼ë©˜",
+        typeKo: "라멘",
         recommendation: "Local ramen shortlist based on location and wait time.",
-        recommendationKo: "ìœ„ì¹˜ì™€ ëŒ€ê¸° ì‹œê°„ì„ ê¸°ì¤€ìœ¼ë¡œ í˜„ì§€ ë¼ë©˜ í›„ë³´ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "위치와 대기 시간을 기준으로 현지 라멘 후보를 준비합니다.",
         editable: true
       },
       {
         id: "wagyu",
         type: "Wagyu",
-        typeKo: "ì™€ê·œ",
+        typeKo: "와규",
         recommendation: "Premium wagyu options for one special meal.",
-        recommendationKo: "íŠ¹ë³„í•œ ì‹ì‚¬ë¥¼ ìœ„í•œ í”„ë¦¬ë¯¸ì—„ ì™€ê·œ ì˜µì…˜ì„ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "특별한 식사를 위한 프리미엄 와규 옵션을 준비합니다.",
         editable: true
       },
       {
         id: "izakaya",
         type: "Izakaya",
-        typeKo: "ì´ìžì¹´ì•¼",
+        typeKo: "이자카야",
         recommendation: "Casual evening options near hotel or station.",
-        recommendationKo: "í˜¸í…”ì´ë‚˜ ì—­ ê·¼ì²˜ì˜ ìºì£¼ì–¼í•œ ì €ë… ì˜µì…˜ì„ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "호텔이나 역 근처의 캐주얼한 저녁 옵션을 준비합니다.",
         editable: true
       },
       {
         id: "cafe",
         type: "Cafe",
-        typeKo: "ì¹´íŽ˜",
+        typeKo: "카페",
         recommendation: "Premium cafes and quiet stops along the itinerary.",
-        recommendationKo: "ì¼ì • ì¤‘ ë“¤ë¥´ê¸° ì¢‹ì€ í”„ë¦¬ë¯¸ì—„ ì¹´íŽ˜ì™€ ì¡°ìš©í•œ ìž¥ì†Œë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "일정 중 들르기 좋은 프리미엄 카페와 조용한 장소를 준비합니다.",
         editable: true
       }
     ],
@@ -945,37 +945,37 @@ const createFallbackTravelResult = () => {
     recommendedOption: {
       level: "balanced",
       en: "Balanced quality plan",
-      ko: "ê· í˜•í˜• í’ˆì§ˆ í”Œëžœ",
+      ko: "균형형 품질 플랜",
       reason: {
         en: "Best overall mix of comfort, price control, transport access, and reliable providers.",
-        ko: "íŽ¸ì•ˆí•¨, ê°€ê²© í†µì œ, êµí†µ ì ‘ê·¼ì„±, ì‹ ë¢° ê°€ëŠ¥í•œ ì œê³µì—…ì²´ì˜ ê· í˜•ì´ ê°€ìž¥ ì¢‹ìŠµë‹ˆë‹¤."
+        ko: "편안함, 가격 통제, 교통 접근성, 신뢰 가능한 제공업체의 균형이 가장 좋습니다."
       }
     },
     modifyOptions: [
       {
         id: "change-airline",
         en: "Change airline",
-        ko: "í•­ê³µì‚¬ ë³€ê²½"
+        ko: "항공사 변경"
       },
       {
         id: "change-hotel-type",
         en: "Change hotel type",
-        ko: "í˜¸í…” ìœ í˜• ë³€ê²½"
+        ko: "호텔 유형 변경"
       },
       {
         id: "remove-restaurants",
         en: "Remove restaurants",
-        ko: "ë ˆìŠ¤í† ëž‘ ì œì™¸"
+        ko: "레스토랑 제외"
       },
       {
         id: "reduce-budget",
         en: "Reduce budget",
-        ko: "ì˜ˆì‚° ì¤„ì´ê¸°"
+        ko: "예산 줄이기"
       },
       {
         id: "upgrade-quality",
         en: "Upgrade quality",
-        ko: "í’ˆì§ˆ ì—…ê·¸ë ˆì´ë“œ"
+        ko: "품질 업그레이드"
       }
     ],
     executionSequence: {
@@ -1004,17 +1004,17 @@ const normalizeStoredResult = (stored) => {
         title:
           stored.display?.title ||
           (activeLanguage === "ko"
-            ? `${stored.destination?.countryKo || "ì¼ë³¸"} ì—¬í–‰`
+            ? `${stored.destination?.countryKo || "일본"} 여행`
             : `${stored.destination?.country || "Japan"} Trip`),
         destination:
           stored.display?.destination ||
           (activeLanguage === "ko"
-            ? stored.destination?.countryKo || "ì¼ë³¸"
+            ? stored.destination?.countryKo || "일본"
             : stored.destination?.country || "Japan"),
         city:
           stored.display?.city ||
           (activeLanguage === "ko"
-            ? stored.destination?.cityKo || "ë„ì¿„"
+            ? stored.destination?.cityKo || "도쿄"
             : stored.destination?.city || "Tokyo"),
         approvalProtection:
           stored.display?.approvalProtection ||
@@ -1057,7 +1057,7 @@ const normalizeStoredResult = (stored) => {
     ...stored,
     display: {
       ...stored.display,
-      title: stored.display?.title || stored.rawInput || stored.mission || (activeLanguage === "ko" ? "ë¯¸ì…˜ ê³„íš" : "Mission Plan"),
+      title: stored.display?.title || stored.rawInput || stored.mission || (activeLanguage === "ko" ? "미션 계획" : "Mission Plan"),
       approvalProtection: stored.display?.approvalProtection || localize(stored.approvalProtection?.message || stored.approvalProtection) || t("approvalProtection")
     },
     executionSequence: stored.executionSequence || {
@@ -1077,7 +1077,7 @@ const makeOptionRow = (key, value, details = {}) => {
     : "";
   return `
     <button class="option-row selectable-option${selected ? "" : " is-excluded"}" type="button" aria-pressed="${selected}" data-option-index="${index}" data-option-label="${label}" data-option-reason="${reason}"${priceAttributes}>
-      <span class="option-key">${selected ? "âœ“" : "+"}</span>
+      <span class="option-key">${selected ? "✓" : "+"}</span>
       <span class="option-value"><strong>${key}</strong><span>${value}</span></span>
     </button>
   `;
@@ -1104,13 +1104,13 @@ const getFlightName = (flight) => {
 const getHotelName = (hotel) => {
   const destination = currentResult?.destination?.city || currentResult?.destination?.country || currentResult?.display?.destination || "";
   const name = activeLanguage === "ko" ? hotel.nameKo || hotel.name : hotel.name;
-  return String(name || "").replace(/^the destination\b/i, destination || (activeLanguage === "ko" ? "ëª©ì ì§€" : "Destination")).trim();
+  return String(name || "").replace(/^the destination\b/i, destination || (activeLanguage === "ko" ? "목적지" : "Destination")).trim();
 };
 
 const getRestaurantName = (restaurant) => {
   const destination = currentResult?.destination?.city || currentResult?.destination?.country || currentResult?.display?.destination || "";
   const name = activeLanguage === "ko" ? restaurant.typeKo || restaurant.type : restaurant.type;
-  return String(name || "").replace(/^the destination\b/i, destination || (activeLanguage === "ko" ? "ëª©ì ì§€" : "Destination")).trim();
+  return String(name || "").replace(/^the destination\b/i, destination || (activeLanguage === "ko" ? "목적지" : "Destination")).trim();
 };
 
 const getRestaurantRecommendation = (restaurant) => {
@@ -1121,21 +1121,21 @@ const getRestaurantRecommendation = (restaurant) => {
 
 const restaurantVenueProfiles = {
   JP: [
-    { en: "Sushi Dai", ko: "ìŠ¤ì‹œë‹¤ì´", rating: 4.7 }, { en: "Ichiran Ramen", ko: "ì´ì¹˜ëž€ ë¼ë©˜", rating: 4.5 },
-    { en: "Gyukatsu Motomura", ko: "ê·œì¹´ì¸  ëª¨í† ë¬´ë¼", rating: 4.6 }, { en: "Gonpachi", ko: "ê³¤íŒŒì¹˜", rating: 4.3 },
-    { en: "Blue Bottle Coffee", ko: "ë¸”ë£¨ë³´í‹€ ì»¤í”¼", rating: 4.4 }
+    { en: "Sushi Dai", ko: "스시다이", rating: 4.7 }, { en: "Ichiran Ramen", ko: "이치란 라멘", rating: 4.5 },
+    { en: "Gyukatsu Motomura", ko: "규카츠 모토무라", rating: 4.6 }, { en: "Gonpachi", ko: "곤파치", rating: 4.3 },
+    { en: "Blue Bottle Coffee", ko: "블루보틀 커피", rating: 4.4 }
   ],
   US: [
-    { en: "The Modern", ko: "ë” ëª¨ë˜", rating: 4.6 }, { en: "Keens Steakhouse", ko: "í‚¨ìŠ¤ ìŠ¤í…Œì´í¬í•˜ìš°ìŠ¤", rating: 4.5 },
-    { en: "Rubirosa", ko: "ë£¨ë¹„ë¡œì‚¬", rating: 4.6 }, { en: "Joe's Shanghai", ko: "ì¡°ìŠ¤ ìƒí•˜ì´", rating: 4.3 }
+    { en: "The Modern", ko: "더 모던", rating: 4.6 }, { en: "Keens Steakhouse", ko: "킨스 스테이크하우스", rating: 4.5 },
+    { en: "Rubirosa", ko: "루비로사", rating: 4.6 }, { en: "Joe's Shanghai", ko: "조스 상하이", rating: 4.3 }
   ],
   ES: [
-    { en: "Sobrino de BotÃ­n", ko: "ì†Œë¸Œë¦¬ë…¸ ë° ë³´í‹´", rating: 4.4 }, { en: "Casa Lucio", ko: "ì¹´ì‚¬ ë£¨ì‹œì˜¤", rating: 4.3 },
-    { en: "Sala de Despiece", ko: "ì‚´ë¼ ë° ë°ìŠ¤í”¼ì—ì„¸", rating: 4.5 }, { en: "ChocolaterÃ­a San GinÃ©s", ko: "ì‚° ížˆë„¤ìŠ¤", rating: 4.4 }
+    { en: "Sobrino de Botín", ko: "소브리노 데 보틴", rating: 4.4 }, { en: "Casa Lucio", ko: "카사 루시오", rating: 4.3 },
+    { en: "Sala de Despiece", ko: "살라 데 데스피에세", rating: 4.5 }, { en: "Chocolatería San Ginés", ko: "산 히네스", rating: 4.4 }
   ],
   CO: [
-    { en: "Leo", ko: "ë ˆì˜¤", rating: 4.6 }, { en: "El Chato", ko: "ì—˜ ì°¨í† ", rating: 4.6 },
-    { en: "AndrÃ©s Carne de Res", ko: "ì•ˆë“œë ˆìŠ¤ ì¹´ë¥´ë„¤ ë° ë ˆìŠ¤", rating: 4.5 }, { en: "Mesa Franca", ko: "ë©”ì‚¬ í”„ëž‘ì¹´", rating: 4.6 }
+    { en: "Leo", ko: "레오", rating: 4.6 }, { en: "El Chato", ko: "엘 차토", rating: 4.6 },
+    { en: "Andrés Carne de Res", ko: "안드레스 카르네 데 레스", rating: 4.5 }, { en: "Mesa Franca", ko: "메사 프랑카", rating: 4.6 }
   ]
 };
 
@@ -1151,12 +1151,12 @@ const createMissionCard = ({ id, title, label, value, reason, options, supportin
 
   article.innerHTML = `
     <div class="card-top">
-      <div class="card-title-group">${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "ì¹´í…Œê³ ë¦¬ í¬í•¨" : "Include category"}">âœ“</button>` : ""}<h2 class="card-title">${title}</h2></div>
+      <div class="card-title-group">${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}<h2 class="card-title">${title}</h2></div>
       <span class="card-label">${label}</span>
     </div>
 
     <div class="recommendation">
-      ${editable ? `<button class="selectable-recommendation selectable-option" type="button" aria-pressed="true"><span class="option-key">âœ“</span><span class="recommendation-value">${value}</span></button>` : `<p class="recommendation-value">${value}</p>`}
+      ${editable ? `<button class="selectable-recommendation selectable-option" type="button" aria-pressed="true"><span class="option-key">✓</span><span class="recommendation-value">${value}</span></button>` : `<p class="recommendation-value">${value}</p>`}
     </div>
 
     <p class="recommendation-label">${t("reason")}</p>
@@ -1167,7 +1167,7 @@ const createMissionCard = ({ id, title, label, value, reason, options, supportin
 
     ${editable ? `
       <div class="alternative-picker">
-        <p class="alternative-picker-title">${activeLanguage === "ko" ? "í¬í•¨í•  ì˜µì…˜ì„ ì„ íƒí•˜ì„¸ìš”" : "Choose options to include"}</p>
+        <p class="alternative-picker-title">${activeLanguage === "ko" ? "포함할 옵션을 선택하세요" : "Choose options to include"}</p>
         <div class="alternative-options" data-alternatives-for="${id}"></div>
       </div>
     ` : ""}
@@ -1198,7 +1198,7 @@ const createListCard = ({ id, title, label, items, itemDetails = [], wide = fals
 
   article.innerHTML = `
     <div class="card-top">
-      <div class="card-title-group">${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "ì¹´í…Œê³ ë¦¬ í¬í•¨" : "Include category"}">âœ“</button>` : ""}<h2 class="card-title">${title}</h2></div>
+      <div class="card-title-group">${editable ? `<button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "카테고리 포함" : "Include category"}">✓</button>` : ""}<h2 class="card-title">${title}</h2></div>
       <span class="card-label">${label}</span>
     </div>
 
@@ -1210,15 +1210,15 @@ const createListCard = ({ id, title, label, items, itemDetails = [], wide = fals
           : "";
         return editable ? `
         <button class="option-row selectable-option" type="button" data-option-index="${index}"${priceAttributes} aria-pressed="true">
-          <span class="option-key">âœ“</span><span class="option-value">${item}</span>
+          <span class="option-key">✓</span><span class="option-value">${item}</span>
         </button>
-      ` : `<div class="option-row locked-option"><span class="option-key">â€¢</span><span class="option-value">${item}</span></div>`;
+      ` : `<div class="option-row locked-option"><span class="option-key">•</span><span class="option-value">${item}</span></div>`;
       }).join("")}
     </div>
 
     ${editable ? `
       <div class="alternative-picker">
-        <p class="alternative-picker-title">${activeLanguage === "ko" ? "í¬í•¨í•  ì˜µì…˜ì„ ì„ íƒí•˜ì„¸ìš”" : "Choose options to include"}</p>
+        <p class="alternative-picker-title">${activeLanguage === "ko" ? "포함할 옵션을 선택하세요" : "Choose options to include"}</p>
         <div class="alternative-options" data-alternatives-for="${id}"></div>
       </div>
     ` : ""}
@@ -1255,8 +1255,8 @@ const createBudgetCard = (budget) => {
 
   article.innerHTML = `
     <div class="card-top">
-      <div class="card-title-group"><button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "ì˜ˆì‚° í¬í•¨" : "Include budget"}">âœ“</button><h2 class="card-title">${activeLanguage === "ko" ? "ì˜ˆì‚°" : "Budget"}</h2></div>
-      <span class="card-label">${activeLanguage === "ko" ? "ì˜ˆìƒ" : "Estimated"}</span>
+      <div class="card-title-group"><button class="category-toggle" type="button" aria-pressed="true" aria-label="${activeLanguage === "ko" ? "예산 포함" : "Include budget"}">✓</button><h2 class="card-title">${activeLanguage === "ko" ? "예산" : "Budget"}</h2></div>
+      <span class="card-label">${activeLanguage === "ko" ? "예상" : "Estimated"}</span>
     </div>
 
     <div class="option-list">
@@ -1279,7 +1279,7 @@ const createPlaceholderCard = ({ id, title, message, status }) => {
   return createMissionCard({
     id,
     title,
-    label: status === "live" ? (activeLanguage === "ko" ? "ì‹¤ì‹œê°„ ë°ì´í„°" : "Live data") : t("apiPlaceholder"),
+    label: status === "live" ? (activeLanguage === "ko" ? "실시간 데이터" : "Live data") : t("apiPlaceholder"),
     value: localize(message),
     reason: localize(message),
     options: [],
@@ -1292,8 +1292,8 @@ const createApprovalCard = (result) => {
   return createMissionCard({
     id: "approval-protection",
     title: t("approvalProtectionTitle"),
-    label: activeLanguage === "ko" ? "í•„ìˆ˜" : "Required",
-    value: activeLanguage === "ko" ? "ìŠ¹ì¸ ì „ ì‹¤í–‰ ê¸ˆì§€" : "Approval-first execution",
+    label: activeLanguage === "ko" ? "필수" : "Required",
+    value: activeLanguage === "ko" ? "승인 전 실행 금지" : "Approval-first execution",
     reason: result.display?.approvalProtection || localize(result.approvalProtection) || t("approvalProtection"),
     options: [],
     wide: true,
@@ -1307,18 +1307,18 @@ const createVisaVerificationCard = (result) => {
   article.dataset.cardId = "visa";
   const ko = activeLanguage === "ko";
   article.innerHTML = `
-    <div class="card-top"><h2 class="card-title">${ko ? "ë¹„ìž í™•ì¸" : "Visa Verification"}</h2><span class="card-label">${ko ? "í•„ìˆ˜ í™•ì¸" : "Required"}</span></div>
+    <div class="card-top"><h2 class="card-title">${ko ? "비자 확인" : "Visa Verification"}</h2><span class="card-label">${ko ? "필수 확인" : "Required"}</span></div>
     <p class="reason">${localize(result.visa?.message)}</p>
     <div class="visa-upload-grid">
-      <button class="document-upload-button" type="button" data-document-type="passport">${ko ? "ì—¬ê¶Œ ì´ë¯¸ì§€ ì¶”ê°€" : "Add Passport Image"}</button>
-      <button class="document-upload-button" type="button" data-document-type="visa">${ko ? "ë¹„ìž ì´ë¯¸ì§€ ì¶”ê°€" : "Add Visa Image"}</button>
+      <button class="document-upload-button" type="button" data-document-type="passport">${ko ? "여권 이미지 추가" : "Add Passport Image"}</button>
+      <button class="document-upload-button" type="button" data-document-type="visa">${ko ? "비자 이미지 추가" : "Add Visa Image"}</button>
       <input id="passportUploadInput" type="file" accept="image/*,application/pdf" hidden />
       <input id="visaUploadInput" type="file" accept="image/*,application/pdf" hidden />
     </div>
     <div class="document-status" id="visaDocumentStatus" aria-live="polite"></div>
-    <label class="personal-data-consent"><input id="personalDataConsent" type="checkbox" /><span>${ko ? "ë¹„ìž ì‹ ì²­ì„œ ì¤€ë¹„ë¥¼ ìœ„í•´ ìŠ¹ì¸í•œ ê°œì¸ì •ë³´ì™€ ì—…ë¡œë“œí•œ ë¬¸ì„œë¥¼ ONEì´ ì‚¬ìš©í•˜ë„ë¡ í—ˆìš©í•©ë‹ˆë‹¤." : "I allow ONE to use the personal details and documents I approve to prepare my visa application."}</span></label>
-    <button class="prepare-visa-button" id="prepareVisaButton" type="button" disabled>${ko ? "ë¹„ìž ì‹ ì²­ ì¤€ë¹„" : "Prepare Visa Application"}</button>
-    <p class="visa-protection-note">${ko ? "ONEì€ ì‹ ì²­ì„œë¥¼ ì¤€ë¹„ë§Œ í•©ë‹ˆë‹¤. ìµœì¢… ìŠ¹ì¸ ì „ì—ëŠ” ì œì¶œ, ì„œëª… ë˜ëŠ” ê²°ì œê°€ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤." : "ONE prepares the application only. Nothing is submitted, signed, or paid until your final approval."}</p>
+    <label class="personal-data-consent"><input id="personalDataConsent" type="checkbox" /><span>${ko ? "비자 신청서 준비를 위해 승인한 개인정보와 업로드한 문서를 ONE이 사용하도록 허용합니다." : "I allow ONE to use the personal details and documents I approve to prepare my visa application."}</span></label>
+    <button class="prepare-visa-button" id="prepareVisaButton" type="button" disabled>${ko ? "비자 신청 준비" : "Prepare Visa Application"}</button>
+    <p class="visa-protection-note">${ko ? "ONE은 신청서를 준비만 합니다. 최종 승인 전에는 제출, 서명 또는 결제가 진행되지 않습니다." : "ONE prepares the application only. Nothing is submitted, signed, or paid until your final approval."}</p>
   `;
   article.querySelectorAll(".option-list .selectable-option").forEach((option) => {
     option.setAttribute("aria-pressed", "false");
@@ -1329,7 +1329,7 @@ const createVisaVerificationCard = (result) => {
   if (recommendedDetail) {
     recommendedDetail.setAttribute("aria-pressed", "true");
     recommendedDetail.classList.remove("is-excluded");
-    recommendedDetail.querySelector(".option-key").textContent = "âœ“";
+    recommendedDetail.querySelector(".option-key").textContent = "✓";
   }
 
   return article;
@@ -1345,13 +1345,13 @@ const destinationPrototypeProfiles = {
   ES: {
     airlines: ["Korean Air", "Iberia", "Lufthansa", "Air France"],
     flightPrices: [[1550000, 2670000], [1450000, 2400000], [1500000, 2450000], [1530000, 2500000]],
-    hotels: ["Hotel Riu Plaza EspaÃ±a", "Hyatt Centric Gran VÃ­a Madrid", "NH Collection Madrid", "Room Mate Macarena"],
+    hotels: ["Hotel Riu Plaza España", "Hyatt Centric Gran Vía Madrid", "NH Collection Madrid", "Room Mate Macarena"],
     transfer: "Airport Express bus, Metro, or licensed airport transfer"
   },
   CO: {
     airlines: ["Avianca", "LATAM Airlines", "American Airlines", "United Airlines"],
     flightPrices: [[2300000, 3500000], [2400000, 3700000], [2200000, 3400000], [2250000, 3450000]],
-    hotels: ["Grand Hyatt BogotÃ¡", "Hilton BogotÃ¡", "Sofitel BogotÃ¡ Victoria Regia", "GHL Hotel Capital"],
+    hotels: ["Grand Hyatt Bogotá", "Hilton Bogotá", "Sofitel Bogotá Victoria Regia", "GHL Hotel Capital"],
     transfer: "Authorized airport taxi or pre-arranged airport transfer"
   },
   JP: {
@@ -1382,78 +1382,78 @@ const savePrototypeMission = (reference) => {
 };
 
 const airlineProfilesByCountry = {
-  KR: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["Jeju Air", "ì œì£¼í•­ê³µ"], ["T'way Air", "í‹°ì›¨ì´í•­ê³µ"]],
-  CN: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Air China", "ì¤‘êµ­êµ­ì œí•­ê³µ"], ["China Eastern Airlines", "ì¤‘êµ­ë™ë°©í•­ê³µ"], ["China Southern Airlines", "ì¤‘êµ­ë‚¨ë°©í•­ê³µ"]],
-  VN: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Vietnam Airlines", "ë² íŠ¸ë‚¨í•­ê³µ"], ["VietJet Air", "ë¹„ì—£ì ¯í•­ê³µ"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"]],
-  TH: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Thai Airways", "íƒ€ì´í•­ê³µ"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["AirAsia", "ì—ì–´ì•„ì‹œì•„"]],
-  SG: [["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"], ["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["Scoot", "ìŠ¤ì¿ íŠ¸í•­ê³µ"]],
-  AU: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Qantas", "ì½´íƒ€ìŠ¤í•­ê³µ"], ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"], ["Cathay Pacific", "ìºì„¸ì´í¼ì‹œí”½"]],
-  CA: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Air Canada", "ì—ì–´ìºë‚˜ë‹¤"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["WestJet", "ì›¨ìŠ¤íŠ¸ì ¯"]],
-  GB: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["British Airways", "ì˜êµ­í•­ê³µ"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["Lufthansa", "ë£¨í”„íŠ¸í•œìž"]],
-  FR: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Air France", "ì—ì–´í”„ëž‘ìŠ¤"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["KLM", "KLM ë„¤ëœëž€ë“œí•­ê³µ"]],
-  DE: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Lufthansa", "ë£¨í”„íŠ¸í•œìž"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["Finnair", "í•€ì—ì–´"]],
-  IT: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["ITA Airways", "ITA í•­ê³µ"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["Lufthansa", "ë£¨í”„íŠ¸í•œìž"]],
-  MX: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Aeromexico", "ì•„ì—ë¡œë©•ì‹œì½”"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"]],
-  AR: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Aerolineas Argentinas", "ì•„ë¥´í—¨í‹°ë‚˜í•­ê³µ"], ["LATAM Airlines", "ë¼íƒí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"]],
-  BR: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["LATAM Airlines", "ë¼íƒí•­ê³µ"], ["GOL Airlines", "ê³¨í•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"]],
-  PE: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["LATAM Airlines", "ë¼íƒí•­ê³µ"], ["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"]],
-  CL: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["LATAM Airlines", "ë¼íƒí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["Air Canada", "ì—ì–´ìºë‚˜ë‹¤"]],
-  PT: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["TAP Air Portugal", "TAP í¬ë¥´íˆ¬ê°ˆí•­ê³µ"], ["Lufthansa", "ë£¨í”„íŠ¸í•œìž"], ["Air France", "ì—ì–´í”„ëž‘ìŠ¤"]],
-  NL: [["KLM", "KLM ë„¤ëœëž€ë“œí•­ê³µ"], ["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Lufthansa", "ë£¨í”„íŠ¸í•œìž"], ["Air France", "ì—ì–´í”„ëž‘ìŠ¤"]],
-  GR: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Aegean Airlines", "ì—ê²Œí•­ê³µ"], ["Turkish Airlines", "í„°í‚¤í•­ê³µ"], ["Lufthansa", "ë£¨í”„íŠ¸í•œìž"]],
-  AE: [["Emirates", "ì—ë¯¸ë ˆì´íŠ¸í•­ê³µ"], ["Etihad Airways", "ì—í‹°í•˜ë“œí•­ê³µ"], ["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Qatar Airways", "ì¹´íƒ€ë¥´í•­ê³µ"]],
-  IN: [["Air India", "ì—ì–´ì¸ë””ì•„"], ["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"], ["Thai Airways", "íƒ€ì´í•­ê³µ"]],
-  ID: [["Garuda Indonesia", "ê°€ë£¨ë‹¤ì¸ë„ë„¤ì‹œì•„í•­ê³µ"], ["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"], ["AirAsia", "ì—ì–´ì•„ì‹œì•„"]],
-  MY: [["Malaysia Airlines", "ë§ë ˆì´ì‹œì•„í•­ê³µ"], ["Korean Air", "ëŒ€í•œí•­ê³µ"], ["AirAsia", "ì—ì–´ì•„ì‹œì•„"], ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"]],
-  NZ: [["Air New Zealand", "ì—ì–´ë‰´ì§ˆëžœë“œ"], ["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Qantas", "ì½´íƒ€ìŠ¤í•­ê³µ"], ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"]],
-  ZA: [["South African Airways", "ë‚¨ì•„í”„ë¦¬ì¹´í•­ê³µ"], ["Emirates", "ì—ë¯¸ë ˆì´íŠ¸í•­ê³µ"], ["Qatar Airways", "ì¹´íƒ€ë¥´í•­ê³µ"], ["Ethiopian Airlines", "ì—í‹°ì˜¤í”¼ì•„í•­ê³µ"]]
+  KR: [["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Jeju Air", "제주항공"], ["T'way Air", "티웨이항공"]],
+  CN: [["Korean Air", "대한항공"], ["Air China", "중국국제항공"], ["China Eastern Airlines", "중국동방항공"], ["China Southern Airlines", "중국남방항공"]],
+  VN: [["Korean Air", "대한항공"], ["Vietnam Airlines", "베트남항공"], ["VietJet Air", "비엣젯항공"], ["Asiana Airlines", "아시아나항공"]],
+  TH: [["Korean Air", "대한항공"], ["Thai Airways", "타이항공"], ["Asiana Airlines", "아시아나항공"], ["AirAsia", "에어아시아"]],
+  SG: [["Singapore Airlines", "싱가포르항공"], ["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Scoot", "스쿠트항공"]],
+  AU: [["Korean Air", "대한항공"], ["Qantas", "콴타스항공"], ["Singapore Airlines", "싱가포르항공"], ["Cathay Pacific", "캐세이퍼시픽"]],
+  CA: [["Korean Air", "대한항공"], ["Air Canada", "에어캐나다"], ["Asiana Airlines", "아시아나항공"], ["WestJet", "웨스트젯"]],
+  GB: [["Korean Air", "대한항공"], ["British Airways", "영국항공"], ["Asiana Airlines", "아시아나항공"], ["Lufthansa", "루프트한자"]],
+  FR: [["Korean Air", "대한항공"], ["Air France", "에어프랑스"], ["Asiana Airlines", "아시아나항공"], ["KLM", "KLM 네덜란드항공"]],
+  DE: [["Korean Air", "대한항공"], ["Lufthansa", "루프트한자"], ["Asiana Airlines", "아시아나항공"], ["Finnair", "핀에어"]],
+  IT: [["Korean Air", "대한항공"], ["ITA Airways", "ITA 항공"], ["Asiana Airlines", "아시아나항공"], ["Lufthansa", "루프트한자"]],
+  MX: [["Korean Air", "대한항공"], ["Aeromexico", "아에로멕시코"], ["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"]],
+  AR: [["Korean Air", "대한항공"], ["Aerolineas Argentinas", "아르헨티나항공"], ["LATAM Airlines", "라탐항공"], ["American Airlines", "아메리칸항공"]],
+  BR: [["Korean Air", "대한항공"], ["LATAM Airlines", "라탐항공"], ["GOL Airlines", "골항공"], ["American Airlines", "아메리칸항공"]],
+  PE: [["Korean Air", "대한항공"], ["LATAM Airlines", "라탐항공"], ["Avianca", "아비앙카항공"], ["American Airlines", "아메리칸항공"]],
+  CL: [["Korean Air", "대한항공"], ["LATAM Airlines", "라탐항공"], ["American Airlines", "아메리칸항공"], ["Air Canada", "에어캐나다"]],
+  PT: [["Korean Air", "대한항공"], ["TAP Air Portugal", "TAP 포르투갈항공"], ["Lufthansa", "루프트한자"], ["Air France", "에어프랑스"]],
+  NL: [["KLM", "KLM 네덜란드항공"], ["Korean Air", "대한항공"], ["Lufthansa", "루프트한자"], ["Air France", "에어프랑스"]],
+  GR: [["Korean Air", "대한항공"], ["Aegean Airlines", "에게항공"], ["Turkish Airlines", "터키항공"], ["Lufthansa", "루프트한자"]],
+  AE: [["Emirates", "에미레이트항공"], ["Etihad Airways", "에티하드항공"], ["Korean Air", "대한항공"], ["Qatar Airways", "카타르항공"]],
+  IN: [["Air India", "에어인디아"], ["Korean Air", "대한항공"], ["Singapore Airlines", "싱가포르항공"], ["Thai Airways", "타이항공"]],
+  ID: [["Garuda Indonesia", "가루다인도네시아항공"], ["Korean Air", "대한항공"], ["Singapore Airlines", "싱가포르항공"], ["AirAsia", "에어아시아"]],
+  MY: [["Malaysia Airlines", "말레이시아항공"], ["Korean Air", "대한항공"], ["AirAsia", "에어아시아"], ["Singapore Airlines", "싱가포르항공"]],
+  NZ: [["Air New Zealand", "에어뉴질랜드"], ["Korean Air", "대한항공"], ["Qantas", "콴타스항공"], ["Singapore Airlines", "싱가포르항공"]],
+  ZA: [["South African Airways", "남아프리카항공"], ["Emirates", "에미레이트항공"], ["Qatar Airways", "카타르항공"], ["Ethiopian Airlines", "에티오피아항공"]]
 };
 
 Object.assign(airlineProfilesByCountry, {
-  GT: [["Aeromexico", "ì•„ì—ë¡œë©•ì‹œì½”"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"]],
-  BZ: [["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"], ["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"]],
-  CR: [["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"]],
-  SV: [["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"]],
-  HN: [["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"]],
-  NI: [["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"]],
-  PA: [["Copa Airlines", "ì½”íŒŒí•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"]]
+  GT: [["Aeromexico", "아에로멕시코"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  BZ: [["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"], ["Copa Airlines", "코파항공"], ["Avianca", "아비앙카항공"]],
+  CR: [["Avianca", "아비앙카항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  SV: [["Avianca", "아비앙카항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  HN: [["Avianca", "아비앙카항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  NI: [["Avianca", "아비앙카항공"], ["Copa Airlines", "코파항공"], ["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"]],
+  PA: [["Copa Airlines", "코파항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"], ["Avianca", "아비앙카항공"]]
 });
 
 const airlineProfilesByContinent = {
   "Central America": airlineProfilesByCountry.GT,
-  Caribbean: [["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"], ["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"]],
-  "South America": [["LATAM Airlines", "ë¼íƒí•­ê³µ"], ["Avianca", "ì•„ë¹„ì•™ì¹´í•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"], ["Copa Airlines", "ì½”íŒŒí•­ê³µ"]],
-  Europe: [["Lufthansa", "ë£¨í”„íŠ¸í•œìž"], ["Air France", "ì—ì–´í”„ëž‘ìŠ¤"], ["KLM", "KLM ë„¤ëœëž€ë“œí•­ê³µ"], ["Turkish Airlines", "í„°í‚¤í•­ê³µ"]],
-  Africa: [["Ethiopian Airlines", "ì—í‹°ì˜¤í”¼ì•„í•­ê³µ"], ["Qatar Airways", "ì¹´íƒ€ë¥´í•­ê³µ"], ["Emirates", "ì—ë¯¸ë ˆì´íŠ¸í•­ê³µ"], ["Turkish Airlines", "í„°í‚¤í•­ê³µ"]],
-  "Middle East": [["Emirates", "ì—ë¯¸ë ˆì´íŠ¸í•­ê³µ"], ["Qatar Airways", "ì¹´íƒ€ë¥´í•­ê³µ"], ["Etihad Airways", "ì—í‹°í•˜ë“œí•­ê³µ"], ["Turkish Airlines", "í„°í‚¤í•­ê³µ"]],
-  Oceania: [["Qantas", "ì½´íƒ€ìŠ¤í•­ê³µ"], ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"], ["Cathay Pacific", "ìºì„¸ì´í¼ì‹œí”½"], ["Air New Zealand", "ì—ì–´ë‰´ì§ˆëžœë“œ"]],
-  Asia: [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"], ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"], ["Cathay Pacific", "ìºì„¸ì´í¼ì‹œí”½"]],
-  "North America": [["Korean Air", "ëŒ€í•œí•­ê³µ"], ["Delta Air Lines", "ë¸íƒ€í•­ê³µ"], ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"], ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"]]
+  Caribbean: [["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"], ["Copa Airlines", "코파항공"], ["Avianca", "아비앙카항공"]],
+  "South America": [["LATAM Airlines", "라탐항공"], ["Avianca", "아비앙카항공"], ["American Airlines", "아메리칸항공"], ["Copa Airlines", "코파항공"]],
+  Europe: [["Lufthansa", "루프트한자"], ["Air France", "에어프랑스"], ["KLM", "KLM 네덜란드항공"], ["Turkish Airlines", "터키항공"]],
+  Africa: [["Ethiopian Airlines", "에티오피아항공"], ["Qatar Airways", "카타르항공"], ["Emirates", "에미레이트항공"], ["Turkish Airlines", "터키항공"]],
+  "Middle East": [["Emirates", "에미레이트항공"], ["Qatar Airways", "카타르항공"], ["Etihad Airways", "에티하드항공"], ["Turkish Airlines", "터키항공"]],
+  Oceania: [["Qantas", "콴타스항공"], ["Singapore Airlines", "싱가포르항공"], ["Cathay Pacific", "캐세이퍼시픽"], ["Air New Zealand", "에어뉴질랜드"]],
+  Asia: [["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Singapore Airlines", "싱가포르항공"], ["Cathay Pacific", "캐세이퍼시픽"]],
+  "North America": [["Korean Air", "대한항공"], ["Delta Air Lines", "델타항공"], ["United Airlines", "유나이티드항공"], ["American Airlines", "아메리칸항공"]]
 };
 
 const airlineNameKo = {
-  "Korean Air": "ëŒ€í•œí•­ê³µ", "Asiana Airlines": "ì•„ì‹œì•„ë‚˜í•­ê³µ", "Jeju Air": "ì œì£¼í•­ê³µ", "Japan Airlines": "ì¼ë³¸í•­ê³µ",
-  "Delta Air Lines": "ë¸íƒ€í•­ê³µ", "United Airlines": "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ", "Iberia": "ì´ë² ë¦¬ì•„í•­ê³µ", "Lufthansa": "ë£¨í”„íŠ¸í•œìž",
-  "Air France": "ì—ì–´í”„ëž‘ìŠ¤", "Avianca": "ì•„ë¹„ì•™ì¹´í•­ê³µ", "LATAM Airlines": "ë¼íƒí•­ê³µ", "American Airlines": "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"
+  "Korean Air": "대한항공", "Asiana Airlines": "아시아나항공", "Jeju Air": "제주항공", "Japan Airlines": "일본항공",
+  "Delta Air Lines": "델타항공", "United Airlines": "유나이티드항공", "Iberia": "이베리아항공", "Lufthansa": "루프트한자",
+  "Air France": "에어프랑스", "Avianca": "아비앙카항공", "LATAM Airlines": "라탐항공", "American Airlines": "아메리칸항공"
 };
 
 const localizedVenueNames = {
-  "Bestia": "ë² ìŠ¤í‹°ì•„", "Republique": "ë ˆí“Œë¸”ë¦¬í¬", "Guelaguetza": "ê²”ë¼ê²Œì°¨", "Grand Central Market": "ê·¸ëžœë“œ ì„¼íŠ¸ëŸ´ ë§ˆì¼“",
-  "The Modern": "ë” ëª¨ë˜", "Keens Steakhouse": "í‚¨ìŠ¤ ìŠ¤í…Œì´í¬í•˜ìš°ìŠ¤", "Rubirosa": "ë£¨ë¹„ë¡œì‚¬", "Joe's Shanghai": "ì¡°ìŠ¤ ìƒí•˜ì´",
-  "Sushi Dai": "ìŠ¤ì‹œë‹¤ì´", "Ichiran Ramen": "ì´ì¹˜ëž€ ë¼ë©˜", "Gyukatsu Motomura": "ê·œì¹´ì¸  ëª¨í† ë¬´ë¼", "Gonpachi": "ê³¤íŒŒì¹˜",
-  "Sobrino de Botin": "ì†Œë¸Œë¦¬ë…¸ ë° ë³´í‹´", "Casa Lucio": "ì¹´ì‚¬ ë£¨ì‹œì˜¤", "Sala de Despiece": "ì‚´ë¼ ë° ë°ìŠ¤í”¼ì—ì„¸", "Chocolateria San Gines": "ì‡¼ì½œë¼í…Œë¦¬ì•„ ì‚° ížˆë„¤ìŠ¤",
-  "InterContinental Los Angeles Downtown": "ì¸í„°ì»¨í‹°ë„¨íƒˆ ë¡œìŠ¤ì•¤ì ¤ë ˆìŠ¤ ë‹¤ìš´íƒ€ìš´", "Conrad Los Angeles": "ì½˜ëž˜ë“œ ë¡œìŠ¤ì•¤ì ¤ë ˆìŠ¤",
-  "citizenM Los Angeles Downtown": "ì‹œí‹°ì¦ŒM ë¡œìŠ¤ì•¤ì ¤ë ˆìŠ¤ ë‹¤ìš´íƒ€ìš´", "Freehand Los Angeles": "í”„ë¦¬í•¸ë“œ ë¡œìŠ¤ì•¤ì ¤ë ˆìŠ¤"
+  "Bestia": "베스티아", "Republique": "레퓌블리크", "Guelaguetza": "겔라게차", "Grand Central Market": "그랜드 센트럴 마켓",
+  "The Modern": "더 모던", "Keens Steakhouse": "킨스 스테이크하우스", "Rubirosa": "루비로사", "Joe's Shanghai": "조스 상하이",
+  "Sushi Dai": "스시다이", "Ichiran Ramen": "이치란 라멘", "Gyukatsu Motomura": "규카츠 모토무라", "Gonpachi": "곤파치",
+  "Sobrino de Botin": "소브리노 데 보틴", "Casa Lucio": "카사 루시오", "Sala de Despiece": "살라 데 데스피에세", "Chocolateria San Gines": "쇼콜라테리아 산 히네스",
+  "InterContinental Los Angeles Downtown": "인터컨티넨탈 로스앤젤레스 다운타운", "Conrad Los Angeles": "콘래드 로스앤젤레스",
+  "citizenM Los Angeles Downtown": "시티즌M 로스앤젤레스 다운타운", "Freehand Los Angeles": "프리핸드 로스앤젤레스"
 };
 
 const cityProfileOverride = (code, city) => {
   const normalized = String(city || "").trim().toLowerCase();
   const primaryCities = {
-    US: ["new york", "ë‰´ìš•"], ES: ["madrid", "ë§ˆë“œë¦¬ë“œ"],
-    JP: ["tokyo", "ë„ì¿„"], CO: ["bogotÃ¡", "bogota", "ë³´ê³ íƒ€"]
+    US: ["new york", "뉴욕"], ES: ["madrid", "마드리드"],
+    JP: ["tokyo", "도쿄"], CO: ["bogotá", "bogota", "보고타"]
   };
   if (primaryCities[code]?.includes(normalized)) return null;
-  if (["los angeles", "ë¡œìŠ¤ì•¤ì ¤ë ˆìŠ¤", "la", "l.a."].includes(normalized)) {
+  if (["los angeles", "로스앤젤레스", "la", "l.a."].includes(normalized)) {
     return {
       hotels: ["InterContinental Los Angeles Downtown", "Conrad Los Angeles", "citizenM Los Angeles Downtown", "Freehand Los Angeles"],
       hotelPrices: [[260000, 520000], [420000, 760000], [190000, 360000], [150000, 310000]],
@@ -1557,10 +1557,10 @@ const cuisineProfilesByContinent = {
 const restaurantProfileForCity = (city, result = {}) => {
   const normalized = String(city || "").trim().toLowerCase();
   const aliases = {
-    "ë‰´ìš•": "new york", "ë¡œìŠ¤ì•¤ì ¤ë ˆìŠ¤": "los angeles", "ì›Œì‹±í„´ d.c.": "washington, d.c.",
-    "ìƒŒí”„ëž€ì‹œìŠ¤ì½”": "san francisco", "ì‹œì¹´ê³ ": "chicago", "ë§ˆì´ì• ë¯¸": "miami",
-    "ë§ˆë“œë¦¬ë“œ": "madrid", "ë°”ë¥´ì…€ë¡œë‚˜": "barcelona", "ì„¸ë¹„ì•¼": "seville",
-    "ë„ì¿„": "tokyo", "ì˜¤ì‚¬ì¹´": "osaka", "êµí† ": "kyoto"
+    "뉴욕": "new york", "로스앤젤레스": "los angeles", "워싱턴 d.c.": "washington, d.c.",
+    "샌프란시스코": "san francisco", "시카고": "chicago", "마이애미": "miami",
+    "마드리드": "madrid", "바르셀로나": "barcelona", "세비야": "seville",
+    "도쿄": "tokyo", "오사카": "osaka", "교토": "kyoto"
   };
   const key = aliases[normalized] || normalized;
   const countryCode = result.country || result.countryProfile?.code || result.destination?.countryCode || result.destination?.code || "";
@@ -1616,16 +1616,16 @@ const getTravelPartyDetails = (result) => {
 };
 
 const airlineFallbackOptions = [
-  ["Korean Air", "ëŒ€í•œí•­ê³µ"],
-  ["Asiana Airlines", "ì•„ì‹œì•„ë‚˜í•­ê³µ"],
-  ["Delta Air Lines", "ë¸íƒ€í•­ê³µ"],
-  ["United Airlines", "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ"],
-  ["American Airlines", "ì•„ë©”ë¦¬ì¹¸í•­ê³µ"],
-  ["Qatar Airways", "ì¹´íƒ€ë¥´í•­ê³µ"],
-  ["Emirates", "ì—ë¯¸ë ˆì´íŠ¸í•­ê³µ"],
-  ["Turkish Airlines", "í„°í‚¤í•­ê³µ"],
-  ["Singapore Airlines", "ì‹±ê°€í¬ë¥´í•­ê³µ"],
-  ["Lufthansa", "ë£¨í”„íŠ¸í•œìž"]
+  ["Korean Air", "대한항공"],
+  ["Asiana Airlines", "아시아나항공"],
+  ["Delta Air Lines", "델타항공"],
+  ["United Airlines", "유나이티드항공"],
+  ["American Airlines", "아메리칸항공"],
+  ["Qatar Airways", "카타르항공"],
+  ["Emirates", "에미레이트항공"],
+  ["Turkish Airlines", "터키항공"],
+  ["Singapore Airlines", "싱가포르항공"],
+  ["Lufthansa", "루프트한자"]
 ];
 
 const uniqueProviderEntries = (entries = []) => {
@@ -1747,16 +1747,16 @@ function adaptTravelResultToDestination(result) {
   profile.flightPrices = expandPriceRanges(profile.flightPrices, genericPrices, TRAVEL_OPTION_TARGETS.flights);
   profile.hotelPrices = expandPriceRanges(profile.hotelPrices, nightlyRangesByContinent[continent], TRAVEL_OPTION_TARGETS.hotels);
   const flightReasons = [
-    [`Best overall itinerary option for ${city}.`, `${cityKo}í–‰ ì¼ì • ì¤‘ ì „ì²´ ê· í˜•ì´ ê°€ìž¥ ì¢‹ì€ ì˜µì…˜ìž…ë‹ˆë‹¤.`],
-    [`Service-focused itinerary option for ${city}.`, `${cityKo}í–‰ ì„œë¹„ìŠ¤ ì¤‘ì‹¬ ì¼ì • ì˜µì…˜ìž…ë‹ˆë‹¤.`],
-    [`Best budget-conscious option when price and flexible timing matter most.`, `ê°€ê²©ê³¼ ìœ ì—°í•œ ì¼ì •ì´ ê°€ìž¥ ì¤‘ìš”í•  ë•Œ ì í•©í•œ ê°€ì„±ë¹„ ì˜µì…˜ìž…ë‹ˆë‹¤.`],
-    [`Best quality alternative for travelers prioritizing reliability and onboard experience.`, `ì•ˆì •ì„±ê³¼ ê¸°ë‚´ ê²½í—˜ì„ ìš°ì„ í•˜ëŠ” ì—¬í–‰ìžì—ê²Œ ì í•©í•œ ê³ í’ˆì§ˆ ëŒ€ì•ˆìž…ë‹ˆë‹¤.`]
+    [`Best overall itinerary option for ${city}.`, `${cityKo}행 일정 중 전체 균형이 가장 좋은 옵션입니다.`],
+    [`Service-focused itinerary option for ${city}.`, `${cityKo}행 서비스 중심 일정 옵션입니다.`],
+    [`Best budget-conscious option when price and flexible timing matter most.`, `가격과 유연한 일정이 가장 중요할 때 적합한 가성비 옵션입니다.`],
+    [`Best quality alternative for travelers prioritizing reliability and onboard experience.`, `안정성과 기내 경험을 우선하는 여행자에게 적합한 고품질 대안입니다.`]
   ];
   const hotelReasons = [
-    [`Best overall balance of location, guest experience, and estimated nightly price in ${city}.`, `${cityKo}ì—ì„œ ìœ„ì¹˜, ìˆ™ë°• ê²½í—˜ê³¼ ì˜ˆìƒ 1ë°• ê°€ê²©ì˜ ê· í˜•ì´ ê°€ìž¥ ì¢‹ìŠµë‹ˆë‹¤.`],
-    [`Best premium-service option for comfort, facilities, and consistent hospitality.`, `íŽ¸ì•ˆí•¨, ì‹œì„¤ê³¼ ì•ˆì •ì ì¸ ì„œë¹„ìŠ¤ë¥¼ ì¤‘ì‹œí•  ë•Œ ì í•©í•œ í”„ë¦¬ë¯¸ì—„ ì˜µì…˜ìž…ë‹ˆë‹¤.`],
-    [`Best value option for balancing location and total stay cost.`, `ìœ„ì¹˜ì™€ ì „ì²´ ìˆ™ë°•ë¹„ì˜ ê· í˜•ì„ ë§žì¶”ê¸° ì¢‹ì€ ê°€ì„±ë¹„ ì˜µì…˜ìž…ë‹ˆë‹¤.`],
-    [`Best budget option for keeping accommodation costs lower while retaining practical access.`, `ì‹¤ìš©ì ì¸ ì ‘ê·¼ì„±ì„ ìœ ì§€í•˜ë©´ì„œ ìˆ™ë°•ë¹„ë¥¼ ë‚®ì¶”ê¸° ì¢‹ì€ ì˜ˆì‚°í˜• ì˜µì…˜ìž…ë‹ˆë‹¤.`]
+    [`Best overall balance of location, guest experience, and estimated nightly price in ${city}.`, `${cityKo}에서 위치, 숙박 경험과 예상 1박 가격의 균형이 가장 좋습니다.`],
+    [`Best premium-service option for comfort, facilities, and consistent hospitality.`, `편안함, 시설과 안정적인 서비스를 중시할 때 적합한 프리미엄 옵션입니다.`],
+    [`Best value option for balancing location and total stay cost.`, `위치와 전체 숙박비의 균형을 맞추기 좋은 가성비 옵션입니다.`],
+    [`Best budget option for keeping accommodation costs lower while retaining practical access.`, `실용적인 접근성을 유지하면서 숙박비를 낮추기 좋은 예산형 옵션입니다.`]
   ];
   const tripMultiplier = result.tripType === "one_way" ? 0.62 : 1;
   const { tripDays, tripNights } = calculateTripDayCounts(result);
@@ -1784,7 +1784,7 @@ function adaptTravelResultToDestination(result) {
       sourceState: worldFlight.sourceState || "estimated",
       sourceMetadata: worldFlight.sourceMetadata || null,
       reason: flightReasons[index]?.[0] || `Practical prototype flight option for ${city}.`,
-      reasonKo: flightReasons[index]?.[1] || `${cityKo} ë…¸ì„ ì˜ ì‹¤ìš©ì ì¸ í”„ë¡œí† íƒ€ìž… í•­ê³µ ì˜µì…˜ìž…ë‹ˆë‹¤.`
+      reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
     };
   });
   const hotels = profile.hotels.map((name, index) => ({
@@ -1800,7 +1800,7 @@ function adaptTravelResultToDestination(result) {
     sourceState: worldHotels[index]?.sourceState || "unavailable",
     sourceMetadata: worldHotels[index]?.sourceMetadata || null,
     reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
-    reasonKo: hotelReasons[index]?.[1] || `${cityKo}ì˜ ì‹¤ìš©ì ì¸ í”„ë¡œí† íƒ€ìž… ìˆ™ì†Œ ì˜µì…˜ìž…ë‹ˆë‹¤.`
+    reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
   const liveRestaurantCandidates = liveRestaurantPlaces.map((place, index) => [
     place.label,
@@ -1829,7 +1829,7 @@ function adaptTravelResultToDestination(result) {
     livePlaceName: Boolean(liveRestaurantPlaces.length),
     estimatedPrice: { currency: "KRW", min, max },
     recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,
-    recommendationKo: `${cityKo} ì¼ì •ì— ë§žì¶˜ í”„ë¡œí† íƒ€ìž… ì‹ë‹¹ ì˜µì…˜ìž…ë‹ˆë‹¤. ê°€ê²©ê³¼ ì˜ˆì•½ ê°€ëŠ¥ ì—¬ë¶€ëŠ” ì œê³µì—…ì²´ ìµœì¢… í™•ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤.`,
+    recommendationKo: `${cityKo} 일정에 맞춘 프로토타입 식당 옵션입니다. 가격과 예약 가능 여부는 제공업체 최종 확인이 필요합니다.`,
     editable: true
   }));
   const flightsBudget = flights[0]?.estimatedPrice || result.budget?.flights;
@@ -1892,12 +1892,12 @@ function adaptTravelResultToDestination(result) {
       recommended: { en: profile.transfer, ko: profile.transfer },
       reason: {
         en: `Prototype transfer recommendation for arrival in ${city}.`,
-        ko: `${cityKo} ë„ì°© ê¸°ì¤€ í”„ë¡œí† íƒ€ìž… ì´ë™ ì¶”ì²œìž…ë‹ˆë‹¤.`
+        ko: `${cityKo} 도착 기준 프로토타입 이동 추천입니다.`
       },
       options: [
         { en: profile.transfer, ko: profile.transfer },
-        { en: "Pre-arranged private transfer", ko: "ì‚¬ì „ ì˜ˆì•½ ì „ìš© ì°¨ëŸ‰" },
-        { en: "Official airport public transport", ko: "ê³µì‹ ê³µí•­ ëŒ€ì¤‘êµí†µ" }
+        { en: "Pre-arranged private transfer", ko: "사전 예약 전용 차량" },
+        { en: "Official airport public transport", ko: "공식 공항 대중교통" }
       ]
     },
     exchangeRate: { ...result.exchangeRate, to: result.countryProfile?.currency || result.exchangeRate?.to }
@@ -1913,17 +1913,17 @@ const createExchangeBudgetCard = (result) => {
     style: "currency", currency: code, maximumFractionDigits: code === "KRW" ? 0 : 2
   }).format(amount);
   const rangeWithRate = (rate, code) => Number.isFinite(rate) && total
-    ? `${formatAmount(total.min * rate, code)} â€“ ${formatAmount(total.max * rate, code)}`
-    : (activeLanguage === "ko" ? "ì‹¤ì‹œê°„ í™˜ìœ¨ í™•ì¸ í•„ìš”" : "Live rate required");
-  const destinationRate = Number(provider?.items?.find((item) => item.to === destinationCode)?.rate || provider?.items?.[0]?.value);
+    ? `${formatAmount(total.min * rate, code)} – ${formatAmount(total.max * rate, code)}`
+    : (activeLanguage === "ko" ? "실시간 환율 확인 필요" : "Live rate required");
+  const destinationRate = Number(provider?.items?.find((item) => item.to === destinationCode)?.rate ?? provider?.items?.[0]?.value);
   const usdRate = Number(provider?.items?.find((item) => item.to === "USD")?.rate);
   const items = [
-    `${localCode}: ${total ? `${formatAmount(total.min, localCode)} â€“ ${formatAmount(total.max, localCode)}` : "â€”"}`,
+    `${localCode}: ${total ? `${formatAmount(total.min, localCode)} – ${formatAmount(total.max, localCode)}` : "—"}`,
     `USD: ${rangeWithRate(usdRate, "USD")}`,
     `${destinationCode}: ${rangeWithRate(destinationRate, destinationCode)}`,
     localize(result.exchangeRate?.message)
   ];
-  return createListCard({ id: "exchange-rate", title: t("exchangeRate"), label: provider ? (activeLanguage === "ko" ? "ì‹¤ì‹œê°„ ë°ì´í„°" : "Live data") : t("apiPlaceholder"), items, wide: true, editable: false });
+  return createListCard({ id: "exchange-rate", title: t("exchangeRate"), label: provider ? (activeLanguage === "ko" ? "실시간 데이터" : "Live data") : t("apiPlaceholder"), items, wide: true, editable: false });
 };
 
 const createWeatherForecastCard = (result) => {
@@ -1933,11 +1933,11 @@ const createWeatherForecastCard = (result) => {
       const date = new Date(`${item.label}T00:00:00`);
       const weekday = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "long" }).format(date);
       return activeLanguage === "ko"
-        ? `${weekday} · ë‚ ì§œ ${item.label} · ê¸°ì˜¨ ${item.value} · ìŠµë„ ${item.humidity || "â€”"} · ê°•ìˆ˜í™•ë¥  ${item.precipitation || "â€”"}`
-        : `${weekday} · Date ${item.label} · Temperature ${item.value} · Humidity ${item.humidity || "â€”"} · Rain chance ${item.precipitation || "â€”"}`;
+        ? `${weekday} · 날짜 ${item.label} · 기온 ${item.value} · 습도 ${item.humidity || "—"} · 강수확률 ${item.precipitation || "—"}`
+        : `${weekday} · Date ${item.label} · Temperature ${item.value} · Humidity ${item.humidity || "—"} · Rain chance ${item.precipitation || "—"}`;
     })
     : [localize(result.weather?.message)];
-  return createListCard({ id: "weather", title: t("weather"), label: provider ? (activeLanguage === "ko" ? "ì‹¤ì‹œê°„ ì˜ˆë³´" : "Live forecast") : t("apiPlaceholder"), items, wide: true, editable: false });
+  return createListCard({ id: "weather", title: t("weather"), label: provider ? (activeLanguage === "ko" ? "실시간 예보" : "Live forecast") : t("apiPlaceholder"), items, wide: true, editable: false });
 };
 
 const createPublicResourceCard = (result, category, title, label) => {
@@ -1960,21 +1960,21 @@ const createScheduleCard = (result) => {
     ? { weekday: "short", year: "numeric", month: "short", day: "numeric" }
     : { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(new Date(`${value}T00:00:00`));
   const timeLabels = activeLanguage === "ko"
-    ? { any: "ì‹œê°„ ë¬´ê´€", morning: "ì˜¤ì „ 06:00â€“12:00", afternoon: "ì˜¤í›„ 12:00â€“17:00", evening: "ì €ë… 17:00â€“22:00" }
-    : { any: "Any time / No preference", morning: "Morning 06:00â€“12:00", afternoon: "Afternoon 12:00â€“17:00", evening: "Evening 17:00â€“22:00" };
+    ? { any: "시간 무관", morning: "오전 06:00–12:00", afternoon: "오후 12:00–17:00", evening: "저녁 17:00–22:00" }
+    : { any: "Any time / No preference", morning: "Morning 06:00–12:00", afternoon: "Afternoon 12:00–17:00", evening: "Evening 17:00–22:00" };
   const article = document.createElement("article");
   article.className = "mission-card is-wide is-locked-card schedule-result-card";
   article.dataset.cardId = "schedule";
   article.innerHTML = `
     <div class="card-top">
-      <div class="card-title-group"><h2 class="card-title">${activeLanguage === "ko" ? "ì„ íƒ ì¼ì •" : "Selected Schedule"}</h2></div>
-      <span class="card-label">${activeLanguage === "ko" ? "í™•ì •" : "Confirmed"}</span>
+      <div class="card-title-group"><h2 class="card-title">${activeLanguage === "ko" ? "선택 일정" : "Selected Schedule"}</h2></div>
+      <span class="card-label">${activeLanguage === "ko" ? "확정" : "Confirmed"}</span>
     </div>
     <div class="schedule-result-dates">
-      <div class="schedule-result-value"><strong>${activeLanguage === "ko" ? "ì‹œìž‘" : "From"}</strong><span>${formatDate(schedule.startDate)}</span></div>
-      <div class="schedule-result-value"><strong>${activeLanguage === "ko" ? "ì¢…ë£Œ" : "To"}</strong><span>${formatDate(schedule.endDate)}</span></div>
+      <div class="schedule-result-value"><strong>${activeLanguage === "ko" ? "시작" : "From"}</strong><span>${formatDate(schedule.startDate)}</span></div>
+      <div class="schedule-result-value"><strong>${activeLanguage === "ko" ? "종료" : "To"}</strong><span>${formatDate(schedule.endDate)}</span></div>
     </div>
-    <div class="schedule-result-time"><strong>${activeLanguage === "ko" ? "ì‹œê°„" : "Time"}</strong><span>${timeLabels[schedule.timePreference] || timeLabels.any}</span></div>
+    <div class="schedule-result-time"><strong>${activeLanguage === "ko" ? "시간" : "Time"}</strong><span>${timeLabels[schedule.timePreference] || timeLabels.any}</span></div>
   `;
   return article;
 };
@@ -1983,185 +1983,185 @@ const v22Local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage =
 
 const DOMAIN_PRESENTATION = Object.freeze({
   education: {
-    icon: "âœ¦",
+    icon: "✦",
     accent: "learning",
     title: {
       en: "Learning plan",
-      ko: "í•™ìŠµ í•´ê²° ê³„íš",
+      ko: "학습 해결 계획",
       es: "Plan de aprendizaje"
     },
     prototype: {
       en: "Prototype · education support · no academy contacted",
-      ko: "í”„ë¡œí† íƒ€ìž… · í•™ìŠµ ì§€ì› · í•™ì› ì—°ë½ ì—†ìŒ",
+      ko: "프로토타입 · 학습 지원 · 학원 연락 없음",
       es: "Prototipo · apoyo educativo · sin contactar academias"
     },
     understood: {
       en: "ONE understood the learning gap, student level, commute, and comparison path.",
-      ko: "ONEì´ í•™ìŠµ ë¬¸ì œ, í•™ìƒ ìˆ˜ì¤€, í†µí•™ ì¡°ê±´, ë¹„êµ ë°©í–¥ì„ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤.",
-      es: "ONE entendiÃ³ la necesidad de aprendizaje, nivel, distancia y comparaciÃ³n."
+      ko: "ONE이 학습 문제, 학생 수준, 통학 조건, 비교 방향을 정리했습니다.",
+      es: "ONE entendió la necesidad de aprendizaje, nivel, distancia y comparación."
     },
     prepared: {
       en: ["Level check", "Academy path", "Tutor option", "Home routine"],
-      ko: ["ìˆ˜ì¤€ ì ê²€", "í•™ì› ë¹„êµ", "ê³¼ì™¸ ëŒ€ì•ˆ", "ê°€ì • í•™ìŠµ"],
+      ko: ["수준 점검", "학원 비교", "과외 대안", "가정 학습"],
       es: ["Nivel", "Academias", "Tutor", "Rutina en casa"]
     }
   },
   healthcare: {
-    icon: "ï¼‹",
+    icon: "＋",
     accent: "care",
     title: {
       en: "Care navigation",
-      ko: "ì§„ë£Œ ì•ˆë‚´ ê³„íš",
-      es: "Ruta de atenciÃ³n"
+      ko: "진료 안내 계획",
+      es: "Ruta de atención"
     },
     prototype: {
       en: "Prototype · care navigation · not medical advice",
-      ko: "í”„ë¡œí† íƒ€ìž… · ì§„ë£Œ ì•ˆë‚´ · ì˜í•™ì  ì§„ë‹¨ ì•„ë‹˜",
-      es: "Prototipo · orientaciÃ³n mÃ©dica · no es diagnÃ³stico"
+      ko: "프로토타입 · 진료 안내 · 의학적 진단 아님",
+      es: "Prototipo · orientación médica · no es diagnóstico"
     },
     understood: {
       en: "ONE separated urgency, specialty, same-day path, and safety warnings.",
-      ko: "ONEì´ ê¸´ê¸‰ë„, ì§„ë£Œê³¼, ë‹¹ì¼ ê°€ëŠ¥ ê²½ë¡œ, ì£¼ì˜ì‚¬í•­ì„ ë‚˜ëˆ  ì •ë¦¬í–ˆìŠµë‹ˆë‹¤.",
-      es: "ONE separÃ³ urgencia, especialidad, disponibilidad y advertencias."
+      ko: "ONE이 긴급도, 진료과, 당일 가능 경로, 주의사항을 나눠 정리했습니다.",
+      es: "ONE separó urgencia, especialidad, disponibilidad y advertencias."
     },
     prepared: {
       en: ["Urgency", "Specialty", "Same-day path", "Warning signs"],
-      ko: ["ê¸´ê¸‰ë„", "ì§„ë£Œê³¼", "ë‹¹ì¼ ê²½ë¡œ", "ì£¼ì˜ ì‹ í˜¸"],
+      ko: ["긴급도", "진료과", "당일 경로", "주의 신호"],
       es: ["Urgencia", "Especialidad", "Hoy", "Alertas"]
     }
   },
   business: {
-    icon: "â—‡",
+    icon: "◇",
     accent: "business",
     title: {
       en: "Business setup plan",
-      ko: "ì‚¬ì—… ì¤€ë¹„ ê³„íš",
+      ko: "사업 준비 계획",
       es: "Plan de negocio"
     },
     prototype: {
       en: "Prototype · business preparation · no filing submitted",
-      ko: "í”„ë¡œí† íƒ€ìž… · ì‚¬ì—… ì¤€ë¹„ · ì„œë¥˜ ì œì¶œ ì—†ìŒ",
-      es: "Prototipo · preparaciÃ³n empresarial · sin presentar trÃ¡mites"
+      ko: "프로토타입 · 사업 준비 · 서류 제출 없음",
+      es: "Prototipo · preparación empresarial · sin presentar trámites"
     },
     understood: {
       en: "ONE organized the official steps, documents, expert help, and approval boundary.",
-      ko: "ONEì´ ê³µì‹ ì ˆì°¨, í•„ìš” ì„œë¥˜, ì „ë¬¸ê°€ ë„ì›€, ìŠ¹ì¸ ê²½ê³„ë¥¼ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤.",
-      es: "ONE organizÃ³ pasos oficiales, documentos, expertos y aprobaciÃ³n."
+      ko: "ONE이 공식 절차, 필요 서류, 전문가 도움, 승인 경계를 정리했습니다.",
+      es: "ONE organizó pasos oficiales, documentos, expertos y aprobación."
     },
     prepared: {
       en: ["Official steps", "Documents", "Specialists", "Approval boundary"],
-      ko: ["ê³µì‹ ì ˆì°¨", "í•„ìš” ì„œë¥˜", "ì „ë¬¸ê°€", "ìŠ¹ì¸ ê²½ê³„"],
-      es: ["Pasos oficiales", "Documentos", "Expertos", "AprobaciÃ³n"]
+      ko: ["공식 절차", "필요 서류", "전문가", "승인 경계"],
+      es: ["Pasos oficiales", "Documentos", "Expertos", "Aprobación"]
     }
   },
   "home-services": {
-    icon: "âŒ‚",
+    icon: "⌂",
     accent: "home",
     title: {
       en: "Home service plan",
-      ko: "ìƒí™œ ì„œë¹„ìŠ¤ í•´ê²° ê³„íš",
+      ko: "생활 서비스 해결 계획",
       es: "Plan de servicio local"
     },
     prototype: {
       en: "Prototype · local service preparation · no provider contacted",
-      ko: "í”„ë¡œí† íƒ€ìž… · ìƒí™œ ì„œë¹„ìŠ¤ ì¤€ë¹„ · ì—…ì²´ ì—°ë½ ì—†ìŒ",
+      ko: "프로토타입 · 생활 서비스 준비 · 업체 연락 없음",
       es: "Prototipo · servicio local · sin contactar proveedores"
     },
     understood: {
       en: "ONE prepared immediate damage control, provider comparison, and safe approval steps.",
-      ko: "ONEì´ ì¦‰ì‹œ í”¼í•´ ì¤„ì´ê¸°, ì—…ì²´ ë¹„êµ, ìŠ¹ì¸ í›„ ì—°ë½ ë‹¨ê³„ë¥¼ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤.",
-      es: "ONE preparÃ³ control inicial, comparaciÃ³n y aprobaciÃ³n segura."
+      ko: "ONE이 즉시 피해 줄이기, 업체 비교, 승인 후 연락 단계를 준비했습니다.",
+      es: "ONE preparó control inicial, comparación y aprobación segura."
     },
     prepared: {
       en: ["Damage control", "Provider path", "Photos", "Fallbacks"],
-      ko: ["í”¼í•´ ì¤„ì´ê¸°", "ì—…ì²´ ê²½ë¡œ", "ì‚¬ì§„ ì¤€ë¹„", "ëŒ€ì•ˆ"],
+      ko: ["피해 줄이기", "업체 경로", "사진 준비", "대안"],
       es: ["Control", "Proveedor", "Fotos", "Alternativas"]
     }
   },
   career: {
-    icon: "â†—",
+    icon: "↗",
     accent: "career",
     title: {
       en: "Career action plan",
-      ko: "ì»¤ë¦¬ì–´ ì‹¤í–‰ ê³„íš",
+      ko: "커리어 실행 계획",
       es: "Plan profesional"
     },
     prototype: {
       en: "Prototype · career preparation · no application submitted",
-      ko: "í”„ë¡œí† íƒ€ìž… · ì»¤ë¦¬ì–´ ì¤€ë¹„ · ì§€ì›ì„œ ì œì¶œ ì—†ìŒ",
+      ko: "프로토타입 · 커리어 준비 · 지원서 제출 없음",
       es: "Prototipo · carrera · sin enviar solicitudes"
     },
     understood: {
       en: "ONE structured the role target, resume path, interview preparation, and approval gate.",
-      ko: "ONEì´ ëª©í‘œ ì§ë¬´, ì´ë ¥ì„œ, ë©´ì ‘ ì¤€ë¹„, ìŠ¹ì¸ í›„ ì§€ì› ë‹¨ê³„ë¥¼ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤.",
-      es: "ONE estructurÃ³ objetivo, CV, entrevista y aprobaciÃ³n."
+      ko: "ONE이 목표 직무, 이력서, 면접 준비, 승인 후 지원 단계를 정리했습니다.",
+      es: "ONE estructuró objetivo, CV, entrevista y aprobación."
     },
     prepared: {
       en: ["Role target", "Resume", "Interview", "Applications"],
-      ko: ["ëª©í‘œ ì§ë¬´", "ì´ë ¥ì„œ", "ë©´ì ‘", "ì§€ì›"],
-      es: ["Puesto", "CV", "Entrevista", "PostulaciÃ³n"]
+      ko: ["목표 직무", "이력서", "면접", "지원"],
+      es: ["Puesto", "CV", "Entrevista", "Postulación"]
     }
   },
   general: {
-    icon: "â—‹",
+    icon: "○",
     accent: "general",
     title: {
       en: "Mission plan",
-      ko: "ë¯¸ì…˜ í•´ê²° ê³„íš",
-      es: "Plan de misiÃ³n"
+      ko: "미션 해결 계획",
+      es: "Plan de misión"
     },
     prototype: {
       en: "Prototype · approval protected · no external action",
-      ko: "í”„ë¡œí† íƒ€ìž… · ìŠ¹ì¸ ë³´í˜¸ · ì™¸ë¶€ ì‹¤í–‰ ì—†ìŒ",
-      es: "Prototipo · aprobaciÃ³n protegida · sin acciÃ³n externa"
+      ko: "프로토타입 · 승인 보호 · 외부 실행 없음",
+      es: "Prototipo · aprobación protegida · sin acción externa"
     },
     understood: {
       en: "ONE organized the goal, possible paths, and approval boundary.",
-      ko: "ONEì´ ëª©í‘œ, ê°€ëŠ¥í•œ ê²½ë¡œ, ìŠ¹ì¸ ê²½ê³„ë¥¼ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤.",
-      es: "ONE organizÃ³ objetivo, rutas posibles y aprobaciÃ³n."
+      ko: "ONE이 목표, 가능한 경로, 승인 경계를 정리했습니다.",
+      es: "ONE organizó objetivo, rutas posibles y aprobación."
     },
     prepared: {
       en: ["Goal", "Plan", "Options", "Approval"],
-      ko: ["ëª©í‘œ", "ê³„íš", "ëŒ€ì•ˆ", "ìŠ¹ì¸"],
-      es: ["Objetivo", "Plan", "Opciones", "AprobaciÃ³n"]
+      ko: ["목표", "계획", "대안", "승인"],
+      es: ["Objetivo", "Plan", "Opciones", "Aprobación"]
     }
   }
 });
 
 const TERM_TRANSLATIONS = Object.freeze({
-  "education": { ko: "êµìœ¡", es: "educaciÃ³n" },
-  "healthcare": { ko: "ì˜ë£Œ", es: "salud" },
-  "business": { ko: "ì‚¬ì—…", es: "negocio" },
-  "home-services": { ko: "ìƒí™œ ì„œë¹„ìŠ¤", es: "servicios del hogar" },
-  "career": { ko: "ì»¤ë¦¬ì–´", es: "carrera" },
-  "general": { ko: "ì¼ë°˜ ë¯¸ì…˜", es: "misiÃ³n general" },
-  "child-english-performance-decline": { ko: "ì•„ì´ ì˜ì–´ ì‹¤ë ¥ ê°œì„ ", es: "mejorar inglÃ©s del niÃ±o" },
-  "academy-finder": { ko: "í•™ì› ì°¾ê¸°", es: "buscar academia" },
-  "dental-care": { ko: "ì¹˜ê³¼ ì§„ë£Œ ì•ˆë‚´", es: "atenciÃ³n dental" },
-  "plumbing": { ko: "ëˆ„ìˆ˜ ìˆ˜ë¦¬", es: "reparaciÃ³n de fuga" },
-  "company-formation": { ko: "íšŒì‚¬ ì„¤ë¦½ ì¤€ë¹„", es: "creaciÃ³n de empresa" },
-  "job-search": { ko: "ì¼ìžë¦¬ ì°¾ê¸°", es: "bÃºsqueda laboral" },
-  "English level and study-pattern review": { ko: "ì˜ì–´ ìˆ˜ì¤€ê³¼ í•™ìŠµ íŒ¨í„´ ì ê²€", es: "revisiÃ³n de nivel y hÃ¡bitos de inglÃ©s" },
-  "English academy comparison path": { ko: "ì˜ì–´ í•™ì› ë¹„êµ", es: "comparaciÃ³n de academias de inglÃ©s" },
-  "Private tutor path": { ko: "ê³¼ì™¸ ì„ ìƒë‹˜ ë¹„êµ", es: "comparaciÃ³n de tutor privado" },
-  "Eight-week home-study routine": { ko: "8ì£¼ ê°€ì • í•™ìŠµ ë£¨í‹´", es: "rutina de estudio de 8 semanas" },
-  "Teacher or school discussion path": { ko: "í•™êµ ì„ ìƒë‹˜ ìƒë‹´ ì¤€ë¹„", es: "conversaciÃ³n con profesor o escuela" },
-  "Same-day dental navigation": { ko: "ì˜¤ëŠ˜ ê°€ëŠ¥í•œ ì¹˜ê³¼ ì§„ë£Œ ê²½ë¡œ", es: "ruta dental para hoy" },
-  "Urgent or emergency escalation": { ko: "ì‘ê¸‰ ì—¬ë¶€ í™•ì¸", es: "evaluaciÃ³n urgente" },
-  "After-hours fallback": { ko: "ì•¼ê°„·ì£¼ë§ ëŒ€ì•ˆ", es: "alternativa fuera de horario" },
-  "Immediate damage control": { ko: "ì¦‰ì‹œ í”¼í•´ ì¤„ì´ê¸°", es: "control inmediato de daÃ±os" },
-  "Plumber provider path": { ko: "ìˆ˜ë¦¬ì—…ì²´ ì—°ê²° ì¤€ë¹„", es: "ruta de proveedor de plomerÃ­a" },
-  "Landlord or building manager fallback": { ko: "ì§‘ì£¼ì¸·ê´€ë¦¬ì‚¬ë¬´ì†Œ ëŒ€ì•ˆ", es: "alternativa con propietario o administraciÃ³n" },
-  "Official business registration path": { ko: "ê³µì‹ ì‚¬ì—…ìž ë“±ë¡ ê²½ë¡œ", es: "ruta oficial de registro" },
-  "Professional support path": { ko: "ì „ë¬¸ê°€ ë„ì›€ ê²½ë¡œ", es: "ruta con especialista" },
-  "Job matching preparation path": { ko: "ì¼ìžë¦¬ ë§¤ì¹­ ì¤€ë¹„", es: "preparaciÃ³n de bÃºsqueda laboral" },
-  "Resume and interview readiness path": { ko: "ì´ë ¥ì„œ·ë©´ì ‘ ì¤€ë¹„", es: "CV y entrevista" },
-  "Review prepared plan": { ko: "ì¤€ë¹„ëœ ê³„íš ê²€í† ", es: "revisar plan preparado" },
-  "Contact provider after approval": { ko: "ìŠ¹ì¸ í›„ ì œê³µì—…ì²´ ì—°ë½", es: "contactar proveedor tras aprobaciÃ³n" },
-  "Submit after approval": { ko: "ìŠ¹ì¸ í›„ ì œì¶œ", es: "enviar tras aprobaciÃ³n" },
-  "Schedule after approval": { ko: "ìŠ¹ì¸ í›„ ì¼ì • í™•ì •", es: "programar tras aprobaciÃ³n" },
-  "No external action before approval.": { ko: "ìŠ¹ì¸ ì „ì—ëŠ” ì™¸ë¶€ ì‹¤í–‰ì´ ì—†ìŠµë‹ˆë‹¤.", es: "Sin acciÃ³n externa antes de aprobar." },
-  "Live provider data is not connected in this prototype.": { ko: "ì´ í”„ë¡œí† íƒ€ìž…ì—ëŠ” ì‹¤ì‹œê°„ ì œê³µì—…ì²´ ë°ì´í„°ê°€ ì—°ê²°ë˜ì–´ ìžˆì§€ ì•ŠìŠµë‹ˆë‹¤.", es: "Este prototipo no tiene datos de proveedores en vivo." }
+  "education": { ko: "교육", es: "educación" },
+  "healthcare": { ko: "의료", es: "salud" },
+  "business": { ko: "사업", es: "negocio" },
+  "home-services": { ko: "생활 서비스", es: "servicios del hogar" },
+  "career": { ko: "커리어", es: "carrera" },
+  "general": { ko: "일반 미션", es: "misión general" },
+  "child-english-performance-decline": { ko: "아이 영어 실력 개선", es: "mejorar inglés del niño" },
+  "academy-finder": { ko: "학원 찾기", es: "buscar academia" },
+  "dental-care": { ko: "치과 진료 안내", es: "atención dental" },
+  "plumbing": { ko: "누수 수리", es: "reparación de fuga" },
+  "company-formation": { ko: "회사 설립 준비", es: "creación de empresa" },
+  "job-search": { ko: "일자리 찾기", es: "búsqueda laboral" },
+  "English level and study-pattern review": { ko: "영어 수준과 학습 패턴 점검", es: "revisión de nivel y hábitos de inglés" },
+  "English academy comparison path": { ko: "영어 학원 비교", es: "comparación de academias de inglés" },
+  "Private tutor path": { ko: "과외 선생님 비교", es: "comparación de tutor privado" },
+  "Eight-week home-study routine": { ko: "8주 가정 학습 루틴", es: "rutina de estudio de 8 semanas" },
+  "Teacher or school discussion path": { ko: "학교 선생님 상담 준비", es: "conversación con profesor o escuela" },
+  "Same-day dental navigation": { ko: "오늘 가능한 치과 진료 경로", es: "ruta dental para hoy" },
+  "Urgent or emergency escalation": { ko: "응급 여부 확인", es: "evaluación urgente" },
+  "After-hours fallback": { ko: "야간·주말 대안", es: "alternativa fuera de horario" },
+  "Immediate damage control": { ko: "즉시 피해 줄이기", es: "control inmediato de daños" },
+  "Plumber provider path": { ko: "수리업체 연결 준비", es: "ruta de proveedor de plomería" },
+  "Landlord or building manager fallback": { ko: "집주인·관리사무소 대안", es: "alternativa con propietario o administración" },
+  "Official business registration path": { ko: "공식 사업자 등록 경로", es: "ruta oficial de registro" },
+  "Professional support path": { ko: "전문가 도움 경로", es: "ruta con especialista" },
+  "Job matching preparation path": { ko: "일자리 매칭 준비", es: "preparación de búsqueda laboral" },
+  "Resume and interview readiness path": { ko: "이력서·면접 준비", es: "CV y entrevista" },
+  "Review prepared plan": { ko: "준비된 계획 검토", es: "revisar plan preparado" },
+  "Contact provider after approval": { ko: "승인 후 제공업체 연락", es: "contactar proveedor tras aprobación" },
+  "Submit after approval": { ko: "승인 후 제출", es: "enviar tras aprobación" },
+  "Schedule after approval": { ko: "승인 후 일정 확정", es: "programar tras aprobación" },
+  "No external action before approval.": { ko: "승인 전에는 외부 실행이 없습니다.", es: "Sin acción externa antes de aprobar." },
+  "Live provider data is not connected in this prototype.": { ko: "이 프로토타입에는 실시간 제공업체 데이터가 연결되어 있지 않습니다.", es: "Este prototipo no tiene datos de proveedores en vivo." }
 });
 
 const getDomainKey = (result = currentResult) => {
@@ -2219,7 +2219,7 @@ const createV22PathCard = ({ id, title, reason, steps = [], selected = false }) 
   article.dataset.pathId = id;
   article.innerHTML = `
     <button type="button" class="v22-path-select" aria-pressed="${selected}">
-      <span class="v22-path-check">${selected ? "âœ“" : "+"}</span>
+      <span class="v22-path-check">${selected ? "✓" : "+"}</span>
       <span class="v22-path-content">
         <strong>${escapeSummaryText(localizeDomainText(title))}</strong>
         <small>${escapeSummaryText(localizeDomainText(reason))}</small>
@@ -2233,7 +2233,7 @@ const createV22PathCard = ({ id, title, reason, steps = [], selected = false }) 
 const getTravelDestinationLabel = (result) => {
   const city = activeLanguage === "ko" ? result.destination?.cityKo || result.destination?.city : result.destination?.city;
   const country = activeLanguage === "ko" ? result.destination?.countryKo || result.destination?.country : result.destination?.country;
-  return city || country || (activeLanguage === "ko" ? "ëª©ì ì§€" : activeLanguage === "es" ? "destino" : "destination");
+  return city || country || (activeLanguage === "ko" ? "목적지" : activeLanguage === "es" ? "destino" : "destination");
 };
 
 const getTravelDurationLabel = (result) => {
@@ -2242,19 +2242,19 @@ const getTravelDurationLabel = (result) => {
   const days = start && end && !Number.isNaN(start.valueOf()) && !Number.isNaN(end.valueOf())
     ? Math.max(1, Math.round((end - start) / 86400000) + 1)
     : 5;
-  return activeLanguage === "ko" ? `${days}ì¼` : activeLanguage === "es" ? `${days} dÃ­as` : `${days} days`;
+  return activeLanguage === "ko" ? `${days}일` : activeLanguage === "es" ? `${days} días` : `${days} days`;
 };
 
 const getTravelBudgetLabel = (result, tone = "balanced") => {
   const total = result.budget?.estimatedTotal || result.budget?.total;
   if (total?.min && total?.max) {
-    return activeLanguage === "ko" ? `ì˜ˆìƒ ${formatRange(total)}` : activeLanguage === "es" ? `Estimado ${formatRange(total)}` : `Estimated ${formatRange(total)}`;
+    return activeLanguage === "ko" ? `예상 ${formatRange(total)}` : activeLanguage === "es" ? `Estimado ${formatRange(total)}` : `Estimated ${formatRange(total)}`;
   }
   const labels = {
-    balanced: { en: "Estimated budget: medium", ko: "ì˜ˆìƒ ì˜ˆì‚°: ì¤‘ê°„", es: "Presupuesto estimado: medio" },
-    food: { en: "Estimated budget: medium+", ko: "ì˜ˆìƒ ì˜ˆì‚°: ì¤‘ìƒ", es: "Presupuesto estimado: medio alto" },
-    value: { en: "Estimated budget: value", ko: "ì˜ˆìƒ ì˜ˆì‚°: ì‹¤ì†", es: "Presupuesto estimado: ahorro" },
-    rest: { en: "Estimated budget: comfort", ko: "ì˜ˆìƒ ì˜ˆì‚°: ì—¬ìœ ", es: "Presupuesto estimado: cÃ³modo" }
+    balanced: { en: "Estimated budget: medium", ko: "예상 예산: 중간", es: "Presupuesto estimado: medio" },
+    food: { en: "Estimated budget: medium+", ko: "예상 예산: 중상", es: "Presupuesto estimado: medio alto" },
+    value: { en: "Estimated budget: value", ko: "예상 예산: 실속", es: "Presupuesto estimado: ahorro" },
+    rest: { en: "Estimated budget: comfort", ko: "예상 예산: 여유", es: "Presupuesto estimado: cómodo" }
   };
   return localize(labels[tone] || labels.balanced);
 };
@@ -2263,33 +2263,33 @@ const compactMoney = (value) => {
   if (typeof value !== "number" || !Number.isFinite(value)) return "";
   if (value >= 1000000) {
     const amount = value / 1000000;
-    return `â‚©${amount >= 10 ? Math.round(amount) : amount.toFixed(2).replace(/\.?0+$/, "")}M`;
+    return `₩${amount >= 10 ? Math.round(amount) : amount.toFixed(2).replace(/\.?0+$/, "")}M`;
   }
-  if (value >= 10000) return `â‚©${Math.round(value / 10000)}ë§Œ`;
-  return `â‚©${value.toLocaleString("en-US")}`;
+  if (value >= 10000) return `₩${Math.round(value / 10000)}만`;
+  return `₩${value.toLocaleString("en-US")}`;
 };
 
 const compactWonMan = (value) => {
   if (typeof value !== "number" || !Number.isFinite(value)) return "";
-  return `${Math.max(1, Math.round(value / 10000)).toLocaleString("ko-KR")}ë§Œì›`;
+  return `${Math.max(1, Math.round(value / 10000)).toLocaleString("ko-KR")}만원`;
 };
 
 const getCompactTravelBudgetLabel = (result, fallback = "") => {
   const total = result.budget?.estimatedTotal || result.budget?.total;
   if (typeof total?.min === "number" && typeof total?.max === "number") {
-    if (activeLanguage === "ko") return `ì˜ˆìƒ ${compactWonMan(total.min)} - ${compactWonMan(total.max)}`;
-    return `${compactMoney(total.min)} â€“ ${compactMoney(total.max)}`;
+    if (activeLanguage === "ko") return `예상 ${compactWonMan(total.min)} - ${compactWonMan(total.max)}`;
+    return `${compactMoney(total.min)} – ${compactMoney(total.max)}`;
   }
   return String(fallback || "").replace(/^Estimated\s+/i, "").replace(/^Estimado\s+/i, "");
 };
 
 const sourceStateLabel = (state) => {
   const labels = {
-    verified_live: { en: "Verified live", ko: "ì‹¤ì‹œê°„ í™•ì¸", es: "Verificado en vivo" },
-    cached_public: { en: "Recent public info", ko: "ìµœê·¼ ê³µê°œ ì •ë³´ ê¸°ì¤€", es: "InformaciÃ³n pÃºblica reciente" },
-    estimated: { en: "Estimated", ko: "ì˜ˆìƒ", es: "Estimado" },
-    placeholder: { en: "Search structure ready", ko: "ê²€ìƒ‰ ì¡°ê±´ ì¤€ë¹„ë¨", es: "Estructura preparada" },
-    unavailable: { en: "Live search required", ko: "ì‹¤ì‹œê°„ ê²€ìƒ‰ í•„ìš”", es: "BÃºsqueda en vivo necesaria" }
+    verified_live: { en: "Verified live", ko: "실시간 확인", es: "Verificado en vivo" },
+    cached_public: { en: "Recent public info", ko: "최근 공개 정보 기준", es: "Información pública reciente" },
+    estimated: { en: "Estimated", ko: "예상", es: "Estimado" },
+    placeholder: { en: "Search structure ready", ko: "검색 조건 준비됨", es: "Estructura preparada" },
+    unavailable: { en: "Live search required", ko: "실시간 검색 필요", es: "Búsqueda en vivo necesaria" }
   };
   return localize(labels[state] || labels.placeholder);
 };
@@ -2302,60 +2302,46 @@ const getScenarioSourceState = (result, key, fallback = "estimated") => {
   return fallback;
 };
 
-// Specific destination aliases kept readable for regression: new york|nyc|뉴욕
 const buildSpecificCityJourneys = (result, destination, duration) => {
-  const key = `${destination || ""} ${result.rawInput || result.mission || ""}`.toLowerCase();
-  const seed = `${result.missionSeed || result.id || result.rawInput || ""}-${result.schedule?.startDate || ""}`;
-  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
   const previewProfile = profileForResult(result, destination);
   if (previewProfile?.journeys?.length) {
-    return rotateList(previewProfile.journeys, seed).map((item, index) => ({
-      id: `v23-preview-journey-${previewProfile.id}-${index}`,
-      name: local(item[0], item[1], item[2]),
-      purpose: local(item[3], item[4], item[3]),
-      tags: item[5] || [],
-      reason: local(
-        "This option is built from curated destination highlights and the current mission context.",
-        "현재 미션과 실제 목적지 하이라이트를 기준으로 구성했습니다.",
-        "Esta opción usa puntos reales del destino y el contexto de la misión."
-      ),
-      duration,
-      tone: ["balanced", "culture", "food", "local"][index] || "balanced",
-      comfort: local("Practical", "실용적", "Práctico"),
-      budget: getTravelBudgetLabel(result, index === 2 ? "food" : "balanced"),
-      timeline: item[5] || [],
-      selected: index === 0,
-      details: {
-        flight: local("Round-trip options are compared after approval for live price and schedule.", "왕복 항공권은 승인 후 실시간 가격과 일정을 확인합니다.", "Vuelos ida y vuelta se comparan tras aprobación."),
-        hotel: local("Hotel candidates are matched to the route, walking load, and room count.", "숙소 후보는 동선, 도보 부담, 객실 수에 맞춰 비교합니다.", "Hoteles según ruta, caminata y habitaciones."),
-        transport: local("Daily movement is grouped by neighborhood to avoid unnecessary backtracking.", "불필요한 왕복 이동을 줄이도록 날마다 지역을 묶습니다.", "Se agrupa por zonas para evitar traslados inútiles."),
-        food: local("Food candidates are placed near the day route instead of as a random list.", "맛집 후보는 무작위 목록이 아니라 그날 동선 근처로 배치합니다.", "Comida cerca de la ruta del día."),
-        entry: local("Entry and document rules are rechecked through official sources before action.", "입국·서류 요건은 실행 전 공식 출처로 다시 확인합니다.", "Requisitos se verifican con fuentes oficiales."),
-        insurance: local("Insurance and cancellation rules are prepared for review before booking.", "예약 전 보험과 취소 규정을 검토할 수 있게 준비합니다.", "Seguro y cancelación se preparan antes de reservar.")
-      },
-      sourceStates: {
-        flight: getScenarioSourceState(result, "flight", "estimated"),
-        hotel: getScenarioSourceState(result, "hotel", "estimated"),
-        transport: getScenarioSourceState(result, "transport", "placeholder"),
-        food: getScenarioSourceState(result, "food", "cached_public"),
-        entry: getScenarioSourceState(result, "entry", "unavailable"),
-        insurance: getScenarioSourceState(result, "insurance", "placeholder")
+    return previewProfile.journeys.slice(0, 4).map((journey, index) => ({
+      id: `preview-${previewProfile.id}-${index}`,
+      name: localizedProfileText(journey.name, activeLanguage),
+      purpose: localizedProfileText(journey.purpose, activeLanguage),
+      tags: activeLanguage === "ko" ? ["local", "route", "experience"] : activeLanguage === "es" ? ["local", "ruta", "experiencia"] : ["local", "route", "experience"],
+      reason: localizedProfileText(journey.purpose, activeLanguage),
+      duration: getTravelDurationDays(result),
+      tone: index === 1 ? "food" : index === 2 ? "rest" : "balanced",
+      comfort: activeLanguage === "es" ? "Comodo" : "Comfortable",
+      budget: getTravelBudgetLabel(result, index === 1 ? "food" : "balanced"),
+      timeline: journey.timeline || [],
+      executionNotes: {
+        flight: "Compare current flights after approval; no ticketing occurs in preview.",
+        hotel: "Compare stay areas around the selected route.",
+        transport: "Use official transit, walking, or licensed transfer by segment.",
+        food: "Food stops are matched to the day route, not pasted as generic cards.",
+        entry: "Official entry rules are checked before execution.",
+        insurance: "Travel protection is prepared as an optional approval step."
       }
     }));
   }
-  const specific = /new york|nyc|ë‰´ìš•/.test(key)
+  const key = `${destination || ""} ${result.rawInput || result.mission || ""}`.toLowerCase();
+  const seed = `${result.missionSeed || result.id || result.rawInput || ""}-${result.schedule?.startDate || ""}`;
+  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const specific = /new york|nyc|뉴욕/.test(key)
     ? [
-        ["NYC first-timer essentials", "ë‰´ìš• í•µì‹¬ ì¼ì •", "Nueva York esencial", "Manhattan icons, Brooklyn, food, shopping, and night views without forcing every famous place into one day.", "ë§¨í•´íŠ¼ ëŒ€í‘œ ëª…ì†Œ, ë¸Œë£¨í´ë¦°, ìŒì‹, ì‡¼í•‘, ì•¼ê²½ì„ ë‚ ì§œë³„ë¡œ ë‚˜ëˆ  ë¬´ë¦¬ ì—†ì´ ë³´ëŠ” êµ¬ì„±ìž…ë‹ˆë‹¤.", ["Statue of Liberty", "Broadway", "Central Park", "Brooklyn"]],
-        ["Broadway, museums and skyline", "ë¸Œë¡œë“œì›¨ì´·ë¯¸ìˆ ê´€·ì „ë§", "Broadway, museos y vistas", "Best when culture, indoor options, and skyline moments matter more than rushing.", "ê³µì—°, ë¯¸ìˆ ê´€, ì‹¤ë‚´ ëŒ€ì•ˆ, ì „ë§ëŒ€ë¥¼ ì¤‘ì‹¬ìœ¼ë¡œ ì°¨ë¶„í•˜ê²Œ ì¦ê¸°ëŠ” êµ¬ì„±ìž…ë‹ˆë‹¤.", ["Broadway", "MoMA", "The Met", "Top of the Rock"]],
-        ["Shopping and food New York", "ì‡¼í•‘ê³¼ ë§›ì§‘ ë‰´ìš•", "Compras y comida en Nueva York", "Built around SoHo, Fifth Avenue, Chelsea Market, bakeries, steak, pizza, and outlet time if you want it.", "ì†Œí˜¸, 5ë²ˆê°€, ì²¼ì‹œë§ˆì¼“, ë² ì´ì»¤ë¦¬, ìŠ¤í…Œì´í¬, í”¼ìž, ì•„ìš¸ë › ì„ íƒì§€ë¥¼ ì¤‘ì‹¬ìœ¼ë¡œ êµ¬ì„±í•©ë‹ˆë‹¤.", ["SoHo", "Macy's", "Chelsea Market", "Woodbury"]],
-        ["Brooklyn and local neighborhoods", "ë¸Œë£¨í´ë¦°ê³¼ ë¡œì»¬ ë‰´ìš•", "Brooklyn y barrios locales", "More neighborhoods, photos, parks, cafÃ©s, and less tourist checklist pressure.", "ê´€ê´‘ ì²´í¬ë¦¬ìŠ¤íŠ¸ë³´ë‹¤ ë™ë„¤ ì‚°ì±…, ì‚¬ì§„, ê³µì›, ì¹´íŽ˜ ì‹œê°„ì„ ë” ì‚´ë¦° êµ¬ì„±ìž…ë‹ˆë‹¤.", ["DUMBO", "High Line", "Village", "CafÃ©s"]]
+        ["NYC first-timer essentials", "뉴욕 핵심 일정", "Nueva York esencial", "Manhattan icons, Brooklyn, food, shopping, and night views without forcing every famous place into one day.", "맨해튼 대표 명소, 브루클린, 음식, 쇼핑, 야경을 날짜별로 나눠 무리 없이 보는 구성입니다.", ["Statue of Liberty", "Broadway", "Central Park", "Brooklyn"]],
+        ["Broadway, museums and skyline", "브로드웨이·미술관·전망", "Broadway, museos y vistas", "Best when culture, indoor options, and skyline moments matter more than rushing.", "공연, 미술관, 실내 대안, 전망대를 중심으로 차분하게 즐기는 구성입니다.", ["Broadway", "MoMA", "The Met", "Top of the Rock"]],
+        ["Shopping and food New York", "쇼핑과 맛집 뉴욕", "Compras y comida en Nueva York", "Built around SoHo, Fifth Avenue, Chelsea Market, bakeries, steak, pizza, and outlet time if you want it.", "소호, 5번가, 첼시마켓, 베이커리, 스테이크, 피자, 아울렛 선택지를 중심으로 구성합니다.", ["SoHo", "Macy's", "Chelsea Market", "Woodbury"]],
+        ["Brooklyn and local neighborhoods", "브루클린과 로컬 뉴욕", "Brooklyn y barrios locales", "More neighborhoods, photos, parks, cafés, and less tourist checklist pressure.", "관광 체크리스트보다 동네 산책, 사진, 공원, 카페 시간을 더 살린 구성입니다.", ["DUMBO", "High Line", "Village", "Cafés"]]
       ]
-    : /sapporo|ì‚¿í¬ë¡œ/.test(key)
+    : /sapporo|삿포로/.test(key)
       ? [
-          ["Sapporo winter highlights", "ì‚¿í¬ë¡œ ê²¨ìš¸ í•˜ì´ë¼ì´íŠ¸", "Sapporo invierno", "Snow, ramen, markets, beer culture, and warm indoor breaks.", "ëˆˆ, ë¼ë©˜, ì‹œìž¥, ë§¥ì£¼ ë¬¸í™”, ë”°ëœ»í•œ ì‹¤ë‚´ íœ´ì‹ì„ ì„žì€ êµ¬ì„±ìž…ë‹ˆë‹¤.", ["Snow", "Ramen", "Beer Museum", "Market"]],
-          ["Sapporo food route", "ì‚¿í¬ë¡œ ë¯¸ì‹ ì½”ìŠ¤", "Ruta gastronÃ³mica de Sapporo", "Ramen, soup curry, seafood, cafÃ©s, and Susukino evening food.", "ë¼ë©˜, ìˆ˜í”„ì¹´ë ˆ, í•´ì‚°ë¬¼, ì¹´íŽ˜, ìŠ¤ìŠ¤í‚¤ë…¸ ì €ë… ë§›ì§‘ ì¤‘ì‹¬ìž…ë‹ˆë‹¤.", ["Ramen", "Soup curry", "Seafood", "CafÃ©"]],
-          ["Hokkaido nature plus city", "í™‹ì¹´ì´ë„ ìžì—°ê³¼ ë„ì‹œ", "Hokkaido naturaleza y ciudad", "Adds nature and views without losing central Sapporo convenience.", "ì‚¿í¬ë¡œ ì¤‘ì‹¬ íŽ¸ì˜ì„±ê³¼ ìžì—°·ì „ë§ì„ í•¨ê»˜ ë„£ì€ êµ¬ì„±ìž…ë‹ˆë‹¤.", ["Odori", "View", "Nature", "Shopping"]],
-          ["Easy family Sapporo", "ê°€ì¡±ê³¼ íŽ¸í•œ ì‚¿í¬ë¡œ", "Sapporo fÃ¡cil en familia", "Shorter moves, food halls, indoor stops, and snow-friendly pacing.", "ì§§ì€ ì´ë™, í‘¸ë“œí™€, ì‹¤ë‚´ ìž¥ì†Œ, ëˆˆê¸¸ì— ë§žì¶˜ ì—¬ìœ  ë™ì„ ìž…ë‹ˆë‹¤.", ["Family", "Indoor", "Food", "Easy"]]
+          ["Sapporo winter highlights", "삿포로 겨울 하이라이트", "Sapporo invierno", "Snow, ramen, markets, beer culture, and warm indoor breaks.", "눈, 라멘, 시장, 맥주 문화, 따뜻한 실내 휴식을 섞은 구성입니다.", ["Snow", "Ramen", "Beer Museum", "Market"]],
+          ["Sapporo food route", "삿포로 미식 코스", "Ruta gastronómica de Sapporo", "Ramen, soup curry, seafood, cafés, and Susukino evening food.", "라멘, 수프카레, 해산물, 카페, 스스키노 저녁 맛집 중심입니다.", ["Ramen", "Soup curry", "Seafood", "Café"]],
+          ["Hokkaido nature plus city", "홋카이도 자연과 도시", "Hokkaido naturaleza y ciudad", "Adds nature and views without losing central Sapporo convenience.", "삿포로 중심 편의성과 자연·전망을 함께 넣은 구성입니다.", ["Odori", "View", "Nature", "Shopping"]],
+          ["Easy family Sapporo", "가족과 편한 삿포로", "Sapporo fácil en familia", "Shorter moves, food halls, indoor stops, and snow-friendly pacing.", "짧은 이동, 푸드홀, 실내 장소, 눈길에 맞춘 여유 동선입니다.", ["Family", "Indoor", "Food", "Easy"]]
         ]
       : [];
   if (!specific.length) return null;
@@ -2366,22 +2352,22 @@ const buildSpecificCityJourneys = (result, destination, duration) => {
     tags: item[5],
     reason: local(
       "This option is built from actual destination highlights, not a generic travel template.",
-      "ì¼ë°˜ í…œí”Œë¦¿ì´ ì•„ë‹ˆë¼ ì‹¤ì œ ëª©ì ì§€ì—ì„œ í•  ë§Œí•œ ê²ƒë“¤ì„ ê¸°ì¤€ìœ¼ë¡œ êµ¬ì„±í–ˆìŠµë‹ˆë‹¤.",
-      "Esta opciÃ³n usa puntos reales del destino, no una plantilla genÃ©rica."
+      "일반 템플릿이 아니라 실제 목적지에서 할 만한 것들을 기준으로 구성했습니다.",
+      "Esta opción usa puntos reales del destino, no una plantilla genérica."
     ),
     duration,
     tone: ["balanced", "culture", "food", "local"][index] || "balanced",
-    comfort: local("Practical", "ì‹¤ìš©ì ", "PrÃ¡ctico"),
+    comfort: local("Practical", "실용적", "Práctico"),
     budget: getTravelBudgetLabel(result, index === 2 ? "food" : "balanced"),
     timeline: item[5],
     selected: index === 0,
     details: {
-      flight: local("Round-trip options are compared after approval for live price and schedule.", "ì™•ë³µ í•­ê³µê¶Œì€ ìŠ¹ì¸ í›„ ì‹¤ì‹œê°„ ê°€ê²©ê³¼ ì¼ì •ì„ í™•ì¸í•©ë‹ˆë‹¤.", "Vuelos ida y vuelta se comparan tras aprobaciÃ³n."),
-      hotel: local("Hotel candidates are matched to the route, walking load, and room count.", "ìˆ™ì†Œ í›„ë³´ëŠ” ë™ì„ , ë„ë³´ ë¶€ë‹´, ê°ì‹¤ ìˆ˜ì— ë§žì¶° ë¹„êµí•©ë‹ˆë‹¤.", "Hoteles segÃºn ruta, caminata y habitaciones."),
-      transport: local("Daily movement is grouped by neighborhood to avoid unnecessary backtracking.", "ë¶ˆí•„ìš”í•œ ì™•ë³µ ì´ë™ì„ ì¤„ì´ë„ë¡ ë‚ ì§œë³„ ì§€ì—­ì„ ë¬¶ìŠµë‹ˆë‹¤.", "Se agrupa por zonas para evitar traslados inÃºtiles."),
-      food: local("Food candidates are placed near the day route instead of as a random list.", "ë§›ì§‘ í›„ë³´ëŠ” ë¬´ìž‘ìœ„ ëª©ë¡ì´ ì•„ë‹ˆë¼ ê·¸ë‚  ë™ì„  ê·¼ì²˜ë¡œ ë°°ì¹˜í•©ë‹ˆë‹¤.", "Comida cerca de la ruta del dÃ­a."),
-      entry: local("Entry and document rules are rechecked through official sources before action.", "ìž…êµ­·ì„œë¥˜ ìš”ê±´ì€ ì‹¤í–‰ ì „ ê³µì‹ ì¶œì²˜ë¡œ ë‹¤ì‹œ í™•ì¸í•©ë‹ˆë‹¤.", "Requisitos se verifican con fuentes oficiales."),
-      insurance: local("Insurance and cancellation rules are prepared for review before booking.", "ì˜ˆì•½ ì „ ë³´í—˜ê³¼ ì·¨ì†Œ ê·œì •ì„ ê²€í† í•  ìˆ˜ ìžˆê²Œ ì¤€ë¹„í•©ë‹ˆë‹¤.", "Seguro y cancelaciÃ³n se preparan antes de reservar.")
+      flight: local("Round-trip options are compared after approval for live price and schedule.", "왕복 항공권은 승인 후 실시간 가격과 일정을 확인합니다.", "Vuelos ida y vuelta se comparan tras aprobación."),
+      hotel: local("Hotel candidates are matched to the route, walking load, and room count.", "숙소 후보는 동선, 도보 부담, 객실 수에 맞춰 비교합니다.", "Hoteles según ruta, caminata y habitaciones."),
+      transport: local("Daily movement is grouped by neighborhood to avoid unnecessary backtracking.", "불필요한 왕복 이동을 줄이도록 날짜별 지역을 묶습니다.", "Se agrupa por zonas para evitar traslados inútiles."),
+      food: local("Food candidates are placed near the day route instead of as a random list.", "맛집 후보는 무작위 목록이 아니라 그날 동선 근처로 배치합니다.", "Comida cerca de la ruta del día."),
+      entry: local("Entry and document rules are rechecked through official sources before action.", "입국·서류 요건은 실행 전 공식 출처로 다시 확인합니다.", "Requisitos se verifican con fuentes oficiales."),
+      insurance: local("Insurance and cancellation rules are prepared for review before booking.", "예약 전 보험과 취소 규정을 검토할 수 있게 준비합니다.", "Seguro y cancelación se preparan antes de reservar.")
     },
     sourceStates: {
       flight: getScenarioSourceState(result, "flight", "estimated"),
@@ -2397,11 +2383,11 @@ const buildSpecificCityJourneys = (result, destination, duration) => {
 
 const providerSourceNote = (state) => {
   const copy = {
-    verified_live: { en: "Confirmed by a live provider source.", ko: "ì‹¤ì‹œê°„ ì œê³µì—…ì²´ ì •ë³´ë¡œ í™•ì¸ë˜ì—ˆìŠµë‹ˆë‹¤.", es: "Confirmado por fuente en vivo." },
-    cached_public: { en: "Based on recent public information.", ko: "ìµœê·¼ ê³µê°œ ì •ë³´ ê¸°ì¤€ìž…ë‹ˆë‹¤.", es: "Basado en informaciÃ³n pÃºblica reciente." },
-    estimated: { en: "Estimated only. ONE will verify before approval.", ko: "ì˜ˆìƒ ì •ë³´ìž…ë‹ˆë‹¤. ìŠ¹ì¸ ì „ ONEì´ ë‹¤ì‹œ í™•ì¸í•©ë‹ˆë‹¤.", es: "Solo estimado. ONE verifica antes de aprobar." },
-    placeholder: { en: "No fictional provider shown. Search conditions are ready.", ko: "ê°€ìƒ ì—…ì²´ëª…ì€ í‘œì‹œí•˜ì§€ ì•ŠìŠµë‹ˆë‹¤. ê²€ìƒ‰ ì¡°ê±´ë§Œ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤.", es: "Sin proveedor ficticio; criterios listos." },
-    unavailable: { en: "Live provider search is required.", ko: "ì‹¤ì‹œê°„ ì œê³µì—…ì²´ ê²€ìƒ‰ì´ í•„ìš”í•©ë‹ˆë‹¤.", es: "Se requiere bÃºsqueda en vivo." }
+    verified_live: { en: "Confirmed by a live provider source.", ko: "실시간 제공업체 정보로 확인되었습니다.", es: "Confirmado por fuente en vivo." },
+    cached_public: { en: "Based on recent public information.", ko: "최근 공개 정보 기준입니다.", es: "Basado en información pública reciente." },
+    estimated: { en: "Estimated only. ONE will verify before approval.", ko: "예상 정보입니다. 승인 전 ONE이 다시 확인합니다.", es: "Solo estimado. ONE verifica antes de aprobar." },
+    placeholder: { en: "No fictional provider shown. Search conditions are ready.", ko: "가상 업체명은 표시하지 않습니다. 검색 조건만 준비했습니다.", es: "Sin proveedor ficticio; criterios listos." },
+    unavailable: { en: "Live provider search is required.", ko: "실시간 제공업체 검색이 필요합니다.", es: "Se requiere búsqueda en vivo." }
   };
   return localize(copy[state] || copy.placeholder);
 };
@@ -2411,46 +2397,46 @@ const buildV23TravelJourneys = (result, missionContext) => {
   const duration = getTravelDurationLabel(result);
   const ko = activeLanguage === "ko";
   const es = activeLanguage === "es";
-  const isFamily = /ê°€ì¡±|family|familia/i.test(result.rawInput || result.mission || "");
-  const isFood = /ë§›ì§‘|food|gourmet|comida/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-food";
-  const isBudget = /ì‹¤ì†|ì €ë ´|budget|cheap|econ[oÃ³]mico/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-budget";
+  const isFamily = /가족|family|familia/i.test(result.rawInput || result.mission || "");
+  const isFood = /맛집|food|gourmet|comida/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-food";
+  const isBudget = /실속|저렴|budget|cheap|econ[oó]mico/i.test(result.rawInput || result.mission || "") || result.v23TravelScenario === "sapporo-budget";
   const destinationCode = result.destination?.countryCode || result.countryProfile?.code || result.country;
   const specificJourneys = buildSpecificCityJourneys(result, destination, duration);
   if (specificJourneys) return specificJourneys;
-  if (destinationCode === "JP" || /japan|ì¼ë³¸|tokyo|osaka|kyoto|ë„ì¿„|ì˜¤ì‚¬ì¹´|êµí† /i.test(`${destination} ${result.rawInput || result.mission || ""}`)) {
+  if (destinationCode === "JP" || /japan|일본|tokyo|osaka|kyoto|도쿄|오사카|교토/i.test(`${destination} ${result.rawInput || result.mission || ""}`)) {
     return buildJapanCreativeJourneys(result, destination, duration);
   }
   const names = [
-    ko ? `íŽ¸ì•ˆí•œ ${destination}` : es ? `${destination} cÃ³modo` : `Comfortable ${destination}`,
-    ko ? `ë§›ì§‘ ì¤‘ì‹¬ ${destination}` : es ? `${destination} gastronÃ³mico` : `Food-focused ${destination}`,
-    ko ? `ì‹¤ì†í˜• ${destination}` : es ? `${destination} eficiente` : `Value ${destination}`,
-    ko ? (isFamily ? `ê°€ì¡± ì¶”ì–µ ${destination}` : `ì˜¨ì²œê³¼ íœ´ì‹ ${destination}`) : es ? `${destination} descanso` : `Restful ${destination}`
+    ko ? `편안한 ${destination}` : es ? `${destination} cómodo` : `Comfortable ${destination}`,
+    ko ? `맛집 중심 ${destination}` : es ? `${destination} gastronómico` : `Food-focused ${destination}`,
+    ko ? `실속형 ${destination}` : es ? `${destination} eficiente` : `Value ${destination}`,
+    ko ? (isFamily ? `가족 추억 ${destination}` : `온천과 휴식 ${destination}`) : es ? `${destination} descanso` : `Restful ${destination}`
   ];
   const purposes = [
-    ko ? "ì´ë™ ë¶€ë‹´ì„ ì¤„ì´ê³  ìŒì‹ê³¼ ê´€ê´‘ì˜ ê· í˜•ì„ ë§žì¶˜ ì¼ì •" : es ? "Menos fricciÃ³n, buen equilibrio entre comida y ciudad" : "Low-friction balance of food, city, and comfort",
-    ko ? "í˜„ì§€ ìŒì‹ê³¼ ì‹œìž¥, ì¹´íŽ˜ ì‹œê°„ì„ ë” ë„‰ë„‰í•˜ê²Œ ë‘” ì¼ì •" : es ? "MÃ¡s tiempo para comida local, mercados y cafÃ©s" : "More time for local food, markets, and cafÃ©s",
-    ko ? "í•µì‹¬ ê²½í—˜ì€ ì§€í‚¤ê³  ë¶ˆí•„ìš”í•œ ë¹„ìš©ì„ ë‚®ì¶˜ ì¼ì •" : es ? "Mantiene lo esencial y baja gastos innecesarios" : "Keeps the core experience while reducing spend",
-    ko ? "íœ´ì‹ê³¼ ì—¬ìœ ë¥¼ ì¤‘ì‹¬ì— ë‘” ëŠë¦° ì—¬í–‰" : es ? "Viaje mÃ¡s lento, cÃ³modo y reparador" : "A slower journey focused on rest"
+    ko ? "이동 부담을 줄이고 음식과 관광의 균형을 맞춘 일정" : es ? "Menos fricción, buen equilibrio entre comida y ciudad" : "Low-friction balance of food, city, and comfort",
+    ko ? "현지 음식과 시장, 카페 시간을 더 넉넉하게 둔 일정" : es ? "Más tiempo para comida local, mercados y cafés" : "More time for local food, markets, and cafés",
+    ko ? "핵심 경험은 지키고 불필요한 비용을 낮춘 일정" : es ? "Mantiene lo esencial y baja gastos innecesarios" : "Keeps the core experience while reducing spend",
+    ko ? "휴식과 여유를 중심에 둔 느린 여행" : es ? "Viaje más lento, cómodo y reparador" : "A slower journey focused on rest"
   ];
   const tags = [
-    ko ? ["ìŒì‹", "ì‹œë‚´ ê´€ê´‘", "íŽ¸ì•ˆí•¨", "ê²°ì • ë¶€ë‹´ ë‚®ìŒ"] : es ? ["Comida", "Ciudad", "CÃ³modo", "FÃ¡cil"] : ["Food", "City", "Comfort", "Easy"],
-    ko ? ["ë§›ì§‘", "ì‹œìž¥", "ì¹´íŽ˜", "ì•¼ê²½"] : es ? ["Comida", "Mercado", "CafÃ©", "Noche"] : ["Food", "Markets", "CafÃ©s", "Night"],
-    ko ? ["ì‹¤ì†", "í•µì‹¬ ê´€ê´‘", "ëŒ€ì¤‘êµí†µ", "ê°€ì„±ë¹„"] : es ? ["Ahorro", "Esencial", "Transporte", "Valor"] : ["Value", "Essentials", "Transit", "Efficient"],
-    ko ? ["íœ´ì‹", "ì˜¨ì²œ", "ì²œì²œížˆ", isFamily ? "ê°€ì¡±" : "ì—¬ìœ "] : es ? ["Descanso", "Spa", "Lento", "Calma"] : ["Rest", "Spa", "Slow", "Calm"]
+    ko ? ["음식", "시내 관광", "편안함", "결정 부담 낮음"] : es ? ["Comida", "Ciudad", "Cómodo", "Fácil"] : ["Food", "City", "Comfort", "Easy"],
+    ko ? ["맛집", "시장", "카페", "야경"] : es ? ["Comida", "Mercado", "Café", "Noche"] : ["Food", "Markets", "Cafés", "Night"],
+    ko ? ["실속", "핵심 관광", "대중교통", "가성비"] : es ? ["Ahorro", "Esencial", "Transporte", "Valor"] : ["Value", "Essentials", "Transit", "Efficient"],
+    ko ? ["휴식", "온천", "천천히", isFamily ? "가족" : "여유"] : es ? ["Descanso", "Spa", "Lento", "Calma"] : ["Rest", "Spa", "Slow", "Calm"]
   ];
   const reasons = [
-    ko ? "ê°€ìž¥ ë¬´ë‚œí•˜ê³  ê²°ì • ë¶€ë‹´ì´ ì ì€ êµ¬ì„±ìž…ë‹ˆë‹¤." : es ? "La opciÃ³n mÃ¡s fÃ¡cil y equilibrada." : "The easiest balanced choice with the fewest decisions.",
-    ko ? "ë¨¹ëŠ” ì¦ê±°ì›€ì„ ì—¬í–‰ì˜ ì¤‘ì‹¬ì— ë‘ê³  ì‹¶ì„ ë•Œ ê°€ìž¥ ìž˜ ë§žìŠµë‹ˆë‹¤." : es ? "Ideal si la comida es el centro del viaje." : "Best when food should lead the trip.",
-    ko ? "ê°€ê²© ë¶€ë‹´ì„ ë‚®ì¶”ë©´ì„œ í•µì‹¬ ì¼ì •ì€ ìœ ì§€í•©ë‹ˆë‹¤." : es ? "Reduce gasto sin perder lo esencial." : "Lowers spend while keeping the core plan.",
-    ko ? "ë¹¡ë¹¡í•œ ì´ë™ë³´ë‹¤ íšŒë³µê³¼ ê¸°ì–µì— ë‚¨ëŠ” ì‹œê°„ì„ ìš°ì„ í•©ë‹ˆë‹¤." : es ? "Prioriza descanso y momentos memorables." : "Prioritizes recovery and memorable time."
+    ko ? "가장 무난하고 결정 부담이 적은 구성입니다." : es ? "La opción más fácil y equilibrada." : "The easiest balanced choice with the fewest decisions.",
+    ko ? "먹는 즐거움을 여행의 중심에 두고 싶을 때 가장 잘 맞습니다." : es ? "Ideal si la comida es el centro del viaje." : "Best when food should lead the trip.",
+    ko ? "가격 부담을 낮추면서 핵심 일정은 유지합니다." : es ? "Reduce gasto sin perder lo esencial." : "Lowers spend while keeping the core plan.",
+    ko ? "빡빡한 이동보다 회복과 기억에 남는 시간을 우선합니다." : es ? "Prioriza descanso y momentos memorables." : "Prioritizes recovery and memorable time."
   ];
   const tones = ["balanced", "food", "value", "rest"];
   const preferredIndex = isFood ? 1 : isBudget ? 2 : isFamily ? 3 : 0;
   const timelines = [
-    ko ? ["ë„ì°© í›„ ìˆ™ì†Œ ì£¼ë³€ ì ì‘", "ì‹œë‚´ ëŒ€í‘œ ë™ì„ ", "ìŒì‹ê³¼ ì‡¼í•‘", "ì—¬ìœ  ì¼ì •", "ê·€êµ­ ì¤€ë¹„"] : ["Arrival and easy area setup", "Core city route", "Food and shopping", "Flexible day", "Return prep"],
-    ko ? ["ëŒ€í‘œ ìŒì‹ ì²« ì‹ì‚¬", "ì‹œìž¥ê³¼ ì¹´íŽ˜", "ì˜ˆì•½ í›„ë³´ ë¹„êµ", "ì•¼ê²½ê³¼ ë””ì €íŠ¸", "ê·€êµ­ ì „ ê°€ë²¼ìš´ ì‹ì‚¬"] : ["Signature first meal", "Market and cafÃ©s", "Restaurant shortlist", "Night view and dessert", "Easy final meal"],
-    ko ? ["ì €ë… ë„ì°© ê¸°ì¤€ ì •ë¦¬", "í•µì‹¬ ëª…ì†Œ ì••ì¶•", "ëŒ€ì¤‘êµí†µ ì¤‘ì‹¬ ì´ë™", "ë¬´ë£Œ·ì €ë¹„ìš© ì„ íƒì§€", "ê·€êµ­ ì¤€ë¹„"] : ["Evening arrival setup", "Compact highlights", "Transit-first route", "Low-cost options", "Return prep"],
-    ko ? ["ëŠë¦° ì²´í¬ì¸", "ì˜¨ì²œ ë˜ëŠ” íœ´ì‹", "ê°€ë²¼ìš´ ê´€ê´‘", "ì¹´íŽ˜ì™€ ì‚°ì±…", "ë¬´ë¦¬ ì—†ëŠ” ê·€êµ­"] : ["Slow check-in", "Spa or rest", "Light sightseeing", "CafÃ© and walk", "Easy return"]
+    ko ? ["도착 후 숙소 주변 적응", "시내 대표 동선", "음식과 쇼핑", "여유 일정", "귀국 준비"] : ["Arrival and easy area setup", "Core city route", "Food and shopping", "Flexible day", "Return prep"],
+    ko ? ["대표 음식 첫 식사", "시장과 카페", "예약 후보 비교", "야경과 디저트", "귀국 전 가벼운 식사"] : ["Signature first meal", "Market and cafés", "Restaurant shortlist", "Night view and dessert", "Easy final meal"],
+    ko ? ["저녁 도착 기준 정리", "핵심 명소 압축", "대중교통 중심 이동", "무료·저비용 선택지", "귀국 준비"] : ["Evening arrival setup", "Compact highlights", "Transit-first route", "Low-cost options", "Return prep"],
+    ko ? ["느린 체크인", "온천 또는 휴식", "가벼운 관광", "카페와 산책", "무리 없는 귀국"] : ["Slow check-in", "Spa or rest", "Light sightseeing", "Café and walk", "Easy return"]
   ];
   return names.map((name, index) => ({
     id: `v23-journey-${index}`,
@@ -2460,17 +2446,17 @@ const buildV23TravelJourneys = (result, missionContext) => {
     reason: reasons[index],
     duration,
     tone: tones[index],
-    comfort: ko ? (index === 2 ? "íš¨ìœ¨ ë†’ìŒ" : index === 1 ? "ì·¨í–¥ ì„ ëª…" : "íŽ¸ì•ˆí•¨ ë†’ìŒ") : es ? (index === 2 ? "Muy eficiente" : "Alta comodidad") : (index === 2 ? "High efficiency" : "High comfort"),
+    comfort: ko ? (index === 2 ? "효율 높음" : index === 1 ? "취향 선명" : "편안함 높음") : es ? (index === 2 ? "Muy eficiente" : "Alta comodidad") : (index === 2 ? "High efficiency" : "High comfort"),
     budget: getTravelBudgetLabel(result, tones[index]),
     timeline: timelines[index],
     selected: index === preferredIndex,
     details: {
-      flight: ko ? "ì¸ì²œ ì¶œë°œ ì§í•­ ë˜ëŠ” í™˜ìŠ¹ ë¶€ë‹´ì´ ë‚®ì€ í•­ê³µíŽ¸ ìš°ì„ " : es ? "Priorizar vuelo directo o conexiÃ³n simple desde Incheon" : "Prioritize direct or low-friction flights from Incheon",
-      hotel: ko ? `${destination}ì—­ ë˜ëŠ” ì¤‘ì‹¬ ì´ë™ê¶Œ ìˆ™ì†Œ ìš°ì„ ` : es ? `Zona central o estaciÃ³n principal de ${destination}` : `${destination} central station or walkable center`,
-      transport: ko ? "ê³µì‹ êµí†µê³¼ í—ˆê°€ëœ ì´ë™ìˆ˜ë‹¨ ì¤‘ì‹¬ìœ¼ë¡œ ë¹„êµ" : es ? "Comparar transporte oficial y traslados autorizados" : "Compare official transit and licensed transfers",
-      food: ko ? (index === 1 ? "í˜„ì§€ ìŒì‹·ì‹œìž¥·ì¹´íŽ˜ í›„ë³´ë¥¼ ì¤‘ì‹¬ìœ¼ë¡œ êµ¬ì„±" : "ìŒì‹, ì¹´íŽ˜, ê°€ë²¼ìš´ í™œë™ì„ ê· í˜• ìžˆê²Œ êµ¬ì„±") : es ? "Comida local, cafÃ©s y actividades equilibradas" : "Balanced food, cafÃ©s, and light activities",
-      entry: ko ? "ìž…êµ­ ìš”ê±´ì€ ì‹¤í–‰ ì „ ê³µì‹ ì±„ë„ë¡œ ë‹¤ì‹œ í™•ì¸" : es ? "Revisar requisitos oficiales antes de ejecutar" : "Re-check entry requirements through official channels before execution",
-      insurance: ko ? "ì—¬í–‰ìž ë³´í—˜ê³¼ ì¼ì • ë³€ê²½ ë¦¬ìŠ¤í¬ í™•ì¸ ì¤€ë¹„" : es ? "Preparar seguro y riesgo de cambios" : "Prepare insurance and schedule-change risk review"
+      flight: ko ? "인천 출발 직항 또는 환승 부담이 낮은 항공편 우선" : es ? "Priorizar vuelo directo o conexión simple desde Incheon" : "Prioritize direct or low-friction flights from Incheon",
+      hotel: ko ? `${destination}역 또는 중심 이동권 숙소 우선` : es ? `Zona central o estación principal de ${destination}` : `${destination} central station or walkable center`,
+      transport: ko ? "공식 교통과 허가된 이동수단 중심으로 비교" : es ? "Comparar transporte oficial y traslados autorizados" : "Compare official transit and licensed transfers",
+      food: ko ? (index === 1 ? "현지 음식·시장·카페 후보를 중심으로 구성" : "음식, 카페, 가벼운 활동을 균형 있게 구성") : es ? "Comida local, cafés y actividades equilibradas" : "Balanced food, cafés, and light activities",
+      entry: ko ? "입국 요건은 실행 전 공식 채널로 다시 확인" : es ? "Revisar requisitos oficiales antes de ejecutar" : "Re-check entry requirements through official channels before execution",
+      insurance: ko ? "여행자 보험과 일정 변경 리스크 확인 준비" : es ? "Preparar seguro y riesgo de cambios" : "Prepare insurance and schedule-change risk review"
     },
     sourceStates: {
       flight: getScenarioSourceState(result, "flight", "estimated"),
@@ -2497,90 +2483,83 @@ const formatAlpha03Date = (value) => {
 
 const getAlpha03DestinationProfile = (destination) => {
   const previewProfile = profileForResult(currentResult || {}, destination);
-  if (previewProfile) {
-    return {
-      ...previewProfile,
-      restaurants: previewProfile.restaurants,
-      places: previewProfile.places,
-      fallbackNote: ""
-    };
-  }
+  if (previewProfile) return previewProfile;
   const key = String(destination || "").toLowerCase();
-  if (/new york|nyc|Ã«â€°Â´Ã¬Å¡â€¢/.test(key)) {
+  if (/new york|nyc|ë‰´ìš•/.test(key)) {
     return {
       restaurants: [
-        { icon: "ðŸ¥¯", name: "Russ & Daughters", tags: ["bagel", "Lower East Side"], source: "cached_public" },
-        { icon: "ðŸ¥ª", name: "Katz's Delicatessen", tags: ["deli", "classic"], source: "cached_public" },
-        { icon: "ðŸ•", name: "Joe's Pizza", tags: ["slice", "casual"], source: "cached_public" },
-        { icon: "ðŸŒ®", name: "Los Tacos No. 1", tags: ["Chelsea Market", "quick"], source: "cached_public" },
-        { icon: "ðŸª", name: "Levain Bakery", tags: ["dessert", "cookie"], source: "cached_public" },
-        { icon: "ðŸ¥©", name: "Keens Steakhouse", tags: ["steak", "Midtown"], source: "cached_public" },
-        { icon: "ðŸ", name: "Rubirosa", tags: ["Italian", "Nolita"], source: "cached_public" },
-        { icon: "â˜•", name: "Balthazar", tags: ["SoHo", "brunch"], source: "cached_public" },
-        { icon: "ðŸ°", name: "Magnolia Bakery", tags: ["dessert", "classic"], source: "cached_public" },
-        { icon: "ðŸ›’", name: "Chelsea Market", tags: ["food hall", "rain plan"], source: "cached_public" }
+        { icon: "🥯", name: "Russ & Daughters", tags: ["bagel", "Lower East Side"], source: "cached_public" },
+        { icon: "🥪", name: "Katz's Delicatessen", tags: ["deli", "classic"], source: "cached_public" },
+        { icon: "🍕", name: "Joe's Pizza", tags: ["slice", "casual"], source: "cached_public" },
+        { icon: "🌮", name: "Los Tacos No. 1", tags: ["Chelsea Market", "quick"], source: "cached_public" },
+        { icon: "🍪", name: "Levain Bakery", tags: ["dessert", "cookie"], source: "cached_public" },
+        { icon: "🥩", name: "Keens Steakhouse", tags: ["steak", "Midtown"], source: "cached_public" },
+        { icon: "🍝", name: "Rubirosa", tags: ["Italian", "Nolita"], source: "cached_public" },
+        { icon: "☕", name: "Balthazar", tags: ["SoHo", "brunch"], source: "cached_public" },
+        { icon: "🍰", name: "Magnolia Bakery", tags: ["dessert", "classic"], source: "cached_public" },
+        { icon: "🛒", name: "Chelsea Market", tags: ["food hall", "rain plan"], source: "cached_public" }
       ],
       places: [
-        { icon: "ðŸ—½", name: "Statue of Liberty and Ellis Island", tags: ["iconic", "ferry"], source: "cached_public" },
-        { icon: "ðŸŒ³", name: "Central Park", tags: ["walk", "classic"], source: "cached_public" },
-        { icon: "ðŸŒ‰", name: "Brooklyn Bridge and DUMBO", tags: ["photo", "walk"], source: "cached_public" },
-        { icon: "ðŸŽ­", name: "Broadway or Times Square", tags: ["night", "show"], source: "cached_public" },
-        { icon: "ðŸ™ï¸", name: "Top of the Rock or Empire State Building", tags: ["view", "skyline"], source: "cached_public" },
-        { icon: "ðŸ›ï¸", name: "Fifth Avenue and Macy's Herald Square", tags: ["shopping", "Midtown"], source: "cached_public" },
-        { icon: "ðŸ“·", name: "B&H Photo Video", tags: ["camera", "shopping"], source: "cached_public" },
-        { icon: "ðŸ›ï¸", name: "The Met or MoMA", tags: ["museum", "rain plan"], source: "cached_public" },
-        { icon: "ðŸš¶", name: "High Line and Chelsea Market", tags: ["walk", "food"], source: "cached_public" },
-        { icon: "ðŸ•Šï¸", name: "9/11 Memorial and One World Observatory", tags: ["history", "view"], source: "cached_public" },
-        { icon: "ðŸ›ï¸", name: "Woodbury Common Premium Outlets", tags: ["day trip", "shopping"], source: "estimated" },
-        { icon: "â›¸ï¸", name: "Bryant Park or Rockefeller Center skating", tags: ["winter", "seasonal"], source: "estimated" }
+        { icon: "🗽", name: "Statue of Liberty and Ellis Island", tags: ["iconic", "ferry"], source: "cached_public" },
+        { icon: "🌳", name: "Central Park", tags: ["walk", "classic"], source: "cached_public" },
+        { icon: "🌉", name: "Brooklyn Bridge and DUMBO", tags: ["photo", "walk"], source: "cached_public" },
+        { icon: "🎭", name: "Broadway or Times Square", tags: ["night", "show"], source: "cached_public" },
+        { icon: "🏙️", name: "Top of the Rock or Empire State Building", tags: ["view", "skyline"], source: "cached_public" },
+        { icon: "🛍️", name: "Fifth Avenue and Macy's Herald Square", tags: ["shopping", "Midtown"], source: "cached_public" },
+        { icon: "📷", name: "B&H Photo Video", tags: ["camera", "shopping"], source: "cached_public" },
+        { icon: "🏛️", name: "The Met or MoMA", tags: ["museum", "rain plan"], source: "cached_public" },
+        { icon: "🚶", name: "High Line and Chelsea Market", tags: ["walk", "food"], source: "cached_public" },
+        { icon: "🕊️", name: "9/11 Memorial and One World Observatory", tags: ["history", "view"], source: "cached_public" },
+        { icon: "🛍️", name: "Woodbury Common Premium Outlets", tags: ["day trip", "shopping"], source: "estimated" },
+        { icon: "⛸️", name: "Bryant Park or Rockefeller Center skating", tags: ["winter", "seasonal"], source: "estimated" }
       ]
     };
   }
-  if (/japan|tokyo|osaka|kyoto|ì¼ë³¸|ë„ì¿„|ì˜¤ì‚¬ì¹´|êµí† /.test(key)) {
+  if (/japan|tokyo|osaka|kyoto|일본|도쿄|오사카|교토/.test(key)) {
     return {
       restaurants: [
-        { icon: "ðŸ£", name: "Tsukiji / Toyosu sushi counter", tags: ["sushi", "market"], source: "estimated" },
-        { icon: "ðŸœ", name: "Tokyo ramen alley", tags: ["ramen", "casual"], source: "estimated" },
-        { icon: "ðŸ¥©", name: "Wagyu yakiniku table", tags: ["wagyu", "dinner"], source: "estimated" },
-        { icon: "ðŸ¢", name: "Osaka kushikatsu stop", tags: ["Osaka", "street food"], source: "estimated" },
-        { icon: "ðŸµ", name: "Kyoto tea and wagashi", tags: ["tea", "dessert"], source: "estimated" },
-        { icon: "ðŸ›", name: "Japanese curry house", tags: ["comfort", "budget"], source: "estimated" },
-        { icon: "â˜•", name: "Kissaten coffee break", tags: ["retro cafÃ©", "slow"], source: "estimated" },
-        { icon: "ðŸ±", name: "Ekiben train lunch", tags: ["rail", "local"], source: "estimated" }
+        { icon: "🍣", name: "Tsukiji / Toyosu sushi counter", tags: ["sushi", "market"], source: "estimated" },
+        { icon: "🍜", name: "Tokyo ramen alley", tags: ["ramen", "casual"], source: "estimated" },
+        { icon: "🥩", name: "Wagyu yakiniku table", tags: ["wagyu", "dinner"], source: "estimated" },
+        { icon: "🍢", name: "Osaka kushikatsu stop", tags: ["Osaka", "street food"], source: "estimated" },
+        { icon: "🍵", name: "Kyoto tea and wagashi", tags: ["tea", "dessert"], source: "estimated" },
+        { icon: "🍛", name: "Japanese curry house", tags: ["comfort", "budget"], source: "estimated" },
+        { icon: "☕", name: "Kissaten coffee break", tags: ["retro café", "slow"], source: "estimated" },
+        { icon: "🍱", name: "Ekiben train lunch", tags: ["rail", "local"], source: "estimated" }
       ],
       places: [
-        { icon: "ðŸŒƒ", name: "Shibuya Sky or Tokyo Tower view", tags: ["skyline", "night"], source: "estimated" },
-        { icon: "ðŸ–¼ï¸", name: "teamLab Planets / Borderless", tags: ["immersive", "indoor"], source: "estimated" },
-        { icon: "ðŸŽ¢", name: "Universal Studios Japan", tags: ["theme park", "family"], source: "estimated" },
-        { icon: "ðŸ ", name: "Sunshine Aquarium or Osaka Aquarium", tags: ["rain plan", "family"], source: "estimated" },
-        { icon: "â›©ï¸", name: "Fushimi Inari early walk", tags: ["Kyoto", "photo"], source: "estimated" },
-        { icon: "ðŸŽ‹", name: "Arashiyama bamboo and river", tags: ["Kyoto", "walk"], source: "estimated" },
-        { icon: "ðŸ¦Œ", name: "Nara deer park day trip", tags: ["day trip", "family"], source: "estimated" },
-        { icon: "â™¨ï¸", name: "Hakone onsen and Mt. Fuji view", tags: ["onsen", "view"], source: "estimated" },
-        { icon: "ðŸŽ®", name: "Akihabara retro arcade", tags: ["games", "indoor"], source: "estimated" },
-        { icon: "ðŸŽ¤", name: "Karaoke or live jazz night", tags: ["night", "friends"], source: "estimated" },
-        { icon: "ðŸ‘˜", name: "Kimono photo walk", tags: ["couple", "memory"], source: "estimated" },
-        { icon: "ðŸ›ï¸", name: "Ginza / Harajuku / Dotonbori shopping", tags: ["shopping", "rain plan"], source: "estimated" },
-        { icon: "ðŸ§‘â€ðŸ³", name: "Sushi or ramen making class", tags: ["activity", "food"], source: "estimated" },
-        { icon: "ðŸ§¸", name: "Ghibli Museum or character cafÃ©", tags: ["ticket needed", "family"], source: "estimated" },
+        { icon: "🌃", name: "Shibuya Sky or Tokyo Tower view", tags: ["skyline", "night"], source: "estimated" },
+        { icon: "🖼️", name: "teamLab Planets / Borderless", tags: ["immersive", "indoor"], source: "estimated" },
+        { icon: "🎢", name: "Universal Studios Japan", tags: ["theme park", "family"], source: "estimated" },
+        { icon: "🐠", name: "Sunshine Aquarium or Osaka Aquarium", tags: ["rain plan", "family"], source: "estimated" },
+        { icon: "⛩️", name: "Fushimi Inari early walk", tags: ["Kyoto", "photo"], source: "estimated" },
+        { icon: "🎋", name: "Arashiyama bamboo and river", tags: ["Kyoto", "walk"], source: "estimated" },
+        { icon: "🦌", name: "Nara deer park day trip", tags: ["day trip", "family"], source: "estimated" },
+        { icon: "♨️", name: "Hakone onsen and Mt. Fuji view", tags: ["onsen", "view"], source: "estimated" },
+        { icon: "🎮", name: "Akihabara retro arcade", tags: ["games", "indoor"], source: "estimated" },
+        { icon: "🎤", name: "Karaoke or live jazz night", tags: ["night", "friends"], source: "estimated" },
+        { icon: "👘", name: "Kimono photo walk", tags: ["couple", "memory"], source: "estimated" },
+        { icon: "🛍️", name: "Ginza / Harajuku / Dotonbori shopping", tags: ["shopping", "rain plan"], source: "estimated" },
+        { icon: "🧑‍🍳", name: "Sushi or ramen making class", tags: ["activity", "food"], source: "estimated" },
+        { icon: "🧸", name: "Ghibli Museum or character café", tags: ["ticket needed", "family"], source: "estimated" },
       ]
     };
   }
-  if (/sapporo|ì‚¿í¬ë¡œ/.test(key)) {
+  if (/sapporo|삿포로/.test(key)) {
     return {
       restaurants: [
-        { icon: "ðŸœ", name: "Sapporo Ramen Yokocho", tags: ["ramen", "Susukino"], source: "cached_public" },
-        { icon: "ðŸ¦€", name: "Nijo Market Seafood", tags: ["market", "seafood"], source: "cached_public" },
-        { icon: "ðŸ›", name: "Soup Curry GARAKU", tags: ["soup curry", "central"], source: "cached_public" },
-        { icon: "â˜•", name: "MORIHICO CafÃ©", tags: ["coffee", "slow break"], source: "estimated" },
-        { icon: "ðŸº", name: "Sapporo Beer Garden", tags: ["beer hall", "classic"], source: "cached_public" }
+        { icon: "🍜", name: "Sapporo Ramen Yokocho", tags: ["ramen", "Susukino"], source: "cached_public" },
+        { icon: "🦀", name: "Nijo Market Seafood", tags: ["market", "seafood"], source: "cached_public" },
+        { icon: "🍛", name: "Soup Curry GARAKU", tags: ["soup curry", "central"], source: "cached_public" },
+        { icon: "☕", name: "MORIHICO Café", tags: ["coffee", "slow break"], source: "estimated" },
+        { icon: "🍺", name: "Sapporo Beer Garden", tags: ["beer hall", "classic"], source: "cached_public" }
       ],
       places: [
-        { icon: "ðŸŒ³", name: "Odori Park", tags: ["walk", "seasonal"], source: "cached_public" },
-        { icon: "ðŸº", name: "Sapporo Beer Museum", tags: ["indoor", "classic"], source: "cached_public" },
-        { icon: "ðŸ¦€", name: "Nijo Market", tags: ["morning", "food"], source: "cached_public" },
-        { icon: "ðŸŒƒ", name: "JR Tower Observatory", tags: ["night view", "city"], source: "estimated" },
-        { icon: "ðŸ›ï¸", name: "Tanukikoji Shopping Street", tags: ["shopping", "covered"], source: "cached_public" }
+        { icon: "🌳", name: "Odori Park", tags: ["walk", "seasonal"], source: "cached_public" },
+        { icon: "🍺", name: "Sapporo Beer Museum", tags: ["indoor", "classic"], source: "cached_public" },
+        { icon: "🦀", name: "Nijo Market", tags: ["morning", "food"], source: "cached_public" },
+        { icon: "🌃", name: "JR Tower Observatory", tags: ["night view", "city"], source: "estimated" },
+        { icon: "🛍️", name: "Tanukikoji Shopping Street", tags: ["shopping", "covered"], source: "cached_public" }
       ]
     };
   }
@@ -2589,8 +2568,8 @@ const getAlpha03DestinationProfile = (destination) => {
     places: [],
     fallbackNote: alpha03Copy(
       "Specific local candidates need live or curated destination data. ONE can still prepare the trip structure without inventing fake place names.",
-      "êµ¬ì²´ì ì¸ í˜„ì§€ í›„ë³´ëŠ” ì‹¤ì‹œê°„ ë˜ëŠ” íë ˆì´ì…˜ ë°ì´í„°ê°€ í•„ìš”í•©ë‹ˆë‹¤. ONEì€ ê°€ì§œ ìž¥ì†Œëª…ì„ ë§Œë“¤ì§€ ì•Šê³  ì—¬í–‰ êµ¬ì¡°ë§Œ ì¤€ë¹„í•©ë‹ˆë‹¤.",
-      "Los candidatos locales especÃ­ficos requieren datos en vivo o curados. ONE prepara la estructura sin inventar nombres."
+      "구체적인 현지 후보는 실시간 또는 큐레이션 데이터가 필요합니다. ONE은 가짜 장소명을 만들지 않고 여행 구조만 준비합니다.",
+      "Los candidatos locales específicos requieren datos en vivo o curados. ONE prepara la estructura sin inventar nombres."
     )
   };
 };
@@ -2599,7 +2578,7 @@ const selectAlpha03Items = (items, tone, targetCount) => {
   const keywordMap = {
     food: /ramen|market|seafood|soup|food|meal|table|dining|curry/i,
     value: /market|walk|central|covered|local|park/i,
-    rest: /cafÃ©|coffee|park|view|observatory|slow|indoor/i,
+    rest: /café|coffee|park|view|observatory|slow|indoor/i,
     balanced: /central|classic|walk|market|park|landmark/i
   };
   const pattern = keywordMap[tone] || keywordMap.balanced;
@@ -2618,26 +2597,26 @@ const refineAlpha03ItemsForCommand = (items = [], result = {}, type = "places") 
   ].join(" ");
   const text = `${result.rawInput || ""} ${result.mission || ""} ${(result.revisionHistory || []).map((item) => item.command).join(" ")} ${structuredText}`.toLowerCase();
   let refined = [...items];
-  if (/hate museums|no museums|avoid museums|without museums|ë°•ë¬¼ê´€ ì‹«|ë°•ë¬¼ê´€ ì œì™¸|ë¯¸ìˆ ê´€ ì œì™¸|sin museos|no museos/.test(text)) {
-    refined = refined.filter((item) => !/museum|moma|met|gallery|exhibit|ë°•ë¬¼ê´€|ë¯¸ìˆ ê´€|ì „ì‹œ|museo|galer/i.test(`${item.name} ${(item.tags || []).join(" ")}`));
+  if (/hate museums|no museums|avoid museums|without museums|박물관 싫|박물관 제외|미술관 제외|sin museos|no museos/.test(text)) {
+    refined = refined.filter((item) => !/museum|moma|met|gallery|exhibit|박물관|미술관|전시|museo|galer/i.test(`${item.name} ${(item.tags || []).join(" ")}`));
   }
-  if (type === "restaurants" && /no seafood|without seafood|avoid seafood|í•´ì‚°ë¬¼|ìƒì„ |sin mariscos/.test(text)) {
-    refined = refined.filter((item) => !/seafood|fish|sushi|crab|lobster|oyster|í•´ì‚°ë¬¼|ìƒì„ |ìŠ¤ì‹œ|ì´ˆë°¥|mariscos/i.test(`${item.name} ${(item.tags || []).join(" ")}`));
+  if (type === "restaurants" && /no seafood|without seafood|avoid seafood|해산물|생선|sin mariscos/.test(text)) {
+    refined = refined.filter((item) => !/seafood|fish|sushi|crab|lobster|oyster|해산물|생선|스시|초밥|mariscos/i.test(`${item.name} ${(item.tags || []).join(" ")}`));
   }
   const priorities = [
-    [/matcha|ë§ì°¨|green tea/i, /matcha|ë§ì°¨|green tea|tea|dessert|wagashi|cafÃ©|cafe|ì¹´íŽ˜|ë””ì €íŠ¸/i],
-    [/sushi|ìŠ¤ì‹œ|ì´ˆë°¥/i, /sushi|ìŠ¤ì‹œ|ì´ˆë°¥|tsukiji|toyosu|market/i],
-    [/shopping|shop|stores|outlet|ì‡¼í•‘|ì•„ìš¸ë ›|compras|tiendas/i, /shopping|shop|market|mall|outlet|soho|macy|ginza|harajuku|dotonbori|ì‡¼í•‘|ì‹œìž¥|ëª°|ì•„ìš¸ë ›|compras|mercado/i],
-    [/nightlife|night view|bars|jazz|late|ì•¼ê²½|ë°¤|ìž¬ì¦ˆ|ë°”|ë‚˜ì´íŠ¸|vida nocturna|noche/i, /night|view|jazz|broadway|skytree|tower|bar|rooftop|ì•¼ê²½|ì „ë§|ìž¬ì¦ˆ|noche/i],
-    [/food|restaurant|gourmet|ë§›ì§‘|ìŒì‹|ë¨¹|comida|restaurante/i, /food|restaurant|market|ramen|sushi|deli|pizza|steak|cafÃ©|ë§›ì§‘|ì‹œìž¥|ë¼ë©˜|ìŠ¤ì‹œ|comida|restaurante/i]
+    [/matcha|말차|green tea/i, /matcha|말차|green tea|tea|dessert|wagashi|café|cafe|카페|디저트/i],
+    [/sushi|스시|초밥/i, /sushi|스시|초밥|tsukiji|toyosu|market/i],
+    [/shopping|shop|stores|outlet|쇼핑|아울렛|compras|tiendas/i, /shopping|shop|market|mall|outlet|soho|macy|ginza|harajuku|dotonbori|쇼핑|시장|몰|아울렛|compras|mercado/i],
+    [/nightlife|night view|bars|jazz|late|야경|밤|재즈|바|나이트|vida nocturna|noche/i, /night|view|jazz|broadway|skytree|tower|bar|rooftop|야경|전망|재즈|noche/i],
+    [/food|restaurant|gourmet|맛집|음식|먹|comida|restaurante/i, /food|restaurant|market|ramen|sushi|deli|pizza|steak|café|맛집|시장|라멘|스시|comida|restaurante/i]
   ];
   const matched = priorities.find(([trigger]) => trigger.test(text));
   if (matched) {
     const [, pattern] = matched;
     refined.sort((a, b) => Number(pattern.test(`${b.name} ${(b.tags || []).join(" ")}`)) - Number(pattern.test(`${a.name} ${(a.tags || []).join(" ")}`)));
   }
-  if (type === "restaurants" && /dessert|cafe|coffee|ë””ì €íŠ¸|ì¹´íŽ˜|ì»¤í”¼|postre|caf[eÃ©]/i.test(text)) {
-    refined.sort((a, b) => Number(/dessert|bakery|cafÃ©|coffee|cookie|tea|ì¹´íŽ˜|ë””ì €íŠ¸/i.test(`${b.name} ${(b.tags || []).join(" ")}`)) - Number(/dessert|bakery|cafÃ©|coffee|cookie|tea|ì¹´íŽ˜|ë””ì €íŠ¸/i.test(`${a.name} ${(a.tags || []).join(" ")}`)));
+  if (type === "restaurants" && /dessert|cafe|coffee|디저트|카페|커피|postre|caf[eé]/i.test(text)) {
+    refined.sort((a, b) => Number(/dessert|bakery|café|coffee|cookie|tea|카페|디저트/i.test(`${b.name} ${(b.tags || []).join(" ")}`)) - Number(/dessert|bakery|café|coffee|cookie|tea|카페|디저트/i.test(`${a.name} ${(a.tags || []).join(" ")}`)));
   }
   const injections = result.orchestrationInjections?.[type] || [];
   if (injections.length) {
@@ -2659,9 +2638,9 @@ const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
   const restaurants = Array.isArray(selectedProfile.restaurants) ? selectedProfile.restaurants : [];
   const local = alpha03Copy;
   const dayTitle = (index) => {
-    if (index === 0) return local("Arrival and first taste", "ë„ì°©ê³¼ ì²« ë¶„ìœ„ê¸°", "Llegada y primer ambiente");
-    if (index === tripDays - 1) return local("Checkout and departure", "ì²´í¬ì•„ì›ƒê³¼ ì¶œë°œ", "Checkout y salida");
-    return local(`${destination} day ${index + 1}`, `${destination} ${index + 1}ì¼ì°¨`, `DÃ­a ${index + 1} en ${destination}`);
+    if (index === 0) return local("Arrival and first taste", "도착과 첫 분위기", "Llegada y primer ambiente");
+    if (index === tripDays - 1) return local("Checkout and departure", "체크아웃과 출발", "Checkout y salida");
+    return local(`${destination} day ${index + 1}`, `${destination} ${index + 1}일차`, `Día ${index + 1} en ${destination}`);
   };
   const middleItems = (index) => {
     const a = places[(index * 2) % Math.max(1, places.length)]?.name;
@@ -2673,40 +2652,40 @@ const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
   return Array.from({ length: tripDays }, (_, index) => {
     const isFirst = index === 0;
     const isFinal = index === tripDays - 1;
-    const arrivalMeal = restaurants[0]?.name || local("Nearby dinner", "ìˆ™ì†Œ ê·¼ì²˜ ì €ë…", "Cena cerca del hotel");
-    const finalMeal = restaurants[(tripDays - 1) % Math.max(1, restaurants.length)]?.name || local("Light breakfast", "ê°€ë²¼ìš´ ì•„ì¹¨", "Desayuno ligero");
-    const breakfast = restaurants[(index * 2) % Math.max(1, restaurants.length)]?.name || local("Hotel breakfast", "í˜¸í…” ì¡°ì‹", "Desayuno del hotel");
-    const lunch = restaurants[(index * 2 + 1) % Math.max(1, restaurants.length)]?.name || local("Local lunch", "í˜„ì§€ ì ì‹¬", "Almuerzo local");
+    const arrivalMeal = restaurants[0]?.name || local("Nearby dinner", "숙소 근처 저녁", "Cena cerca del hotel");
+    const finalMeal = restaurants[(tripDays - 1) % Math.max(1, restaurants.length)]?.name || local("Light breakfast", "가벼운 아침", "Desayuno ligero");
+    const breakfast = restaurants[(index * 2) % Math.max(1, restaurants.length)]?.name || local("Hotel breakfast", "호텔 조식", "Desayuno del hotel");
+    const lunch = restaurants[(index * 2 + 1) % Math.max(1, restaurants.length)]?.name || local("Local lunch", "현지 점심", "Almuerzo local");
     const dinner = restaurants[(index * 2 + 2) % Math.max(1, restaurants.length)]?.name || arrivalMeal;
-    const morningPlace = places[(index * 2) % Math.max(1, places.length)]?.name || local("Neighborhood walk", "ë™ë„¤ ì‚°ì±…", "Paseo por el barrio");
-    const afternoonPlace = places[(index * 2 + 1) % Math.max(1, places.length)]?.name || local("Main attraction", "í•µì‹¬ ìž¥ì†Œ", "AtracciÃ³n principal");
-    const eveningPlace = places[(index * 2 + 2) % Math.max(1, places.length)]?.name || local("Evening view", "ì €ë… ì „ë§", "Vista nocturna");
+    const morningPlace = places[(index * 2) % Math.max(1, places.length)]?.name || local("Neighborhood walk", "동네 산책", "Paseo por el barrio");
+    const afternoonPlace = places[(index * 2 + 1) % Math.max(1, places.length)]?.name || local("Main attraction", "핵심 장소", "Atracción principal");
+    const eveningPlace = places[(index * 2 + 2) % Math.max(1, places.length)]?.name || local("Evening view", "저녁 전망", "Vista nocturna");
     const items = isFirst
-      ? [local("Arrival", "ë„ì°©", "Llegada"), local("Hotel check-in", "í˜¸í…” ì²´í¬ì¸", "Check-in del hotel"), arrivalMeal, places[0]?.name].filter(Boolean).slice(0, 4)
+      ? [local("Arrival", "도착", "Llegada"), local("Hotel check-in", "호텔 체크인", "Check-in del hotel"), arrivalMeal, places[0]?.name].filter(Boolean).slice(0, 4)
       : isFinal
-        ? [finalMeal, local("Hotel checkout", "í˜¸í…” ì²´í¬ì•„ì›ƒ", "Checkout del hotel"), local("Airport transfer", "ê³µí•­ ì´ë™", "Traslado al aeropuerto"), local("Departure", "ì¶œë°œ", "Salida")]
+        ? [finalMeal, local("Hotel checkout", "호텔 체크아웃", "Checkout del hotel"), local("Airport transfer", "공항 이동", "Traslado al aeropuerto"), local("Departure", "출발", "Salida")]
         : middleItems(index);
     const slots = isFinal
       ? [
-          ["â˜•", local("Breakfast", "ì•„ì¹¨", "Desayuno"), finalMeal],
-          ["ðŸ¨", local("Checkout", "ì²´í¬ì•„ì›ƒ", "Checkout"), local("Hotel checkout", "í˜¸í…” ì²´í¬ì•„ì›ƒ", "Checkout del hotel")],
-          ["ðŸš•", local("Transfer", "ì´ë™", "Traslado"), local("Airport transfer", "ê³µí•­ ì´ë™", "Traslado al aeropuerto")],
-          ["âœˆï¸", local("Departure", "ì¶œë°œ", "Salida"), local("Departure", "ì¶œë°œ", "Salida")]
+          ["☕", local("Breakfast", "아침", "Desayuno"), finalMeal],
+          ["🏨", local("Checkout", "체크아웃", "Checkout"), local("Hotel checkout", "호텔 체크아웃", "Checkout del hotel")],
+          ["🚕", local("Transfer", "이동", "Traslado"), local("Airport transfer", "공항 이동", "Traslado al aeropuerto")],
+          ["✈️", local("Departure", "출발", "Salida"), local("Departure", "출발", "Salida")]
         ]
       : isFirst
         ? [
-            ["âœˆï¸", local("Arrival", "ë„ì°©", "Llegada"), local("Arrival", "ë„ì°©", "Llegada")],
-            ["ðŸ¨", local("Check-in", "ì²´í¬ì¸", "Check-in"), local("Hotel check-in", "í˜¸í…” ì²´í¬ì¸", "Check-in del hotel")],
-            ["ðŸ½ï¸", local("Dinner", "ì €ë…", "Cena"), arrivalMeal],
-            ["ðŸŒƒ", local("Evening", "ì €ë…", "Noche"), eveningPlace]
+            ["✈️", local("Arrival", "도착", "Llegada"), local("Arrival", "도착", "Llegada")],
+            ["🏨", local("Check-in", "체크인", "Check-in"), local("Hotel check-in", "호텔 체크인", "Check-in del hotel")],
+            ["🍽️", local("Dinner", "저녁", "Cena"), arrivalMeal],
+            ["🌃", local("Evening", "저녁", "Noche"), eveningPlace]
           ]
         : [
-            ["â˜•", local("Breakfast", "ì•„ì¹¨", "Desayuno"), breakfast],
-            ["ðŸ›ï¸", local("Morning", "ì˜¤ì „", "MaÃ±ana"), morningPlace],
-            ["ðŸœ", local("Lunch", "ì ì‹¬", "Almuerzo"), lunch],
-            ["ðŸ›ï¸", local("Afternoon", "ì˜¤í›„", "Tarde"), afternoonPlace],
-            ["ðŸ½ï¸", local("Dinner", "ì €ë…", "Cena"), dinner],
-            ["ðŸŒƒ", local("Evening", "ì €ë… í›„", "Noche"), eveningPlace]
+            ["☕", local("Breakfast", "아침", "Desayuno"), breakfast],
+            ["🏛️", local("Morning", "오전", "Mañana"), morningPlace],
+            ["🍜", local("Lunch", "점심", "Almuerzo"), lunch],
+            ["🛍️", local("Afternoon", "오후", "Tarde"), afternoonPlace],
+            ["🍽️", local("Dinner", "저녁", "Cena"), dinner],
+            ["🌃", local("Evening", "저녁 후", "Noche"), eveningPlace]
           ];
     return { day: `DAY ${index + 1}`, title: dayTitle(index), items, slots };
   });
@@ -2725,157 +2704,153 @@ const createAlpha03Card = ({ className, icon, title, badge, tags = [], text = ""
 `;
 
 const getAlpha03HeroTone = (destination = "") => {
-  const previewProfile = profileForResult(currentResult || {}, destination);
-  if (previewProfile?.hero) {
-    return {
-      icon: previewProfile.hero.icon,
-      className: previewProfile.hero.className,
-      line: alpha03Copy(previewProfile.hero.line[0], previewProfile.hero.line[1], previewProfile.hero.line[2])
-    };
-  }
   const key = String(destination || "").toLowerCase();
-  if (/new york|nyc|ë‰´ìš•/.test(key)) return { icon: "ðŸ—½", className: "is-nyc", line: alpha03Copy("Skyline, food, Broadway, neighborhoods.", "ìŠ¤ì¹´ì´ë¼ì¸, ìŒì‹, ë¸Œë¡œë“œì›¨ì´, ë™ë„¤ ê°ì„±.", "Skyline, comida, Broadway y barrios.") };
-  if (/japan|tokyo|osaka|kyoto|ì¼ë³¸|ë„ì¿„|ì˜¤ì‚¬ì¹´|êµí† /.test(key)) return { icon: "â›©ï¸", className: "is-japan", line: alpha03Copy("City lights, food alleys, quiet rituals.", "ë„ì‹œì˜ ë¶ˆë¹›, ê³¨ëª© ë§›ì§‘, ì¡°ìš©í•œ ìˆœê°„.", "Luces, comida y momentos tranquilos.") };
-  if (/sapporo|ì‚¿í¬ë¡œ/.test(key)) return { icon: "â„ï¸", className: "is-sapporo", line: alpha03Copy("Snow, ramen, warm indoor stops.", "ëˆˆ, ë¼ë©˜, ë”°ëœ»í•œ ì‹¤ë‚´ íœ´ì‹.", "Nieve, ramen y refugios cÃ¡lidos.") };
-  return { icon: "âœ¦", className: "is-global", line: alpha03Copy("A clear route, chosen moments, less work.", "ëª…í™•í•œ ë™ì„ , ì„ íƒëœ ìˆœê°„, ì¤„ì–´ë“  ê³ ë¯¼.", "Ruta clara, momentos elegidos, menos trabajo.") };
+  if (/new york|nyc|뉴욕/.test(key)) return { icon: "🗽", className: "is-nyc", line: alpha03Copy("Skyline, food, Broadway, neighborhoods.", "스카이라인, 음식, 브로드웨이, 동네 감성.", "Skyline, comida, Broadway y barrios.") };
+  if (/japan|tokyo|osaka|kyoto|일본|도쿄|오사카|교토/.test(key)) return { icon: "⛩️", className: "is-japan", line: alpha03Copy("City lights, food alleys, quiet rituals.", "도시의 불빛, 골목 맛집, 조용한 순간.", "Luces, comida y momentos tranquilos.") };
+  if (/sapporo|삿포로/.test(key)) return { icon: "❄️", className: "is-sapporo", line: alpha03Copy("Snow, ramen, warm indoor stops.", "눈, 라멘, 따뜻한 실내 휴식.", "Nieve, ramen y refugios cálidos.") };
+  return { icon: "✦", className: "is-global", line: alpha03Copy("A clear route, chosen moments, less work.", "명확한 동선, 선택된 순간, 줄어든 고민.", "Ruta clara, momentos elegidos, menos trabajo.") };
 };
 
 const createAlpha03BudgetItems = (journey, result) => {
   const { tripNights } = calculateTripDayCounts(result);
   const travelers = getTravelPartyDetails(result).travelerCount || 1;
-  const hotelNightLabel = `${tripNights} ${alpha03Copy("nights", "ë°•", "noches")}`;
+  const hotelNightLabel = `${tripNights} ${alpha03Copy("nights", "박", "noches")}`;
   return [
-    ["âœˆï¸", alpha03Copy("Flights", "í•­ê³µ", "Vuelos"), journey.budget],
-    ["ðŸ¨", alpha03Copy("Hotels", "ìˆ™ì†Œ", "Hotel"), hotelNightLabel],
-    ["ðŸ½ï¸", alpha03Copy("Food", "ì‹ì‚¬", "Comida"), alpha03Copy(`${travelers} traveler${travelers > 1 ? "s" : ""}`, `${travelers}ëª… ê¸°ì¤€`, `${travelers} viajero${travelers > 1 ? "s" : ""}`)],
-    ["ðŸš•", alpha03Copy("Transport", "ì´ë™", "Transporte"), alpha03Copy("Route-based", "ë™ì„  ê¸°ì¤€", "SegÃºn ruta")]
+    ["✈️", alpha03Copy("Flights", "항공", "Vuelos"), journey.budget],
+    ["🏨", alpha03Copy("Hotels", "숙소", "Hotel"), hotelNightLabel],
+    ["🍽️", alpha03Copy("Food", "식사", "Comida"), alpha03Copy(`${travelers} traveler${travelers > 1 ? "s" : ""}`, `${travelers}명 기준`, `${travelers} viajero${travelers > 1 ? "s" : ""}`)],
+    ["🚕", alpha03Copy("Transport", "이동", "Transporte"), alpha03Copy("Route-based", "동선 기준", "Según ruta")]
   ];
 };
 
 const getAlpha03ItemAdvice = (item, type, index) => {
+  const previewAdvice = previewItemAdvice(item, activeLanguage);
+  if (previewAdvice) return previewAdvice;
   const name = String(item?.name || "").toLowerCase();
   const ko = activeLanguage === "ko";
   const es = activeLanguage === "es";
-  const previewAdvice = previewItemAdvice(item, activeLanguage);
-  if (previewAdvice) return previewAdvice;
   if (type === "restaurant") {
-    if (/tsukiji|toyosu|sushi|ìŠ¤ì‹œ|ì´ˆë°¥/.test(name)) return ko ? "ì°¸ì¹˜, ìš°ë‹ˆ, ê³„ëž€ì´ˆë°¥ì²˜ëŸ¼ ì‹ ì„ ë„ê°€ ë°”ë¡œ ëŠê»´ì§€ëŠ” ë©”ë‰´ë¥¼ ì¶”ì²œí•´ìš”. ì•„ì¹¨ì´ë‚˜ ì´ë¥¸ ì ì‹¬ì´ ê°€ìž¥ ì¢‹ìŠµë‹ˆë‹¤." : es ? "Pide atÃºn, uni o sushi de huevo; mejor temprano." : "Order tuna, uni, or tamago sushi; it is best early before the rush.";
-    if (/ramen|ë¼ë©˜|ichiran/.test(name)) return ko ? "ì§„í•œ êµ­ë¬¼ ë¼ë©˜ì„ ë¨¹ê¸° ì¢‹ì•„ìš”. ë§¤ìš´ë§›ê³¼ ë©´ ìµíž˜ì„ ì·¨í–¥ëŒ€ë¡œ ë§žì¶°ë³´ì„¸ìš”." : es ? "Buen ramen intenso; ajusta picante y textura del fideo." : "Go for rich broth ramen and tune spice/noodle firmness to your taste.";
-    if (/wagyu|yakiniku|ì™€ê·œ|ì•¼í‚¤ë‹ˆì¿ /.test(name)) return ko ? "ì™€ê·œë‚˜ ì•¼í‚¤ë‹ˆì¿  ì„¸íŠ¸ê°€ ìž˜ ë§žì•„ìš”. ì €ë… í•˜ì´ë¼ì´íŠ¸ë¡œ ìž¡ìœ¼ë©´ ë§Œì¡±ë„ê°€ ë†’ìŠµë‹ˆë‹¤." : es ? "Wagyu o yakiniku funcionan muy bien para una cena especial." : "Wagyu or yakiniku sets work well as a memorable dinner.";
-    if (/takoyaki|okonomiyaki|íƒ€ì½”ì•¼í‚¤|ì˜¤ì½”ë…¸ë¯¸ì•¼í‚¤/.test(name)) return ko ? "íƒ€ì½”ì•¼í‚¤ì™€ ì˜¤ì½”ë…¸ë¯¸ì•¼í‚¤ë¥¼ ê°™ì´ ë¹„êµí•´ ë¨¹ê¸° ì¢‹ì•„ìš”. ì‹œìž¥ ì‚°ì±…ê³¼ ë¬¶ìœ¼ë©´ ìž¬ë¯¸ìžˆìŠµë‹ˆë‹¤." : es ? "Prueba takoyaki y okonomiyaki junto con paseo de mercado." : "Try takoyaki and okonomiyaki together, ideally with a market walk.";
-    if (/curry|ì¹´ë ˆ/.test(name)) return ko ? "ì¼ë³¸ì‹ ì¹´ë ˆë‚˜ ëˆì¹´ì¸  ì¹´ë ˆê°€ ë¬´ë‚œí•´ìš”. ì´ë™ ì¤‘ ë¹ ë¥´ê³  ë“ ë“ í•œ í•œ ë¼ë¡œ ì¢‹ìŠµë‹ˆë‹¤." : es ? "El curry japonÃ©s o katsu curry es seguro y rÃ¡pido." : "Japanese curry or katsu curry is a dependable, easy meal.";
-    if (/matcha|ë§ì°¨|green tea/.test(name)) return ko ? "ë§ì°¨ ì•„ì´ìŠ¤í¬ë¦¼ì´ë‚˜ ë§ì°¨ íŒŒë¥´íŽ˜ë¥¼ ì¶”ì²œí•´ìš”. ì˜¤í›„ ë””ì €íŠ¸ ì½”ìŠ¤ë¡œ ë„£ê¸° ì¢‹ìŠµë‹ˆë‹¤." : es ? "Prueba helado o parfait de matcha como postre." : "Try matcha ice cream or a matcha parfait as an afternoon dessert.";
-    if (/katz|pastrami/.test(name)) return ko ? "íŒŒìŠ¤íŠ¸ë¼ë¯¸ ìƒŒë“œìœ„ì¹˜ê°€ ìœ ëª…í•´ìš”. ì ì‹¬ í”¼í¬ë¥¼ í”¼í•˜ë©´ í›¨ì”¬ íŽ¸í•©ë‹ˆë‹¤." : es ? "Famoso por pastrami; mejor evitar la hora pico." : "Known for pastrami; go just before or after lunch rush.";
-    if (/russ|bagel/.test(name)) return ko ? "ë² ì´ê¸€ê³¼ í›ˆì œ ìƒì„ ìœ¼ë¡œ ìœ ëª…í•´ìš”. ì•„ì¹¨ ë™ì„ ì— ë„£ê¸° ì¢‹ìŠµë‹ˆë‹¤." : es ? "Bagels y pescado ahumado; ideal para la maÃ±ana." : "Bagels and smoked fish; best as a morning food stop.";
-    if (/pizza|joe/.test(name)) return ko ? "ë‰´ìš•ì‹ ìŠ¬ë¼ì´ìŠ¤ë¥¼ ë¹ ë¥´ê²Œ ë§›ë³´ê¸° ì¢‹ì•„ìš”. ì´ë™ ì¤‘ ê°„ë‹¨í•œ ì‹ì‚¬ë¡œ ë§žìŠµë‹ˆë‹¤." : es ? "Buena parada rÃ¡pida para una slice clÃ¡sica." : "A clean classic-slice stop between neighborhoods.";
-    if (/taco|chelsea/.test(name)) return ko ? "ì²¼ì‹œë§ˆì¼“ ê·¼ì²˜ë¼ ì‡¼í•‘·ì‚°ì±…ê³¼ ì—°ê²°í•˜ê¸° ì¢‹ì•„ìš”. ì•„ë„ë°”ë‹¤ë¥¼ ì¶”ì²œí•©ë‹ˆë‹¤." : es ? "Cerca de Chelsea Market; adobada es una opciÃ³n segura." : "Easy Chelsea Market stop; adobada is the safe order.";
-    if (/levain|bakery|cookie/.test(name)) return ko ? "ì¿ í‚¤ì™€ ì»¤í”¼ë¡œ ì˜¤í›„ íœ´ì‹ì— ì¢‹ì•„ìš”. ë„ˆë¬´ ëŠ¦ìœ¼ë©´ ì¤„ì´ ê¸¸ ìˆ˜ ìžˆìŠµë‹ˆë‹¤." : es ? "Perfecto para descanso de tarde; puede haber fila." : "Use it as an afternoon dessert break; lines can build.";
-    if (/keens|steak|grill|bbq/.test(name)) return ko ? "íŠ¹ë³„í•œ ì €ë… í•œ ë¼ë¡œ ì¢‹ì•„ìš”. ì˜ˆì•½ ê°€ëŠ¥ ì—¬ë¶€ë¥¼ ë¨¼ì € í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤." : es ? "Buena cena especial; verificar reserva primero." : "Best as one special dinner; verify reservations first.";
+    if (/tsukiji|toyosu|sushi|스시|초밥/.test(name)) return ko ? "참치, 우니, 계란초밥처럼 신선도가 바로 느껴지는 메뉴를 추천해요. 아침이나 이른 점심이 가장 좋습니다." : es ? "Pide atún, uni o sushi de huevo; mejor temprano." : "Order tuna, uni, or tamago sushi; it is best early before the rush.";
+    if (/ramen|라멘|ichiran/.test(name)) return ko ? "진한 국물 라멘을 먹기 좋아요. 매운맛과 면 익힘을 취향대로 맞춰보세요." : es ? "Buen ramen intenso; ajusta picante y textura del fideo." : "Go for rich broth ramen and tune spice/noodle firmness to your taste.";
+    if (/wagyu|yakiniku|와규|야키니쿠/.test(name)) return ko ? "와규나 야키니쿠 세트가 잘 맞아요. 저녁 하이라이트로 잡으면 만족도가 높습니다." : es ? "Wagyu o yakiniku funcionan muy bien para una cena especial." : "Wagyu or yakiniku sets work well as a memorable dinner.";
+    if (/takoyaki|okonomiyaki|타코야키|오코노미야키/.test(name)) return ko ? "타코야키와 오코노미야키를 같이 비교해 먹기 좋아요. 시장 산책과 묶으면 재미있습니다." : es ? "Prueba takoyaki y okonomiyaki junto con paseo de mercado." : "Try takoyaki and okonomiyaki together, ideally with a market walk.";
+    if (/curry|카레/.test(name)) return ko ? "일본식 카레나 돈카츠 카레가 무난해요. 이동 중 빠르고 든든한 한 끼로 좋습니다." : es ? "El curry japonés o katsu curry es seguro y rápido." : "Japanese curry or katsu curry is a dependable, easy meal.";
+    if (/matcha|말차|green tea/.test(name)) return ko ? "말차 아이스크림이나 말차 파르페를 추천해요. 오후 디저트 코스로 넣기 좋습니다." : es ? "Prueba helado o parfait de matcha como postre." : "Try matcha ice cream or a matcha parfait as an afternoon dessert.";
+    if (/katz|pastrami/.test(name)) return ko ? "파스트라미 샌드위치가 유명해요. 점심 피크를 피하면 훨씬 편합니다." : es ? "Famoso por pastrami; mejor evitar la hora pico." : "Known for pastrami; go just before or after lunch rush.";
+    if (/russ|bagel/.test(name)) return ko ? "베이글과 훈제 생선으로 유명해요. 아침 동선에 넣기 좋습니다." : es ? "Bagels y pescado ahumado; ideal para la mañana." : "Bagels and smoked fish; best as a morning food stop.";
+    if (/pizza|joe/.test(name)) return ko ? "뉴욕식 슬라이스를 빠르게 맛보기 좋아요. 이동 중 간단한 식사로 맞습니다." : es ? "Buena parada rápida para una slice clásica." : "A clean classic-slice stop between neighborhoods.";
+    if (/taco|chelsea/.test(name)) return ko ? "첼시마켓 근처라 쇼핑·산책과 연결하기 좋아요. 아도바다를 추천합니다." : es ? "Cerca de Chelsea Market; adobada es una opción segura." : "Easy Chelsea Market stop; adobada is the safe order.";
+    if (/levain|bakery|cookie/.test(name)) return ko ? "쿠키와 커피로 오후 휴식에 좋아요. 너무 늦으면 줄이 길 수 있습니다." : es ? "Perfecto para descanso de tarde; puede haber fila." : "Use it as an afternoon dessert break; lines can build.";
+    if (/keens|steak|grill|bbq/.test(name)) return ko ? "특별한 저녁 한 끼로 좋아요. 예약 가능 여부를 먼저 확인해야 합니다." : es ? "Buena cena especial; verificar reserva primero." : "Best as one special dinner; verify reservations first.";
     return ko
-      ? `${index + 1}ì¼ì°¨ ë™ì„ ì— ë„£ê¸° ì¢‹ì€ ì‹ì‚¬ í›„ë³´ì˜ˆìš”. ëŒ€í‘œ ë©”ë‰´ì™€ ì˜ˆì•½ ê°€ëŠ¥ ì—¬ë¶€ë¥¼ ìŠ¹ì¸ í›„ í™•ì¸í•©ë‹ˆë‹¤.`
+      ? `${index + 1}일차 동선에 넣기 좋은 식사 후보예요. 대표 메뉴와 예약 가능 여부를 승인 후 확인합니다.`
       : es
-        ? `Buena opciÃ³n para el dÃ­a ${index + 1}; ONE verifica plato recomendado y reserva.`
+        ? `Buena opción para el día ${index + 1}; ONE verifica plato recomendado y reserva.`
       : `Good fit for Day ${index + 1}; ONE checks what to order and reservation timing.`;
   }
-  if (/universal studios|usj|ìœ ë‹ˆë²„ì„¤/.test(name)) return ko ? "í•´ë¦¬í¬í„°, ë¯¸ë‹ˆì–¸ì¦ˆ, ë‹Œí…ë„ ì›”ë“œì²˜ëŸ¼ ë§Œì¡±ë„ê°€ ë†’ì€ êµ¬ì—­ì„ ë¨¼ì € ìž¡ëŠ” ê²Œ ì¢‹ì•„ìš”." : es ? "Prioriza Harry Potter, Minions o Nintendo World." : "Prioritize Harry Potter, Minions, or Nintendo World before crowds build.";
-  if (/teamlab|íŒ€ëž©/.test(name)) return ko ? "ëª°ìž…í˜• ì „ì‹œë¼ ì‚¬ì§„ê³¼ ê¸°ì–µì— ë‚¨ê¸° ì¢‹ì•„ìš”. ë¹„ ì˜¤ëŠ” ë‚  ëŒ€ì•ˆìœ¼ë¡œë„ ì•ˆì •ì ìž…ë‹ˆë‹¤." : es ? "Experiencia inmersiva, buena para fotos y lluvia." : "A memorable immersive stop and a reliable rainy-day option.";
-  if (/fushimi|shrine|torii|ì‹ ì‚¬|ì‚¬ì°°/.test(name)) return ko ? "ë¶‰ì€ ë„ë¦¬ì´ ê¸¸ì²˜ëŸ¼ ì‚¬ì§„ í¬ì¸íŠ¸ê°€ ê°•í•´ìš”. ì˜¤ì „ì— ê°€ë©´ í›¨ì”¬ ì—¬ìœ ë¡­ìŠµë‹ˆë‹¤." : es ? "Los torii son perfectos para fotos; mejor por la maÃ±ana." : "The torii gates are the photo moment; mornings feel much calmer.";
-  if (/aquarium|ìˆ˜ì¡±ê´€|ì•„ì¿ ì•„ë¦¬ì›€/.test(name)) return ko ? "ì‹¤ë‚´ì—ì„œ ì˜¤ëž˜ ë¨¸ë¬¼ê¸° ì¢‹ì•„ìš”. í•´íŒŒë¦¬·ëŒ€í˜• ìˆ˜ì¡° êµ¬ì—­ì„ ì¤‘ì‹¬ìœ¼ë¡œ ë³´ë©´ ë§Œì¡±ë„ê°€ ë†’ìŠµë‹ˆë‹¤." : es ? "Buen plan interior; busca medusas y tanques grandes." : "A strong indoor stop; jellyfish and large-tank zones are usually the highlights.";
-  if (/shibuya|ì‹œë¶€ì•¼|sky/.test(name)) return ko ? "ìŠ¤í¬ëž¨ë¸” êµì°¨ë¡œì™€ ì „ë§ì„ ê°™ì´ ë¬¶ìœ¼ë©´ ë„ì¿„ ëŠë‚Œì´ ë°”ë¡œ ë‚©ë‹ˆë‹¤." : es ? "Combina el cruce y una vista para sentir Tokio." : "Pair the scramble crossing with a skyline view for the Tokyo feeling.";
-  if (/nara|deer|ì‚¬ìŠ´/.test(name)) return ko ? "ì‚¬ìŠ´ê³µì›ê³¼ ì‚¬ì°° ì‚°ì±…ì„ ê°™ì´ ìž¡ìœ¼ë©´ í•˜ë£¨ ì—¬í–‰ìœ¼ë¡œ ê¸°ì–µì— ë‚¨ìŠµë‹ˆë‹¤." : es ? "Ciervos y templos juntos hacen una excursiÃ³n memorable." : "Deer park plus temple walking makes it a memorable day trip.";
-  if (/hakone|onsen|í›„ì§€|ì˜¨ì²œ/.test(name)) return ko ? "ì˜¨ì²œê³¼ í›„ì§€ì‚° ì „ë§ì„ ê°™ì´ ë…¸ë¦¬ë©´ íœ´ì‹ê°ì´ í½ë‹ˆë‹¤. ì´ë™ ì‹œê°„ì€ ë„‰ë„‰ížˆ ìž¡ì•„ì•¼ í•´ìš”." : es ? "Onsen y vistas al Fuji; deja margen de traslado." : "Onsen plus Fuji views can be special; leave generous transfer time.";
-  if (/statue|liberty|ellis/.test(name)) return ko ? "ë‰´ìš• ì²« ë°©ë¬¸ì´ë©´ ìƒì§•ì„±ì´ ê°€ìž¥ ê°•í•´ìš”. íŽ˜ë¦¬ ì‹œê°„ê¹Œì§€ ë¬¶ì–´ì„œ ë³´ëŠ” ê²Œ ì¢‹ìŠµë‹ˆë‹¤." : es ? "Icono de Nueva York; conviene planear ferry y tiempo juntos." : "The most iconic first-visit stop; plan ferry timing with it.";
-  if (/central park/.test(name)) return ko ? "ê±·ê¸°ì™€ íœ´ì‹ ê· í˜•ì´ ì¢‹ì•„ìš”. ë‚ ì”¨ ì¢‹ì€ ë‚  ì˜¤ì „ì´ë‚˜ ëŠ¦ì€ ì˜¤í›„ê°€ ì¢‹ìŠµë‹ˆë‹¤." : es ? "Ideal para caminar y descansar; mejor maÃ±ana o tarde." : "Easy walking plus recovery; best morning or late afternoon.";
-  if (/broadway|theater/.test(name)) return ko ? "ì €ë… í•˜ì´ë¼ì´íŠ¸ë¡œ ì¢‹ì•„ìš”. ì¢Œì„ê³¼ ê°€ê²©ì€ ì‹¤ì‹œê°„ í™•ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤." : es ? "Gran cierre nocturno; asientos y precio se verifican en vivo." : "A strong night highlight; seats and prices need live check.";
-  if (/museum|moma|met|aquarium|indoor/.test(name)) return ko ? "ë¹„ ì˜¤ëŠ” ë‚ ì—ë„ ì•ˆì •ì ì´ì—ìš”. 90ë¶„ ì´ìƒ ì—¬ìœ ë¥¼ ë‘ë©´ ë§Œì¡±ë„ê°€ ë†’ìŠµë‹ˆë‹¤." : es ? "Buena opciÃ³n con lluvia; reserva al menos 90 minutos." : "Reliable indoor option; give it 90+ minutes.";
-  if (/market|shopping|macy|soho|outlet|fifth/.test(name)) return ko ? "ì‡¼í•‘ê³¼ ì‹ì‚¬ë¥¼ ê°™ì´ ë¬¶ê¸° ì¢‹ì•„ìš”. ë™ì„ ì„ í•˜ë£¨ì— ëª°ì•„ë‘ë©´ íŽ¸í•©ë‹ˆë‹¤." : es ? "Combina compras y comida; mejor agrupar la zona." : "Good shopping-and-food cluster; keep it on one route.";
+  if (/universal studios|usj|유니버설/.test(name)) return ko ? "해리포터, 미니언즈, 닌텐도 월드처럼 만족도가 높은 구역을 먼저 잡는 게 좋아요." : es ? "Prioriza Harry Potter, Minions o Nintendo World." : "Prioritize Harry Potter, Minions, or Nintendo World before crowds build.";
+  if (/teamlab|팀랩/.test(name)) return ko ? "몰입형 전시라 사진과 기억에 남기 좋아요. 비 오는 날 대안으로도 안정적입니다." : es ? "Experiencia inmersiva, buena para fotos y lluvia." : "A memorable immersive stop and a reliable rainy-day option.";
+  if (/fushimi|shrine|torii|신사|사찰/.test(name)) return ko ? "붉은 도리이 길처럼 사진 포인트가 강해요. 오전에 가면 훨씬 여유롭습니다." : es ? "Los torii son perfectos para fotos; mejor por la mañana." : "The torii gates are the photo moment; mornings feel much calmer.";
+  if (/aquarium|수족관|아쿠아리움/.test(name)) return ko ? "실내에서 오래 머물기 좋아요. 해파리·대형 수조 구역을 중심으로 보면 만족도가 높습니다." : es ? "Buen plan interior; busca medusas y tanques grandes." : "A strong indoor stop; jellyfish and large-tank zones are usually the highlights.";
+  if (/shibuya|시부야|sky/.test(name)) return ko ? "스크램블 교차로와 전망을 같이 묶으면 도쿄 느낌이 바로 납니다." : es ? "Combina el cruce y una vista para sentir Tokio." : "Pair the scramble crossing with a skyline view for the Tokyo feeling.";
+  if (/nara|deer|사슴/.test(name)) return ko ? "사슴공원과 사찰 산책을 같이 잡으면 하루 여행으로 기억에 남습니다." : es ? "Ciervos y templos juntos hacen una excursión memorable." : "Deer park plus temple walking makes it a memorable day trip.";
+  if (/hakone|onsen|후지|온천/.test(name)) return ko ? "온천과 후지산 전망을 같이 노리면 휴식감이 큽니다. 이동 시간은 넉넉히 잡아야 해요." : es ? "Onsen y vistas al Fuji; deja margen de traslado." : "Onsen plus Fuji views can be special; leave generous transfer time.";
+  if (/statue|liberty|ellis/.test(name)) return ko ? "뉴욕 첫 방문이면 상징성이 가장 강해요. 페리 시간까지 묶어서 보는 게 좋습니다." : es ? "Icono de Nueva York; conviene planear ferry y tiempo juntos." : "The most iconic first-visit stop; plan ferry timing with it.";
+  if (/central park/.test(name)) return ko ? "걷기와 휴식 균형이 좋아요. 날씨 좋은 날 오전이나 늦은 오후가 좋습니다." : es ? "Ideal para caminar y descansar; mejor mañana o tarde." : "Easy walking plus recovery; best morning or late afternoon.";
+  if (/broadway|theater/.test(name)) return ko ? "저녁 하이라이트로 좋아요. 좌석과 가격은 실시간 확인이 필요합니다." : es ? "Gran cierre nocturno; asientos y precio se verifican en vivo." : "A strong night highlight; seats and prices need live check.";
+  if (/museum|moma|met|aquarium|indoor/.test(name)) return ko ? "비 오는 날에도 안정적이에요. 90분 이상 여유를 두면 만족도가 높습니다." : es ? "Buena opción con lluvia; reserva al menos 90 minutos." : "Reliable indoor option; give it 90+ minutes.";
+  if (/market|shopping|macy|soho|outlet|fifth/.test(name)) return ko ? "쇼핑과 식사를 같이 묶기 좋아요. 동선을 하루에 몰아두면 편합니다." : es ? "Combina compras y comida; mejor agrupar la zona." : "Good shopping-and-food cluster; keep it on one route.";
   return ko
-    ? `${index + 1}ë²ˆì§¸ í•µì‹¬ ìž¥ì†Œì˜ˆìš”. ì‚¬ì§„, ì´ë™ ì‹œê°„, ì£¼ë³€ ì‹ì‚¬ê¹Œì§€ í•¨ê»˜ ë¬¶ì–´ í™•ì¸í•©ë‹ˆë‹¤.`
+    ? `${index + 1}번째 핵심 장소예요. 사진, 이동 시간, 주변 식사까지 함께 묶어 확인합니다.`
     : es
       ? `Punto clave ${index + 1}; se conecta con fotos, traslado y comida cercana.`
       : `Highlight ${index + 1}; ONE connects it with timing, photos, and nearby food.`;
 };
 
-const createAlpha03VisualCard = (item, type, index) => `
-  <article class="alpha03-visual-card alpha03-premium-card is-${type}">
-    <div class="alpha03-thumb" aria-hidden="true"><span>${escapeSummaryText(item.icon || (type === "restaurant" ? "ðŸ½ï¸" : "ðŸ“"))}</span></div>
+const createAlpha03VisualCard = (item, type, index) => {
+  const image = previewItemImage(item);
+  const imageMarkup = image?.url
+    ? `<img src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
+    : `<span class="alpha03-thumb-fallback" aria-hidden="true"></span>`;
+  return `
+  <article class="alpha03-visual-card alpha03-premium-card is-${type}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}">
+    <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}">${imageMarkup}</div>
     <div>
       <strong>${escapeSummaryText(item.name)}</strong>
       <p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>
     </div>
   </article>
 `;
+};
 
 const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
-  const destinationProfile = profile || profileForResult(currentResult || {}, getTravelDestinationLabel(currentResult || {}));
-  const tileUrl = mapTileUrlForProfile(destinationProfile);
-  const markers = buildPreviewMapMarkers(destinationProfile, places, restaurants);
-  const fallbackPins = days.slice(0, 7).map((day, index) => ({
-    label: day.title,
-    category: index % 3 === 0 ? "food" : "place",
-    left: [47, 58, 38, 65, 52, 43, 70][index % 7],
-    top: [42, 48, 55, 35, 62, 33, 56][index % 7]
-  }));
-  const pins = markers.length ? markers : fallbackPins;
-  const style = tileUrl ? ` style="--map-tile:url('${escapeSummaryText(tileUrl)}')"` : "";
+  const selectedProfile = profile || profileForResult(currentResult || {}, getTravelDestinationLabel(currentResult || {}));
+  if (!selectedProfile) {
+    return `<div class="alpha03-map-unavailable">${escapeSummaryText(alpha03Copy("Map unavailable", "Map unavailable", "Mapa no disponible"))}</div>`;
+  }
+  const markers = buildPreviewMapMarkers(selectedProfile, restaurants, places);
+  const mapUrl = osmEmbedUrlForProfile(selectedProfile, markers);
   return `
-    <div class="alpha03-map-canvas is-real-preview" aria-label="${escapeSummaryText(alpha03Copy("Map preview", "지도 미리보기", "Vista de mapa"))}"${style}>
-      <div class="alpha03-map-tile" aria-hidden="true"></div>
-      ${pins.map((pin, index) => `<span class="alpha03-map-pin is-${pin.category}" style="--pin:${index};--x:${pin.left}%;--y:${pin.top}%;" title="${escapeSummaryText(pin.label)}" aria-label="${escapeSummaryText(pin.label)}"><i></i></span>`).join("")}
-      <span class="alpha03-map-attribution">© OpenStreetMap contributors · preview</span>
+    <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" aria-label="${escapeSummaryText(alpha03Copy("Interactive OpenStreetMap preview", "Interactive OpenStreetMap preview", "Vista interactiva de OpenStreetMap"))}">
+      <iframe src="${escapeSummaryText(mapUrl)}" title="${escapeSummaryText(`${selectedProfile.city} itinerary map`)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(alpha03Copy("Itinerary markers", "Itinerary markers", "Marcadores del itinerario"))}">
+        ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
+      </div>
+      <p class="alpha03-map-note">${escapeSummaryText(alpha03Copy("OpenStreetMap preview - drag and zoom inside the map", "OpenStreetMap preview - drag and zoom inside the map", "Vista OpenStreetMap - puedes arrastrar y acercar"))}</p>
     </div>
   `;
 };
+
 const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => `
   <button class="alpha03-preview-option${selected ? " is-selected" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" aria-pressed="${selected ? "true" : "false"}">
-    <span>${selected ? "âœ“" : "+"}</span>
+    <span>${selected ? "✓" : "+"}</span>
     <strong>${escapeSummaryText(option.name)}</strong>
     <em>${escapeSummaryText(option.meta)}</em>
   </button>
 `;
 
 const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
-  const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "ì‹¤ì‹œê°„ í•­ê³µ ê²€ìƒ‰", "BÃºsqueda de vuelos");
+  const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
   const flights = (result.flights || []).slice(0, 8).map((flight) => ({
     name: getFlightName(flight),
     meta: formatRange(flight.estimatedPrice) || journey.budget
   })).concat([
-    { name: `${firstFlightName} · Economy`, meta: alpha03Copy("lowest practical fare", "ì‹¤ì† ì¢Œì„", "tarifa prÃ¡ctica") },
-    { name: `${firstFlightName} · Business`, meta: alpha03Copy("comfort upgrade check", "íŽ¸ì•ˆí•œ ì¢Œì„ í™•ì¸", "mejora de comodidad") },
-    { name: `${firstFlightName} · First`, meta: alpha03Copy("premium cabin check", "í”„ë¦¬ë¯¸ì—„ ì¢Œì„ í™•ì¸", "cabina premium") }
+    { name: `${firstFlightName} · Economy`, meta: alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica") },
+    { name: `${firstFlightName} · Business`, meta: alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad") },
+    { name: `${firstFlightName} · First`, meta: alpha03Copy("premium cabin check", "프리미엄 좌석 확인", "cabina premium") }
   ]).slice(0, 8);
   const hotels = (result.hotels || []).slice(0, 6).map((hotel) => ({
     name: getHotelName(hotel),
-    meta: formatRange(hotel.estimatedNightlyPrice || result.budget?.hotel) || alpha03Copy("Price check", "ê°€ê²© í™•ì¸", "Ver precio")
+    meta: formatRange(hotel.estimatedNightlyPrice || result.budget?.hotel) || alpha03Copy("Price check", "가격 확인", "Ver precio")
   })).concat([
-    { name: alpha03Copy("Ryokan / traditional stay", "ë£Œì¹¸·ì „í†µ ìˆ™ì†Œ", "Ryokan / alojamiento tradicional"), meta: alpha03Copy("Japan-style stay", "ì¼ë³¸ ê°ì„± ìˆ™ë°•", "estancia japonesa") },
-    { name: alpha03Copy("Hostel / budget stay", "í˜¸ìŠ¤í…”·ì‹¤ì† ìˆ™ì†Œ", "Hostal / econÃ³mico"), meta: alpha03Copy("lower cost search", "ë‚®ì€ ë¹„ìš© í™•ì¸", "menor costo") },
-    { name: alpha03Copy("Luxury hotel", "ëŸ­ì…”ë¦¬ í˜¸í…”", "Hotel de lujo"), meta: alpha03Copy("service-first option", "ì„œë¹„ìŠ¤ ìš°ì„ ", "servicio premium") }
+    { name: alpha03Copy("Ryokan / traditional stay", "료칸·전통 숙소", "Ryokan / alojamiento tradicional"), meta: alpha03Copy("Japan-style stay", "일본 감성 숙박", "estancia japonesa") },
+    { name: alpha03Copy("Hostel / budget stay", "호스텔·실속 숙소", "Hostal / económico"), meta: alpha03Copy("lower cost search", "낮은 비용 확인", "menor costo") },
+    { name: alpha03Copy("Luxury hotel", "럭셔리 호텔", "Hotel de lujo"), meta: alpha03Copy("service-first option", "서비스 우선", "servicio premium") }
   ]).slice(0, 8);
   const transfers = [
-    { name: alpha03Copy("Airport rail + subway + walk", "ê³µí•­ì² ë„ + ì§€í•˜ì²  + ë„ë³´", "Tren aeropuerto + metro + caminar"), meta: alpha03Copy("route search ready", "ë™ì„  ê²€ìƒ‰ ì¤€ë¹„", "ruta preparada") },
-    { name: alpha03Copy("Airport bus + short walk", "ê³µí•­ë²„ìŠ¤ + ì§§ì€ ë„ë³´", "Bus aeropuerto + caminar"), meta: alpha03Copy("simple luggage route", "ì§ ìžˆì„ ë•Œ íŽ¸í•œ ë™ì„ ", "con equipaje") },
-    { name: alpha03Copy("JR / metro day route", "JR·ì§€í•˜ì²  í•˜ë£¨ ë™ì„ ", "JR / metro diario"), meta: alpha03Copy("multi-stop route", "ì—¬ëŸ¬ ìž¥ì†Œ ì´ë™", "varias paradas") },
-    { name: alpha03Copy("Taxi + walk", "íƒì‹œ + ë„ë³´", "Taxi + caminar"), meta: alpha03Copy("comfort route", "íŽ¸í•œ ì´ë™", "ruta cÃ³moda") },
-    { name: alpha03Copy("Private transfer", "ì „ìš© ì´ë™", "Traslado privado"), meta: alpha03Copy("higher cost", "ë†’ì€ ë¹„ìš©", "mayor costo") }
+    { name: alpha03Copy("Airport rail + subway + walk", "공항철도 + 지하철 + 도보", "Tren aeropuerto + metro + caminar"), meta: alpha03Copy("route search ready", "동선 검색 준비", "ruta preparada") },
+    { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar"), meta: alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje") },
+    { name: alpha03Copy("JR / metro day route", "JR·지하철 하루 동선", "JR / metro diario"), meta: alpha03Copy("multi-stop route", "여러 장소 이동", "varias paradas") },
+    { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar"), meta: alpha03Copy("comfort route", "편한 이동", "ruta cómoda") },
+    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado"), meta: alpha03Copy("higher cost", "높은 비용", "mayor costo") }
   ];
   transfers.push(
-    { name: alpha03Copy("Train + local bus + walk", "ì—´ì°¨ + í˜„ì§€ ë²„ìŠ¤ + ë„ë³´", "Tren + bus local + caminar"), meta: alpha03Copy("regional route", "ì§€ì—­ ì´ë™", "ruta regional") },
-    { name: alpha03Copy("Subway pass route", "ì§€í•˜ì²  íŒ¨ìŠ¤ ë™ì„ ", "Ruta con pase de metro"), meta: alpha03Copy("easy repeat rides", "ë°˜ë³µ ì´ë™ì— íŽ¸í•¨", "traslados repetidos") },
-    { name: alpha03Copy("Late-night taxi backup", "ì•¼ê°„ íƒì‹œ ëŒ€ì•ˆ", "Taxi nocturno alternativo"), meta: alpha03Copy("after dinner backup", "ì €ë… í›„ ëŒ€ì•ˆ", "despuÃ©s de cenar") }
+    { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar"), meta: alpha03Copy("regional route", "지역 이동", "ruta regional") },
+    { name: alpha03Copy("Subway pass route", "지하철 패스 동선", "Ruta con pase de metro"), meta: alpha03Copy("easy repeat rides", "반복 이동에 편함", "traslados repetidos") },
+    { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo"), meta: alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar") }
   );
   const groups = [
-    [alpha03Copy("Flights", "í•­ê³µ", "Vuelos"), "flights", flights],
-    [alpha03Copy("Hotels", "ìˆ™ì†Œ", "Hotel"), "hotels", hotels],
-    [alpha03Copy("Transport", "ì´ë™", "Transporte"), "transport", transfers]
+    [alpha03Copy("Flights", "항공", "Vuelos"), "flights", flights],
+    [alpha03Copy("Hotels", "숙소", "Hotel"), "hotels", hotels],
+    [alpha03Copy("Transport", "이동", "Transporte"), "transport", transfers]
   ];
   return `
-    <section class="alpha03-option-preview" aria-label="${escapeSummaryText(alpha03Copy("Selectable travel options", "ì„ íƒ ê°€ëŠ¥í•œ ì—¬í–‰ ì˜µì…˜", "Opciones seleccionables"))}">
+    <section class="alpha03-option-preview" aria-label="${escapeSummaryText(alpha03Copy("Selectable travel options", "선택 가능한 여행 옵션", "Opciones seleccionables"))}">
       ${groups.map(([title, key, options]) => `
         <div class="alpha03-preview-group">
           <h4>${escapeSummaryText(title)}</h4>
           <div>
-            ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "ì‹¤ì‹œê°„ ê²€ìƒ‰ ì¤€ë¹„", "BÃºsqueda en vivo lista"), meta: alpha03Copy("Prepared", "ì¤€ë¹„ë¨", "Preparado") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, index === 0)).join("")}
+            ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "실시간 검색 준비", "Búsqueda en vivo lista"), meta: alpha03Copy("Prepared", "준비됨", "Preparado") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, index === 0)).join("")}
           </div>
         </div>
       `).join("")}
@@ -2886,8 +2861,8 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
 const createAlpha03TimelineHtml = (days) => `
   <section class="alpha03-section alpha03-timeline-redesign">
     <div class="alpha03-section-heading">
-      <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Timeline", "ì¼ì •", "Itinerario"))}</span>
-      <h3>${escapeSummaryText(alpha03Copy("A full day you can picture", "í•˜ë£¨ê°€ ë°”ë¡œ ê·¸ë ¤ì§€ëŠ” ì¼ì •", "Un dÃ­a fÃ¡cil de imaginar"))}</h3>
+      <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Timeline", "일정", "Itinerario"))}</span>
+      <h3>${escapeSummaryText(alpha03Copy("A full day you can picture", "하루가 바로 그려지는 일정", "Un día fácil de imaginar"))}</h3>
     </div>
     <div class="alpha03-timeline-strip">
       ${days.map((day) => {
@@ -2917,37 +2892,37 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
   const hero = getAlpha03HeroTone(destination);
   const transportationSummary = journey.tone === "value"
-    ? alpha03Copy("Transit-first route with licensed taxi only when it saves energy.", "ëŒ€ì¤‘êµí†µ ì¤‘ì‹¬, ê¼­ í•„ìš”í•  ë•Œë§Œ í—ˆê°€ëœ íƒì‹œë¥¼ ì‚¬ìš©í•©ë‹ˆë‹¤.", "Ruta con transporte pÃºblico y taxi autorizado solo cuando ahorra energÃ­a.")
+    ? alpha03Copy("Transit-first route with licensed taxi only when it saves energy.", "대중교통 중심, 꼭 필요할 때만 허가된 택시를 사용합니다.", "Ruta con transporte público y taxi autorizado solo cuando ahorra energía.")
     : journey.tone === "rest"
-      ? alpha03Copy("Short moves, fewer transfers, and more time inside the destination.", "ì§§ì€ ì´ë™, ì ì€ í™˜ìŠ¹, ëª©ì ì§€ì—ì„œ ë¨¸ë¬´ëŠ” ì‹œê°„ì„ ëŠ˜ë¦½ë‹ˆë‹¤.", "Traslados cortos, menos cambios y mÃ¡s tiempo en destino.")
-      : alpha03Copy("Walkable core route with official transit or licensed transfer checks.", "ë„ë³´ ê°€ëŠ¥í•œ ì¤‘ì‹¬ ë™ì„ ì— ê³µì‹ êµí†µ ë˜ëŠ” í—ˆê°€ ì´ë™ìˆ˜ë‹¨ì„ í™•ì¸í•©ë‹ˆë‹¤.", "Ruta caminable con transporte oficial o traslado autorizado.");
+      ? alpha03Copy("Short moves, fewer transfers, and more time inside the destination.", "짧은 이동, 적은 환승, 목적지에서 머무는 시간을 늘립니다.", "Traslados cortos, menos cambios y más tiempo en destino.")
+      : alpha03Copy("Walkable core route with official transit or licensed transfer checks.", "도보 가능한 중심 동선에 공식 교통 또는 허가 이동수단을 확인합니다.", "Ruta caminable con transporte oficial o traslado autorizado.");
   const budgetItems = createAlpha03BudgetItems(journey, result);
   const compactBudget = getCompactTravelBudgetLabel(result, journey.budget);
   const schedule = result.schedule || {};
   const dateText = schedule.startDate && schedule.endDate
-    ? `${formatAlpha03Date(schedule.startDate)} â†’ ${formatAlpha03Date(schedule.endDate)}`
-    : alpha03Copy("Dates flexible", "ë‚ ì§œ ìœ ë™ì ", "Fechas flexibles");
+    ? `${formatAlpha03Date(schedule.startDate)} → ${formatAlpha03Date(schedule.endDate)}`
+    : alpha03Copy("Dates flexible", "날짜 유동적", "Fechas flexibles");
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
       <div class="alpha03-recommendation-copy">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE ì¶”ì²œ", "ONE recomienda"))}</span>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda"))}</span>
         <h2>${escapeSummaryText(journey.name)}</h2>
         <p>${escapeSummaryText(journey.purpose)}</p>
         <div class="alpha03-recommendation-metrics">
-          <span><b>${escapeSummaryText(String(tripDays))}</b><em>${escapeSummaryText(alpha03Copy("days", "ì¼", "dÃ­as"))}</em></span>
-          <span><b>${escapeSummaryText(compactBudget)}</b><em>${escapeSummaryText(alpha03Copy("estimated", "ì˜ˆìƒ", "estimado"))}</em></span>
-          <span><b>${escapeSummaryText(dateText)}</b><em>${escapeSummaryText(alpha03Copy("dates", "ë‚ ì§œ", "fechas"))}</em></span>
+          <span><b>${escapeSummaryText(String(tripDays))}</b><em>${escapeSummaryText(alpha03Copy("days", "일", "días"))}</em></span>
+          <span><b>${escapeSummaryText(compactBudget)}</b><em>${escapeSummaryText(alpha03Copy("estimated", "예상", "estimado"))}</em></span>
+          <span><b>${escapeSummaryText(dateText)}</b><em>${escapeSummaryText(alpha03Copy("dates", "날짜", "fechas"))}</em></span>
         </div>
-        <span class="alpha03-primary-action">${escapeSummaryText(alpha03Copy("Live search ready", "ì‹¤ì‹œê°„ ê²€ìƒ‰ ì¤€ë¹„ ì™„ë£Œ", "BÃºsqueda en vivo lista"))}</span>
+        <span class="alpha03-primary-action">${escapeSummaryText(alpha03Copy("Live search ready", "실시간 검색 준비 완료", "Búsqueda en vivo lista"))}</span>
       </div>
-      <div class="alpha03-recommendation-map" aria-label="${escapeSummaryText(alpha03Copy("Map preview", "ì§€ë„ ë¯¸ë¦¬ë³´ê¸°", "Vista de mapa"))}">
+      <div class="alpha03-recommendation-map" aria-label="${escapeSummaryText(alpha03Copy("Map preview", "지도 미리보기", "Vista de mapa"))}">
         ${createAlpha03JourneyMap(days, restaurants, places, profile)}
       </div>
     </section>
 
-    <section class="alpha03-budget-breakdown" aria-label="${escapeSummaryText(alpha03Copy("Budget", "ì˜ˆì‚°", "Presupuesto"))}">
+    <section class="alpha03-budget-breakdown" aria-label="${escapeSummaryText(alpha03Copy("Budget", "예산", "Presupuesto"))}">
       <div>
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Budget", "ì˜ˆì‚°", "Presupuesto"))}</span>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Budget", "예산", "Presupuesto"))}</span>
         <h3>${escapeSummaryText(compactBudget)}</h3>
       </div>
       <div class="alpha03-budget-grid">
@@ -2958,8 +2933,8 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ${restaurants.length ? `
     <section ${alpha04SectionAttrs(workspace, "restaurants", "alpha03-section")}>
       <div class="alpha03-section-heading">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "ìŒì‹", "Comida"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Food worth planning around", "ì¼ì •ì— ë„£ì„ ë§Œí•œ ìŒì‹", "Comida que vale planear"))}</h3>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "음식", "Comida"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Food worth planning around", "일정에 넣을 만한 음식", "Comida que vale planear"))}</h3>
       </div>
       <div class="alpha03-card-grid is-restaurants">
         ${restaurants.map((item, index) => createAlpha03VisualCard(item, "restaurant", index)).join("")}
@@ -2970,8 +2945,8 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ${places.length ? `
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "ìž¥ì†Œ", "Lugares"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Places that make the trip feel real", "ì—¬í–‰ì´ ì‚´ì•„ë‚˜ëŠ” ìž¥ì†Œ", "Lugares que hacen real el viaje"))}</h3>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Places that make the trip feel real", "여행이 살아나는 장소", "Lugares que hacen real el viaje"))}</h3>
       </div>
       <div class="alpha03-card-grid">
         ${places.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
@@ -2984,13 +2959,13 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ${createAlpha03OptionPreview(journey, result, transportationSummary)}
 
     <details ${alpha04SectionAttrs(workspace, "preparation", "alpha03-preparation-details")} hidden>
-      <summary>${escapeSummaryText(alpha03Copy("Preparation details", "ì¤€ë¹„ ì„¸ë¶€ì‚¬í•­", "Detalles de preparaciÃ³n"))}</summary>
+      <summary>${escapeSummaryText(alpha03Copy("Preparation details", "준비 세부사항", "Detalles de preparación"))}</summary>
       <div class="v23-detail-grid">
         ${[
-          ["insurance", alpha03Copy("Insurance and risk", "ë³´í—˜ê³¼ ë¦¬ìŠ¤í¬", "Seguro y riesgo"), journey.details.insurance, journey.sourceStates.insurance],
-          ["entry", alpha03Copy("Entry requirements", "ìž…êµ­ ìš”ê±´", "Requisitos de entrada"), journey.details.entry, journey.sourceStates.entry],
-          ["transport-detail", alpha03Copy("Transport details", "êµí†µ ì„¸ë¶€ì‚¬í•­", "Detalles de transporte"), journey.details.transport, journey.sourceStates.transport],
-          ["approval-check", alpha03Copy("Before live search", "ì‹¤ì‹œê°„ ê²€ìƒ‰ ì „", "Antes de buscar en vivo"), alpha03Copy("Live price, availability, rules, and material changes are checked before any external action.", "ì™¸ë¶€ ì‹¤í–‰ ì „ ì‹¤ì‹œê°„ ê°€ê²©, ê°€ëŠ¥ ì—¬ë¶€, ê·œì •, ì¤‘ìš”í•œ ë³€ê²½ì‚¬í•­ì„ ë‹¤ì‹œ í™•ì¸í•©ë‹ˆë‹¤.", "Se verifican precio, disponibilidad, reglas y cambios antes de cualquier acciÃ³n externa."), "estimated"]
+          ["insurance", alpha03Copy("Insurance and risk", "보험과 리스크", "Seguro y riesgo"), journey.details.insurance, journey.sourceStates.insurance],
+          ["entry", alpha03Copy("Entry requirements", "입국 요건", "Requisitos de entrada"), journey.details.entry, journey.sourceStates.entry],
+          ["transport-detail", alpha03Copy("Transport details", "교통 세부사항", "Detalles de transporte"), journey.details.transport, journey.sourceStates.transport],
+          ["approval-check", alpha03Copy("Before live search", "실시간 검색 전", "Antes de buscar en vivo"), alpha03Copy("Live price, availability, rules, and material changes are checked before any external action.", "외부 실행 전 실시간 가격, 가능 여부, 규정, 중요한 변경사항을 다시 확인합니다.", "Se verifican precio, disponibilidad, reglas y cambios antes de cualquier acción externa."), "estimated"]
         ].map(([id, title, body, source]) => `
           <details class="v23-detail-card" data-detail-id="${id}">
             <summary><span>${escapeSummaryText(title)}</span>${createV23SourcePill(source)}</summary>
@@ -3001,7 +2976,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     </details>
 
     <div ${alpha04SectionAttrs(workspace, "approval", "v23-approval-preview")}>
-      <strong>${escapeSummaryText(alpha03Copy("Live Search Ready", "ì‹¤ì‹œê°„ ê²€ìƒ‰ ì¤€ë¹„ ì™„ë£Œ", "BÃºsqueda en vivo lista"))}</strong>
+      <strong>${escapeSummaryText(alpha03Copy("Live Search Ready", "실시간 검색 준비 완료", "Búsqueda en vivo lista"))}</strong>
     </div>
   `;
 };
@@ -3019,7 +2994,7 @@ const createTravelPackagesCard = (result, missionContext) => {
   article.dataset.cardId = "travel-experiences";
   article.innerHTML = `
     <div class="v23-journey-layout product-journey-layout is-compact">
-      <div class="v23-alternative-journeys" aria-label="${escapeSummaryText(v22Local("Compare alternatives", "ë‹¤ë¥¸ ì„ íƒì§€ ë¹„êµ", "Comparar alternativas"))}">
+      <div class="v23-alternative-journeys" aria-label="${escapeSummaryText(v22Local("Compare alternatives", "다른 선택지 비교", "Comparar alternativas"))}">
         ${journeys.slice(0, 4).map((journey, index) => `
           <button class="v23-journey-card${selectedIndex === index ? " is-selected" : ""}" type="button" data-journey-index="${index}" aria-pressed="${selectedIndex === index}">
             ${renderV23JourneyCardInner(journey, false, result)}
@@ -3036,14 +3011,14 @@ const createTravelPackagesCard = (result, missionContext) => {
 function renderV23JourneyCardInner(journey, featured, result) {
   const budget = result ? getCompactTravelBudgetLabel(result, journey.budget) : journey.budget;
   return `
-    ${featured ? `<span class="v23-selected-badge">${escapeSummaryText(v22Local("ONE recommended trip", "ONE ì¶”ì²œ ì—¬í–‰", "Viaje recomendado por ONE"))}</span>` : ""}
+    ${featured ? `<span class="v23-selected-badge">${escapeSummaryText(v22Local("ONE recommended trip", "ONE 추천 여행", "Viaje recomendado por ONE"))}</span>` : ""}
     <strong>${escapeSummaryText(journey.name)}</strong>
     ${featured ? `<p>${escapeSummaryText(journey.reason)}</p>` : ""}
     <div class="v23-journey-meta">
       <span>${escapeSummaryText(journey.duration)}</span>
       <span>${escapeSummaryText(budget)}</span>
     </div>
-    ${featured ? `<em class="v23-card-cta">${escapeSummaryText(v22Local("View this plan", "ì´ ì¼ì • ë³´ê¸°", "Ver este plan"))}</em>` : `<small>${escapeSummaryText((journey.tags || []).slice(0, 3).join(" · "))}</small>`}
+    ${featured ? `<em class="v23-card-cta">${escapeSummaryText(v22Local("View this plan", "이 일정 보기", "Ver este plan"))}</em>` : `<small>${escapeSummaryText((journey.tags || []).slice(0, 3).join(" · "))}</small>`}
   `;
 }
 
@@ -3058,7 +3033,7 @@ const updateV23JourneySelection = (container, index, result) => {
     card.classList.toggle("is-selected", selectedCard);
     card.setAttribute("aria-pressed", selectedCard ? "true" : "false");
     const badge = card.querySelector(".v23-selected-badge");
-    if (badge) badge.textContent = selectedCard ? v22Local("Selected", "ì„ íƒë¨", "Seleccionado") : v22Local("Choose", "ì„ íƒ", "Elegir");
+    if (badge) badge.textContent = selectedCard ? v22Local("Selected", "선택됨", "Seleccionado") : v22Local("Choose", "선택", "Elegir");
   });
   const details = container.querySelector(".v23-selected-journey");
   if (details) details.innerHTML = createV23TravelDetailHtml(selected, result);
@@ -3095,9 +3070,9 @@ const createMissionInsightsCard = (result, context) => {
   if (!visible.length && !collapsed.length) return null;
   const language = activeLanguage === "ko" ? "ko" : activeLanguage === "es" ? "es" : "en";
   const actionLabels = {
-    dismiss: v22Local("Dismiss", "ë‹«ê¸°", "Descartar"),
-    later: v22Local("Remind later", "ë‚˜ì¤‘ì— ë³´ê¸°", "Recordar luego"),
-    hide: v22Local("Hide for this mission", "ì´ ë¯¸ì…˜ì—ì„œ ìˆ¨ê¸°ê¸°", "Ocultar en esta misiÃ³n")
+    dismiss: v22Local("Dismiss", "닫기", "Descartar"),
+    later: v22Local("Remind later", "나중에 보기", "Recordar luego"),
+    hide: v22Local("Hide for this mission", "이 미션에서 숨기기", "Ocultar en esta misión")
   };
   const renderInsight = (insight, compact = false) => `
     <article class="alpha-insight-row" data-insight-id="${escapeSummaryText(insight.id)}">
@@ -3105,12 +3080,12 @@ const createMissionInsightsCard = (result, context) => {
         <span class="alpha-insight-urgency is-${escapeSummaryText(insight.urgency)}">${escapeSummaryText(sourceStateUserLabel(insight.sourceState, language))}</span>
         <h3>${escapeSummaryText(insight.title)}</h3>
         <p>${escapeSummaryText(insight.explanation)}</p>
-        ${compact ? "" : `<details><summary>${escapeSummaryText(v22Local("Why am I seeing this?", "ì™œ ë³´ì—¬ì£¼ë‚˜ìš”?", "Â¿Por quÃ© aparece?"))}</summary><p>${escapeSummaryText(insight.why)}</p></details>`}
+        ${compact ? "" : `<details><summary>${escapeSummaryText(v22Local("Why am I seeing this?", "왜 보여주나요?", "¿Por qué aparece?"))}</summary><p>${escapeSummaryText(insight.why)}</p></details>`}
       </div>
       <div class="alpha-insight-meta">
-        <span>${escapeSummaryText(v22Local("Urgency", "ê¸´ê¸‰ë„", "Urgencia"))}: ${escapeSummaryText(insight.urgency)}</span>
-        <span>${escapeSummaryText(v22Local("Confidence", "ì‹ ë¢°ë„", "Confianza"))}: ${Math.round(Number(insight.confidence || 0) * 100)}%</span>
-        <span>${escapeSummaryText(v22Local("Action", "ì‚¬ìš©ìž í–‰ë™", "AcciÃ³n"))}: ${escapeSummaryText(insight.actionRequired ? v22Local("Optional decision", "ì„ íƒ ê²°ì •", "DecisiÃ³n opcional") : v22Local("No action required", "í•„ìˆ˜ í–‰ë™ ì—†ìŒ", "Sin acciÃ³n requerida"))}</span>
+        <span>${escapeSummaryText(v22Local("Urgency", "긴급도", "Urgencia"))}: ${escapeSummaryText(insight.urgency)}</span>
+        <span>${escapeSummaryText(v22Local("Confidence", "신뢰도", "Confianza"))}: ${Math.round(Number(insight.confidence || 0) * 100)}%</span>
+        <span>${escapeSummaryText(v22Local("Action", "사용자 행동", "Acción"))}: ${escapeSummaryText(insight.actionRequired ? v22Local("Optional decision", "선택 결정", "Decisión opcional") : v22Local("No action required", "필수 행동 없음", "Sin acción requerida"))}</span>
       </div>
       <div class="alpha-insight-actions">
         <button type="button" data-insight-action="dismiss">${escapeSummaryText(actionLabels.dismiss)}</button>
@@ -3125,17 +3100,17 @@ const createMissionInsightsCard = (result, context) => {
   article.innerHTML = `
     <div class="alpha-insights-heading">
       <span class="v23-eyebrow">ALPHA-01 · Mission Insights</span>
-      <h2>${escapeSummaryText(v22Local("Things worth knowing", "ì•Œì•„ë‘ë©´ ì¢‹ì€ ê²ƒ", "Cosas que conviene saber"))}</h2>
+      <h2>${escapeSummaryText(v22Local("Things worth knowing", "알아두면 좋은 것", "Cosas que conviene saber"))}</h2>
       <p>${escapeSummaryText(v22Local(
         "ONE prepared these quietly so you can decide with less mental effort.",
-        "ONEì´ ê²°ì • ë¶€ë‹´ì„ ì¤„ì´ê¸° ìœ„í•´ ì¡°ìš©ížˆ ì¤€ë¹„í•œ ì°¸ê³ ì‚¬í•­ì´ì—ìš”.",
-        "ONE preparÃ³ esto para reducir tu esfuerzo mental."
+        "ONE이 결정 부담을 줄이기 위해 조용히 준비한 참고사항이에요.",
+        "ONE preparó esto para reducir tu esfuerzo mental."
       ))}</p>
     </div>
     <div class="alpha-insight-list">${visible.map((insight) => renderInsight(insight)).join("")}</div>
     ${collapsed.length ? `
       <details class="alpha-insight-more">
-        <summary>${escapeSummaryText(v22Local("More optional insights", "ì¶”ê°€ ì°¸ê³ ì‚¬í•­", "MÃ¡s consejos opcionales"))} · ${collapsed.length}</summary>
+        <summary>${escapeSummaryText(v22Local("More optional insights", "추가 참고사항", "Más consejos opcionales"))} · ${collapsed.length}</summary>
         <div class="alpha-insight-list">${collapsed.map((insight) => renderInsight(insight, true)).join("")}</div>
       </details>
     ` : ""}
@@ -3172,35 +3147,35 @@ const writeConciergeState = (result, state) => {
 
 const conciergeSourceLabel = (state) => {
   const labels = {
-    verified_live: v22Local("Provider evidence", "ì œê³µì—…ì²´ ê·¼ê±°", "Evidencia del proveedor"),
-    cached_public: v22Local("Public evidence", "ê³µê°œ ì •ë³´ ê·¼ê±°", "Evidencia pÃºblica"),
-    estimated: v22Local("Estimated", "ì˜ˆìƒ", "Estimado"),
-    demo: v22Local("Demo evidence", "ë°ëª¨ ê·¼ê±°", "Evidencia demo"),
-    setup_required: v22Local("Setup required", "ì„¤ì • í•„ìš”", "ConfiguraciÃ³n necesaria"),
-    unavailable: v22Local("Temporarily limited", "ì¼ì‹œ ì œí•œ", "Limitado temporalmente")
+    verified_live: v22Local("Provider evidence", "제공업체 근거", "Evidencia del proveedor"),
+    cached_public: v22Local("Public evidence", "공개 정보 근거", "Evidencia pública"),
+    estimated: v22Local("Estimated", "예상", "Estimado"),
+    demo: v22Local("Demo evidence", "데모 근거", "Evidencia demo"),
+    setup_required: v22Local("Setup required", "설정 필요", "Configuración necesaria"),
+    unavailable: v22Local("Temporarily limited", "일시 제한", "Limitado temporalmente")
   };
   return labels[state] || labels.estimated;
 };
 
 const conciergePriorityLabel = (priority) => {
   const labels = {
-    critical: v22Local("Critical", "ê¸´ê¸‰", "CrÃ­tico"),
-    high: v22Local("High", "ë†’ìŒ", "Alta"),
-    medium: v22Local("Medium", "ë³´í†µ", "Media"),
-    low: v22Local("Low", "ë‚®ìŒ", "Baja")
+    critical: v22Local("Critical", "긴급", "Crítico"),
+    high: v22Local("High", "높음", "Alta"),
+    medium: v22Local("Medium", "보통", "Media"),
+    low: v22Local("Low", "낮음", "Baja")
   };
   return labels[priority] || labels.medium;
 };
 
 const conciergeBenefitText = (benefit = {}) => {
   const parts = [];
-  if (Number.isFinite(Number(benefit.timeSavedMinutes))) parts.push(v22Local(`Saves ${benefit.timeSavedMinutes} min`, `${benefit.timeSavedMinutes}ë¶„ ì ˆì•½`, `Ahorra ${benefit.timeSavedMinutes} min`));
-  if (Number.isFinite(Number(benefit.walkingReducedKm))) parts.push(v22Local(`Walk ${benefit.walkingReducedKm} km less`, `ë„ë³´ ${benefit.walkingReducedKm}km ê°ì†Œ`, `${benefit.walkingReducedKm} km menos`));
-  if (Number.isFinite(Number(benefit.moneySaved))) parts.push(v22Local(`Saves about ${formatKRW(Number(benefit.moneySaved))}`, `ì•½ ${formatKRW(Number(benefit.moneySaved))} ì ˆì•½`, `Ahorra aprox. ${formatKRW(Number(benefit.moneySaved))}`));
-  if (Number.isFinite(Number(benefit.comfortImproved))) parts.push(v22Local("Comfort improves", "íŽ¸ì•ˆí•¨ ê°œì„ ", "Mejora comodidad"));
-  if (Number.isFinite(Number(benefit.accessibilityImproved))) parts.push(v22Local("Accessibility improves", "ì ‘ê·¼ì„± ê°œì„ ", "Mejora accesibilidad"));
-  if (Number.isFinite(Number(benefit.missionQuality))) parts.push(v22Local("Plan quality improves", "ì¼ì • ì™„ì„±ë„ ê°œì„ ", "Mejora calidad"));
-  return parts.length ? parts.join(" · ") : v22Local("No measurable live value yet", "ì•„ì§ ì¸¡ì • ê°€ëŠ¥í•œ ì‹¤ì‹œê°„ ìˆ˜ì¹˜ ì—†ìŒ", "Sin valor medible en vivo aÃºn");
+  if (Number.isFinite(Number(benefit.timeSavedMinutes))) parts.push(v22Local(`Saves ${benefit.timeSavedMinutes} min`, `${benefit.timeSavedMinutes}분 절약`, `Ahorra ${benefit.timeSavedMinutes} min`));
+  if (Number.isFinite(Number(benefit.walkingReducedKm))) parts.push(v22Local(`Walk ${benefit.walkingReducedKm} km less`, `도보 ${benefit.walkingReducedKm}km 감소`, `${benefit.walkingReducedKm} km menos`));
+  if (Number.isFinite(Number(benefit.moneySaved))) parts.push(v22Local(`Saves about ${formatKRW(Number(benefit.moneySaved))}`, `약 ${formatKRW(Number(benefit.moneySaved))} 절약`, `Ahorra aprox. ${formatKRW(Number(benefit.moneySaved))}`));
+  if (Number.isFinite(Number(benefit.comfortImproved))) parts.push(v22Local("Comfort improves", "편안함 개선", "Mejora comodidad"));
+  if (Number.isFinite(Number(benefit.accessibilityImproved))) parts.push(v22Local("Accessibility improves", "접근성 개선", "Mejora accesibilidad"));
+  if (Number.isFinite(Number(benefit.missionQuality))) parts.push(v22Local("Plan quality improves", "일정 완성도 개선", "Mejora calidad"));
+  return parts.length ? parts.join(" · ") : v22Local("No measurable live value yet", "아직 측정 가능한 실시간 수치 없음", "Sin valor medible en vivo aún");
 };
 
 const markConciergePatchAccepted = (recommendation) => {
@@ -3229,10 +3204,10 @@ const createAIConciergeCard = (result) => {
   article.className = "mission-card is-wide ai-concierge-card";
   article.dataset.cardId = "ai-travel-concierge";
   const actions = {
-    accept: v22Local("Accept", "ì ìš©", "Aceptar"),
-    dismiss: v22Local("Dismiss", "ë‹«ê¸°", "Descartar"),
-    remind_later: v22Local("Remind later", "ë‚˜ì¤‘ì—", "Recordar"),
-    never_ask_again: v22Local("Never ask again", "ë‹¤ì‹œ ë¬»ì§€ ì•Šê¸°", "No preguntar")
+    accept: v22Local("Accept", "적용", "Aceptar"),
+    dismiss: v22Local("Dismiss", "닫기", "Descartar"),
+    remind_later: v22Local("Remind later", "나중에", "Recordar"),
+    never_ask_again: v22Local("Never ask again", "다시 묻지 않기", "No preguntar")
   };
   const recommendations = concierge.recommendations.length ? concierge.recommendations.map((rec) => `
     <article class="ai-concierge-recommendation is-${escapeSummaryText(rec.priority)}" data-concierge-id="${escapeSummaryText(rec.id)}">
@@ -3244,7 +3219,7 @@ const createAIConciergeCard = (result) => {
       <div class="ai-concierge-benefit">${escapeSummaryText(rec.expectedBenefit)}</div>
       <div class="ai-concierge-meta">
         <span>${escapeSummaryText(conciergeBenefitText(rec.benefit))}</span>
-        <span>${escapeSummaryText(v22Local("Confidence", "ì‹ ë¢°ë„", "Confianza"))}: ${Math.round(rec.confidence)}%</span>
+        <span>${escapeSummaryText(v22Local("Confidence", "신뢰도", "Confianza"))}: ${Math.round(rec.confidence)}%</span>
         <span>${escapeSummaryText(conciergeSourceLabel(rec.sourceState))}${rec.retrievedAt ? ` · ${escapeSummaryText(formatAlpha04Time(rec.retrievedAt))}` : ""}</span>
       </div>
       <div class="ai-concierge-components">
@@ -3256,27 +3231,27 @@ const createAIConciergeCard = (result) => {
     </article>
   `).join("") : `
     <div class="ai-concierge-limited">
-      <strong>${escapeSummaryText(v22Local("Concierge is standing by", "ì»¨ì‹œì–´ì§€ê°€ ëŒ€ê¸° ì¤‘ìž…ë‹ˆë‹¤", "Concierge estÃ¡ listo"))}</strong>
-      <p>${escapeSummaryText(concierge.limitations[0] || v22Local("Live provider updates are not available right now.", "ì§€ê¸ˆì€ ì‹¤ì‹œê°„ ì œê³µì—…ì²´ ì—…ë°ì´íŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤.", "No hay actualizaciones en vivo ahora."))}</p>
+      <strong>${escapeSummaryText(v22Local("Concierge is standing by", "컨시어지가 대기 중입니다", "Concierge está listo"))}</strong>
+      <p>${escapeSummaryText(concierge.limitations[0] || v22Local("Live provider updates are not available right now.", "지금은 실시간 제공업체 업데이트가 없습니다.", "No hay actualizaciones en vivo ahora."))}</p>
     </div>
   `;
   const accepted = concierge.acceptedRecommendations.length ? `
     <details class="ai-concierge-accepted">
-      <summary>${escapeSummaryText(v22Local("Accepted improvements", "ì ìš©í•œ ê°œì„ ", "Mejoras aceptadas"))} · ${concierge.acceptedRecommendations.length}</summary>
+      <summary>${escapeSummaryText(v22Local("Accepted improvements", "적용한 개선", "Mejoras aceptadas"))} · ${concierge.acceptedRecommendations.length}</summary>
       <ul>${concierge.acceptedRecommendations.map((rec) => `<li>${escapeSummaryText(rec.title)}</li>`).join("")}</ul>
     </details>
   ` : "";
   article.innerHTML = `
     <div class="ai-concierge-heading">
       <span class="v23-eyebrow">${escapeSummaryText(AI_TRAVEL_CONCIERGE_VERSION)}</span>
-      <h2>${escapeSummaryText(v22Local("ONE Concierge", "ONE ì»¨ì‹œì–´ì§€", "Concierge ONE"))}</h2>
+      <h2>${escapeSummaryText(v22Local("ONE Concierge", "ONE 컨시어지", "Concierge ONE"))}</h2>
       <p>${escapeSummaryText(v22Local(
         "Helpful improvements only. Nothing changes unless you choose it.",
-        "ë„ì›€ ë˜ëŠ” ê°œì„ ë§Œ ë³´ì—¬ë“œë¦½ë‹ˆë‹¤. ì„ íƒí•˜ê¸° ì „ì—ëŠ” ì•„ë¬´ê²ƒë„ ë°”ê¾¸ì§€ ì•ŠìŠµë‹ˆë‹¤.",
-        "Solo mejoras Ãºtiles. Nada cambia hasta que tÃº lo eliges."
+        "도움 되는 개선만 보여드립니다. 선택하기 전에는 아무것도 바꾸지 않습니다.",
+        "Solo mejoras útiles. Nada cambia hasta que tú lo eliges."
       ))}</p>
       <div class="ai-concierge-score">
-        <span>${escapeSummaryText(v22Local("Mission score", "ë¯¸ì…˜ ì ìˆ˜", "PuntuaciÃ³n"))}</span>
+        <span>${escapeSummaryText(v22Local("Mission score", "미션 점수", "Puntuación"))}</span>
         <strong>${Math.round(concierge.missionScore)}</strong>
       </div>
     </div>
@@ -3294,7 +3269,7 @@ const createAIConciergeCard = (result) => {
     if (button.dataset.conciergeAction === "accept") {
       markConciergePatchAccepted(recommendation);
       row.classList.add("is-accepted");
-      row.querySelector(".ai-concierge-actions").innerHTML = `<button type="button" data-concierge-action="undo">${escapeSummaryText(v22Local("Undo", "ë˜ëŒë¦¬ê¸°", "Deshacer"))}</button>`;
+      row.querySelector(".ai-concierge-actions").innerHTML = `<button type="button" data-concierge-action="undo">${escapeSummaryText(v22Local("Undo", "되돌리기", "Deshacer"))}</button>`;
     } else if (button.dataset.conciergeAction === "undo") {
       const undoneState = applyConciergeRecommendation(readConciergeState(result), recommendation, "undo");
       writeConciergeState(result, undoneState);
@@ -3348,7 +3323,7 @@ const createProgressiveRefinementCard = (result, context) => {
   const renderQuestion = (question, compact = false) => `
     <article class="alpha02-question" data-question-id="${escapeSummaryText(question.id)}" data-priority="${escapeSummaryText(question.priority)}">
       <div class="alpha02-question-copy">
-        <span class="alpha02-priority">${escapeSummaryText(question.priority === "critical" ? v22Local("Critical", "ì¤‘ìš”", "CrÃ­tico") : question.priority === "high" ? v22Local("High value", "ê°€ì¹˜ ë†’ìŒ", "Alto valor") : v22Local("Helpful", "ë„ì›€ë¨", "Ãštil"))}</span>
+        <span class="alpha02-priority">${escapeSummaryText(question.priority === "critical" ? v22Local("Critical", "중요", "Crítico") : question.priority === "high" ? v22Local("High value", "가치 높음", "Alto valor") : v22Local("Helpful", "도움됨", "Útil"))}</span>
         <h3>${escapeSummaryText(question.titleText)}</h3>
         <p>${escapeSummaryText(question.explanationText)}</p>
       </div>
@@ -3357,9 +3332,9 @@ const createProgressiveRefinementCard = (result, context) => {
       </div>
       ${compact ? "" : `<p class="alpha02-impact">${escapeSummaryText(question.improvementText)}</p>`}
       <div class="alpha02-question-actions">
-        <button type="button" data-refinement-action="skip">${escapeSummaryText(v22Local("Skip", "ê±´ë„ˆë›°ê¸°", "Saltar"))}</button>
-        <button type="button" data-refinement-action="later">${escapeSummaryText(v22Local("Later", "ë‚˜ì¤‘ì—", "Luego"))}</button>
-        <button type="button" data-refinement-action="hide">${escapeSummaryText(v22Local("Don't ask again", "ë‹¤ì‹œ ë¬»ì§€ ì•Šê¸°", "No preguntar otra vez"))}</button>
+        <button type="button" data-refinement-action="skip">${escapeSummaryText(v22Local("Skip", "건너뛰기", "Saltar"))}</button>
+        <button type="button" data-refinement-action="later">${escapeSummaryText(v22Local("Later", "나중에", "Luego"))}</button>
+        <button type="button" data-refinement-action="hide">${escapeSummaryText(v22Local("Don't ask again", "다시 묻지 않기", "No preguntar otra vez"))}</button>
       </div>
     </article>
   `;
@@ -3369,19 +3344,19 @@ const createProgressiveRefinementCard = (result, context) => {
   article.dataset.alpha02Wired = "direct";
   article.innerHTML = `
     <div class="alpha02-heading">
-      <span class="v23-eyebrow">${escapeSummaryText(v22Local("Quick adjustment", "ë¹ ë¥¸ ë§žì¶¤ ì„¤ì •", "Ajuste rÃ¡pido"))}</span>
-      <h2>${escapeSummaryText(v22Local("Make this fit you better", "ì›í•˜ëŠ” ë°©ì‹ì— ë” ë§žì¶°ë³¼ê¹Œìš”?", "Hacer que encaje mejor contigo"))}</h2>
+      <span class="v23-eyebrow">${escapeSummaryText(v22Local("Quick adjustment", "빠른 맞춤 설정", "Ajuste rápido"))}</span>
+      <h2>${escapeSummaryText(v22Local("Make this fit you better", "원하는 방식에 더 맞춰볼까요?", "Hacer que encaje mejor contigo"))}</h2>
       <p>${escapeSummaryText(v22Local(
         "This recommendation is already good. Answering only what matters can make it more personal.",
-        "ì´ ì¶”ì²œì€ ì´ë¯¸ ì§„í–‰í•  ìˆ˜ ìžˆì–´ìš”. ì¤‘ìš”í•œ ê²ƒë§Œ ë‹µí•˜ë©´ ë” ê°œì¸í™”ë©ë‹ˆë‹¤.",
-        "Esta recomendaciÃ³n ya sirve. Responder solo lo importante la vuelve mÃ¡s personal."
+        "이 추천은 이미 진행할 수 있어요. 중요한 것만 답하면 더 개인화됩니다.",
+        "Esta recomendación ya sirve. Responder solo lo importante la vuelve más personal."
       ))}</p>
     </div>
     ${result.alpha02LastUpdate ? `<div class="alpha02-update-note" role="status">${escapeSummaryText(result.alpha02LastUpdate)}</div>` : ""}
-    ${refinement.visible.length ? `<div class="alpha02-visible-questions">${refinement.visible.map((question) => renderQuestion(question)).join("")}</div>` : `<p class="alpha02-empty">${escapeSummaryText(v22Local("No extra question is needed right now.", "ì§€ê¸ˆì€ ì¶”ê°€ ì§ˆë¬¸ì´ í•„ìš”í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", "No hace falta otra pregunta ahora."))}</p>`}
+    ${refinement.visible.length ? `<div class="alpha02-visible-questions">${refinement.visible.map((question) => renderQuestion(question)).join("")}</div>` : `<p class="alpha02-empty">${escapeSummaryText(v22Local("No extra question is needed right now.", "지금은 추가 질문이 필요하지 않습니다.", "No hace falta otra pregunta ahora."))}</p>`}
     ${refinement.collapsed.length ? `
       <details class="alpha02-more">
-        <summary>${escapeSummaryText(v22Local("Helpful questions", "ë„ì›€ ë˜ëŠ” ì§ˆë¬¸", "Preguntas Ãºtiles"))} · ${refinement.collapsed.length}</summary>
+        <summary>${escapeSummaryText(v22Local("Helpful questions", "도움 되는 질문", "Preguntas útiles"))} · ${refinement.collapsed.length}</summary>
         <div class="alpha02-visible-questions">${refinement.collapsed.map((question) => renderQuestion(question, true)).join("")}</div>
       </details>
     ` : ""}
@@ -3428,11 +3403,11 @@ const createWorldIntelligenceSourceCard = (result) => {
   const language = activeLanguage === "ko" ? "ko" : activeLanguage === "es" ? "es" : "en";
   const breakdown = foundation.sourceBreakdown || {};
   const failures = Array.isArray(foundation.failures) ? foundation.failures : [];
-  const title = v22Local("World Intelligence status", "ì›”ë“œ ì¸í…”ë¦¬ì „ìŠ¤ ìƒíƒœ", "Estado de inteligencia mundial");
+  const title = v22Local("World Intelligence status", "월드 인텔리전스 상태", "Estado de inteligencia mundial");
   const subtitle = v22Local(
     "ONE separates verified, public, estimated, and unavailable data before planning.",
-    "ONEì€ ê³„íš ì „ì— ê²€ì¦·ê³µê°œ·ì˜ˆìƒ·ë¶ˆê°€ ë°ì´í„°ë¥¼ ë¶„ë¦¬í•©ë‹ˆë‹¤.",
-    "ONE separa datos verificados, pÃºblicos, estimados y no disponibles antes de planificar."
+    "ONE은 계획 전에 검증·공개·예상·불가 데이터를 분리합니다.",
+    "ONE separa datos verificados, públicos, estimados y no disponibles antes de planificar."
   );
   const sourceRows = ["verified_live", "cached_public", "estimated", "placeholder", "unavailable"].map((state) => `
     <span class="v24-source-chip is-${state}">
@@ -3442,7 +3417,7 @@ const createWorldIntelligenceSourceCard = (result) => {
   `).join("");
   const failureRows = failures.length
     ? failures.slice(0, 4).map((failure) => `<li>${escapeSummaryText(failure.providerType || "provider")}: ${escapeSummaryText(failure.message || "")}</li>`).join("")
-    : `<li>${escapeSummaryText(v22Local("No adapter failures reported.", "ì–´ëŒ‘í„° ì˜¤ë¥˜ ì—†ìŒ", "Sin fallos de adaptador."))}</li>`;
+    : `<li>${escapeSummaryText(v22Local("No adapter failures reported.", "어댑터 오류 없음", "Sin fallos de adaptador."))}</li>`;
   const article = document.createElement("article");
   article.className = "mission-card is-wide v24-world-source-card";
   article.dataset.cardId = "world-intelligence-status";
@@ -3454,12 +3429,12 @@ const createWorldIntelligenceSourceCard = (result) => {
     </div>
     <div class="v24-source-chip-grid">${sourceRows}</div>
     <div class="v24-source-diagnostics">
-      <span>${escapeSummaryText(v22Local("Cache health", "ìºì‹œ ìƒíƒœ", "Estado de cachÃ©"))}: ${escapeSummaryText(foundation.cache?.health || "unknown")}</span>
-      <span>${escapeSummaryText(v22Local("Confidence", "ì‹ ë¢°ë„", "Confianza"))}: ${Math.round(Number(foundation.averageConfidence || 0) * 100)}%</span>
-      <span>${escapeSummaryText(v22Local("Fixture mode", "í”½ìŠ¤ì²˜ ëª¨ë“œ", "Modo fixture"))}: ${foundation.fixtureMode ? "on" : "off"}</span>
+      <span>${escapeSummaryText(v22Local("Cache health", "캐시 상태", "Estado de caché"))}: ${escapeSummaryText(foundation.cache?.health || "unknown")}</span>
+      <span>${escapeSummaryText(v22Local("Confidence", "신뢰도", "Confianza"))}: ${Math.round(Number(foundation.averageConfidence || 0) * 100)}%</span>
+      <span>${escapeSummaryText(v22Local("Fixture mode", "픽스처 모드", "Modo fixture"))}: ${foundation.fixtureMode ? "on" : "off"}</span>
     </div>
     <details class="v24-source-failures">
-      <summary>${escapeSummaryText(v22Local("Provider notes", "ì œê³µì—…ì²´ ë©”ëª¨", "Notas de proveedor"))}</summary>
+      <summary>${escapeSummaryText(v22Local("Provider notes", "제공업체 메모", "Notas de proveedor"))}</summary>
       <ul>${failureRows}</ul>
     </details>
   `;
@@ -3481,7 +3456,7 @@ const formatAlpha04Time = (value) => {
 
 const createAlpha04UpdateBadge = (workspace, sectionKey) => {
   if (!sectionWasRecentlyUpdated(workspace, sectionKey)) return "";
-  return `<span class="alpha04-update-badge" title="${escapeSummaryText(getSectionUpdateReason(workspace, sectionKey))}">${escapeSummaryText(alpha04Local("Updated", "ì—…ë°ì´íŠ¸", "Actualizado"))}</span>`;
+  return `<span class="alpha04-update-badge" title="${escapeSummaryText(getSectionUpdateReason(workspace, sectionKey))}">${escapeSummaryText(alpha04Local("Updated", "업데이트", "Actualizado"))}</span>`;
 };
 
 const alpha04SectionAttrs = (workspace, sectionKey, className) => {
@@ -3507,10 +3482,10 @@ const createLivingMissionWorkspaceCard = (result, missionContext) => {
   card.dataset.storageKey = livingMissionStorageKey(result);
   const pendingTasks = workspace.tasks.length
     ? workspace.tasks.map((task) => `<li>${escapeSummaryText(task.label)}</li>`).join("")
-    : `<li>${escapeSummaryText(alpha04Local("No pending task right now", "ì§€ê¸ˆì€ ë‚¨ì€ ìž‘ì—…ì´ ì—†ìŠµë‹ˆë‹¤", "No hay tareas pendientes ahora"))}</li>`;
+    : `<li>${escapeSummaryText(alpha04Local("No pending task right now", "지금은 남은 작업이 없습니다", "No hay tareas pendientes ahora"))}</li>`;
   const notifications = workspace.notifications.length
     ? workspace.notifications.map((notice) => `<li class="is-${escapeSummaryText(notice.level)}">${escapeSummaryText(notice.label)}</li>`).join("")
-    : `<li>${escapeSummaryText(alpha04Local("No urgent update. ONE is keeping the workspace ready.", "ê¸´ê¸‰ ì—…ë°ì´íŠ¸ëŠ” ì—†ìŠµë‹ˆë‹¤. ONEì´ ìž‘ì—… ê³µê°„ì„ ì¤€ë¹„ ìƒíƒœë¡œ ìœ ì§€í•©ë‹ˆë‹¤.", "No hay actualizaciÃ³n urgente. ONE mantiene el espacio listo."))}</li>`;
+    : `<li>${escapeSummaryText(alpha04Local("No urgent update. ONE is keeping the workspace ready.", "긴급 업데이트는 없습니다. ONE이 작업 공간을 준비 상태로 유지합니다.", "No hay actualización urgente. ONE mantiene el espacio listo."))}</li>`;
   const historyRows = workspace.history.slice(-5).reverse().map((event) => `
     <li>
       <strong>${escapeSummaryText(event.label)}</strong>
@@ -3521,46 +3496,46 @@ const createLivingMissionWorkspaceCard = (result, missionContext) => {
     ? workspace.approvalHistory.slice(-4).reverse().map((approval) => `
       <li>
         <strong>${escapeSummaryText(approval.label)}</strong>
-        <span>${escapeSummaryText(approval.executionApproved ? alpha04Local("Execution approved", "ì‹¤í–‰ ìŠ¹ì¸", "EjecuciÃ³n aprobada") : alpha04Local("Preparation only", "ì¤€ë¹„ë§Œ ìŠ¹ì¸", "Solo preparaciÃ³n"))}</span>
+        <span>${escapeSummaryText(approval.executionApproved ? alpha04Local("Execution approved", "실행 승인", "Ejecución aprobada") : alpha04Local("Preparation only", "준비만 승인", "Solo preparación"))}</span>
       </li>
     `).join("")
-    : `<li><strong>${escapeSummaryText(alpha04Local("No approval yet", "ì•„ì§ ìŠ¹ì¸ ì—†ìŒ", "Sin aprobaciÃ³n todavÃ­a"))}</strong><span>${escapeSummaryText(alpha04Local("Search approval and booking approval stay separate.", "ê²€ìƒ‰ ìŠ¹ì¸ê³¼ ì˜ˆì•½ ìŠ¹ì¸ì€ ë¶„ë¦¬ë©ë‹ˆë‹¤.", "La aprobaciÃ³n de bÃºsqueda y reserva se separan."))}</span></li>`;
+    : `<li><strong>${escapeSummaryText(alpha04Local("No approval yet", "아직 승인 없음", "Sin aprobación todavía"))}</strong><span>${escapeSummaryText(alpha04Local("Search approval and booking approval stay separate.", "검색 승인과 예약 승인은 분리됩니다.", "La aprobación de búsqueda y reserva se separan."))}</span></li>`;
   card.innerHTML = `
     <div class="alpha04-workspace-header">
-      <span class="v23-eyebrow">${escapeSummaryText(ALPHA04_LIVING_MISSION_VERSION)} · ${escapeSummaryText(alpha04Local("Living Mission", "ì‚´ì•„ìžˆëŠ” ë¯¸ì…˜", "MisiÃ³n viva"))}</span>
-      <h2>${escapeSummaryText(alpha04Local("Mission Workspace", "ë¯¸ì…˜ ìž‘ì—… ê³µê°„", "Espacio de misiÃ³n"))}</h2>
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA04_LIVING_MISSION_VERSION)} · ${escapeSummaryText(alpha04Local("Living Mission", "살아있는 미션", "Misión viva"))}</span>
+      <h2>${escapeSummaryText(alpha04Local("Mission Workspace", "미션 작업 공간", "Espacio de misión"))}</h2>
       <p>${escapeSummaryText(alpha04Local(
         "ONE keeps this mission alive as your choices, timing, providers, and world data change.",
-        "ONEì€ ì„ íƒ, ì¼ì •, ì œê³µì—…ì²´, ì›”ë“œ ë°ì´í„°ê°€ ë°”ë€” ë•Œë§ˆë‹¤ ì´ ë¯¸ì…˜ì„ ì‚´ì•„ìžˆëŠ” ìƒíƒœë¡œ ìœ ì§€í•©ë‹ˆë‹¤.",
-        "ONE mantiene esta misiÃ³n viva cuando cambian tus elecciones, horarios, proveedores y datos."
+        "ONE은 선택, 일정, 제공업체, 월드 데이터가 바뀔 때마다 이 미션을 살아있는 상태로 유지합니다.",
+        "ONE mantiene esta misión viva cuando cambian tus elecciones, horarios, proveedores y datos."
       ))}</p>
     </div>
-    <div class="alpha04-compact-summary" aria-label="${escapeSummaryText(alpha04Local("Mission summary", "ë¯¸ì…˜ ìš”ì•½", "Resumen de misiÃ³n"))}">
-      <div><span>${escapeSummaryText(alpha04Local("Mission", "ë¯¸ì…˜", "MisiÃ³n"))}</span><strong>${escapeSummaryText(workspace.mission)}</strong></div>
-      <div><span>${escapeSummaryText(alpha04Local("Status", "ìƒíƒœ", "Estado"))}</span><strong>${escapeSummaryText(workspace.status.label)}</strong></div>
-      <div><span>${escapeSummaryText(alpha04Local("Progress", "ì§„í–‰", "Progreso"))}</span><strong>${workspace.progress}%</strong></div>
-      <div><span>${escapeSummaryText(alpha04Local("Updated", "ì—…ë°ì´íŠ¸", "Actualizado"))}</span><strong>${escapeSummaryText(formatAlpha04Time(workspace.lastUpdated))}</strong></div>
-      <div><span>${escapeSummaryText(alpha04Local("Next", "ë‹¤ìŒ", "Siguiente"))}</span><strong>${escapeSummaryText(workspace.nextAction)}</strong></div>
+    <div class="alpha04-compact-summary" aria-label="${escapeSummaryText(alpha04Local("Mission summary", "미션 요약", "Resumen de misión"))}">
+      <div><span>${escapeSummaryText(alpha04Local("Mission", "미션", "Misión"))}</span><strong>${escapeSummaryText(workspace.mission)}</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Status", "상태", "Estado"))}</span><strong>${escapeSummaryText(workspace.status.label)}</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Progress", "진행", "Progreso"))}</span><strong>${workspace.progress}%</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Updated", "업데이트", "Actualizado"))}</span><strong>${escapeSummaryText(formatAlpha04Time(workspace.lastUpdated))}</strong></div>
+      <div><span>${escapeSummaryText(alpha04Local("Next", "다음", "Siguiente"))}</span><strong>${escapeSummaryText(workspace.nextAction)}</strong></div>
     </div>
     <div class="alpha04-stage-row">
       ${workspace.stages.map((stage) => `<span class="alpha04-stage is-${escapeSummaryText(stage.state)}">${escapeSummaryText(stage.label)}</span>`).join("")}
     </div>
     <div class="alpha04-workspace-grid">
       <section class="alpha04-panel">
-        <h3>${escapeSummaryText(alpha04Local("Remaining tasks", "ë‚¨ì€ ìž‘ì—…", "Tareas pendientes"))}</h3>
+        <h3>${escapeSummaryText(alpha04Local("Remaining tasks", "남은 작업", "Tareas pendientes"))}</h3>
         <ul class="alpha04-task-list">${pendingTasks}</ul>
       </section>
       <section class="alpha04-panel">
-        <h3>${escapeSummaryText(alpha04Local("Mission updates", "ë¯¸ì…˜ ì—…ë°ì´íŠ¸", "Actualizaciones"))}</h3>
+        <h3>${escapeSummaryText(alpha04Local("Mission updates", "미션 업데이트", "Actualizaciones"))}</h3>
         <ul class="alpha04-notification-list">${notifications}</ul>
       </section>
     </div>
     <details class="alpha04-history-panel" data-alpha04-detail-id="mission-history">
-      <summary>${escapeSummaryText(alpha04Local("Mission history", "ë¯¸ì…˜ ížˆìŠ¤í† ë¦¬", "Historial de misiÃ³n"))}</summary>
+      <summary>${escapeSummaryText(alpha04Local("Mission history", "미션 히스토리", "Historial de misión"))}</summary>
       <ul>${historyRows}</ul>
     </details>
     <details class="alpha04-history-panel" data-alpha04-detail-id="approval-history">
-      <summary>${escapeSummaryText(alpha04Local("Approval history", "ìŠ¹ì¸ ížˆìŠ¤í† ë¦¬", "Historial de aprobaciÃ³n"))}</summary>
+      <summary>${escapeSummaryText(alpha04Local("Approval history", "승인 히스토리", "Historial de aprobación"))}</summary>
       <ul>${approvalRows}</ul>
     </details>
   `;
@@ -3601,7 +3576,7 @@ const createExecutionOrchestratorCard = (result, workspace) => {
     return `
       <section class="alpha05-board-column" aria-labelledby="alpha05-${escapeSummaryText(section.id)}">
         <h3 id="alpha05-${escapeSummaryText(section.id)}">${escapeSummaryText(section.label)}</h3>
-        <ul>${items || `<li class="alpha05-empty">${escapeSummaryText(alpha04Local("Nothing here right now.", "ì§€ê¸ˆì€ ì—†ìŠµë‹ˆë‹¤.", "Nada aquÃ­ ahora."))}</li>`}</ul>
+        <ul>${items || `<li class="alpha05-empty">${escapeSummaryText(alpha04Local("Nothing here right now.", "지금은 없습니다.", "Nada aquí ahora."))}</li>`}</ul>
       </section>
     `;
   }).join("");
@@ -3622,43 +3597,43 @@ const createExecutionOrchestratorCard = (result, workspace) => {
   `).join("");
 
   const safeLabel = validation.valid
-    ? alpha04Local("Approval-safe", "ìŠ¹ì¸ ì•ˆì „", "Seguro con aprobaciÃ³n")
-    : alpha04Local("Needs review", "ê²€í†  í•„ìš”", "Necesita revisiÃ³n");
+    ? alpha04Local("Approval-safe", "승인 안전", "Seguro con aprobación")
+    : alpha04Local("Needs review", "검토 필요", "Necesita revisión");
 
   card.innerHTML = `
     <div class="alpha05-orchestrator-header">
-      <span class="v23-eyebrow">${escapeSummaryText(ALPHA05_EXECUTION_ORCHESTRATOR_VERSION)} · ${escapeSummaryText(alpha04Local("Execution Orchestrator", "ì‹¤í–‰ ì˜¤ì¼€ìŠ¤íŠ¸ë ˆì´í„°", "Orquestador de ejecuciÃ³n"))}</span>
-      <h2>${escapeSummaryText(alpha04Local("Mission Board", "ë¯¸ì…˜ ë³´ë“œ", "Tablero de misiÃ³n"))}</h2>
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA05_EXECUTION_ORCHESTRATOR_VERSION)} · ${escapeSummaryText(alpha04Local("Execution Orchestrator", "실행 오케스트레이터", "Orquestador de ejecución"))}</span>
+      <h2>${escapeSummaryText(alpha04Local("Mission Board", "미션 보드", "Tablero de misión"))}</h2>
       <p>${escapeSummaryText(alpha04Local(
         "ONE now coordinates actions, dependencies, approval scopes, status, and recovery instead of showing only a passive plan.",
-        "ONEì€ ì´ì œ ë‹¨ìˆœ ê³„íšì´ ì•„ë‹ˆë¼ ì•¡ì…˜, ì˜ì¡´ì„±, ìŠ¹ì¸ ë²”ìœ„, ìƒíƒœ, ë³µêµ¬ë¥¼ í•¨ê»˜ ì¡°ìœ¨í•©ë‹ˆë‹¤.",
-        "ONE coordina acciones, dependencias, aprobaciones, estado y recuperaciÃ³n, no solo un plan pasivo."
+        "ONE은 이제 단순 계획이 아니라 액션, 의존성, 승인 범위, 상태, 복구를 함께 조율합니다.",
+        "ONE coordina acciones, dependencias, aprobaciones, estado y recuperación, no solo un plan pasivo."
       ))}</p>
     </div>
     <div class="alpha05-next-action" role="status" aria-live="polite">
-      <span>${escapeSummaryText(alpha04Local("Next best action", "ë‹¤ìŒ ìµœìš°ì„  í–‰ë™", "Siguiente mejor acciÃ³n"))}</span>
+      <span>${escapeSummaryText(alpha04Local("Next best action", "다음 최우선 행동", "Siguiente mejor acción"))}</span>
       <strong>${escapeSummaryText(orchestrator.nextBestAction.title)}</strong>
       <small>${escapeSummaryText(orchestrator.nextBestAction.reason)}</small>
     </div>
     <div class="alpha05-board" role="list">${boardSections}</div>
     <div class="alpha05-lower-grid">
       <section class="alpha05-panel">
-        <h3>${escapeSummaryText(alpha04Local("Mission timeline", "ë¯¸ì…˜ íƒ€ìž„ë¼ì¸", "LÃ­nea de tiempo"))}</h3>
+        <h3>${escapeSummaryText(alpha04Local("Mission timeline", "미션 타임라인", "Línea de tiempo"))}</h3>
         <ol class="alpha05-timeline">${timeline}</ol>
       </section>
       <section class="alpha05-panel">
-        <h3>${escapeSummaryText(alpha04Local("Execution safety", "ì‹¤í–‰ ì•ˆì „", "Seguridad de ejecuciÃ³n"))}</h3>
+        <h3>${escapeSummaryText(alpha04Local("Execution safety", "실행 안전", "Seguridad de ejecución"))}</h3>
         <p>${escapeSummaryText(orchestrator.executionSafety.note)}</p>
         <p>${escapeSummaryText(alpha04Local(
           "Demo only. No provider contact, booking, payment, or submission happens from this board.",
-          "ë°ëª¨ ì „ìš©ìž…ë‹ˆë‹¤. ì´ ë³´ë“œì—ì„œ ì œê³µì—…ì²´ ì—°ë½, ì˜ˆì•½, ê²°ì œ, ì œì¶œì€ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
-          "Solo demo. Este tablero no contacta proveedores, reserva, paga ni envÃ­a nada."
+          "데모 전용입니다. 이 보드에서 제공업체 연락, 예약, 결제, 제출은 진행되지 않습니다.",
+          "Solo demo. Este tablero no contacta proveedores, reserva, paga ni envía nada."
         ))}</p>
         <span class="alpha05-safe-pill">${escapeSummaryText(safeLabel)}</span>
       </section>
     </div>
     <details class="alpha05-history-panel">
-      <summary>${escapeSummaryText(alpha04Local("Action history", "ì•¡ì…˜ ê¸°ë¡", "Historial de acciones"))}</summary>
+      <summary>${escapeSummaryText(alpha04Local("Action history", "액션 기록", "Historial de acciones"))}</summary>
       <ul>${history}</ul>
     </details>
   `;
@@ -3685,23 +3660,23 @@ const writeAlpha06State = (result, state = {}) => {
 
 const createPredictionCardMarkup = (prediction) => `
   <article class="alpha06-prediction is-${escapeSummaryText(String(prediction.priority || "Helpful").toLowerCase())}" data-alpha06-id="${escapeSummaryText(prediction.id)}">
-    <div class="alpha06-prediction-icon" aria-hidden="true">${prediction.priority === "Critical" ? "!" : "âœ¦"}</div>
+    <div class="alpha06-prediction-icon" aria-hidden="true">${prediction.priority === "Critical" ? "!" : "✦"}</div>
     <div class="alpha06-prediction-copy">
       <div class="alpha06-prediction-topline">
         <strong>${escapeSummaryText(prediction.title)}</strong>
         <span>${escapeSummaryText(prediction.priority)}</span>
       </div>
       <p>${escapeSummaryText(prediction.explanation)}</p>
-      <small><b>${escapeSummaryText(alpha06Local("Why", "ì´ìœ ", "Motivo"))}:</b> ${escapeSummaryText(prediction.reason)}</small>
+      <small><b>${escapeSummaryText(alpha06Local("Why", "이유", "Motivo"))}:</b> ${escapeSummaryText(prediction.reason)}</small>
       <div class="alpha06-prediction-meta">
-        <span>${escapeSummaryText(alpha06Local("Confidence", "í™•ì‹ ë„", "Confianza"))}: ${Math.round(Number(prediction.confidence || 0) * 100)}%</span>
+        <span>${escapeSummaryText(alpha06Local("Confidence", "확신도", "Confianza"))}: ${Math.round(Number(prediction.confidence || 0) * 100)}%</span>
         <span>${escapeSummaryText(prediction.sourceSignals?.slice(0, 2).join(" · ") || prediction.source)}</span>
       </div>
     </div>
-    <div class="alpha06-prediction-actions" aria-label="${escapeSummaryText(alpha06Local("Prediction controls", "ì˜ˆì¸¡ ì œì–´", "Controles de predicciÃ³n"))}">
-      <button type="button" data-alpha06-feedback="accepted">${escapeSummaryText(prediction.actionLabel || alpha06Local("Review", "ê²€í† ", "Revisar"))}</button>
-      <button type="button" data-alpha06-feedback="dismissed">${escapeSummaryText(alpha06Local("Ignore", "ë¬´ì‹œ", "Ignorar"))}</button>
-      <button type="button" data-alpha06-feedback="not_relevant">${escapeSummaryText(alpha06Local("Not relevant", "ê´€ë ¨ ì—†ìŒ", "No relevante"))}</button>
+    <div class="alpha06-prediction-actions" aria-label="${escapeSummaryText(alpha06Local("Prediction controls", "예측 제어", "Controles de predicción"))}">
+      <button type="button" data-alpha06-feedback="accepted">${escapeSummaryText(prediction.actionLabel || alpha06Local("Review", "검토", "Revisar"))}</button>
+      <button type="button" data-alpha06-feedback="dismissed">${escapeSummaryText(alpha06Local("Ignore", "무시", "Ignorar"))}</button>
+      <button type="button" data-alpha06-feedback="not_relevant">${escapeSummaryText(alpha06Local("Not relevant", "관련 없음", "No relevante"))}</button>
     </div>
   </article>
 `;
@@ -3729,29 +3704,29 @@ const createPredictiveIntelligenceCard = (result, missionContext, orchestrator) 
   const collapsed = layer.collapsed.slice(0, 6).map(createPredictionCardMarkup).join("");
   card.innerHTML = `
     <div class="alpha06-header">
-      <span class="v23-eyebrow">${escapeSummaryText(ALPHA06_PREDICTIVE_INTELLIGENCE_VERSION)} · ${escapeSummaryText(alpha06Local("Predictive Intelligence", "ì˜ˆì¸¡ ì§€ëŠ¥", "Inteligencia predictiva"))}</span>
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA06_PREDICTIVE_INTELLIGENCE_VERSION)} · ${escapeSummaryText(alpha06Local("Predictive Intelligence", "예측 지능", "Inteligencia predictiva"))}</span>
       <h2>${escapeSummaryText(alpha06Local(
         "ONE noticed what may matter next",
-        "ONEì´ ë‹¤ìŒì— ì¤‘ìš”í•  ì¼ì„ ê°ì§€í–ˆì–´ìš”",
-        "ONE detectÃ³ lo que puede importar despuÃ©s"
+        "ONE이 다음에 중요할 일을 감지했어요",
+        "ONE detectó lo que puede importar después"
       ))}</h2>
       <p>${escapeSummaryText(alpha06Local(
         "Quiet preparation only. Nothing executes without approval.",
-        "ì¡°ìš©ížˆ ì¤€ë¹„ë§Œ í•©ë‹ˆë‹¤. ìŠ¹ì¸ ì—†ì´ ì‹¤í–‰í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
-        "Solo preparaciÃ³n tranquila. Nada se ejecuta sin aprobaciÃ³n."
+        "조용히 준비만 합니다. 승인 없이 실행하지 않습니다.",
+        "Solo preparación tranquila. Nada se ejecuta sin aprobación."
       ))}</p>
     </div>
     <div class="alpha06-prediction-list">${visible}</div>
     ${collapsed ? `
       <details class="alpha06-collapsed">
-        <summary>${escapeSummaryText(alpha06Local("Helpful ideas kept quiet", "ì¡°ìš©ížˆ ë³´ê´€í•œ ë„ì›€ ì•„ì´ë””ì–´", "Ideas Ãºtiles guardadas en silencio"))}</summary>
+        <summary>${escapeSummaryText(alpha06Local("Helpful ideas kept quiet", "조용히 보관한 도움 아이디어", "Ideas útiles guardadas en silencio"))}</summary>
         <div class="alpha06-prediction-list">${collapsed}</div>
       </details>
     ` : ""}
     <p class="alpha06-safety-note">${escapeSummaryText(alpha06Local(
       "Predictions prepare the mission. They never search, book, pay, submit, or contact providers by themselves.",
-      "ì˜ˆì¸¡ì€ ë¯¸ì…˜ ì¤€ë¹„ë§Œ ë•ìŠµë‹ˆë‹¤. ìŠ¤ìŠ¤ë¡œ ê²€ìƒ‰, ì˜ˆì•½, ê²°ì œ, ì œì¶œ, ì œê³µì—…ì²´ ì—°ë½ì„ í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
-      "Las predicciones preparan la misiÃ³n. Nunca buscan, reservan, pagan, envÃ­an ni contactan proveedores solas."
+      "예측은 미션 준비만 돕습니다. 스스로 검색, 예약, 결제, 제출, 제공업체 연락을 하지 않습니다.",
+      "Las predicciones preparan la misión. Nunca buscan, reservan, pagan, envían ni contactan proveedores solas."
     ))}</p>
   `;
 
@@ -3766,7 +3741,7 @@ const createPredictiveIntelligenceCard = (result, missionContext, orchestrator) 
     if (button.dataset.alpha06Feedback !== "accepted") {
       predictionElement.hidden = true;
     } else {
-      button.textContent = alpha06Local("Prepared", "ì¤€ë¹„ë¨", "Preparado");
+      button.textContent = alpha06Local("Prepared", "준비됨", "Preparado");
       button.disabled = true;
     }
   });
@@ -3796,18 +3771,18 @@ const createPersonalMissionMemoryCard = (result) => {
   `).join("");
   card.innerHTML = `
     <div class="alpha07-header">
-      <span class="v23-eyebrow">${escapeSummaryText(ALPHA07_PERSONAL_MISSION_MEMORY_VERSION)} · ${escapeSummaryText(alpha06Local("Personal Mission Memory", "ê°œì¸ ë¯¸ì…˜ ê¸°ì–µ", "Memoria personal de misiones"))}</span>
-      <h2>${escapeSummaryText(alpha06Local("ONE used what helps, not everything", "ONEì´ í•„ìš”í•œ ê¸°ì–µë§Œ ì‚¬ìš©í–ˆì–´ìš”", "ONE usÃ³ solo lo que ayuda"))}</h2>
+      <span class="v23-eyebrow">${escapeSummaryText(ALPHA07_PERSONAL_MISSION_MEMORY_VERSION)} · ${escapeSummaryText(alpha06Local("Personal Mission Memory", "개인 미션 기억", "Memoria personal de misiones"))}</span>
+      <h2>${escapeSummaryText(alpha06Local("ONE used what helps, not everything", "ONE이 필요한 기억만 사용했어요", "ONE usó solo lo que ayuda"))}</h2>
       <p>${escapeSummaryText(alpha06Local(
         "These preferences reduced repeated questions for this mission.",
-        "ì´ ê¸°ì–µì€ ê°™ì€ ì§ˆë¬¸ì„ ë°˜ë³µí•˜ì§€ ì•Šê¸° ìœ„í•´ ì‚¬ìš©ë˜ì—ˆìŠµë‹ˆë‹¤.",
-        "Estas preferencias redujeron preguntas repetidas para esta misiÃ³n."
+        "이 기억은 같은 질문을 반복하지 않기 위해 사용되었습니다.",
+        "Estas preferencias redujeron preguntas repetidas para esta misión."
       ))}</p>
     </div>
     <ul class="alpha07-memory-list">${rows}</ul>
     <div class="alpha07-memory-actions">
-      <a href="personal-mission-memory.html">${escapeSummaryText(alpha06Local("Manage memory", "ê¸°ì–µ ê´€ë¦¬", "Gestionar memoria"))}</a>
-      <span>${escapeSummaryText(alpha06Local("Sensitive data is never saved here.", "ë¯¼ê° ì •ë³´ëŠ” ì—¬ê¸°ì— ì €ìž¥í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", "Los datos sensibles nunca se guardan aquÃ­."))}</span>
+      <a href="personal-mission-memory.html">${escapeSummaryText(alpha06Local("Manage memory", "기억 관리", "Gestionar memoria"))}</a>
+      <span>${escapeSummaryText(alpha06Local("Sensitive data is never saved here.", "민감 정보는 여기에 저장하지 않습니다.", "Los datos sensibles nunca se guardan aquí."))}</span>
     </div>
   `;
   return { card, applied };
@@ -3845,20 +3820,20 @@ const createProviderTrustNetworkCard = (brief) => {
   if (!brief || !brief.topProviders?.length) return null;
   const local = v22Local;
   const categoryLabel = (category = "") => ({
-    flight: local("Flights", "í•­ê³µ", "Vuelos"),
-    hotel: local("Hotels", "í˜¸í…”", "Hoteles"),
-    restaurant: local("Restaurants", "ë ˆìŠ¤í† ëž‘", "Restaurantes"),
-    transport: local("Transport", "ì´ë™", "Transporte"),
-    hospital: local("Healthcare", "ì˜ë£Œ", "Salud"),
-    insurance: local("Insurance", "ë³´í—˜", "Seguro"),
-    banking: local("Banking", "ì€í–‰", "Banca")
-  }[category] || localizeDomainText(category || local("Provider", "ì œê³µì—…ì²´", "Proveedor")));
+    flight: local("Flights", "항공", "Vuelos"),
+    hotel: local("Hotels", "호텔", "Hoteles"),
+    restaurant: local("Restaurants", "레스토랑", "Restaurantes"),
+    transport: local("Transport", "이동", "Transporte"),
+    hospital: local("Healthcare", "의료", "Salud"),
+    insurance: local("Insurance", "보험", "Seguro"),
+    banking: local("Banking", "은행", "Banca")
+  }[category] || localizeDomainText(category || local("Provider", "제공업체", "Proveedor")));
   const language = activeLanguage === "ko" ? "ko" : activeLanguage === "es" ? "es" : "en";
-  const title = local("Provider Trust Network", "ì œê³µì—…ì²´ ì‹ ë¢° ë„¤íŠ¸ì›Œí¬", "Red de confianza de proveedores");
+  const title = local("Provider Trust Network", "제공업체 신뢰 네트워크", "Red de confianza de proveedores");
   const subtitle = local(
-    "Ranked by trust signals, mission fit, public evidence, and approval-safe verification needs â€” never by ads.",
-    "ê´‘ê³ ê°€ ì•„ë‹ˆë¼ ì‹ ë¢° ì‹ í˜¸, ë¯¸ì…˜ ì í•©ì„±, ê³µê°œ ê·¼ê±°, ìŠ¹ì¸ ì „ í™•ì¸ í•„ìš”ì„±ì„ ê¸°ì¤€ìœ¼ë¡œ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤.",
-    "Ordenado por seÃ±ales de confianza, ajuste a la misiÃ³n, evidencia pÃºblica y verificaciÃ³n segura; nunca por anuncios."
+    "Ranked by trust signals, mission fit, public evidence, and approval-safe verification needs — never by ads.",
+    "광고가 아니라 신뢰 신호, 미션 적합성, 공개 근거, 승인 전 확인 필요성을 기준으로 정리했습니다.",
+    "Ordenado por señales de confianza, ajuste a la misión, evidencia pública y verificación segura; nunca por anuncios."
   );
   const topRows = brief.topProviders.slice(0, 6).map((provider) => `
     <li>
@@ -3903,23 +3878,23 @@ const createNaturalConversationCard = (result, context, refinement = null) => {
     const local = v22Local;
     const u = layer.understanding || {};
     const fields = [
-      [local("Goal", "ëª©í‘œ", "Objetivo"), u.goal],
-      [local("Intent", "ì˜ë„", "IntenciÃ³n"), u.missionIntent],
-      [local("Location", "ìž¥ì†Œ", "Lugar"), u.locations?.join(" · ")],
-      [local("Dates", "ë‚ ì§œ", "Fechas"), u.dates?.join(" · ")],
-      [local("People", "ì‚¬ëžŒ", "Personas"), u.people?.join(" · ")],
-      [local("Budget", "ì˜ˆì‚°", "Presupuesto"), u.budget],
-      [local("Preferences", "ì„ í˜¸", "Preferencias"), u.preferences?.join(" · ")],
-      [local("Constraints", "ì¡°ê±´", "Restricciones"), u.constraints?.join(" · ")]
+      [local("Goal", "목표", "Objetivo"), u.goal],
+      [local("Intent", "의도", "Intención"), u.missionIntent],
+      [local("Location", "장소", "Lugar"), u.locations?.join(" · ")],
+      [local("Dates", "날짜", "Fechas"), u.dates?.join(" · ")],
+      [local("People", "사람", "Personas"), u.people?.join(" · ")],
+      [local("Budget", "예산", "Presupuesto"), u.budget],
+      [local("Preferences", "선호", "Preferencias"), u.preferences?.join(" · ")],
+      [local("Constraints", "조건", "Restricciones"), u.constraints?.join(" · ")]
     ].filter(([, value]) => value);
     const missing = layer.visibleQuestions?.length
       ? layer.visibleQuestions.map((question) => question.text)
-      : [local("No extra question is needed right now.", "ì§€ê¸ˆì€ ì¶”ê°€ ì§ˆë¬¸ì´ í•„ìš”í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", "No hace falta otra pregunta ahora.")];
+      : [local("No extra question is needed right now.", "지금은 추가 질문이 필요하지 않습니다.", "No hace falta otra pregunta ahora.")];
     const confidenceLabel = layer.confidence?.level === "high"
-      ? local("Clear enough to continue", "ê³„ì† ì¤€ë¹„í•´ë„ ì¶©ë¶„ížˆ ëª…í™•í•¨", "Claro para continuar")
+      ? local("Clear enough to continue", "계속 준비해도 충분히 명확함", "Claro para continuar")
       : layer.confidence?.level === "medium"
-        ? local("Almost clear", "ê±°ì˜ ëª…í™•í•¨", "Casi claro")
-        : local("Needs quick confirmation", "ì§§ì€ í™•ì¸ í•„ìš”", "Necesita confirmaciÃ³n");
+        ? local("Almost clear", "거의 명확함", "Casi claro")
+        : local("Needs quick confirmation", "짧은 확인 필요", "Necesita confirmación");
     const article = document.createElement("article");
     article.className = "mission-card v22-card is-wide alpha10-conversation-card";
     article.dataset.cardId = "natural-mission-conversation";
@@ -3928,17 +3903,17 @@ const createNaturalConversationCard = (result, context, refinement = null) => {
     article.innerHTML = `
       <div class="v22-card-heading">
         <span class="v22-kicker">ALPHA-10 · Natural Mission Conversation</span>
-        <h2>${escapeSummaryText(local("ONE currently understands", "ONEì´ í˜„ìž¬ ì´í•´í•œ ë‚´ìš©", "ONE entiende ahora"))}</h2>
+        <h2>${escapeSummaryText(local("ONE currently understands", "ONE이 현재 이해한 내용", "ONE entiende ahora"))}</h2>
       </div>
       <p class="v22-card-body">${escapeSummaryText(local(
         "Keep talking naturally. ONE extracts only what matters and asks only if it improves the mission.",
-        "ìžì—°ìŠ¤ëŸ½ê²Œ ë§í•˜ë©´ ë©ë‹ˆë‹¤. ONEì€ ì¤‘ìš”í•œ ì •ë³´ë§Œ ì´í•´í•˜ê³ , ê¼­ í•„ìš”í•  ë•Œë§Œ ë¬»ìŠµë‹ˆë‹¤.",
-        "Habla naturalmente. ONE extrae lo importante y solo pregunta si mejora la misiÃ³n."
+        "자연스럽게 말하면 됩니다. ONE은 중요한 정보만 이해하고, 꼭 필요할 때만 묻습니다.",
+        "Habla naturalmente. ONE extrae lo importante y solo pregunta si mejora la misión."
       ))}</p>
       <div class="v22-chip-list">${fields.map(([label, value]) => createV22Chip(`${label}: ${value}`)).join("")}</div>
       <div class="v22-chip-list">${createV22Chip(confidenceLabel, "primary")}</div>
       <details class="alpha10-missing-info"${layer.visibleQuestions?.length ? " open" : ""}>
-        <summary>${escapeSummaryText(local("Natural follow-up", "ìžì—°ìŠ¤ëŸ¬ìš´ í™•ì¸", "Seguimiento natural"))}</summary>
+        <summary>${escapeSummaryText(local("Natural follow-up", "자연스러운 확인", "Seguimiento natural"))}</summary>
         <ul class="v22-clean-list">${missing.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
       </details>
     `;
@@ -4020,14 +3995,14 @@ const createLifeTimelineCard = (layer) => {
   const local = v22Local;
   const map = layer.missionMap || {};
   const relationText = (relationship) => relationship === "current"
-    ? local("Current", "í˜„ìž¬", "Actual")
+    ? local("Current", "현재", "Actual")
     : relationshipLabel(relationship, activeLanguage);
   const statusText = (status = "") => ({
-    active: local("Active", "ì§„í–‰ ì¤‘", "Activo"),
-    "mission-ready": local("Prepared", "ì¤€ë¹„ë¨", "Preparado"),
-    prepared_opportunity: local("Prepared option", "ì¤€ë¹„ëœ ì„ íƒì§€", "OpciÃ³n preparada"),
-    completed: local("Completed", "ì™„ë£Œ", "Completado")
-  }[status] || local("Prepared", "ì¤€ë¹„ë¨", "Preparado"));
+    active: local("Active", "진행 중", "Activo"),
+    "mission-ready": local("Prepared", "준비됨", "Preparado"),
+    prepared_opportunity: local("Prepared option", "준비된 선택지", "Opción preparada"),
+    completed: local("Completed", "완료", "Completado")
+  }[status] || local("Prepared", "준비됨", "Preparado"));
   const renderNodes = (nodes = []) => nodes.length
     ? nodes.slice(0, 4).map((node) => `
       <li>
@@ -4035,12 +4010,12 @@ const createLifeTimelineCard = (layer) => {
         <span>${escapeSummaryText(relationText(node.relationship))} · ${escapeSummaryText(statusText(node.status))}</span>
       </li>
     `).join("")
-    : `<li>${escapeSummaryText(local("Nothing extra needed yet.", "ì•„ì§ ì¶”ê°€ë¡œ í•„ìš”í•œ ê²ƒì€ ì—†ìŠµë‹ˆë‹¤.", "AÃºn no hace falta nada mÃ¡s."))}</li>`;
+    : `<li>${escapeSummaryText(local("Nothing extra needed yet.", "아직 추가로 필요한 것은 없습니다.", "Aún no hace falta nada más."))}</li>`;
   const goalRows = (layer.goals || []).slice(0, 3).map((goal) => `
     <li>
       <strong>${escapeSummaryText(goal.title)}</strong>
       <span>${escapeSummaryText(goal.progressNarrative || "")}</span>
-      <small>${escapeSummaryText(local("Remaining", "ë‚¨ì€ ë‹¨ê³„", "Pendiente"))}: ${escapeSummaryText((goal.remaining || []).slice(0, 3).join(" · "))}</small>
+      <small>${escapeSummaryText(local("Remaining", "남은 단계", "Pendiente"))}: ${escapeSummaryText((goal.remaining || []).slice(0, 3).join(" · "))}</small>
     </li>
   `).join("");
   const futureRows = (layer.futureMissions || []).slice(0, 6).map((mission) => `
@@ -4058,46 +4033,46 @@ const createLifeTimelineCard = (layer) => {
   article.innerHTML = `
     <div class="v22-card-heading">
       <span class="v22-kicker">ALPHA-12 · Life Timeline</span>
-      <h2>${escapeSummaryText(local("Where this mission fits in your life", "ì´ ë¯¸ì…˜ì´ ì‚¶ì—ì„œ ì–´ë””ì— ì´ì–´ì§€ëŠ”ì§€", "DÃ³nde encaja esta misiÃ³n en tu vida"))}</h2>
+      <h2>${escapeSummaryText(local("Where this mission fits in your life", "이 미션이 삶에서 어디에 이어지는지", "Dónde encaja esta misión en tu vida"))}</h2>
     </div>
     <p class="v22-card-body">${escapeSummaryText(local(
       "ONE connects the current mission to related, dependent, optional, and future life missions without turning it into a calendar or to-do app.",
-      "ONEì€ í˜„ìž¬ ë¯¸ì…˜ì„ ê´€ë ¨·ì˜ì¡´·ì„ íƒ·ë¯¸ëž˜ ë¯¸ì…˜ê³¼ ì—°ê²°í•˜ì§€ë§Œ, ìº˜ë¦°ë”ë‚˜ í•  ì¼ ì•±ì²˜ëŸ¼ ë§Œë“¤ì§€ëŠ” ì•ŠìŠµë‹ˆë‹¤.",
-      "ONE conecta esta misiÃ³n con misiones relacionadas, dependientes, opcionales y futuras sin convertirlo en calendario o lista de tareas."
+      "ONE은 현재 미션을 관련·의존·선택·미래 미션과 연결하지만, 캘린더나 할 일 앱처럼 만들지는 않습니다.",
+      "ONE conecta esta misión con misiones relacionadas, dependientes, opcionales y futuras sin convertirlo en calendario o lista de tareas."
     ))}</p>
     <div class="v22-chip-list">
-      ${createV22Chip(`${local("Life stage", "ì‚¶ì˜ ë‹¨ê³„", "Etapa")}: ${layer.lifeStageLabel}`)}
-      ${createV22Chip(layer.paused ? local("Paused", "ì¼ì‹œì •ì§€ë¨", "Pausado") : local("Active", "í™œì„±", "Activo"), "primary")}
-      ${createV22Chip(`${local("Suggestions", "ì œì•ˆ", "Sugerencias")}: ${layer.futureMissions?.length || 0}`)}
+      ${createV22Chip(`${local("Life stage", "삶의 단계", "Etapa")}: ${layer.lifeStageLabel}`)}
+      ${createV22Chip(layer.paused ? local("Paused", "일시정지됨", "Pausado") : local("Active", "활성", "Activo"), "primary")}
+      ${createV22Chip(`${local("Suggestions", "제안", "Sugerencias")}: ${layer.futureMissions?.length || 0}`)}
     </div>
     <div class="v22-grid">
       <section>
-        <h3>${escapeSummaryText(local("Current", "í˜„ìž¬", "Actual"))}</h3>
+        <h3>${escapeSummaryText(local("Current", "현재", "Actual"))}</h3>
         <ul class="v22-clean-list">${renderNodes(map.current)}</ul>
       </section>
       <section>
-        <h3>${escapeSummaryText(local("Upcoming", "ë‹¤ìŒ", "PrÃ³ximo"))}</h3>
+        <h3>${escapeSummaryText(local("Upcoming", "다음", "Próximo"))}</h3>
         <ul class="v22-clean-list">${renderNodes(map.upcoming)}</ul>
       </section>
       <section>
-        <h3>${escapeSummaryText(local("Related", "ê´€ë ¨", "Relacionado"))}</h3>
+        <h3>${escapeSummaryText(local("Related", "관련", "Relacionado"))}</h3>
         <ul class="v22-clean-list">${renderNodes(map.related)}</ul>
       </section>
       <section>
-        <h3>${escapeSummaryText(local("Future opportunities", "ë¯¸ëž˜ ê¸°íšŒ", "Oportunidades futuras"))}</h3>
+        <h3>${escapeSummaryText(local("Future opportunities", "미래 기회", "Oportunidades futuras"))}</h3>
         <ul class="v22-clean-list">${futureRows || renderNodes(map.future)}</ul>
       </section>
     </div>
     <details open>
-      <summary>${escapeSummaryText(local("Goals this supports", "ì´ ë¯¸ì…˜ì´ ë•ëŠ” ëª©í‘œ", "Metas que apoya"))}</summary>
+      <summary>${escapeSummaryText(local("Goals this supports", "이 미션이 돕는 목표", "Metas que apoya"))}</summary>
       <ul class="v22-clean-list">${goalRows || renderNodes([])}</ul>
     </details>
-    <div class="alpha12-timeline-actions" role="group" aria-label="${escapeSummaryText(local("Life timeline controls", "ë¼ì´í”„ íƒ€ìž„ë¼ì¸ ì œì–´", "Controles de lÃ­nea de vida"))}">
-      <button type="button" data-alpha12-action="pause">${escapeSummaryText(local("Pause", "ì¼ì‹œì •ì§€", "Pausar"))}</button>
-      <button type="button" data-alpha12-action="hide">${escapeSummaryText(local("Hide", "ìˆ¨ê¸°ê¸°", "Ocultar"))}</button>
-      <button type="button" data-alpha12-action="disable-suggestions">${escapeSummaryText(local("Disable suggestions", "ì œì•ˆ ë„ê¸°", "Desactivar sugerencias"))}</button>
-      <button type="button" data-alpha12-action="export">${escapeSummaryText(local("Export", "ë‚´ë³´ë‚´ê¸°", "Exportar"))}</button>
-      <button type="button" data-alpha12-action="delete">${escapeSummaryText(local("Delete", "ì‚­ì œ", "Eliminar"))}</button>
+    <div class="alpha12-timeline-actions" role="group" aria-label="${escapeSummaryText(local("Life timeline controls", "라이프 타임라인 제어", "Controles de línea de vida"))}">
+      <button type="button" data-alpha12-action="pause">${escapeSummaryText(local("Pause", "일시정지", "Pausar"))}</button>
+      <button type="button" data-alpha12-action="hide">${escapeSummaryText(local("Hide", "숨기기", "Ocultar"))}</button>
+      <button type="button" data-alpha12-action="disable-suggestions">${escapeSummaryText(local("Disable suggestions", "제안 끄기", "Desactivar sugerencias"))}</button>
+      <button type="button" data-alpha12-action="export">${escapeSummaryText(local("Export", "내보내기", "Exportar"))}</button>
+      <button type="button" data-alpha12-action="delete">${escapeSummaryText(local("Delete", "삭제", "Eliminar"))}</button>
     </div>
   `;
   return article;
@@ -4197,22 +4172,22 @@ const createExplainableIntelligenceCard = (layer) => {
   article.innerHTML = `
     <div class="v22-card-heading">
       <span class="v22-kicker">ALPHA-14 · Explainable Intelligence</span>
-      <h2>${escapeSummaryText(local("Why ONE recommends this", "ONEì´ ì´ë ‡ê²Œ ì¶”ì²œí•œ ì´ìœ ", "Por quÃ© ONE recomienda esto"))}</h2>
+      <h2>${escapeSummaryText(local("Why ONE recommends this", "ONE이 이렇게 추천한 이유", "Por qué ONE recomienda esto"))}</h2>
     </div>
     <p class="v22-card-body">${escapeSummaryText(local(
       "Short explanations from visible mission signals. No internal reasoning, prompts, or hidden agent discussion is shown.",
-      "ë³´ì´ëŠ” ë¯¸ì…˜ ì‹ í˜¸ë§Œ ì§§ê²Œ ì„¤ëª…í•©ë‹ˆë‹¤. ë‚´ë¶€ ì¶”ë¡ , í”„ë¡¬í”„íŠ¸, ìˆ¨ê²¨ì§„ ì—ì´ì „íŠ¸ ë…¼ì˜ëŠ” ë³´ì—¬ì£¼ì§€ ì•ŠìŠµë‹ˆë‹¤.",
-      "Explicaciones breves con seÃ±ales visibles de la misiÃ³n. No muestra razonamiento interno, prompts ni discusiones ocultas."
+      "보이는 미션 신호만 짧게 설명합니다. 내부 추론, 프롬프트, 숨겨진 에이전트 논의는 보여주지 않습니다.",
+      "Explicaciones breves con señales visibles de la misión. No muestra razonamiento interno, prompts ni discusiones ocultas."
     ))}</p>
     <div class="v22-chip-list">
-      ${createV22Chip(`${local("Explanations", "ì„¤ëª…", "Explicaciones")}: ${layer.explanations.length}`)}
-      ${createV22Chip(local("Approval-first", "ìŠ¹ì¸ ìš°ì„ ", "AprobaciÃ³n primero"), "primary")}
+      ${createV22Chip(`${local("Explanations", "설명", "Explicaciones")}: ${layer.explanations.length}`)}
+      ${createV22Chip(local("Approval-first", "승인 우선", "Aprobación primero"), "primary")}
     </div>
     <ul class="v22-clean-list">${explanations}</ul>
-    <div class="alpha14-explanation-actions" role="group" aria-label="${escapeSummaryText(local("Explanation detail", "ì„¤ëª… ìžì„¸ížˆ ë³´ê¸°", "Detalle de explicaciÃ³n"))}">
-      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.MINIMAL}"${selected(EXPLANATION_DETAIL_LEVELS.MINIMAL)}>${escapeSummaryText(local("Minimal", "ê°„ë‹¨ížˆ", "MÃ­nimo"))}</button>
-      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.STANDARD}"${selected(EXPLANATION_DETAIL_LEVELS.STANDARD)}>${escapeSummaryText(local("Standard", "í‘œì¤€", "EstÃ¡ndar"))}</button>
-      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.DETAILED}"${selected(EXPLANATION_DETAIL_LEVELS.DETAILED)}>${escapeSummaryText(local("Detailed", "ìžì„¸ížˆ", "Detallado"))}</button>
+    <div class="alpha14-explanation-actions" role="group" aria-label="${escapeSummaryText(local("Explanation detail", "설명 자세히 보기", "Detalle de explicación"))}">
+      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.MINIMAL}"${selected(EXPLANATION_DETAIL_LEVELS.MINIMAL)}>${escapeSummaryText(local("Minimal", "간단히", "Mínimo"))}</button>
+      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.STANDARD}"${selected(EXPLANATION_DETAIL_LEVELS.STANDARD)}>${escapeSummaryText(local("Standard", "표준", "Estándar"))}</button>
+      <button type="button" data-alpha14-detail="${EXPLANATION_DETAIL_LEVELS.DETAILED}"${selected(EXPLANATION_DETAIL_LEVELS.DETAILED)}>${escapeSummaryText(local("Detailed", "자세히", "Detallado"))}</button>
     </div>
   `;
   return article;
@@ -4258,7 +4233,7 @@ const createMissionMonitoringCard = (layer) => {
   const watcherRows = layer.watchers.slice(0, 8).map((watcher) => `
     <li>
       <strong>${escapeSummaryText(watcher.label || watcherLabel(watcher.type, activeLanguage))}</strong>
-      <span>${escapeSummaryText(watcher.status || watcher.lifecycle)} · ${escapeSummaryText(local("Last checked", "ë§ˆì§€ë§‰ í™•ì¸", "Ãšltima revisiÃ³n"))}: ${escapeSummaryText(new Date(watcher.lastCheckedAt).toLocaleString(activeLanguage === "ko" ? "ko-KR" : activeLanguage === "es" ? "es" : "en"))}</span>
+      <span>${escapeSummaryText(watcher.status || watcher.lifecycle)} · ${escapeSummaryText(local("Last checked", "마지막 확인", "Última revisión"))}: ${escapeSummaryText(new Date(watcher.lastCheckedAt).toLocaleString(activeLanguage === "ko" ? "ko-KR" : activeLanguage === "es" ? "es" : "en"))}</span>
     </li>
   `).join("");
   const digestRows = layer.digest?.updates?.length
@@ -4269,7 +4244,7 @@ const createMissionMonitoringCard = (layer) => {
         <small>${escapeSummaryText(update.whatChanged || update.why || "")}</small>
       </li>
     `).join("")
-    : `<li>${escapeSummaryText(local("No meaningful changes since the last check.", "ë§ˆì§€ë§‰ í™•ì¸ ì´í›„ ì¤‘ìš”í•œ ë³€í™”ëŠ” ì—†ìŠµë‹ˆë‹¤.", "No hay cambios importantes desde la Ãºltima revisiÃ³n."))}</li>`;
+    : `<li>${escapeSummaryText(local("No meaningful changes since the last check.", "마지막 확인 이후 중요한 변화는 없습니다.", "No hay cambios importantes desde la última revisión."))}</li>`;
   const notificationCount = layer.notifications?.length || 0;
   const article = document.createElement("article");
   article.className = "mission-card v22-card is-wide alpha11-monitoring-card";
@@ -4279,29 +4254,29 @@ const createMissionMonitoringCard = (layer) => {
   article.innerHTML = `
     <div class="v22-card-heading">
       <span class="v22-kicker">ALPHA-11 · Autonomous Mission Monitoring</span>
-      <h2>${escapeSummaryText(local("Mission Updates", "ë¯¸ì…˜ ì—…ë°ì´íŠ¸", "Actualizaciones de misiÃ³n"))}</h2>
+      <h2>${escapeSummaryText(local("Mission Updates", "미션 업데이트", "Actualizaciones de misión"))}</h2>
     </div>
     <p class="v22-card-body">${escapeSummaryText(local(
       "ONE quietly watches meaningful changes and never executes anything without approval.",
-      "ONEì€ ì¤‘ìš”í•œ ë³€í™”ë§Œ ì¡°ìš©ížˆ í™•ì¸í•˜ë©°, ìŠ¹ì¸ ì—†ì´ ì•„ë¬´ê²ƒë„ ì‹¤í–‰í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
-      "ONE observa cambios importantes y nunca ejecuta nada sin aprobaciÃ³n."
+      "ONE은 중요한 변화만 조용히 확인하며, 승인 없이 아무것도 실행하지 않습니다.",
+      "ONE observa cambios importantes y nunca ejecuta nada sin aprobación."
     ))}</p>
     <div class="v22-chip-list">
-      ${createV22Chip(local("Watching", "í™•ì¸ ì¤‘", "Observando") + `: ${layer.watchers.length}`)}
-      ${createV22Chip(local("Proactive alerts", "ì¤‘ìš” ì•Œë¦¼", "Alertas") + `: ${notificationCount}`)}
-      ${layer.nextRecommendedAction ? createV22Chip(local("Next", "ë‹¤ìŒ", "Siguiente") + `: ${layer.nextRecommendedAction}`) : ""}
+      ${createV22Chip(local("Watching", "확인 중", "Observando") + `: ${layer.watchers.length}`)}
+      ${createV22Chip(local("Proactive alerts", "중요 알림", "Alertas") + `: ${notificationCount}`)}
+      ${layer.nextRecommendedAction ? createV22Chip(local("Next", "다음", "Siguiente") + `: ${layer.nextRecommendedAction}`) : ""}
     </div>
     <details open>
-      <summary>${escapeSummaryText(local("Watching", "í™•ì¸ ì¤‘", "Observando"))}</summary>
+      <summary>${escapeSummaryText(local("Watching", "확인 중", "Observando"))}</summary>
       <ul class="v22-clean-list">${watcherRows}</ul>
     </details>
     <details${layer.digest?.updates?.length ? " open" : ""}>
-      <summary>${escapeSummaryText(local("Mission history", "ë¯¸ì…˜ ê¸°ë¡", "Historial"))}</summary>
+      <summary>${escapeSummaryText(local("Mission history", "미션 기록", "Historial"))}</summary>
       <ul class="v22-clean-list">${digestRows}</ul>
     </details>
-    <div class="alpha11-monitoring-actions" role="group" aria-label="${escapeSummaryText(local("Monitoring controls", "ëª¨ë‹ˆí„°ë§ ì œì–´", "Controles de monitoreo"))}">
-      <button type="button" data-alpha11-action="pause">${escapeSummaryText(local("Pause monitoring", "ëª¨ë‹ˆí„°ë§ ì¼ì‹œì •ì§€", "Pausar monitoreo"))}</button>
-      <button type="button" data-alpha11-action="resume">${escapeSummaryText(local("Resume", "ë‹¤ì‹œ ì‹œìž‘", "Reanudar"))}</button>
+    <div class="alpha11-monitoring-actions" role="group" aria-label="${escapeSummaryText(local("Monitoring controls", "모니터링 제어", "Controles de monitoreo"))}">
+      <button type="button" data-alpha11-action="pause">${escapeSummaryText(local("Pause monitoring", "모니터링 일시정지", "Pausar monitoreo"))}</button>
+      <button type="button" data-alpha11-action="resume">${escapeSummaryText(local("Resume", "다시 시작", "Reanudar"))}</button>
     </div>
   `;
   return article;
@@ -4437,7 +4412,7 @@ const renderResolutionPlanMission = (result) => {
   const local = v22Local;
   const safeItems = (items = []) => items.map((item) => localizeDomainText(item?.title || item?.label || item)).filter(Boolean);
   const mission = plan.userProblem || result.originalMission || result.rawInput || result.mission || "";
-  missionTitle.textContent = mission || local("Prepared mission", "ì¤€ë¹„ëœ ë¯¸ì…˜", "MisiÃ³n preparada");
+  missionTitle.textContent = mission || local("Prepared mission", "준비된 미션", "Misión preparada");
   missionGrid.innerHTML = "";
   missionGrid.classList.add("is-domain-layout");
   missionGrid.dataset.domain = domainKey;
@@ -4459,13 +4434,13 @@ const renderResolutionPlanMission = (result) => {
 
   missionGrid.appendChild(createV22Card({
     id: "resolution-understanding",
-    title: local("What ONE understood", "ONEì´ ì´í•´í•œ ë‚´ìš©", "Lo que ONE entendiÃ³"),
+    title: local("What ONE understood", "ONE이 이해한 내용", "Lo que ONE entendió"),
     kicker: localize(presentation.title),
     body: localize(presentation.understood),
     chips: [
-      `${local("Goal", "ëª©í‘œ", "Objetivo")}: ${mission || polishedDomainText(plan.desiredOutcome, local("Mission prepared", "ë¯¸ì…˜ ì¤€ë¹„", "MisiÃ³n preparada"))}`,
-      `${local("Domain", "ë¶„ì•¼", "Dominio")}: ${localizeDomainText(plan.domain || result.domain || result.type || "general")}`,
-      `${local("Type", "ìœ í˜•", "Tipo")}: ${localizeDomainText(plan.missionType || result.missionType || "general")}`
+      `${local("Goal", "목표", "Objetivo")}: ${mission || polishedDomainText(plan.desiredOutcome, local("Mission prepared", "미션 준비", "Misión preparada"))}`,
+      `${local("Domain", "분야", "Dominio")}: ${localizeDomainText(plan.domain || result.domain || result.type || "general")}`,
+      `${local("Type", "유형", "Tipo")}: ${localizeDomainText(plan.missionType || result.missionType || "general")}`
     ],
     wide: true,
     tone: "hero"
@@ -4473,18 +4448,18 @@ const renderResolutionPlanMission = (result) => {
 
   const recommendedFallback = local(
     "ONE prepared the safest useful path and kept every real-world action behind approval.",
-    "ONEì´ ê°€ìž¥ ì í•©í•œ í•´ê²° ê²½ë¡œë¥¼ ì¤€ë¹„í–ˆê³  ì‹¤ì œ ì‹¤í–‰ì€ ìŠ¹ì¸ ë’¤ë¡œ ë§‰ì•„ë‘ì—ˆìŠµë‹ˆë‹¤.",
-    "ONE preparÃ³ la ruta mÃ¡s Ãºtil y protegiÃ³ toda acciÃ³n real con aprobaciÃ³n."
+    "ONE이 가장 적합한 해결 경로를 준비했고 실제 실행은 승인 뒤로 막아두었습니다.",
+    "ONE preparó la ruta más útil y protegió toda acción real con aprobación."
   );
   const recommendedSteps = activeLanguage === "en"
     ? safeItems(recommended.requiredSteps || plan.preparedActions || []).slice(0, 5)
     : (presentation.prepared?.[activeLanguage] || presentation.prepared?.en || []);
   missionGrid.appendChild(createV22Card({
     id: "resolution-recommended-solution",
-    title: local("Recommended solution", "ì¶”ì²œ í•´ê²° ë°©ë²•", "SoluciÃ³n recomendada"),
-    kicker: local("ONE Pick", "ONE ì¶”ì²œ", "ONE recomienda"),
+    title: local("Recommended solution", "추천 해결 방법", "Solución recomendada"),
+    kicker: local("ONE Pick", "ONE 추천", "ONE recomienda"),
     body: polishedDomainText(recommended.expectedOutcome || plan.nextBestAction, recommendedFallback),
-    chips: [polishedDomainText(recommended.title, local("Prepared solution path", "ì¤€ë¹„ëœ í•´ê²° ê²½ë¡œ", "Ruta preparada")), ...recommendedSteps],
+    chips: [polishedDomainText(recommended.title, local("Prepared solution path", "준비된 해결 경로", "Ruta preparada")), ...recommendedSteps],
     wide: true,
     tone: "primary"
   }));
@@ -4499,32 +4474,32 @@ const renderResolutionPlanMission = (result) => {
   alternatives.dataset.cardId = "resolution-other-paths";
   alternatives.innerHTML = `
     <div class="v22-card-heading">
-      <span class="v22-kicker">${local("Alternatives", "ë‹¤ë¥¸ ì¢‹ì€ ì„ íƒì§€", "Alternativas")}</span>
-      <h2>${local("Other good options", "ë‹¤ë¥¸ ì¢‹ì€ ë°©ë²•", "Otras buenas opciones")}</h2>
-      <p class="v22-card-body">${local("Tap a direction to compare before approval.", "ìŠ¹ì¸ ì „ì— ë°©í–¥ì„ ëˆŒëŸ¬ ë¹„êµí•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "Toca una ruta para comparar antes de aprobar.")}</p>
+      <span class="v22-kicker">${local("Alternatives", "다른 좋은 선택지", "Alternativas")}</span>
+      <h2>${local("Other good options", "다른 좋은 방법", "Otras buenas opciones")}</h2>
+      <p class="v22-card-body">${local("Tap a direction to compare before approval.", "승인 전에 방향을 눌러 비교할 수 있습니다.", "Toca una ruta para comparar antes de aprobar.")}</p>
     </div>
     <div class="v22-path-grid"></div>
   `;
   const pathGrid = alternatives.querySelector(".v22-path-grid");
   if (alternativePaths.length) {
     const alternativeNames = [
-      local("Compare another route", "ë‹¤ë¥¸ ê²½ë¡œ ë¹„êµ", "Comparar otra ruta"),
-      local("Lower-effort path", "ë¶€ë‹´ì´ ì ì€ ê²½ë¡œ", "Ruta mÃ¡s simple"),
-      local("Higher-support path", "ì§€ì›ì´ ë” ë§Žì€ ê²½ë¡œ", "Ruta con mÃ¡s apoyo"),
-      local("Fallback path", "ëŒ€ì•ˆ ê²½ë¡œ", "Ruta alternativa")
+      local("Compare another route", "다른 경로 비교", "Comparar otra ruta"),
+      local("Lower-effort path", "부담이 적은 경로", "Ruta más simple"),
+      local("Higher-support path", "지원이 더 많은 경로", "Ruta con más apoyo"),
+      local("Fallback path", "대안 경로", "Ruta alternativa")
     ];
     alternativePaths.forEach((path, index) => pathGrid.appendChild(createV22PathCard({
       id: `path-${index}`,
       title: polishedDomainText(path.title || path, alternativeNames[index] || alternativeNames[0]),
-      reason: polishedDomainText(path.expectedOutcome, local("Useful fallback if the main path does not fit.", "ì£¼ìš” ê²½ë¡œê°€ ë§žì§€ ì•Šì„ ë•Œ ì‚¬ìš©í•  ìˆ˜ ìžˆëŠ” ëŒ€ì•ˆìž…ë‹ˆë‹¤.", "Alternativa si la ruta principal no encaja.")),
+      reason: polishedDomainText(path.expectedOutcome, local("Useful fallback if the main path does not fit.", "주요 경로가 맞지 않을 때 사용할 수 있는 대안입니다.", "Alternativa si la ruta principal no encaja.")),
       steps: activeLanguage === "en" ? path.requiredSteps || [] : (presentation.prepared?.[activeLanguage] || presentation.prepared?.en || []),
       selected: index === 0
     })));
   } else {
     pathGrid.appendChild(createV22PathCard({
       id: "path-default",
-      title: local("Keep current recommendation", "í˜„ìž¬ ì¶”ì²œ ìœ ì§€", "Mantener recomendaciÃ³n"),
-      reason: local("The current plan is enough to continue.", "í˜„ìž¬ ê³„íšë§Œìœ¼ë¡œë„ ê³„ì† ì§„í–‰í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "El plan actual basta para continuar."),
+      title: local("Keep current recommendation", "현재 추천 유지", "Mantener recomendación"),
+      reason: local("The current plan is enough to continue.", "현재 계획만으로도 계속 진행할 수 있습니다.", "El plan actual basta para continuar."),
       selected: true
     }));
   }
@@ -4532,8 +4507,8 @@ const renderResolutionPlanMission = (result) => {
 
   missionGrid.appendChild(createV22Card({
     id: "resolution-prepared",
-    title: local("Already prepared", "ì´ë¯¸ ì¤€ë¹„ëœ ê²ƒ", "Ya preparado"),
-    kicker: local("Ready", "ì¤€ë¹„ ì™„ë£Œ", "Listo"),
+    title: local("Already prepared", "이미 준비된 것", "Ya preparado"),
+    kicker: local("Ready", "준비 완료", "Listo"),
     chips: activeLanguage === "en" ? safeItems(plan.preparedActions?.length ? plan.preparedActions : presentation.prepared?.en || []) : (presentation.prepared?.[activeLanguage] || presentation.prepared?.en || []),
     wide: false,
     tone: "prepared"
@@ -4541,39 +4516,39 @@ const renderResolutionPlanMission = (result) => {
 
   missionGrid.appendChild(createV22Card({
     id: "resolution-needed",
-    title: local("Things I still need", "ì•„ì§ í•„ìš”í•œ ê²ƒ", "Lo que falta"),
-    kicker: local("Only if needed", "í•„ìš”í•  ë•Œë§Œ", "Solo si hace falta"),
+    title: local("Things I still need", "아직 필요한 것", "Lo que falta"),
+    kicker: local("Only if needed", "필요할 때만", "Solo si hace falta"),
     chips: activeLanguage === "en"
-      ? safeItems(plan.missingEssentialInformation?.length ? plan.missingEssentialInformation : plan.userRequiredActions || [local("Confirm before approval", "ìŠ¹ì¸ ì „ í™•ì¸", "Confirmar antes de aprobar")])
-      : [local("í•„ìš” ì¡°ê±´ í™•ì¸", "í•„ìš” ì¡°ê±´ í™•ì¸", "Confirmar detalles"), local("ìŠ¹ì¸ ì „ ê²€í† ", "ìŠ¹ì¸ ì „ ê²€í† ", "Revisar antes de aprobar")],
+      ? safeItems(plan.missingEssentialInformation?.length ? plan.missingEssentialInformation : plan.userRequiredActions || [local("Confirm before approval", "승인 전 확인", "Confirmar antes de aprobar")])
+      : [local("필요 조건 확인", "필요 조건 확인", "Confirmar detalles"), local("승인 전 검토", "승인 전 검토", "Revisar antes de aprobar")],
     wide: false,
     tone: "needed"
   }));
 
   missionGrid.appendChild(createV22Card({
     id: "resolution-approval-actions",
-    title: local("Ready when you are", "ì¤€ë¹„ë˜ë©´ ìŠ¹ì¸í•˜ì„¸ìš”", "Listo cuando quieras"),
-    kicker: local("Approval protected", "ìŠ¹ì¸ ë³´í˜¸", "AprobaciÃ³n protegida"),
-    body: local("Nothing is booked, paid, submitted, signed, or shared before explicit approval.", "ëª…í™•í•œ ìŠ¹ì¸ ì „ì—ëŠ” ì˜ˆì•½, ê²°ì œ, ì œì¶œ, ì„œëª…, ì œê³µì—…ì²´ ê³µìœ ê°€ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", "Nada se reserva, paga, envÃ­a, firma o comparte antes de aprobar."),
-    chips: activeLanguage === "en" ? safeItems(plan.approvalRequiredActions?.length ? plan.approvalRequiredActions : [local("Approve", "ìŠ¹ì¸", "Aprobar"), local("Modify", "ìˆ˜ì •", "Modificar"), local("Cancel", "ì·¨ì†Œ", "Cancelar")]) : [local("Approve", "ìŠ¹ì¸", "Aprobar"), local("Modify", "ìˆ˜ì •", "Modificar"), local("Cancel", "ì·¨ì†Œ", "Cancelar")],
+    title: local("Ready when you are", "준비되면 승인하세요", "Listo cuando quieras"),
+    kicker: local("Approval protected", "승인 보호", "Aprobación protegida"),
+    body: local("Nothing is booked, paid, submitted, signed, or shared before explicit approval.", "명확한 승인 전에는 예약, 결제, 제출, 서명, 제공업체 공유가 진행되지 않습니다.", "Nada se reserva, paga, envía, firma o comparte antes de aprobar."),
+    chips: activeLanguage === "en" ? safeItems(plan.approvalRequiredActions?.length ? plan.approvalRequiredActions : [local("Approve", "승인", "Aprobar"), local("Modify", "수정", "Modificar"), local("Cancel", "취소", "Cancelar")]) : [local("Approve", "승인", "Aprobar"), local("Modify", "수정", "Modificar"), local("Cancel", "취소", "Cancelar")],
     wide: true,
     tone: "approval"
   }));
 
   missionGrid.appendChild(createV22Card({
     id: "resolution-risks",
-    title: local("Before execution", "ì‹¤í–‰ ì „ í™•ì¸", "Antes de ejecutar"),
-    kicker: local("Honest limits", "ì •ì§í•œ í•œê³„", "LÃ­mites honestos"),
-    chips: activeLanguage === "en" ? safeItems(plan.risks?.length ? plan.risks : [local("Live availability may change.", "ì‹¤ì‹œê°„ ê°€ëŠ¥ ì—¬ë¶€ëŠ” ë°”ë€” ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "La disponibilidad puede cambiar."), local("Provider confirmation is required.", "ì œê³µì—…ì²´ ìµœì¢… í™•ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤.", "Se necesita confirmaciÃ³n del proveedor.")]) : [local("Live availability may change.", "ì‹¤ì‹œê°„ ê°€ëŠ¥ ì—¬ë¶€ëŠ” ë°”ë€” ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "La disponibilidad puede cambiar."), local("Provider confirmation is required.", "ì œê³µì—…ì²´ ìµœì¢… í™•ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤.", "Se necesita confirmaciÃ³n del proveedor.")],
+    title: local("Before execution", "실행 전 확인", "Antes de ejecutar"),
+    kicker: local("Honest limits", "정직한 한계", "Límites honestos"),
+    chips: activeLanguage === "en" ? safeItems(plan.risks?.length ? plan.risks : [local("Live availability may change.", "실시간 가능 여부는 바뀔 수 있습니다.", "La disponibilidad puede cambiar."), local("Provider confirmation is required.", "제공업체 최종 확인이 필요합니다.", "Se necesita confirmación del proveedor.")]) : [local("Live availability may change.", "실시간 가능 여부는 바뀔 수 있습니다.", "La disponibilidad puede cambiar."), local("Provider confirmation is required.", "제공업체 최종 확인이 필요합니다.", "Se necesita confirmación del proveedor.")],
     wide: false,
     tone: "quiet"
   }));
 
   missionGrid.appendChild(createV22Card({
     id: "resolution-next-action",
-    title: local("Next action", "ë‹¤ìŒ í–‰ë™", "Siguiente acciÃ³n"),
-    kicker: local("ONE is ready", "ONE ì¤€ë¹„ ì™„ë£Œ", "ONE estÃ¡ listo"),
-    body: polishedDomainText(plan.nextBestAction, local("Review the prepared solution, adjust anything, then approve when ready.", "ì¤€ë¹„ëœ í•´ê²° ë°©ë²•ì„ í™•ì¸í•˜ê³  í•„ìš”í•œ ë¶€ë¶„ì„ ê³ ì¹œ ë’¤ ì¤€ë¹„ë˜ë©´ ìŠ¹ì¸í•˜ì„¸ìš”.", "Revisa la soluciÃ³n, ajusta lo necesario y aprueba cuando quieras.")),
+    title: local("Next action", "다음 행동", "Siguiente acción"),
+    kicker: local("ONE is ready", "ONE 준비 완료", "ONE está listo"),
+    body: polishedDomainText(plan.nextBestAction, local("Review the prepared solution, adjust anything, then approve when ready.", "준비된 해결 방법을 확인하고 필요한 부분을 고친 뒤 준비되면 승인하세요.", "Revisa la solución, ajusta lo necesario y aprueba cuando quieras.")),
     chips: presentation.prepared?.[activeLanguage] || presentation.prepared?.en || [],
     wide: false,
     tone: "next"
@@ -4581,7 +4556,7 @@ const renderResolutionPlanMission = (result) => {
 };
 
 const renderGeneralMission = (result) => {
-  missionTitle.textContent = result.display?.title || result.rawInput || (activeLanguage === "ko" ? "ë¯¸ì…˜ ê³„íš" : "Mission Plan");
+  missionTitle.textContent = result.display?.title || result.rawInput || (activeLanguage === "ko" ? "미션 계획" : "Mission Plan");
   missionGrid.innerHTML = "";
   const scheduleCard = createScheduleCard(result);
   if (scheduleCard) missionGrid.appendChild(scheduleCard);
@@ -4593,30 +4568,30 @@ const renderGeneralMission = (result) => {
   if (refinementCard) missionGrid.appendChild(refinementCard);
 
   const detailLabels = {
-    tutors: ["Matched tutor profiles", "íŠœí„° í”„ë¡œí•„ ë§¤ì¹­"], style: ["Teaching approach compared", "ìˆ˜ì—… ë°©ì‹ ë¹„êµ"],
-    format: ["Online and offline options", "ì˜¨ë¼ì¸·ì˜¤í”„ë¼ì¸ ì„ íƒì§€"], experience: ["Experience verified before selection", "ì„ íƒ ì „ ê²½ë ¥ í™•ì¸"],
-    price: ["Price ranges compared", "ê°€ê²©ëŒ€ ë¹„êµ"], languages: ["Teaching languages checked", "ìˆ˜ì—… ì–¸ì–´ í™•ì¸"],
-    availability: ["Available schedules prepared", "ê°€ëŠ¥ ì¼ì • ì¤€ë¹„"], questions: ["Interview questions prepared", "ì¸í„°ë·° ì§ˆë¬¸ ì¤€ë¹„"],
-    trial: ["Trial lesson prepared", "ì²´í—˜ ìˆ˜ì—… ì¤€ë¹„"], recommended_product: ["Best-fit option selected", "ìµœì  ì œí’ˆ ì„ ì •"],
-    alternative_products: ["Alternatives compared", "ëŒ€ì•ˆ ì œí’ˆ ë¹„êµ"], price_comparison: ["Prices compared", "ê°€ê²© ë¹„êµ"],
-    where_to_buy: ["Trusted sellers prepared", "ì‹ ë¢°í•  íŒë§¤ì²˜ ì¤€ë¹„"], warranty: ["Warranty terms checked", "ë³´ì¦ ì¡°ê±´ í™•ì¸"],
-    delivery: ["Delivery options checked", "ë°°ì†¡ ì˜µì…˜ í™•ì¸"], housing_options: ["Matching homes shortlisted", "ì¡°ê±´ì— ë§žëŠ” ì£¼ê±° í›„ë³´"],
-    area_comparison: ["Areas compared", "ì§€ì—­ ë¹„êµ"], documents: ["Required documents prepared", "í•„ìš” ì„œë¥˜ ì¤€ë¹„"],
-    risks: ["Important risks identified", "ì£¼ìš” ìœ„í—˜ í™•ì¸"], lawyer_type: ["Relevant specialist identified", "ì í•©í•œ ì „ë¬¸ê°€ ìœ í˜• í™•ì¸"],
-    process: ["Expected process outlined", "ì˜ˆìƒ ì ˆì°¨ ì •ë¦¬"], visa: ["Requirements prepared for verification", "í™•ì¸í•  ìš”ê±´ ì¤€ë¹„"],
-    housing: ["Housing options prepared", "ì£¼ê±° ì˜µì…˜ ì¤€ë¹„"], shipping: ["Shipping options prepared", "ë°°ì†¡ ì˜µì…˜ ì¤€ë¹„"],
-    banking: ["Banking setup prepared", "ì€í–‰ ì—…ë¬´ ì¤€ë¹„"], insurance: ["Insurance options prepared", "ë³´í—˜ ì˜µì…˜ ì¤€ë¹„"],
-    schools: ["School options prepared", "í•™êµ ì˜µì…˜ ì¤€ë¹„"], registration: ["Registration steps prepared", "ë“±ë¡ ë‹¨ê³„ ì¤€ë¹„"],
-    tax: ["Tax and accounting checklist prepared", "ì„¸ê¸ˆ·íšŒê³„ ì²´í¬ë¦¬ìŠ¤íŠ¸ ì¤€ë¹„"], brand: ["Brand and domain options prepared", "ë¸Œëžœë“œ·ë„ë©”ì¸ ì˜µì…˜ ì¤€ë¹„"],
-    suppliers: ["Supplier shortlist prepared", "ê³µê¸‰ì—…ì²´ í›„ë³´ ì¤€ë¹„"], clinic: ["Clinic options shortlisted", "ë³‘ì› í›„ë³´ ì¤€ë¹„"],
-    appointment: ["Appointment requirements prepared", "ì˜ˆì•½ ìš”ê±´ ì¤€ë¹„"], cost: ["Cost range estimated", "ì˜ˆìƒ ë¹„ìš© ë²”ìœ„ ì¤€ë¹„"],
-    loan_options: ["Suitable options compared", "ì í•©í•œ ì˜µì…˜ ë¹„êµ"], rates: ["Rates prepared for comparison", "ê¸ˆë¦¬ ë¹„êµ ì¤€ë¹„"],
-    targets: ["Targets shortlisted", "ëª©í‘œ í›„ë³´ ì¤€ë¹„"], resume: ["Resume plan prepared", "ì´ë ¥ì„œ ê³„íš ì¤€ë¹„"],
-    interview: ["Interview plan prepared", "ë©´ì ‘ ê³„íš ì¤€ë¹„"], recruiters: ["Recruiter options prepared", "ë¦¬í¬ë£¨í„° í›„ë³´ ì¤€ë¹„"],
-    vendors: ["Vendors shortlisted", "ì—…ì²´ í›„ë³´ ì¤€ë¹„"], timeline: ["Timeline prepared", "ì¼ì • ì¤€ë¹„"],
-    budget: ["Estimated budget prepared", "ì˜ˆìƒ ì˜ˆì‚° ì¤€ë¹„"], reservations: ["Reservation options prepared", "ì˜ˆì•½ ì˜µì…˜ ì¤€ë¹„"],
-    checklist: ["Action checklist prepared", "ì‹¤í–‰ ì²´í¬ë¦¬ìŠ¤íŠ¸ ì¤€ë¹„"], mission_plan: ["Mission plan structured", "ë¯¸ì…˜ ê³„íš êµ¬ì„±"],
-    options: ["Relevant options prepared", "ê´€ë ¨ ì„ íƒì§€ ì¤€ë¹„"]
+    tutors: ["Matched tutor profiles", "튜터 프로필 매칭"], style: ["Teaching approach compared", "수업 방식 비교"],
+    format: ["Online and offline options", "온라인·오프라인 선택지"], experience: ["Experience verified before selection", "선택 전 경력 확인"],
+    price: ["Price ranges compared", "가격대 비교"], languages: ["Teaching languages checked", "수업 언어 확인"],
+    availability: ["Available schedules prepared", "가능 일정 준비"], questions: ["Interview questions prepared", "인터뷰 질문 준비"],
+    trial: ["Trial lesson prepared", "체험 수업 준비"], recommended_product: ["Best-fit option selected", "최적 제품 선정"],
+    alternative_products: ["Alternatives compared", "대안 제품 비교"], price_comparison: ["Prices compared", "가격 비교"],
+    where_to_buy: ["Trusted sellers prepared", "신뢰할 판매처 준비"], warranty: ["Warranty terms checked", "보증 조건 확인"],
+    delivery: ["Delivery options checked", "배송 옵션 확인"], housing_options: ["Matching homes shortlisted", "조건에 맞는 주거 후보"],
+    area_comparison: ["Areas compared", "지역 비교"], documents: ["Required documents prepared", "필요 서류 준비"],
+    risks: ["Important risks identified", "주요 위험 확인"], lawyer_type: ["Relevant specialist identified", "적합한 전문가 유형 확인"],
+    process: ["Expected process outlined", "예상 절차 정리"], visa: ["Requirements prepared for verification", "확인할 요건 준비"],
+    housing: ["Housing options prepared", "주거 옵션 준비"], shipping: ["Shipping options prepared", "배송 옵션 준비"],
+    banking: ["Banking setup prepared", "은행 업무 준비"], insurance: ["Insurance options prepared", "보험 옵션 준비"],
+    schools: ["School options prepared", "학교 옵션 준비"], registration: ["Registration steps prepared", "등록 단계 준비"],
+    tax: ["Tax and accounting checklist prepared", "세금·회계 체크리스트 준비"], brand: ["Brand and domain options prepared", "브랜드·도메인 옵션 준비"],
+    suppliers: ["Supplier shortlist prepared", "공급업체 후보 준비"], clinic: ["Clinic options shortlisted", "병원 후보 준비"],
+    appointment: ["Appointment requirements prepared", "예약 요건 준비"], cost: ["Cost range estimated", "예상 비용 범위 준비"],
+    loan_options: ["Suitable options compared", "적합한 옵션 비교"], rates: ["Rates prepared for comparison", "금리 비교 준비"],
+    targets: ["Targets shortlisted", "목표 후보 준비"], resume: ["Resume plan prepared", "이력서 계획 준비"],
+    interview: ["Interview plan prepared", "면접 계획 준비"], recruiters: ["Recruiter options prepared", "리크루터 후보 준비"],
+    vendors: ["Vendors shortlisted", "업체 후보 준비"], timeline: ["Timeline prepared", "일정 준비"],
+    budget: ["Estimated budget prepared", "예상 예산 준비"], reservations: ["Reservation options prepared", "예약 옵션 준비"],
+    checklist: ["Action checklist prepared", "실행 체크리스트 준비"], mission_plan: ["Mission plan structured", "미션 계획 구성"],
+    options: ["Relevant options prepared", "관련 선택지 준비"]
   };
 
   const serviceCards = Array.isArray(result.cards) ? result.cards.filter((card) => !card.removed) : [];
@@ -4624,12 +4599,12 @@ const renderGeneralMission = (result) => {
     const detail = detailLabels[card.id];
     const preparedText = detail
       ? detail[activeLanguage === "ko" ? 1 : 0]
-      : (activeLanguage === "ko" ? "ê´€ë ¨ ì„ íƒì§€ë¥¼ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤" : "Relevant options prepared");
+      : (activeLanguage === "ko" ? "관련 선택지를 준비했습니다" : "Relevant options prepared");
     missionGrid.appendChild(createListCard({
       id: card.id,
       title: localize(card.title) || card.title || card.id,
-      label: activeLanguage === "ko" ? "ì¤€ë¹„ ì™„ë£Œ" : "Prepared",
-      items: [preparedText, activeLanguage === "ko" ? "ìˆ˜ì • ë° ë¹„êµ ê°€ëŠ¥" : "Ready to customize and compare"],
+      label: activeLanguage === "ko" ? "준비 완료" : "Prepared",
+      items: [preparedText, activeLanguage === "ko" ? "수정 및 비교 가능" : "Ready to customize and compare"],
       wide: false,
       editable: result.type !== "legal" && !["visa", "risks"].includes(card.id)
     }));
@@ -4637,41 +4612,41 @@ const renderGeneralMission = (result) => {
 
   if (serviceCards.length === 0) missionGrid.appendChild(createListCard({
     id: "mission-steps",
-    title: activeLanguage === "ko" ? "ë¯¸ì…˜ ë‹¨ê³„" : "Mission Steps",
-    label: activeLanguage === "ko" ? "ì¤€ë¹„ë¨" : "Prepared",
+    title: activeLanguage === "ko" ? "미션 단계" : "Mission Steps",
+    label: activeLanguage === "ko" ? "준비됨" : "Prepared",
     items: (result.steps || []).map((step) => step.title || step.label || step.id),
     wide: true
   }));
 
   missionGrid.appendChild(createListCard({
     id: "assumptions",
-    title: activeLanguage === "ko" ? "ê³„íš ê¸°ì¤€" : "Planning Assumptions",
-    label: activeLanguage === "ko" ? "í™•ì¸" : "Review",
+    title: activeLanguage === "ko" ? "계획 기준" : "Planning Assumptions",
+    label: activeLanguage === "ko" ? "확인" : "Review",
     items: result.assumptions || [],
     wide: true
   }));
 
   missionGrid.appendChild(createListCard({
     id: "risks",
-    title: activeLanguage === "ko" ? "í™•ì¸ ì‚¬í•­" : "Things to Check",
-    label: activeLanguage === "ko" ? "ì¤‘ìš”" : "Important",
+    title: activeLanguage === "ko" ? "확인 사항" : "Things to Check",
+    label: activeLanguage === "ko" ? "중요" : "Important",
     items: result.risks || [],
     wide: true
   }));
 
-  const learningResources = createPublicResourceCard(result, "learning_resources", activeLanguage === "ko" ? "ì¶”ì²œ í•™ìŠµ ìžë£Œ" : "Recommended Learning Resources", activeLanguage === "ko" ? "ë¬´ë£Œ ê³µê°œ ìžë£Œ" : "Free public resources");
+  const learningResources = createPublicResourceCard(result, "learning_resources", activeLanguage === "ko" ? "추천 학습 자료" : "Recommended Learning Resources", activeLanguage === "ko" ? "무료 공개 자료" : "Free public resources");
   if (learningResources) missionGrid.appendChild(learningResources);
 
   missionGrid.appendChild(createListCard({
     id: "information-sources",
-    title: activeLanguage === "ko" ? "ì •ë³´ ì¶œì²˜" : "Information Sources",
-    label: activeLanguage === "ko" ? "í”„ë¡œí† íƒ€ìž…" : "Prototype",
+    title: activeLanguage === "ko" ? "정보 출처" : "Information Sources",
+    label: activeLanguage === "ko" ? "프로토타입" : "Prototype",
     items: (result.providerResults || result.providers || []).map((provider) => {
       const name = provider.provider || provider.name || provider.category;
       const status = provider.liveData
-        ? (activeLanguage === "ko" ? "ì‹¤ì‹œê°„ ê³µê°œ ë°ì´í„°" : "Live public data")
-        : (activeLanguage === "ko" ? "ë°ëª¨ìš© ì¤€ë¹„ ë°ì´í„°" : "Demo-ready data");
-      return `${name} â€” ${status}`;
+        ? (activeLanguage === "ko" ? "실시간 공개 데이터" : "Live public data")
+        : (activeLanguage === "ko" ? "데모용 준비 데이터" : "Demo-ready data");
+      return `${name} — ${status}`;
     }),
     wide: true,
     editable: false
@@ -4683,11 +4658,11 @@ const isExperienceMission = (result, context) => {
   if (result?.type === "experience" || result?.portableExperienceData) return true;
   const mission = String(result?.originalMission || result?.rawInput || result?.mission || "");
   if (context?.providerEligibility?.experience === false || context?.requiresInternationalTravel) return false;
-  return context?.purpose?.value === "romance" || /date|ë°ì´íŠ¸|ê¸°ë…ì¼|anniversary|weekend.{0,12}(?:plan|outing)|ì£¼ë§.{0,12}(?:ë°ì´íŠ¸|ë‚˜ë“¤ì´|ì—¬í–‰)|hangout|ë‚˜ë“¤ì´|salida romÃ¡ntica|cita/i.test(mission);
+  return context?.purpose?.value === "romance" || /date|데이트|기념일|anniversary|weekend.{0,12}(?:plan|outing)|주말.{0,12}(?:데이트|나들이|여행)|hangout|나들이|salida romántica|cita/i.test(mission);
 };
 
 const renderGeneratedExperienceMission = (result) => {
-  const mission = result?.originalMission || result?.rawInput || result?.mission || (activeLanguage === "ko" ? "ìƒˆë¡œìš´ ê²½í—˜" : "New experience");
+  const mission = result?.originalMission || result?.rawInput || result?.mission || (activeLanguage === "ko" ? "새로운 경험" : "New experience");
   missionTitle.textContent = mission;
   missionGrid.innerHTML = "";
   const memoryEnabled = missionMemoryEnabled();
@@ -4696,52 +4671,16 @@ const renderGeneratedExperienceMission = (result) => {
   const generated = currentExperienceReview.generatedExperience;
   const one = generated.onePick;
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
-  const previewProfile = profileForResult(result, destination);
-  if (previewProfile?.journeys?.length) {
-    return rotateList(previewProfile.journeys, seed).map((item, index) => ({
-      id: `v23-preview-journey-${previewProfile.id}-${index}`,
-      name: local(item[0], item[1], item[2]),
-      purpose: local(item[3], item[4], item[3]),
-      tags: item[5] || [],
-      reason: local(
-        "This option is built from curated destination highlights and the current mission context.",
-        "현재 미션과 실제 목적지 하이라이트를 기준으로 구성했습니다.",
-        "Esta opción usa puntos reales del destino y el contexto de la misión."
-      ),
-      duration,
-      tone: ["balanced", "culture", "food", "local"][index] || "balanced",
-      comfort: local("Practical", "실용적", "Práctico"),
-      budget: getTravelBudgetLabel(result, index === 2 ? "food" : "balanced"),
-      timeline: item[5] || [],
-      selected: index === 0,
-      details: {
-        flight: local("Round-trip options are compared after approval for live price and schedule.", "왕복 항공권은 승인 후 실시간 가격과 일정을 확인합니다.", "Vuelos ida y vuelta se comparan tras aprobación."),
-        hotel: local("Hotel candidates are matched to the route, walking load, and room count.", "숙소 후보는 동선, 도보 부담, 객실 수에 맞춰 비교합니다.", "Hoteles según ruta, caminata y habitaciones."),
-        transport: local("Daily movement is grouped by neighborhood to avoid unnecessary backtracking.", "불필요한 왕복 이동을 줄이도록 날마다 지역을 묶습니다.", "Se agrupa por zonas para evitar traslados inútiles."),
-        food: local("Food candidates are placed near the day route instead of as a random list.", "맛집 후보는 무작위 목록이 아니라 그날 동선 근처로 배치합니다.", "Comida cerca de la ruta del día."),
-        entry: local("Entry and document rules are rechecked through official sources before action.", "입국·서류 요건은 실행 전 공식 출처로 다시 확인합니다.", "Requisitos se verifican con fuentes oficiales."),
-        insurance: local("Insurance and cancellation rules are prepared for review before booking.", "예약 전 보험과 취소 규정을 검토할 수 있게 준비합니다.", "Seguro y cancelación se preparan antes de reservar.")
-      },
-      sourceStates: {
-        flight: getScenarioSourceState(result, "flight", "estimated"),
-        hotel: getScenarioSourceState(result, "hotel", "estimated"),
-        transport: getScenarioSourceState(result, "transport", "placeholder"),
-        food: getScenarioSourceState(result, "food", "cached_public"),
-        entry: getScenarioSourceState(result, "entry", "unavailable"),
-        insurance: getScenarioSourceState(result, "insurance", "placeholder")
-      }
-    }));
-  }
   const disclosure = document.querySelector(".prototype-disclosure");
-  if (disclosure) disclosure.textContent = local("Prototype · personalized experience plan · no booking made", "í”„ë¡œí† íƒ€ìž… · ë§žì¶¤ ê²½í—˜ ê³„íš · ì‹¤ì œ ì˜ˆì•½ ì•„ë‹˜", "Prototipo · experiencia personalizada · sin reservas");
+  if (disclosure) disclosure.textContent = local("Prototype · personalized experience plan · no booking made", "프로토타입 · 맞춤 경험 계획 · 실제 예약 아님", "Prototipo · experiencia personalizada · sin reservas");
 
   const conversationCard = createNaturalConversationCard(result, result.missionContext);
   if (conversationCard) missionGrid.appendChild(conversationCard);
 
   missionGrid.appendChild(createMissionCard({
     id: "generated-one-pick",
-    title: local("Your experience", "ë‹¹ì‹ ì„ ìœ„í•œ ê²½í—˜", "Tu experiencia"),
-    label: "â­ ONE Pick",
+    title: local("Your experience", "당신을 위한 경험", "Tu experiencia"),
+    label: "⭐ ONE Pick",
     value: currentExperienceReview.recommendation,
     reason: one.reasoning,
     options: generated.alternatives
@@ -4756,26 +4695,26 @@ const renderGeneratedExperienceMission = (result) => {
   if (refinementCard) missionGrid.appendChild(refinementCard);
   missionGrid.appendChild(createListCard({
     id: "generated-timeline",
-    title: local("The story of your day", "í•˜ë£¨ì˜ ì´ì•¼ê¸°", "La historia del dÃ­a"),
-    label: local("Created for you", "ë§žì¶¤ êµ¬ì„±", "Creado para ti"),
+    title: local("The story of your day", "하루의 이야기", "La historia del día"),
+    label: local("Created for you", "맞춤 구성", "Creado para ti"),
     items: one.timeline.map((item) => `${item.time} · ${item.title}`),
     wide: true,
     editable: true
   }));
   missionGrid.appendChild(createListCard({
     id: "generated-food",
-    title: local("Food moments", "ìŒì‹ê³¼ ë””ì €íŠ¸", "Momentos gastronÃ³micos"),
-    label: local("Balanced variety", "ë‹¤ì–‘í•˜ê²Œ êµ¬ì„±", "Variedad equilibrada"),
+    title: local("Food moments", "음식과 디저트", "Momentos gastronómicos"),
+    label: local("Balanced variety", "다양하게 구성", "Variedad equilibrada"),
     items: one.foods,
     wide: true,
     editable: true
   }));
   missionGrid.appendChild(createMissionCard({
     id: "generated-transport",
-    title: local("Getting around", "ì´ë™ ë°©ë²•", "CÃ³mo moverse"),
+    title: local("Getting around", "이동 방법", "Cómo moverse"),
     label: "ONE Pick",
     value: one.transportation,
-    reason: result.missionContext.nearbyFirst ? local("Less transit, more time together.", "ì´ë™ì€ ì¤„ì´ê³  í•¨ê»˜í•˜ëŠ” ì‹œê°„ì„ ëŠ˜ë ¸ì–´ìš”.", "Menos traslado y mÃ¡s tiempo juntos.") : local("Balanced for distance and time.", "ê±°ë¦¬ì™€ ì‹œê°„ì„ í•¨ê»˜ ê³ ë ¤í–ˆì–´ìš”.", "Equilibrado segÃºn distancia y tiempo."),
+    reason: result.missionContext.nearbyFirst ? local("Less transit, more time together.", "이동은 줄이고 함께하는 시간을 늘렸어요.", "Menos traslado y más tiempo juntos.") : local("Balanced for distance and time.", "거리와 시간을 함께 고려했어요.", "Equilibrado según distancia y tiempo."),
     options: result.missionContext.transport.map((option, index) => makeOptionRow(option, "", {
       index,
       label: option,
@@ -4785,8 +4724,8 @@ const renderGeneratedExperienceMission = (result) => {
   }));
   missionGrid.appendChild(createListCard({
     id: "generated-rain-plan",
-    title: local("If the weather changes", "ë¹„ê°€ ì˜¤ê±°ë‚˜ ë‚ ì”¨ê°€ ë°”ë€Œë©´", "Si cambia el clima"),
-    label: local("Backup ready", "ëŒ€ì•ˆ ì¤€ë¹„", "Alternativa lista"),
+    title: local("If the weather changes", "비가 오거나 날씨가 바뀌면", "Si cambia el clima"),
+    label: local("Backup ready", "대안 준비", "Alternativa lista"),
     items: [one.rainPlan],
     wide: true,
     editable: true
@@ -4798,7 +4737,7 @@ const renderMissionUnderstanding = () => {
   const ko = activeLanguage === "ko";
   const es = activeLanguage === "es";
   const rawGoal = String(currentResult?.originalMission || currentResult?.rawInput || currentResult?.mission || "").trim();
-  const cleanedGoal = rawGoal.toLowerCase().replace(/\b(?:trip|travel|vacation|visit|to|in|plan|please)\b/gi, " ").replace(/(?:ì—¬í–‰|ì¶œìž¥|ê°€ì¤˜|ê°€ê³  ì‹¶ì–´|ê³„íší•´ì¤˜)/g, " ").replace(/\s+/g, " ").trim();
+  const cleanedGoal = rawGoal.toLowerCase().replace(/\b(?:trip|travel|vacation|visit|to|in|plan|please)\b/gi, " ").replace(/(?:여행|출장|가줘|가고 싶어|계획해줘)/g, " ").replace(/\s+/g, " ").trim();
   const countryName = ko ? currentResult?.destination?.countryKo || currentResult?.destination?.country : currentResult?.destination?.country;
   const cityName = ko ? currentResult?.destination?.cityKo || currentResult?.destination?.city : currentResult?.destination?.city;
   const goalAliases = { la: cityName || "Los Angeles", "l.a.": cityName || "Los Angeles", nyc: cityName || "New York", "new york city": cityName || "New York", korea: countryName || "South Korea", "south korea": countryName || "South Korea", usa: countryName || "United States", "u.s.a.": countryName || "United States", uk: countryName || "United Kingdom", "u.k.": countryName || "United Kingdom" };
@@ -4812,24 +4751,24 @@ const renderMissionUnderstanding = () => {
   const title = experienceMission
     ? rawGoal
     : isTravelResult(currentResult)
-    ? normalizedTravelGoal || (ko ? "ì—¬í–‰" : "Trip")
-    : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "ì¤€ë¹„ëœ ë¯¸ì…˜" : "Prepared mission");
+    ? normalizedTravelGoal || (ko ? "여행" : "Trip")
+    : currentResult?.title?.[activeLanguage] || currentResult?.title?.en || rawGoal || (ko ? "준비된 미션" : "Prepared mission");
   const prepared = experienceMission
-    ? (ko ? ["ë§žì¶¤ ê²½í—˜", "ì‹œê°„ë³„ ì¼ì •", "ìŒì‹", "ì´ë™", "ë‚ ì”¨ ëŒ€ì•ˆ"] : es ? ["Experiencia", "Horario", "Comida", "Transporte", "Plan alternativo"] : ["Experience", "Timeline", "Food", "Transportation", "Weather backup"])
+    ? (ko ? ["맞춤 경험", "시간별 일정", "음식", "이동", "날씨 대안"] : es ? ["Experiencia", "Horario", "Comida", "Transporte", "Plan alternativo"] : ["Experience", "Timeline", "Food", "Transportation", "Weather backup"])
     : currentResult?.type === "travel"
-    ? (ko ? ["í•­ê³µíŽ¸", "í˜¸í…”", "êµí†µ", "ë‚ ì”¨", "ì˜ˆì‚°", "ì²´í¬ë¦¬ìŠ¤íŠ¸"] : es ? ["Vuelos", "Hotel", "Transporte", "Clima", "Presupuesto", "Lista"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
+    ? (ko ? ["항공편", "호텔", "교통", "날씨", "예산", "체크리스트"] : es ? ["Vuelos", "Hotel", "Transporte", "Clima", "Presupuesto", "Lista"] : ["Flights", "Hotel", "Transportation", "Weather", "Budget", "Checklist"])
     : currentResult?.resolutionPlan
     ? (domainPresentation(currentResult).prepared?.[activeLanguage] || domainPresentation(currentResult).prepared?.en || [])
-    : [ko ? "ì¶”ì²œ í•´ê²°" : es ? "SoluciÃ³n" : "Solution", ko ? "ëŒ€ì•ˆ" : es ? "Alternativas" : "Alternatives", ko ? "ì¤€ë¹„ ìƒíƒœ" : es ? "Preparado" : "Prepared", ko ? "ìŠ¹ì¸ ë³´í˜¸" : es ? "AprobaciÃ³n" : "Approval"];
-  missionUnderstoodGoal.innerHTML = `<span>${ko ? "ëª©í‘œ" : es ? "Objetivo" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
-  missionUnderstoodItems.innerHTML = prepared.map((item) => `<span>âœ“ ${item}</span>`).join("");
+    : [ko ? "추천 해결" : es ? "Solución" : "Solution", ko ? "대안" : es ? "Alternativas" : "Alternatives", ko ? "준비 상태" : es ? "Preparado" : "Prepared", ko ? "승인 보호" : es ? "Aprobación" : "Approval"];
+  missionUnderstoodGoal.innerHTML = `<span>${ko ? "목표" : es ? "Objetivo" : "Goal"}</span><strong>${escapeSummaryText(title)}</strong>`;
+  missionUnderstoodItems.innerHTML = prepared.map((item) => `<span>✓ ${item}</span>`).join("");
   const heading = document.getElementById("missionUnderstoodTitle");
   const summary = document.querySelector("#missionUnderstood .eyebrow");
   const timing = document.querySelector("#missionUnderstood .mission-understood-time");
-  if (heading) heading.textContent = ko ? "ì´ë ‡ê²Œ ì¤€ë¹„í–ˆì–´ìš”." : es ? "Esto es lo que preparÃ© para ti." : "Hereâ€™s what I prepared for you.";
-  if (summary) summary.textContent = ko ? "ë¯¸ì…˜ ìš”ì•½" : es ? "Resumen de la misiÃ³n" : "Mission Summary";
-  if (timing) timing.textContent = ko ? "1ë¶„ ì´ë‚´ì— ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤." : es ? "Preparado en menos de un minuto." : "Prepared in under a minute.";
-  const stages = ko ? { mission: "ë¯¸ì…˜", planning: "ê³„íš", review: "ê²€í† ", approval: "ìŠ¹ì¸", execution: "ì‹¤í–‰", complete: "ì™„ë£Œ" } : { mission: "Mission", planning: "Planning", review: "Review", approval: "Approval", execution: "Execution", complete: "Complete" };
+  if (heading) heading.textContent = ko ? "이렇게 준비했어요." : es ? "Esto es lo que preparé para ti." : "Here’s what I prepared for you.";
+  if (summary) summary.textContent = ko ? "미션 요약" : es ? "Resumen de la misión" : "Mission Summary";
+  if (timing) timing.textContent = ko ? "1분 이내에 준비했습니다." : es ? "Preparado en menos de un minuto." : "Prepared in under a minute.";
+  const stages = ko ? { mission: "미션", planning: "계획", review: "검토", approval: "승인", execution: "실행", complete: "완료" } : { mission: "Mission", planning: "Planning", review: "Review", approval: "Approval", execution: "Execution", complete: "Complete" };
   document.querySelectorAll("[data-stage]").forEach((item) => { item.textContent = stages[item.dataset.stage] || item.textContent; });
 };
 
@@ -4838,12 +4777,12 @@ const organizeProgressiveResults = () => {
   const nodes = [...missionGrid.children];
   const nodeIds = new Set(nodes.map((node) => node.dataset?.cardId || (node.id === "additionalServicesForm" ? "additional-services" : "")));
   const groups = [
-    { title: "1. â­ ONE Pick", open: true, match: () => true },
-    { title: activeLanguage === "ko" ? "2. ì¤‘ìš” ì •ë³´" : "2. Important Information", ids: new Set(["visa", "checklist", "information-sources"]) },
-    { title: activeLanguage === "ko" ? "3. ë‚ ì”¨" : "3. Weather", ids: new Set(["weather"]) },
-    { title: activeLanguage === "ko" ? "4. í™˜ìœ¨" : "4. Currency", ids: new Set(["exchange-rate"]) },
-    { title: activeLanguage === "ko" ? "5. ë¯¸ì…˜ ìˆ˜ì •" : activeLanguage === "es" ? "5. RevisiÃ³n" : "5. Revision", ids: new Set(["additional-services"]) },
-    { title: activeLanguage === "ko" ? "6. ìŠ¹ì¸" : "6. Approval", open: true, ids: new Set(["approval-protection"]) }
+    { title: "1. ⭐ ONE Pick", open: true, match: () => true },
+    { title: activeLanguage === "ko" ? "2. 중요 정보" : "2. Important Information", ids: new Set(["visa", "checklist", "information-sources"]) },
+    { title: activeLanguage === "ko" ? "3. 날씨" : "3. Weather", ids: new Set(["weather"]) },
+    { title: activeLanguage === "ko" ? "4. 환율" : "4. Currency", ids: new Set(["exchange-rate"]) },
+    { title: activeLanguage === "ko" ? "5. 미션 수정" : activeLanguage === "es" ? "5. Revisión" : "5. Revision", ids: new Set(["additional-services"]) },
+    { title: activeLanguage === "ko" ? "6. 승인" : "6. Approval", open: true, ids: new Set(["approval-protection"]) }
   ].filter((group) => !group.ids || [...group.ids].some((id) => nodeIds.has(id)));
   const details = groups.map((group) => {
     const element = document.createElement("details");
@@ -4859,10 +4798,10 @@ const organizeProgressiveResults = () => {
     details[groupIndex >= 0 ? groupIndex : 0].querySelector(".result-section-grid").appendChild(node);
   });
   details.forEach((detail) => detail.addEventListener("toggle", () => {
-    detail.querySelector("summary span").textContent = detail.open ? "âˆ’" : "+";
+    detail.querySelector("summary span").textContent = detail.open ? "−" : "+";
   }));
   details.forEach((detail) => {
-    detail.querySelector("summary span").textContent = detail.open ? "âˆ’" : "+";
+    detail.querySelector("summary span").textContent = detail.open ? "−" : "+";
   });
 };
 
@@ -4873,16 +4812,16 @@ const renderRevisionAdditionNote = () => {
     additionalServiceList.innerHTML = "";
     return;
   }
-  const label = v22Local("Added to this mission", "ë¯¸ì…˜ì— ì¶”ê°€ë¨", "AÃ±adido a la misiÃ³n");
+  const label = v22Local("Added to this mission", "미션에 추가됨", "Añadido a la misión");
   const body = v22Local(
     note.summary || "ONE updated only the affected mission parts. Live provider checks still happen only after approval.",
-    note.summary || "ONEì´ ì˜í–¥ë°›ì€ ë¯¸ì…˜ ë¶€ë¶„ë§Œ ì—…ë°ì´íŠ¸í–ˆìŠµë‹ˆë‹¤. ì‹¤ì‹œê°„ ì œê³µì—…ì²´ í™•ì¸ì€ ìŠ¹ì¸ í›„ì—ë§Œ ì§„í–‰ë©ë‹ˆë‹¤.",
-    note.summary || "ONE actualizÃ³ solo las partes afectadas. La verificaciÃ³n en vivo solo ocurre tras aprobar."
+    note.summary || "ONE이 영향받은 미션 부분만 업데이트했습니다. 실시간 제공업체 확인은 승인 후에만 진행됩니다.",
+    note.summary || "ONE actualizó solo las partes afectadas. La verificación en vivo solo ocurre tras aprobar."
   );
   const affected = Array.isArray(note.affectedSections) && note.affectedSections.length
     ? note.affectedSections.map((section) => `<span>${escapeSummaryText(section)}</span>`).join("")
     : "";
-  const undo = note.previousResult ? `<button type="button" class="revision-undo-button" data-mission-undo="last">${escapeSummaryText(v22Local("Undo", "ë˜ëŒë¦¬ê¸°", "Deshacer"))}</button>` : "";
+  const undo = note.previousResult ? `<button type="button" class="revision-undo-button" data-mission-undo="last">${escapeSummaryText(v22Local("Undo", "되돌리기", "Deshacer"))}</button>` : "";
   additionalServiceList.innerHTML = `
     <div class="revision-added-note">
       <span>${escapeSummaryText(label)}</span>
@@ -4903,22 +4842,22 @@ const renderCompleteMissionRevisionState = () => {
     ? note.affectedSections.map((section) => `<span>${escapeSummaryText(section)}</span>`).join("")
     : "";
   const undo = state.undoStack.length || note?.previousResult
-    ? `<button type="button" class="revision-undo-button" data-mission-undo="last">${escapeSummaryText(completeMissionLocal("Undo", "ë˜ëŒë¦¬ê¸°", "Deshacer"))}</button>`
+    ? `<button type="button" class="revision-undo-button" data-mission-undo="last">${escapeSummaryText(completeMissionLocal("Undo", "되돌리기", "Deshacer"))}</button>`
     : "";
   const redo = state.redoStack.length
-    ? `<button type="button" class="revision-undo-button" data-mission-redo="last">${escapeSummaryText(completeMissionLocal("Redo", "ë‹¤ì‹œ ì ìš©", "Rehacer"))}</button>`
+    ? `<button type="button" class="revision-undo-button" data-mission-redo="last">${escapeSummaryText(completeMissionLocal("Redo", "다시 적용", "Rehacer"))}</button>`
     : "";
   const history = state.history.length ? `
     <details class="mission-change-history">
-      <summary>${escapeSummaryText(completeMissionLocal("Change history", "ë³€ê²½ ê¸°ë¡", "Historial de cambios"))}</summary>
+      <summary>${escapeSummaryText(completeMissionLocal("Change history", "변경 기록", "Historial de cambios"))}</summary>
       <ol>${state.history.slice(0, 5).map((item) => `<li><strong>${escapeSummaryText(item.command)}</strong><span>${escapeSummaryText(item.summary || item.affectedSections?.join(", ") || "")}</span></li>`).join("")}</ol>
     </details>
   ` : "";
   additionalServiceList.innerHTML = `
     <div class="revision-added-note complete-mission-revision-state">
-      <span>${escapeSummaryText(completeMissionLocal("Latest change", "ìµœê·¼ ë³€ê²½", "Ãšltimo cambio"))}</span>
-      <strong>${escapeSummaryText(note?.text || state.history[0]?.command || completeMissionLocal("Mission updated", "ë¯¸ì…˜ ì—…ë°ì´íŠ¸", "MisiÃ³n actualizada"))}</strong>
-      <p>${escapeSummaryText(note?.summary || state.history[0]?.summary || completeMissionLocal("ONE updated only the affected parts. Nothing external happened.", "ONEì´ ì˜í–¥ë°›ì€ ë¶€ë¶„ë§Œ ì—…ë°ì´íŠ¸í–ˆìŠµë‹ˆë‹¤. ì™¸ë¶€ ì‹¤í–‰ì€ ì—†ì—ˆìŠµë‹ˆë‹¤.", "ONE actualizÃ³ solo las partes afectadas. No hubo acciÃ³n externa."))}</p>
+      <span>${escapeSummaryText(completeMissionLocal("Latest change", "최근 변경", "Último cambio"))}</span>
+      <strong>${escapeSummaryText(note?.text || state.history[0]?.command || completeMissionLocal("Mission updated", "미션 업데이트", "Misión actualizada"))}</strong>
+      <p>${escapeSummaryText(note?.summary || state.history[0]?.summary || completeMissionLocal("ONE updated only the affected parts. Nothing external happened.", "ONE이 영향받은 부분만 업데이트했습니다. 외부 실행은 없었습니다.", "ONE actualizó solo las partes afectadas. No hubo acción externa."))}</p>
       ${affected ? `<div class="revision-affected-parts">${affected}</div>` : ""}
       <div class="mission-history-actions">${undo}${redo}</div>
       ${history}
@@ -4942,12 +4881,12 @@ const createAIDecisionPanel = (result) => {
   panel.className = "mission-card is-full ai-decision-panel";
   panel.dataset.cardId = "ai-decision-engine";
   const copy = {
-    title: v22Local("ONE noticed something better", "ONEì´ ë” ë‚˜ì€ ì„ íƒì„ ì°¾ì•˜ì–´ìš”", "ONE encontrÃ³ una mejor opciÃ³n"),
-    lead: v22Local("These are suggestions only. ONE will not change confirmed choices unless you accept.", "ì œì•ˆì¼ ë¿ìž…ë‹ˆë‹¤. ìŠ¹ì¸í•œ ì„ íƒì€ ì‚¬ìš©ìžê°€ ìˆ˜ë½í•˜ê¸° ì „ì—ëŠ” ë°”ê¾¸ì§€ ì•ŠìŠµë‹ˆë‹¤.", "Son sugerencias. ONE no cambia decisiones confirmadas sin tu aceptaciÃ³n."),
-    health: v22Local("Mission condition", "ë¯¸ì…˜ ìƒíƒœ", "Estado de la misiÃ³n"),
-    accept: v22Local("Accept", "ì ìš©", "Aceptar"),
-    dismiss: v22Local("Dismiss", "ë‹«ê¸°", "Descartar"),
-    why: v22Local("Ask ONE why", "ì™œì¸ì§€ ë³´ê¸°", "Preguntar por quÃ©")
+    title: v22Local("ONE noticed something better", "ONE이 더 나은 선택을 찾았어요", "ONE encontró una mejor opción"),
+    lead: v22Local("These are suggestions only. ONE will not change confirmed choices unless you accept.", "제안일 뿐입니다. 승인한 선택은 사용자가 수락하기 전에는 바꾸지 않습니다.", "Son sugerencias. ONE no cambia decisiones confirmadas sin tu aceptación."),
+    health: v22Local("Mission condition", "미션 상태", "Estado de la misión"),
+    accept: v22Local("Accept", "적용", "Aceptar"),
+    dismiss: v22Local("Dismiss", "닫기", "Descartar"),
+    why: v22Local("Ask ONE why", "왜인지 보기", "Preguntar por qué")
   };
   panel.innerHTML = `
     <div class="card-top">
@@ -5051,28 +4990,28 @@ const renderPathwayOpportunities = () => {
   if (!experienceMission && !isTravelResult(currentResult) && currentResult?.resolutionPlan) {
     const plan = currentResult.resolutionPlan;
     const presentation = domainPresentation(currentResult);
-    pathwayOpportunityTitle.textContent = local("ONE Recommendation", "ONE ì¶”ì²œ", "RecomendaciÃ³n de ONE");
-    experienceReviewOpening.textContent = polishedDomainText(plan.desiredOutcome, localize(presentation.understood) || local("ONE prepared a domain-aware solution path.", "ONEì´ ë¶„ì•¼ì— ë§žëŠ” í•´ê²° ê²½ë¡œë¥¼ ì¤€ë¹„í–ˆì–´ìš”.", "ONE preparÃ³ una soluciÃ³n adecuada."));
-    experienceReviewLabel.textContent = local("Why this fits", "ì´ ì„ íƒì´ ë§žëŠ” ì´ìœ ", "Por quÃ© encaja");
+    pathwayOpportunityTitle.textContent = local("ONE Recommendation", "ONE 추천", "Recomendación de ONE");
+    experienceReviewOpening.textContent = polishedDomainText(plan.desiredOutcome, localize(presentation.understood) || local("ONE prepared a domain-aware solution path.", "ONE이 분야에 맞는 해결 경로를 준비했어요.", "ONE preparó una solución adecuada."));
+    experienceReviewLabel.textContent = local("Why this fits", "이 선택이 맞는 이유", "Por qué encaja");
     const insights = [
-      polishedDomainText(plan.recommendedPath?.expectedOutcome, local("The recommendation matches this mission and stays approval-first.", "ì¶”ì²œ ê²½ë¡œëŠ” ì´ ë¯¸ì…˜ì— ë§žê³  ìŠ¹ì¸ ìš°ì„  ì›ì¹™ì„ ì§€í‚µë‹ˆë‹¤.", "La recomendaciÃ³n encaja y mantiene aprobaciÃ³n primero.")),
-      polishedDomainText(plan.nextBestAction, local("Review, adjust, then approve when ready.", "ê²€í† í•˜ê³  ìˆ˜ì •í•œ ë’¤ ì¤€ë¹„ë˜ë©´ ìŠ¹ì¸í•˜ì„¸ìš”.", "Revisa, ajusta y aprueba cuando quieras.")),
-      local("No provider contact, booking, payment, submission, or signature happens before approval.", "ìŠ¹ì¸ ì „ì—ëŠ” ì œê³µì—…ì²´ ì—°ë½, ì˜ˆì•½, ê²°ì œ, ì œì¶œ, ì„œëª…ì´ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", "No hay contacto, reserva, pago, envÃ­o ni firma sin aprobaciÃ³n.")
+      polishedDomainText(plan.recommendedPath?.expectedOutcome, local("The recommendation matches this mission and stays approval-first.", "추천 경로는 이 미션에 맞고 승인 우선 원칙을 지킵니다.", "La recomendación encaja y mantiene aprobación primero.")),
+      polishedDomainText(plan.nextBestAction, local("Review, adjust, then approve when ready.", "검토하고 수정한 뒤 준비되면 승인하세요.", "Revisa, ajusta y aprueba cuando quieras.")),
+      local("No provider contact, booking, payment, submission, or signature happens before approval.", "승인 전에는 제공업체 연락, 예약, 결제, 제출, 서명이 진행되지 않습니다.", "No hay contacto, reserva, pago, envío ni firma sin aprobación.")
     ].filter(Boolean);
     experienceReviewInsights.replaceChildren(...insights.map((insight) => {
       const item = document.createElement("li");
       item.textContent = insight;
       return item;
     }));
-    experienceReviewConfidence.textContent = local("Domain locked", "ë¶„ì•¼ ê³ ì •", "Dominio fijado");
-    revisionLead.textContent = local("Use Modify to add constraints before approval.", "ìŠ¹ì¸ ì „ì— ìˆ˜ì •ì—ì„œ ì¡°ê±´ì„ ì¶”ê°€í•  ìˆ˜ ìžˆì–´ìš”.", "Usa Modificar para aÃ±adir condiciones antes de aprobar.");
+    experienceReviewConfidence.textContent = local("Domain locked", "분야 고정", "Dominio fijado");
+    revisionLead.textContent = local("Use Modify to add constraints before approval.", "승인 전에 수정에서 조건을 추가할 수 있어요.", "Usa Modificar para añadir condiciones antes de aprobar.");
     pathwayOpportunityList.replaceChildren(...(plan.solutionPaths || []).slice(0, 3).map((path) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "pathway-opportunity-action";
-      button.dataset.revisionCommand = polishedDomainText(path.title || "", local("Prepared path", "ì¤€ë¹„ëœ ê²½ë¡œ", "Ruta preparada"));
+      button.dataset.revisionCommand = polishedDomainText(path.title || "", local("Prepared path", "준비된 경로", "Ruta preparada"));
       button.setAttribute("role", "listitem");
-      button.textContent = polishedDomainText(path.title || "", local("Prepared path", "ì¤€ë¹„ëœ ê²½ë¡œ", "Ruta preparada"));
+      button.textContent = polishedDomainText(path.title || "", local("Prepared path", "준비된 경로", "Ruta preparada"));
       return button;
     }));
     pathwayOpportunityPanel.hidden = false;
@@ -5084,17 +5023,17 @@ const renderPathwayOpportunities = () => {
   const recommendedFlight = currentResult?.flights?.[0];
   const recommendedHotel = currentResult?.hotels?.[0];
   const travelReview = {
-    title: local("ONE Recommendation", "ONE ì¶”ì²œ", "RecomendaciÃ³n de ONE"),
-    opening: local(`Travel options prepared specifically for ${destinationName || "your destination"}.`, `${destinationName || "ëª©ì ì§€"}ì— ë§žëŠ” ì—¬í–‰ ì„ íƒì§€ë§Œ ì¤€ë¹„í–ˆì–´ìš”.`, `Opciones preparadas especÃ­ficamente para ${destinationName || "tu destino"}.`),
-    whyLabel: local("Why this fits", "ì´ ì„ íƒì´ ìž˜ ë§žëŠ” ì´ìœ ", "Por quÃ© encaja"),
+    title: local("ONE Recommendation", "ONE 추천", "Recomendación de ONE"),
+    opening: local(`Travel options prepared specifically for ${destinationName || "your destination"}.`, `${destinationName || "목적지"}에 맞는 여행 선택지만 준비했어요.`, `Opciones preparadas específicamente para ${destinationName || "tu destino"}.`),
+    whyLabel: local("Why this fits", "이 선택이 잘 맞는 이유", "Por qué encaja"),
     insights: [
       activeLanguage === "ko" ? recommendedFlight?.reasonKo || recommendedFlight?.reason : recommendedFlight?.reason,
       activeLanguage === "ko" ? recommendedHotel?.reasonKo || recommendedHotel?.reason : recommendedHotel?.reason,
-      local("Every displayed travel option is restricted to the detected destination.", "í‘œì‹œë˜ëŠ” ì—¬í–‰ ì„ íƒì§€ëŠ” ê°ì§€ëœ ëª©ì ì§€ë¡œ ì œí•œë©ë‹ˆë‹¤.", "Todas las opciones se limitan al destino detectado.")
+      local("Every displayed travel option is restricted to the detected destination.", "표시되는 여행 선택지는 감지된 목적지로 제한됩니다.", "Todas las opciones se limitan al destino detectado.")
     ].filter(Boolean),
-    confidence: local("Destination locked", "ëª©ì ì§€ ê³ ì •", "Destino fijado"),
-    lead: local("Use Modify to compare destination-appropriate options before approval.", "ìŠ¹ì¸ ì „ì— ìˆ˜ì •ì—ì„œ ëª©ì ì§€ì— ë§žëŠ” ì„ íƒì§€ë¥¼ ë¹„êµí•  ìˆ˜ ìžˆì–´ìš”.", "Usa Modificar para comparar opciones antes de aprobar."),
-    choices: [recommendedFlight && { text: getFlightName(recommendedFlight), command: local("Compare flight options", "í•­ê³µíŽ¸ ì„ íƒì§€ ë¹„êµ", "Comparar vuelos") }, recommendedHotel && { text: getHotelName(recommendedHotel), command: local("Compare hotel options", "í˜¸í…” ì„ íƒì§€ ë¹„êµ", "Comparar hoteles") }].filter(Boolean)
+    confidence: local("Destination locked", "목적지 고정", "Destino fijado"),
+    lead: local("Use Modify to compare destination-appropriate options before approval.", "승인 전에 수정에서 목적지에 맞는 선택지를 비교할 수 있어요.", "Usa Modificar para comparar opciones antes de aprobar."),
+    choices: [recommendedFlight && { text: getFlightName(recommendedFlight), command: local("Compare flight options", "항공편 선택지 비교", "Comparar vuelos") }, recommendedHotel && { text: getHotelName(recommendedHotel), command: local("Compare hotel options", "호텔 선택지 비교", "Comparar hoteles") }].filter(Boolean)
   };
   const review = experienceMission
     ? (currentExperienceReview || buildExperienceIntelligence({mission:currentResult?.rawInput||goal,goal,language:activeLanguage,budget:currentResult?.budget?.total,memoryEnabled,previousExperiences,context:currentResult?.missionContext}))
@@ -5126,20 +5065,20 @@ const initializeOptionSelections = () => {
   missionGrid.querySelectorAll(".selectable-recommendation").forEach((option) => {
     option.setAttribute("aria-pressed", "true");
     option.classList.remove("is-excluded");
-    option.querySelector(".option-key").textContent = "âœ“";
+    option.querySelector(".option-key").textContent = "✓";
   });
   missionGrid.querySelectorAll(".exclusive-choice-card").forEach((card) => {
     const detail = card.querySelector(".option-list .selectable-option");
     if (!detail) return;
     detail.setAttribute("aria-pressed", "true");
     detail.classList.remove("is-excluded");
-    detail.querySelector(".option-key").textContent = "âœ“";
+    detail.querySelector(".option-key").textContent = "✓";
   });
   ["restaurants", "budget", "checklist"].forEach((cardId) => {
     missionGrid.querySelectorAll(`[data-card-id="${cardId}"] .option-row.selectable-option`).forEach((option) => {
       option.setAttribute("aria-pressed", "true");
       option.classList.remove("is-excluded");
-      option.querySelector(".option-key").textContent = "âœ“";
+      option.querySelector(".option-key").textContent = "✓";
     });
   });
   missionGrid.querySelectorAll(".option-list").forEach((list) => {
@@ -5163,7 +5102,7 @@ const initializeOptionSelections = () => {
         item.classList.toggle("is-selected", selected);
         item.querySelector(".v22-path-select")?.setAttribute("aria-pressed", selected ? "true" : "false");
         const check = item.querySelector(".v22-path-check");
-        if (check) check.textContent = selected ? "âœ“" : "+";
+        if (check) check.textContent = selected ? "✓" : "+";
       });
     });
   });
@@ -5171,9 +5110,9 @@ const initializeOptionSelections = () => {
 
 const renderApprovalList = () => {
   const experienceSteps = activeLanguage === "ko"
-    ? ["ì„ íƒí•œ ê²½í—˜ ì •ë¦¬ ì¤‘...", "ì‹œê°„ë³„ ì¼ì • ì¤€ë¹„ ì¤‘...", "ìŒì‹ê³¼ ì´ë™ ì„ íƒ ë°˜ì˜ ì¤‘...", "ë‚ ì”¨ ëŒ€ì•ˆ í™•ì¸ ì¤‘...", "ë¯¸ì…˜ì„ ìµœì¢… ì¤€ë¹„ ì¤‘..."]
+    ? ["선택한 경험 정리 중...", "시간별 일정 준비 중...", "음식과 이동 선택 반영 중...", "날씨 대안 확인 중...", "미션을 최종 준비 중..."]
     : activeLanguage === "es"
-      ? ["Organizando la experiencia elegida...", "Preparando el horario...", "Aplicando comida y transporte...", "Comprobando el plan climÃ¡tico...", "Finalizando la misiÃ³n..."]
+      ? ["Organizando la experiencia elegida...", "Preparando el horario...", "Aplicando comida y transporte...", "Comprobando el plan climático...", "Finalizando la misión..."]
       : ["Organizing your selected experience...", "Preparing the timeline...", "Applying food and transportation choices...", "Checking the weather backup...", "Finalizing your mission..."];
   const steps = isExperienceMission(currentResult, currentResult?.missionContext)
     ? experienceSteps
@@ -5183,7 +5122,7 @@ const renderApprovalList = () => {
     .map((step) => {
       return `
         <div class="approval-item">
-          <span class="approval-check">â€¢</span>
+          <span class="approval-check">•</span>
           <span>${step}</span>
         </div>
       `;
@@ -5206,42 +5145,6 @@ const buildExperienceExecutionSummary = () => {
   const experience = portable?.onePick || review?.generatedExperience?.onePick;
   if (!executionSummary || !experience) return;
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
-  const previewProfile = profileForResult(result, destination);
-  if (previewProfile?.journeys?.length) {
-    return rotateList(previewProfile.journeys, seed).map((item, index) => ({
-      id: `v23-preview-journey-${previewProfile.id}-${index}`,
-      name: local(item[0], item[1], item[2]),
-      purpose: local(item[3], item[4], item[3]),
-      tags: item[5] || [],
-      reason: local(
-        "This option is built from curated destination highlights and the current mission context.",
-        "현재 미션과 실제 목적지 하이라이트를 기준으로 구성했습니다.",
-        "Esta opción usa puntos reales del destino y el contexto de la misión."
-      ),
-      duration,
-      tone: ["balanced", "culture", "food", "local"][index] || "balanced",
-      comfort: local("Practical", "실용적", "Práctico"),
-      budget: getTravelBudgetLabel(result, index === 2 ? "food" : "balanced"),
-      timeline: item[5] || [],
-      selected: index === 0,
-      details: {
-        flight: local("Round-trip options are compared after approval for live price and schedule.", "왕복 항공권은 승인 후 실시간 가격과 일정을 확인합니다.", "Vuelos ida y vuelta se comparan tras aprobación."),
-        hotel: local("Hotel candidates are matched to the route, walking load, and room count.", "숙소 후보는 동선, 도보 부담, 객실 수에 맞춰 비교합니다.", "Hoteles según ruta, caminata y habitaciones."),
-        transport: local("Daily movement is grouped by neighborhood to avoid unnecessary backtracking.", "불필요한 왕복 이동을 줄이도록 날마다 지역을 묶습니다.", "Se agrupa por zonas para evitar traslados inútiles."),
-        food: local("Food candidates are placed near the day route instead of as a random list.", "맛집 후보는 무작위 목록이 아니라 그날 동선 근처로 배치합니다.", "Comida cerca de la ruta del día."),
-        entry: local("Entry and document rules are rechecked through official sources before action.", "입국·서류 요건은 실행 전 공식 출처로 다시 확인합니다.", "Requisitos se verifican con fuentes oficiales."),
-        insurance: local("Insurance and cancellation rules are prepared for review before booking.", "예약 전 보험과 취소 규정을 검토할 수 있게 준비합니다.", "Seguro y cancelación se preparan antes de reservar.")
-      },
-      sourceStates: {
-        flight: getScenarioSourceState(result, "flight", "estimated"),
-        hotel: getScenarioSourceState(result, "hotel", "estimated"),
-        transport: getScenarioSourceState(result, "transport", "placeholder"),
-        food: getScenarioSourceState(result, "food", "cached_public"),
-        entry: getScenarioSourceState(result, "entry", "unavailable"),
-        insurance: getScenarioSourceState(result, "insurance", "placeholder")
-      }
-    }));
-  }
   const reference = String(currentResult?.id || "").startsWith("ONE-DEMO-") ? currentResult.id : `ONE-DEMO-${String(currentResult?.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
   const row = (label, value, detail = "", wide = false) => `<div class="execution-summary-item${wide ? " is-wide" : ""}"><span class="execution-summary-label">${escapeSummaryText(label)}</span><span class="execution-summary-value">${escapeSummaryText(value)}</span>${detail ? `<span class="execution-summary-detail">${escapeSummaryText(detail)}</span>` : ""}</div>`;
   const timeline = experience.timeline.map((item) => `${item.time} · ${item.title}`).join(" / ");
@@ -5254,20 +5157,20 @@ const buildExperienceExecutionSummary = () => {
   const alternatives = alternativeItems.join(" · ");
   const portableResult = { p: 2, r: reference, l: activeLanguage, q: [recommendation, experience.reasoning, experience.transportation, experience.rainPlan], t: experience.timeline.map((item) => [item.time, item.title, item.type]), f: experience.foods, a: alternativeItems };
   const portableUrl = `${location.origin}${location.pathname}?share=${encodeURIComponent(encodePortableShare(portableResult))}`;
-  const qrMarkup = `<div class="execution-summary-item is-wide is-reference"><span class="execution-summary-label">${local("Prototype reference", "í”„ë¡œí† íƒ€ìž… ì°¸ì¡° ë²ˆí˜¸", "Referencia del prototipo")}</span><span class="execution-summary-value">${escapeSummaryText(reference)}</span><a href="${escapeSummaryText(portableUrl)}" aria-label="${local("Reopen this summary from the QR link", "QR ë§í¬ë¡œ ì´ ìš”ì•½ ë‹¤ì‹œ ì—´ê¸°", "Volver a abrir este resumen desde el QR")}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=900x900&amp;format=png&amp;ecc=L&amp;qzone=8&amp;data=${encodeURIComponent(portableUrl)}" alt="${local("Prototype summary QR code", "í”„ë¡œí† íƒ€ìž… ìš”ì•½ QR ì½”ë“œ", "CÃ³digo QR del resumen")}" width="320" height="320"></a><small class="prototype-reference-qr-help">${local("Scan with your phone camera to reopen this summary", "íœ´ëŒ€í° ì¹´ë©”ë¼ë¡œ ìŠ¤ìº”í•˜ë©´ ì´ ìš”ì•½ì„ ë‹¤ì‹œ ì—´ ìˆ˜ ìžˆìŠµë‹ˆë‹¤", "Escanea con la cÃ¡mara para volver a abrir el resumen")}</small><span class="execution-summary-detail">${local("Not a booking number", "ì‹¤ì œ ì˜ˆì•½ ë²ˆí˜¸ê°€ ì•„ë‹™ë‹ˆë‹¤", "No es un nÃºmero de reserva")}</span></div>`;
+  const qrMarkup = `<div class="execution-summary-item is-wide is-reference"><span class="execution-summary-label">${local("Prototype reference", "프로토타입 참조 번호", "Referencia del prototipo")}</span><span class="execution-summary-value">${escapeSummaryText(reference)}</span><a href="${escapeSummaryText(portableUrl)}" aria-label="${local("Reopen this summary from the QR link", "QR 링크로 이 요약 다시 열기", "Volver a abrir este resumen desde el QR")}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=900x900&amp;format=png&amp;ecc=L&amp;qzone=8&amp;data=${encodeURIComponent(portableUrl)}" alt="${local("Prototype summary QR code", "프로토타입 요약 QR 코드", "Código QR del resumen")}" width="320" height="320"></a><small class="prototype-reference-qr-help">${local("Scan with your phone camera to reopen this summary", "휴대폰 카메라로 스캔하면 이 요약을 다시 열 수 있습니다", "Escanea con la cámara para volver a abrir el resumen")}</small><span class="execution-summary-detail">${local("Not a booking number", "실제 예약 번호가 아닙니다", "No es un número de reserva")}</span></div>`;
   const rows = [
-    row(local("Your experience", "ë‹¹ì‹ ì„ ìœ„í•œ ê²½í—˜", "Tu experiencia"), recommendation, experience.reasoning, true),
-    row(local("Timeline", "ì‹œê°„ë³„ ì¼ì •", "Horario"), timeline, "", true),
-    row(local("Food", "ìŒì‹ê³¼ ë””ì €íŠ¸", "Comida"), foods),
-    row(local("Transportation", "ì´ë™ ë°©ë²•", "Transporte"), experience.transportation),
-    row(local("Weather backup", "ë‚ ì”¨ ëŒ€ì•ˆ", "Alternativa climÃ¡tica"), experience.rainPlan),
-    row(local("Other ideas", "ë‹¤ë¥¸ ì„ íƒì§€", "Otras ideas"), alternatives)
+    row(local("Your experience", "당신을 위한 경험", "Tu experiencia"), recommendation, experience.reasoning, true),
+    row(local("Timeline", "시간별 일정", "Horario"), timeline, "", true),
+    row(local("Food", "음식과 디저트", "Comida"), foods),
+    row(local("Transportation", "이동 방법", "Transporte"), experience.transportation),
+    row(local("Weather backup", "날씨 대안", "Alternativa climática"), experience.rainPlan),
+    row(local("Other ideas", "다른 선택지", "Otras ideas"), alternatives)
   ];
-  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${local("Approved experience summary", "ìŠ¹ì¸ëœ ê²½í—˜ ìš”ì•½", "Resumen de experiencia aprobado")}</h4><p>${local("Your selected experience is organized and ready to use. No booking, payment, or provider contact has occurred.", "ì„ íƒí•œ ê²½í—˜ì„ ë°”ë¡œ ì‚¬ìš©í•  ìˆ˜ ìžˆë„ë¡ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤. ì˜ˆì•½, ê²°ì œ ë˜ëŠ” ì œê³µì—…ì²´ ì—°ë½ì€ ì§„í–‰ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.", "Tu experiencia estÃ¡ organizada y lista. No se realizÃ³ ninguna reserva, pago ni contacto con proveedores.")}</p><span class="execution-summary-status">${local("Prototype · Plan ready · Nothing booked", "í”„ë¡œí† íƒ€ìž… · ê³„íš ì¤€ë¹„ ì™„ë£Œ · ì‹¤ì œ ì˜ˆì•½ ì•„ë‹˜", "Prototipo · Plan listo · Sin reservas")}</span></div><div class="execution-summary-grid">${rows.join("")}${qrMarkup}</div><a class="all-in-slogan" href="index.html" aria-label="${local("Return home", "í™ˆìœ¼ë¡œ ëŒì•„ê°€ê¸°", "Volver al inicio")}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>`;
+  executionSummary.innerHTML = `<div class="execution-summary-head"><h4>${local("Approved experience summary", "승인된 경험 요약", "Resumen de experiencia aprobado")}</h4><p>${local("Your selected experience is organized and ready to use. No booking, payment, or provider contact has occurred.", "선택한 경험을 바로 사용할 수 있도록 정리했습니다. 예약, 결제 또는 제공업체 연락은 진행되지 않았습니다.", "Tu experiencia está organizada y lista. No se realizó ninguna reserva, pago ni contacto con proveedores.")}</p><span class="execution-summary-status">${local("Prototype · Plan ready · Nothing booked", "프로토타입 · 계획 준비 완료 · 실제 예약 아님", "Prototipo · Plan listo · Sin reservas")}</span></div><div class="execution-summary-grid">${rows.join("")}${qrMarkup}</div><a class="all-in-slogan" href="index.html" aria-label="${local("Return home", "홈으로 돌아가기", "Volver al inicio")}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>`;
   savePrototypeMission(reference);
 };
 
-const properCaseLocation = (value) => String(value || "").trim().toLowerCase().replace(/(^|[\s-])([a-zÃ -Ã¶Ã¸-Ã¿])/g, (_, separator, letter) => `${separator}${letter.toUpperCase()}`);
+const properCaseLocation = (value) => String(value || "").trim().toLowerCase().replace(/(^|[\s-])([a-zà-öø-ÿ])/g, (_, separator, letter) => `${separator}${letter.toUpperCase()}`);
 
 const approvalMissionName = () => {
   if (isExperienceMission(currentResult, currentResult?.missionContext)) {
@@ -5282,7 +5185,7 @@ const approvalMissionName = () => {
   return currentResult?.title?.[activeLanguage] || currentResult?.title?.en || currentResult?.rawInput || "";
 };
 
-const escapeSummaryText = (value) => String(value ?? "?").replace(/[&<>"\']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+const escapeSummaryText = (value) => String(value ?? "—").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 
 const completeMissionLocal = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
 const CHANGE_HISTORY_LIMIT = 8;
@@ -5332,8 +5235,8 @@ const undoMissionEdit = () => {
   const redoSnapshot = JSON.parse(JSON.stringify(currentResult));
   currentResult = previous;
   currentResult.alpha15LastAddition = {
-    text: completeMissionLocal("Undo applied", "ë˜ëŒë¦¬ê¸° ì ìš©", "Deshacer aplicado"),
-    summary: completeMissionLocal("Restored the previous mission version.", "ì´ì „ ë¯¸ì…˜ ë²„ì „ìœ¼ë¡œ ë˜ëŒë ¸ìŠµë‹ˆë‹¤.", "Se restaurÃ³ la versiÃ³n anterior."),
+    text: completeMissionLocal("Undo applied", "되돌리기 적용", "Deshacer aplicado"),
+    summary: completeMissionLocal("Restored the previous mission version.", "이전 미션 버전으로 되돌렸습니다.", "Se restauró la versión anterior."),
     affectedSections: ["mission"],
     at: new Date().toISOString()
   };
@@ -5342,8 +5245,8 @@ const undoMissionEdit = () => {
     redoStack: [...state.redoStack, redoSnapshot].slice(-CHANGE_HISTORY_LIMIT),
     history: [{
       id: `undo-${Date.now()}`,
-      command: completeMissionLocal("Undo", "ë˜ëŒë¦¬ê¸°", "Deshacer"),
-      summary: completeMissionLocal("Restored the previous mission version.", "ì´ì „ ë¯¸ì…˜ ë²„ì „ìœ¼ë¡œ ë˜ëŒë ¸ìŠµë‹ˆë‹¤.", "Se restaurÃ³ la versiÃ³n anterior."),
+      command: completeMissionLocal("Undo", "되돌리기", "Deshacer"),
+      summary: completeMissionLocal("Restored the previous mission version.", "이전 미션 버전으로 되돌렸습니다.", "Se restauró la versión anterior."),
       affectedSections: ["mission"],
       source: "undo",
       at: new Date().toISOString()
@@ -5361,8 +5264,8 @@ const redoMissionEdit = () => {
   const undoSnapshot = JSON.parse(JSON.stringify(currentResult));
   currentResult = next;
   currentResult.alpha15LastAddition = {
-    text: completeMissionLocal("Redo applied", "ë‹¤ì‹œ ì ìš©", "Rehacer aplicado"),
-    summary: completeMissionLocal("Reapplied the last mission change.", "ë§ˆì§€ë§‰ ë¯¸ì…˜ ë³€ê²½ì„ ë‹¤ì‹œ ì ìš©í–ˆìŠµë‹ˆë‹¤.", "Se volviÃ³ a aplicar el Ãºltimo cambio."),
+    text: completeMissionLocal("Redo applied", "다시 적용", "Rehacer aplicado"),
+    summary: completeMissionLocal("Reapplied the last mission change.", "마지막 미션 변경을 다시 적용했습니다.", "Se volvió a aplicar el último cambio."),
     affectedSections: ["mission"],
     at: new Date().toISOString()
   };
@@ -5371,8 +5274,8 @@ const redoMissionEdit = () => {
     redoStack: state.redoStack.slice(0, -1),
     history: [{
       id: `redo-${Date.now()}`,
-      command: completeMissionLocal("Redo", "ë‹¤ì‹œ ì ìš©", "Rehacer"),
-      summary: completeMissionLocal("Reapplied the last mission change.", "ë§ˆì§€ë§‰ ë¯¸ì…˜ ë³€ê²½ì„ ë‹¤ì‹œ ì ìš©í–ˆìŠµë‹ˆë‹¤.", "Se volviÃ³ a aplicar el Ãºltimo cambio."),
+      command: completeMissionLocal("Redo", "다시 적용", "Rehacer"),
+      summary: completeMissionLocal("Reapplied the last mission change.", "마지막 미션 변경을 다시 적용했습니다.", "Se volvió a aplicar el último cambio."),
       affectedSections: ["mission"],
       source: "redo",
       at: new Date().toISOString()
@@ -5387,13 +5290,13 @@ const missionLifecycleCopy = (result = currentResult) => {
   const travel = isTravelResult(result);
   const hasLiveProviders = Boolean(result?.providerOrchestration?.providers?.some?.((provider) => provider.status === "connected" || provider.sourceState === "live"));
   return [
-    { id: "wish", label: completeMissionLocal("Wish", "ìš”ì²­", "Deseo"), detail: completeMissionLocal("ONE received the mission.", "ONEì´ ë¯¸ì…˜ì„ ë°›ì•˜ìŠµë‹ˆë‹¤.", "ONE recibiÃ³ la misiÃ³n."), status: "done" },
-    { id: "understanding", label: completeMissionLocal("Understanding", "ì´í•´", "ComprensiÃ³n"), detail: completeMissionLocal("Goal, language, destination, and constraints are interpreted.", "ëª©í‘œ, ì–¸ì–´, ëª©ì ì§€, ì¡°ê±´ì„ í•´ì„í–ˆìŠµë‹ˆë‹¤.", "Se interpretan objetivo, idioma, destino y condiciones."), status: "done" },
-    { id: "research", label: completeMissionLocal("Research", "ì¡°ì‚¬", "InvestigaciÃ³n"), detail: travel ? completeMissionLocal("Destination-locked travel structure is prepared.", "ëª©ì ì§€ì— ë§žì¶˜ ì—¬í–‰ êµ¬ì¡°ë¥¼ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤.", "Se preparÃ³ una estructura de viaje fijada al destino.") : completeMissionLocal("Relevant mission paths are prepared.", "ê´€ë ¨ ë¯¸ì…˜ ê²½ë¡œë¥¼ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤.", "Se prepararon rutas relevantes."), status: "done" },
-    { id: "provider-search", label: completeMissionLocal("Provider search", "ì œê³µì—…ì²´ ê²€ìƒ‰", "BÃºsqueda de proveedores"), detail: hasLiveProviders ? completeMissionLocal("Provider-backed results are available.", "ì œê³µì—…ì²´ ê·¼ê±°ê°€ ìžˆëŠ” ê²°ê³¼ë¥¼ ì‚¬ìš©í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "Hay resultados respaldados por proveedor.") : completeMissionLocal("Search criteria are ready. Live provider checks require approval or setup.", "ê²€ìƒ‰ ì¡°ê±´ì€ ì¤€ë¹„ëìŠµë‹ˆë‹¤. ì‹¤ì‹œê°„ ì œê³µì—…ì²´ í™•ì¸ì€ ìŠ¹ì¸ ë˜ëŠ” ì„¤ì •ì´ í•„ìš”í•©ë‹ˆë‹¤.", "Los criterios estÃ¡n listos. La bÃºsqueda en vivo requiere aprobaciÃ³n o configuraciÃ³n."), status: hasLiveProviders ? "done" : "prepared" },
-    { id: "assembly", label: completeMissionLocal("Mission assembly", "ë¯¸ì…˜ êµ¬ì„±", "Montaje"), detail: completeMissionLocal("Options, tradeoffs, and safe next steps are assembled.", "ì„ íƒì§€, ë¹„êµì , ì•ˆì „í•œ ë‹¤ìŒ ë‹¨ê³„ë¥¼ êµ¬ì„±í–ˆìŠµë‹ˆë‹¤.", "Se organizan opciones, comparaciones y prÃ³ximos pasos seguros."), status: "done" },
-    { id: "review", label: completeMissionLocal("Review & edit", "ê²€í†  ë° ìˆ˜ì •", "RevisiÃ³n"), detail: completeMissionLocal("You can adjust the plan before approval.", "ìŠ¹ì¸ ì „ ê³„íšì„ ìˆ˜ì •í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "Puedes ajustar antes de aprobar."), status: "current" },
-    { id: "approval", label: completeMissionLocal("Approval", "ìŠ¹ì¸", "AprobaciÃ³n"), detail: completeMissionLocal("No external action happens until you approve.", "ìŠ¹ì¸ ì „ì—ëŠ” ì™¸ë¶€ ì‹¤í–‰ì´ ì—†ìŠµë‹ˆë‹¤.", "No hay acciÃ³n externa sin aprobaciÃ³n."), status: "next" }
+    { id: "wish", label: completeMissionLocal("Wish", "요청", "Deseo"), detail: completeMissionLocal("ONE received the mission.", "ONE이 미션을 받았습니다.", "ONE recibió la misión."), status: "done" },
+    { id: "understanding", label: completeMissionLocal("Understanding", "이해", "Comprensión"), detail: completeMissionLocal("Goal, language, destination, and constraints are interpreted.", "목표, 언어, 목적지, 조건을 해석했습니다.", "Se interpretan objetivo, idioma, destino y condiciones."), status: "done" },
+    { id: "research", label: completeMissionLocal("Research", "조사", "Investigación"), detail: travel ? completeMissionLocal("Destination-locked travel structure is prepared.", "목적지에 맞춘 여행 구조를 준비했습니다.", "Se preparó una estructura de viaje fijada al destino.") : completeMissionLocal("Relevant mission paths are prepared.", "관련 미션 경로를 준비했습니다.", "Se prepararon rutas relevantes."), status: "done" },
+    { id: "provider-search", label: completeMissionLocal("Provider search", "제공업체 검색", "Búsqueda de proveedores"), detail: hasLiveProviders ? completeMissionLocal("Provider-backed results are available.", "제공업체 근거가 있는 결과를 사용할 수 있습니다.", "Hay resultados respaldados por proveedor.") : completeMissionLocal("Search criteria are ready. Live provider checks require approval or setup.", "검색 조건은 준비됐습니다. 실시간 제공업체 확인은 승인 또는 설정이 필요합니다.", "Los criterios están listos. La búsqueda en vivo requiere aprobación o configuración."), status: hasLiveProviders ? "done" : "prepared" },
+    { id: "assembly", label: completeMissionLocal("Mission assembly", "미션 구성", "Montaje"), detail: completeMissionLocal("Options, tradeoffs, and safe next steps are assembled.", "선택지, 비교점, 안전한 다음 단계를 구성했습니다.", "Se organizan opciones, comparaciones y próximos pasos seguros."), status: "done" },
+    { id: "review", label: completeMissionLocal("Review & edit", "검토 및 수정", "Revisión"), detail: completeMissionLocal("You can adjust the plan before approval.", "승인 전 계획을 수정할 수 있습니다.", "Puedes ajustar antes de aprobar."), status: "current" },
+    { id: "approval", label: completeMissionLocal("Approval", "승인", "Aprobación"), detail: completeMissionLocal("No external action happens until you approve.", "승인 전에는 외부 실행이 없습니다.", "No hay acción externa sin aprobación."), status: "next" }
   ];
 };
 
@@ -5401,7 +5304,7 @@ let lifecycleTimer = null;
 const runMissionLifecycleProgress = (steps = []) => {
   if (!missionLifecycleLive) return;
   window.clearTimeout(lifecycleTimer);
-  const messages = steps.filter((step) => step.status !== "next").map((step) => step.detail).concat(completeMissionLocal("Mission ready.", "ë¯¸ì…˜ ì¤€ë¹„ ì™„ë£Œ.", "MisiÃ³n lista."));
+  const messages = steps.filter((step) => step.status !== "next").map((step) => step.detail).concat(completeMissionLocal("Mission ready.", "미션 준비 완료.", "Misión lista."));
   let index = 0;
   const tick = () => {
     missionLifecycleLive.textContent = messages[index] || messages[messages.length - 1];
@@ -5416,8 +5319,8 @@ const runMissionLifecycleProgress = (steps = []) => {
 const renderMissionLifecycle = (result = currentResult) => {
   if (!missionLifecyclePanel || !missionLifecycleSteps) return;
   const steps = missionLifecycleCopy(result);
-  if (missionLifecycleEyebrow) missionLifecycleEyebrow.textContent = completeMissionLocal("ONE Progress", "ONE ì§„í–‰ ìƒí™©", "Progreso de ONE");
-  if (missionLifecycleTitle) missionLifecycleTitle.textContent = completeMissionLocal("Everything is being organized intentionally.", "í•„ìš”í•œ ê²ƒë§Œ ì°¨ë¶„ížˆ ì •ë¦¬í•˜ê³  ìžˆìŠµë‹ˆë‹¤.", "Todo se estÃ¡ organizando con intenciÃ³n.");
+  if (missionLifecycleEyebrow) missionLifecycleEyebrow.textContent = completeMissionLocal("ONE Progress", "ONE 진행 상황", "Progreso de ONE");
+  if (missionLifecycleTitle) missionLifecycleTitle.textContent = completeMissionLocal("Everything is being organized intentionally.", "필요한 것만 차분히 정리하고 있습니다.", "Todo se está organizando con intención.");
   missionLifecycleSteps.innerHTML = steps.map((step) => `
     <li class="mission-lifecycle-step is-${escapeSummaryText(step.status)}" data-lifecycle-step="${escapeSummaryText(step.id)}">
       <span class="mission-lifecycle-dot" aria-hidden="true"></span>
@@ -5433,47 +5336,47 @@ const createMissionConfidenceCard = (result = currentResult) => {
   const budget = result?.budget?.estimatedTotal || result?.budget?.total || result?.budget || {};
   const destination = getTravelDestinationLabel(result) || result?.destination?.city || result?.destination?.country || result?.display?.destination || approvalMissionName();
   const limitations = [];
-  if (!result?.providerOrchestration?.providers?.some?.((provider) => provider.status === "connected" || provider.sourceState === "live")) limitations.push(completeMissionLocal("Live provider confirmation is still required.", "ì‹¤ì‹œê°„ ì œê³µì—…ì²´ í™•ì¸ì´ ì•„ì§ í•„ìš”í•©ë‹ˆë‹¤.", "AÃºn falta confirmaciÃ³n en vivo del proveedor."));
-  if (!schedule.startDate || !schedule.endDate) limitations.push(completeMissionLocal("Dates can be confirmed before approval.", "ë‚ ì§œëŠ” ìŠ¹ì¸ ì „ í™•ì¸í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "Las fechas pueden confirmarse antes de aprobar."));
+  if (!result?.providerOrchestration?.providers?.some?.((provider) => provider.status === "connected" || provider.sourceState === "live")) limitations.push(completeMissionLocal("Live provider confirmation is still required.", "실시간 제공업체 확인이 아직 필요합니다.", "Aún falta confirmación en vivo del proveedor."));
+  if (!schedule.startDate || !schedule.endDate) limitations.push(completeMissionLocal("Dates can be confirmed before approval.", "날짜는 승인 전 확인할 수 있습니다.", "Las fechas pueden confirmarse antes de aprobar."));
   const rows = [
-    [completeMissionLocal("Destination", "ëª©ì ì§€", "Destino"), destination || completeMissionLocal("Prepared mission", "ì¤€ë¹„ëœ ë¯¸ì…˜", "MisiÃ³n preparada")],
-    [completeMissionLocal("Duration", "ê¸°ê°„", "DuraciÃ³n"), schedule.startDate && schedule.endDate ? `${schedule.startDate} â†’ ${schedule.endDate}` : completeMissionLocal("Flexible", "ìœ ë™ì ", "Flexible")],
-    [completeMissionLocal("Budget", "ì˜ˆì‚°", "Presupuesto"), formatRange(budget) || completeMissionLocal("Flexible", "ìœ ë™ì ", "Flexible")],
-    [completeMissionLocal("Transportation", "ì´ë™", "Transporte"), result?.airportTransfer?.recommended ? localize(result.airportTransfer.recommended) : completeMissionLocal("Prepared for comparison", "ë¹„êµ ì¤€ë¹„ë¨", "Preparado para comparar")],
-    [completeMissionLocal("Accommodation", "ìˆ™ì†Œ", "Alojamiento"), result?.hotels?.[0] ? getHotelName(result.hotels[0]) : completeMissionLocal("Optional or pending", "ì„ íƒ ë˜ëŠ” í™•ì¸ í•„ìš”", "Opcional o pendiente")],
-    [completeMissionLocal("Food", "ìŒì‹", "Comida"), result?.restaurants?.length ? `${result.restaurants.length} ${completeMissionLocal("options", "ê°œ í›„ë³´", "opciones")}` : completeMissionLocal("Can be expanded", "í™•ìž¥ ê°€ëŠ¥", "Se puede ampliar")],
-    [completeMissionLocal("Known limitations", "ì•Œë ¤ì§„ ì œí•œ", "Limitaciones"), limitations.join(" ") || completeMissionLocal("No major issue found in the prepared plan.", "ì¤€ë¹„ëœ ê³„íšì—ì„œ í° ë¬¸ì œëŠ” ì—†ìŠµë‹ˆë‹¤.", "No se detectÃ³ un problema principal.")]
+    [completeMissionLocal("Destination", "목적지", "Destino"), destination || completeMissionLocal("Prepared mission", "준비된 미션", "Misión preparada")],
+    [completeMissionLocal("Duration", "기간", "Duración"), schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : completeMissionLocal("Flexible", "유동적", "Flexible")],
+    [completeMissionLocal("Budget", "예산", "Presupuesto"), formatRange(budget) || completeMissionLocal("Flexible", "유동적", "Flexible")],
+    [completeMissionLocal("Transportation", "이동", "Transporte"), result?.airportTransfer?.recommended ? localize(result.airportTransfer.recommended) : completeMissionLocal("Prepared for comparison", "비교 준비됨", "Preparado para comparar")],
+    [completeMissionLocal("Accommodation", "숙소", "Alojamiento"), result?.hotels?.[0] ? getHotelName(result.hotels[0]) : completeMissionLocal("Optional or pending", "선택 또는 확인 필요", "Opcional o pendiente")],
+    [completeMissionLocal("Food", "음식", "Comida"), result?.restaurants?.length ? `${result.restaurants.length} ${completeMissionLocal("options", "개 후보", "opciones")}` : completeMissionLocal("Can be expanded", "확장 가능", "Se puede ampliar")],
+    [completeMissionLocal("Known limitations", "알려진 제한", "Limitaciones"), limitations.join(" ") || completeMissionLocal("No major issue found in the prepared plan.", "준비된 계획에서 큰 문제는 없습니다.", "No se detectó un problema principal.")]
   ];
   const article = document.createElement("article");
   article.className = "mission-card is-full mission-confidence-card";
   article.dataset.cardId = "mission-confidence";
-  article.innerHTML = `<div class="card-top"><h2 class="card-title">${escapeSummaryText(completeMissionLocal("Before approval", "ìŠ¹ì¸ ì „ í™•ì¸", "Antes de aprobar"))}</h2><span class="recommendation-label">${escapeSummaryText(completeMissionLocal("Confidence summary", "ì‹ ë¢° ìš”ì•½", "Resumen"))}</span></div><div class="mission-confidence-grid">${rows.map(([label, value]) => `<div><span>${escapeSummaryText(label)}</span><strong>${escapeSummaryText(value)}</strong></div>`).join("")}</div>`;
+  article.innerHTML = `<div class="card-top"><h2 class="card-title">${escapeSummaryText(completeMissionLocal("Before approval", "승인 전 확인", "Antes de aprobar"))}</h2><span class="recommendation-label">${escapeSummaryText(completeMissionLocal("Confidence summary", "신뢰 요약", "Resumen"))}</span></div><div class="mission-confidence-grid">${rows.map(([label, value]) => `<div><span>${escapeSummaryText(label)}</span><strong>${escapeSummaryText(value)}</strong></div>`).join("")}</div>`;
   return article;
 };
 
 const createIntelligentEmptyState = ({ title, detail, actions = [] } = {}) => {
   const wrapper = document.createElement("div");
   wrapper.className = "intelligent-empty-state";
-  wrapper.innerHTML = `<strong>${escapeSummaryText(title || completeMissionLocal("Nothing to show yet", "ì•„ì§ í‘œì‹œí•  ì •ë³´ê°€ ì—†ìŠµë‹ˆë‹¤", "Nada que mostrar todavÃ­a"))}</strong><p>${escapeSummaryText(detail || completeMissionLocal("ONE can retry, expand the search, or keep the mission ready while you decide.", "ONEì´ ë‹¤ì‹œ ì‹œë„í•˜ê±°ë‚˜ ê²€ìƒ‰ ë²”ìœ„ë¥¼ ë„“ížˆê³ , ê²°ì • ì „ê¹Œì§€ ë¯¸ì…˜ì„ ì¤€ë¹„ ìƒíƒœë¡œ ìœ ì§€í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "ONE puede reintentar, ampliar la bÃºsqueda o mantener la misiÃ³n lista."))}</p>${actions.length ? `<div>${actions.map((action) => `<button type="button" data-revision-command="${escapeSummaryText(action.command || action)}">${escapeSummaryText(action.label || action)}</button>`).join("")}</div>` : ""}`;
+  wrapper.innerHTML = `<strong>${escapeSummaryText(title || completeMissionLocal("Nothing to show yet", "아직 표시할 정보가 없습니다", "Nada que mostrar todavía"))}</strong><p>${escapeSummaryText(detail || completeMissionLocal("ONE can retry, expand the search, or keep the mission ready while you decide.", "ONE이 다시 시도하거나 검색 범위를 넓히고, 결정 전까지 미션을 준비 상태로 유지할 수 있습니다.", "ONE puede reintentar, ampliar la búsqueda o mantener la misión lista."))}</p>${actions.length ? `<div>${actions.map((action) => `<button type="button" data-revision-command="${escapeSummaryText(action.command || action)}">${escapeSummaryText(action.label || action)}</button>`).join("")}</div>` : ""}`;
   return wrapper;
 };
 
 const enhanceEmptyStates = () => {
   if (!missionGrid.children.length) {
     missionGrid.appendChild(createIntelligentEmptyState({
-      title: completeMissionLocal("ONE has the mission, but needs a clean result surface.", "ONEì´ ë¯¸ì…˜ì„ ë°›ì•˜ì§€ë§Œ ê²°ê³¼ í‘œì‹œë¥¼ ì •ë¦¬í•´ì•¼ í•©ë‹ˆë‹¤.", "ONE tiene la misiÃ³n, pero necesita preparar la vista."),
-      detail: completeMissionLocal("Try again or add one missing detail. No external action happened.", "ë‹¤ì‹œ ì‹œë„í•˜ê±°ë‚˜ í•„ìš”í•œ ì •ë³´ í•˜ë‚˜ë§Œ ì¶”ê°€í•´ ì£¼ì„¸ìš”. ì™¸ë¶€ ì‹¤í–‰ì€ ì—†ì—ˆìŠµë‹ˆë‹¤.", "Reintenta o aÃ±ade un dato. No hubo acciÃ³n externa.")
+      title: completeMissionLocal("ONE has the mission, but needs a clean result surface.", "ONE이 미션을 받았지만 결과 표시를 정리해야 합니다.", "ONE tiene la misión, pero necesita preparar la vista."),
+      detail: completeMissionLocal("Try again or add one missing detail. No external action happened.", "다시 시도하거나 필요한 정보 하나만 추가해 주세요. 외부 실행은 없었습니다.", "Reintenta o añade un dato. No hubo acción externa.")
     }));
   }
   missionGrid.querySelectorAll(".option-list").forEach((list) => {
     if (list.children.length || list.dataset.emptyEnhanced === "true") return;
     list.dataset.emptyEnhanced = "true";
     list.appendChild(createIntelligentEmptyState({
-      title: completeMissionLocal("No matching option yet", "ì•„ì§ ë§žëŠ” ì„ íƒì§€ê°€ ì—†ìŠµë‹ˆë‹¤", "AÃºn no hay opciÃ³n compatible"),
-      detail: completeMissionLocal("ONE can expand the search radius, try another preference, or retry later.", "ê²€ìƒ‰ ë²”ìœ„ë¥¼ ë„“ížˆê±°ë‚˜ ë‹¤ë¥¸ ì„ í˜¸ ì¡°ê±´ìœ¼ë¡œ ë‹¤ì‹œ ë³¼ ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "ONE puede ampliar radio, probar otra preferencia o reintentar."),
+      title: completeMissionLocal("No matching option yet", "아직 맞는 선택지가 없습니다", "Aún no hay opción compatible"),
+      detail: completeMissionLocal("ONE can expand the search radius, try another preference, or retry later.", "검색 범위를 넓히거나 다른 선호 조건으로 다시 볼 수 있습니다.", "ONE puede ampliar radio, probar otra preferencia o reintentar."),
       actions: [
-        { label: completeMissionLocal("Expand search", "ê²€ìƒ‰ ë„“ížˆê¸°", "Ampliar bÃºsqueda"), command: completeMissionLocal("Expand the search radius", "ê²€ìƒ‰ ë²”ìœ„ë¥¼ ë„“í˜€ì¤˜", "AmplÃ­a el radio de bÃºsqueda") },
-        { label: completeMissionLocal("Retry", "ë‹¤ì‹œ ì‹œë„", "Reintentar"), command: completeMissionLocal("Retry this section", "ì´ ë¶€ë¶„ ë‹¤ì‹œ í™•ì¸í•´ì¤˜", "Reintenta esta secciÃ³n") }
+        { label: completeMissionLocal("Expand search", "검색 넓히기", "Ampliar búsqueda"), command: completeMissionLocal("Expand the search radius", "검색 범위를 넓혀줘", "Amplía el radio de búsqueda") },
+        { label: completeMissionLocal("Retry", "다시 시도", "Reintentar"), command: completeMissionLocal("Retry this section", "이 부분 다시 확인해줘", "Reintenta esta sección") }
       ]
     }));
   });
@@ -5618,11 +5521,11 @@ const getV231SelectedJourney = () => {
 const getV231SourceStateLabel = (state) => {
   const normalized = ["verified_live", "cached_public", "estimated", "placeholder"].includes(state) ? state : "unavailable";
   const labels = {
-    verified_live: v231Local("Verified live", "ì‹¤ì‹œê°„ í™•ì¸ë¨", "Verificado en vivo"),
-    cached_public: v231Local("Recent public information", "ìµœê·¼ ê³µê°œ ì •ë³´ ê¸°ì¤€", "InformaciÃ³n pÃºblica reciente"),
-    estimated: v231Local("Estimated information", "ì˜ˆìƒ ì •ë³´", "InformaciÃ³n estimada"),
-    placeholder: v231Local("Search criteria prepared", "ê²€ìƒ‰ ì¡°ê±´ ì¤€ë¹„ë¨", "Criterios preparados"),
-    unavailable: v231Local("Not retrieved yet", "ì•„ì§ ì¡°íšŒë˜ì§€ ì•ŠìŒ", "AÃºn no consultado")
+    verified_live: v231Local("Verified live", "실시간 확인됨", "Verificado en vivo"),
+    cached_public: v231Local("Recent public information", "최근 공개 정보 기준", "Información pública reciente"),
+    estimated: v231Local("Estimated information", "예상 정보", "Información estimada"),
+    placeholder: v231Local("Search criteria prepared", "검색 조건 준비됨", "Criterios preparados"),
+    unavailable: v231Local("Not retrieved yet", "아직 조회되지 않음", "Aún no consultado")
   };
   return labels[normalized];
 };
@@ -5641,52 +5544,52 @@ const buildJapanCreativeJourneys = (result, destination, duration) => {
   const { travelerCount, groupType } = getTravelPartyDetails(result);
   const seed = `${result.missionSeed || result.id || raw}-${result.schedule?.startDate || ""}-${travelerCount}`;
   const isSolo = groupType === "solo";
-  const isFamily = /ê°€ì¡±|ì•„ì´|ì•„ì´ì™€|children|kids|family|familia/i.test(raw);
+  const isFamily = /가족|아이|아이와|children|kids|family|familia/i.test(raw);
   const label = (en, koText, esText) => ko ? koText : es ? esText : en;
   const names = rotateList(isFamily
     ? [
-        ["Japan family memory route", "ì¼ë³¸ ê°€ì¡± ì¶”ì–µ ì½”ìŠ¤", "JapÃ³n en familia"],
-        ["Theme park + food Japan", "í…Œë§ˆíŒŒí¬ì™€ ë§›ì§‘ ì¼ë³¸", "JapÃ³n parques y comida"],
-        ["Easy kids-friendly Japan", "ì•„ì´ì™€ íŽ¸í•œ ì¼ë³¸", "JapÃ³n fÃ¡cil con niÃ±os"],
-        ["Nature + city Japan", "ìžì—°ê³¼ ë„ì‹œ ì¼ë³¸", "JapÃ³n naturaleza y ciudad"]
+        ["Japan family memory route", "일본 가족 추억 코스", "Japón en familia"],
+        ["Theme park + food Japan", "테마파크와 맛집 일본", "Japón parques y comida"],
+        ["Easy kids-friendly Japan", "아이와 편한 일본", "Japón fácil con niños"],
+        ["Nature + city Japan", "자연과 도시 일본", "Japón naturaleza y ciudad"]
       ]
     : isSolo
       ? [
-          ["Solo discovery Japan", "í˜¼ìž ì¦ê¸°ëŠ” ì¼ë³¸", "JapÃ³n solo discovery"],
-          ["Food-photo Japan", "ë§›ì§‘·ì‚¬ì§„ ì¼ë³¸", "JapÃ³n comida y fotos"],
-          ["Hidden cafe Japan", "ìˆ¨ì€ ì¹´íŽ˜ ì¼ë³¸", "JapÃ³n de cafÃ©s ocultos"],
-          ["Slow healing Japan", "í˜¼í–‰ ížë§ ì¼ë³¸", "JapÃ³n tranquilo solo"]
+          ["Solo discovery Japan", "혼자 즐기는 일본", "Japón solo discovery"],
+          ["Food-photo Japan", "맛집·사진 일본", "Japón comida y fotos"],
+          ["Hidden cafe Japan", "숨은 카페 일본", "Japón de cafés ocultos"],
+          ["Slow healing Japan", "혼행 힐링 일본", "Japón tranquilo solo"]
         ]
       : [
-          ["Creative Japan highlights", "ì°½ì˜ì ì¸ ì¼ë³¸ í•˜ì´ë¼ì´íŠ¸", "JapÃ³n creativo"],
-          ["Food + night view Japan", "ë§›ì§‘ê³¼ ì•¼ê²½ ì¼ë³¸", "JapÃ³n comida y noche"],
-          ["Kyoto-style memory trip", "êµí†  ê°ì„± ì¶”ì–µ ì—¬í–‰", "Viaje memorable estilo Kioto"],
-          ["Skyline + hidden cafÃ©s", "ì „ë§ê³¼ ìˆ¨ì€ ì¹´íŽ˜ ì¼ë³¸", "Vistas y cafÃ©s ocultos"]
+          ["Creative Japan highlights", "창의적인 일본 하이라이트", "Japón creativo"],
+          ["Food + night view Japan", "맛집과 야경 일본", "Japón comida y noche"],
+          ["Kyoto-style memory trip", "교토 감성 추억 여행", "Viaje memorable estilo Kioto"],
+          ["Skyline + hidden cafés", "전망과 숨은 카페 일본", "Vistas y cafés ocultos"]
         ], seed);
   const timelinePool = rotateList([
-    label(["Arrival setup", "Market lunch", "Skyline or night view", "Theme park / aquarium", "Kyoto-style walk", "Shopping and cafÃ©s", "Return prep"], ["ë„ì°©·ë™ë„¤ ì ì‘", "ì‹œìž¥ ì ì‹¬", "ì „ë§ëŒ€ ë˜ëŠ” ì•¼ê²½", "í…Œë§ˆíŒŒí¬/ìˆ˜ì¡±ê´€", "êµí†  ê°ì„± ì‚°ì±…", "ì‡¼í•‘·ì¹´íŽ˜", "ê·€êµ­ ì¤€ë¹„"], ["Llegada", "Mercado", "Vistas", "Parque/acuario", "Paseo estilo Kioto", "Compras y cafÃ©s", "Regreso"]),
-    label(["First meal", "teamLab / exhibit", "Sushi or ramen", "Shrine and alleys", "Local experience", "Night dessert", "Souvenirs"], ["ì²« ì‹ì‚¬", "íŒ€ëž©/ì „ì‹œ", "ìŠ¤ì‹œ ë˜ëŠ” ë¼ë©˜", "ì‹ ì‚¬·ê³¨ëª© ì‚°ì±…", "í˜„ì§€ ì²´í—˜", "ì•¼ê²½ ë””ì €íŠ¸", "ê¸°ë…í’ˆ"], ["Primera comida", "teamLab/exposiciÃ³n", "Sushi o ramen", "Templo y callejones", "Experiencia local", "Postre nocturno", "Recuerdos"]),
-    label(["Easy start", "Dotonbori / Shibuya", "Cooking class", "Onsen or spa", "CafÃ© tour", "Indoor mall", "Easy return"], ["ê°€ë²¼ìš´ ì‹œìž‘", "ë„í†¤ë³´ë¦¬/ì‹œë¶€ì•¼", "ì¿ í‚¹ í´ëž˜ìŠ¤", "ì˜¨ì²œ ë˜ëŠ” ìŠ¤íŒŒ", "ì¹´íŽ˜ íˆ¬ì–´", "ì‹¤ë‚´ ì‡¼í•‘ëª°", "ì—¬ìœ  ê·€êµ­"], ["Inicio fÃ¡cil", "Dotonbori/Shibuya", "Clase de cocina", "Onsen/spa", "CafÃ©s", "Centro comercial", "Regreso fÃ¡cil"])
+    label(["Arrival setup", "Market lunch", "Skyline or night view", "Theme park / aquarium", "Kyoto-style walk", "Shopping and cafés", "Return prep"], ["도착·동네 적응", "시장 점심", "전망대 또는 야경", "테마파크/수족관", "교토 감성 산책", "쇼핑·카페", "귀국 준비"], ["Llegada", "Mercado", "Vistas", "Parque/acuario", "Paseo estilo Kioto", "Compras y cafés", "Regreso"]),
+    label(["First meal", "teamLab / exhibit", "Sushi or ramen", "Shrine and alleys", "Local experience", "Night dessert", "Souvenirs"], ["첫 식사", "팀랩/전시", "스시 또는 라멘", "신사·골목 산책", "현지 체험", "야경 디저트", "기념품"], ["Primera comida", "teamLab/exposición", "Sushi o ramen", "Templo y callejones", "Experiencia local", "Postre nocturno", "Recuerdos"]),
+    label(["Easy start", "Dotonbori / Shibuya", "Cooking class", "Onsen or spa", "Café tour", "Indoor mall", "Easy return"], ["가벼운 시작", "도톤보리/시부야", "쿠킹 클래스", "온천 또는 스파", "카페 투어", "실내 쇼핑몰", "여유 귀국"], ["Inicio fácil", "Dotonbori/Shibuya", "Clase de cocina", "Onsen/spa", "Cafés", "Centro comercial", "Regreso fácil"])
   ], seed);
   return names.map((name, index) => ({
     id: `v23-japan-journey-${index}`,
     name: name[ko ? 1 : es ? 2 : 0],
-    purpose: label("A fuller Japan plan built around one memorable moment each day.", "í•˜ë£¨ì— í•˜ë‚˜ì”© ê¸°ì–µì— ë‚¨ëŠ” ìˆœê°„ì„ ë„£ì€ ë” í’ì„±í•œ ì¼ë³¸ ì¼ì •ìž…ë‹ˆë‹¤.", "Un viaje a JapÃ³n con un momento memorable cada dÃ­a."),
-    tags: isFamily ? label(["Family", "Aquarium", "Theme park", "Easy"], ["ê°€ì¡±", "ì•„ì¿ ì•„ë¦¬ì›€", "í…Œë§ˆíŒŒí¬", "íŽ¸í•œ ì´ë™"], ["Familia", "Acuario", "Parques", "FÃ¡cil"]) : isSolo ? label(["Solo", "Food", "Photo", "Flexible"], ["í˜¼í–‰", "ë§›ì§‘", "ì‚¬ì§„", "ìžìœ "], ["Solo", "Comida", "Fotos", "Flexible"]) : label(["Food", "Skyline", "Culture", "Indoor backup"], ["ë§›ì§‘", "ì „ë§", "ë¬¸í™”", "ì‹¤ë‚´ ëŒ€ì•ˆ"], ["Comida", "Vistas", "Cultura", "Interior"]),
-    reason: label("This rotates iconic places, food, indoor backup, and recovery time so Japan does not feel repetitive.", "ëª…ì†Œ, ë§›ì§‘, ì‹¤ë‚´ ëŒ€ì•ˆ, íœ´ì‹ ì‹œê°„ì„ ë‹¤ì–‘í•˜ê²Œ ì„žì–´ ì¼ë³¸ ì¼ì •ì´ ë°˜ë³µì ìœ¼ë¡œ ëŠê»´ì§€ì§€ ì•Šê²Œ í–ˆìŠµë‹ˆë‹¤.", "Rota lugares icÃ³nicos, comida, planes interiores y descanso para no repetir."),
+    purpose: label("A fuller Japan plan built around one memorable moment each day.", "하루에 하나씩 기억에 남는 순간을 넣은 더 풍성한 일본 일정입니다.", "Un viaje a Japón con un momento memorable cada día."),
+    tags: isFamily ? label(["Family", "Aquarium", "Theme park", "Easy"], ["가족", "아쿠아리움", "테마파크", "편한 이동"], ["Familia", "Acuario", "Parques", "Fácil"]) : isSolo ? label(["Solo", "Food", "Photo", "Flexible"], ["혼행", "맛집", "사진", "자유"], ["Solo", "Comida", "Fotos", "Flexible"]) : label(["Food", "Skyline", "Culture", "Indoor backup"], ["맛집", "전망", "문화", "실내 대안"], ["Comida", "Vistas", "Cultura", "Interior"]),
+    reason: label("This rotates iconic places, food, indoor backup, and recovery time so Japan does not feel repetitive.", "명소, 맛집, 실내 대안, 휴식 시간을 다양하게 섞어 일본 일정이 반복적으로 느껴지지 않게 했습니다.", "Rota lugares icónicos, comida, planes interiores y descanso para no repetir."),
     duration,
     tone: ["balanced", "food", "value", "rest"][index],
-    comfort: label(index === 2 ? "Efficient" : "Comfortable", index === 2 ? "ì‹¤ì†" : "íŽ¸ì•ˆí•¨", index === 2 ? "Eficiente" : "CÃ³modo"),
+    comfort: label(index === 2 ? "Efficient" : "Comfortable", index === 2 ? "실속" : "편안함", index === 2 ? "Eficiente" : "Cómodo"),
     budget: getTravelBudgetLabel(result, ["balanced", "food", "value", "rest"][index]),
     timeline: timelinePool[index % timelinePool.length],
     selected: index === 0,
     details: {
-      flight: label("Compare round-trip flights from the selected departure airport.", "ì„ íƒí•œ ì¶œë°œ ê³µí•­ ê¸°ì¤€ ì™•ë³µ í•­ê³µíŽ¸ì„ ë¹„êµí•©ë‹ˆë‹¤.", "Comparar vuelos ida y vuelta desde el aeropuerto elegido."),
-      hotel: label(`${destination} hotels are priced for the full stay and room count.`, `${destination} ìˆ™ì†ŒëŠ” ì „ì²´ ìˆ™ë°• ê¸°ê°„ê³¼ ê°ì‹¤ ìˆ˜ ê¸°ì¤€ìœ¼ë¡œ ê³„ì‚°í•©ë‹ˆë‹¤.`, `Hoteles en ${destination} calculados por duraciÃ³n completa y habitaciones.`),
-      transport: label("Compare JR, subway, official airport transfer, and taxis by day.", "JR·ì§€í•˜ì² ·ê³µì‹ ê³µí•­ ì´ë™·íƒì‹œë¥¼ ì¼ì •ë³„ë¡œ ë¹„êµí•©ë‹ˆë‹¤.", "Comparar JR, metro, traslado oficial y taxi por dÃ­a."),
-      food: label("Spread ramen, sushi, market food, cafÃ©s, and desserts across the trip.", "ë¼ë©˜, ìŠ¤ì‹œ, ì‹œìž¥ ìŒì‹, ì¹´íŽ˜, ë””ì €íŠ¸ë¥¼ ì¼ì •ë³„ë¡œ ë¶„ì‚°í•©ë‹ˆë‹¤.", "Distribuir ramen, sushi, mercados, cafÃ©s y postres."),
-      entry: label("Re-check entry requirements through official channels before execution.", "ìž…êµ­ ìš”ê±´ì€ ì‹¤í–‰ ì „ ê³µì‹ ì±„ë„ë¡œ ë‹¤ì‹œ í™•ì¸í•©ë‹ˆë‹¤.", "Revisar requisitos oficiales antes de ejecutar."),
-      insurance: label("Prepare insurance and schedule-change risk review.", "ì—¬í–‰ìž ë³´í—˜ê³¼ ì¼ì • ë³€ê²½ ë¦¬ìŠ¤í¬ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤.", "Preparar seguro y riesgo de cambios.")
+      flight: label("Compare round-trip flights from the selected departure airport.", "선택한 출발 공항 기준 왕복 항공편을 비교합니다.", "Comparar vuelos ida y vuelta desde el aeropuerto elegido."),
+      hotel: label(`${destination} hotels are priced for the full stay and room count.`, `${destination} 숙소는 전체 숙박 기간과 객실 수 기준으로 계산합니다.`, `Hoteles en ${destination} calculados por duración completa y habitaciones.`),
+      transport: label("Compare JR, subway, official airport transfer, and taxis by day.", "JR·지하철·공식 공항 이동·택시를 일정별로 비교합니다.", "Comparar JR, metro, traslado oficial y taxi por día."),
+      food: label("Spread ramen, sushi, market food, cafés, and desserts across the trip.", "라멘, 스시, 시장 음식, 카페, 디저트를 일정별로 분산합니다.", "Distribuir ramen, sushi, mercados, cafés y postres."),
+      entry: label("Re-check entry requirements through official channels before execution.", "입국 요건은 실행 전 공식 채널로 다시 확인합니다.", "Revisar requisitos oficiales antes de ejecutar."),
+      insurance: label("Prepare insurance and schedule-change risk review.", "여행자 보험과 일정 변경 리스크를 준비합니다.", "Preparar seguro y riesgo de cambios.")
     },
     sourceStates: {
       flight: getScenarioSourceState(result, "flight", "estimated"),
@@ -5703,12 +5606,12 @@ const getV231MissingTravelFields = () => {
   const schedule = currentResult?.schedule || {};
   const answers = currentResult?.followUp?.answers || {};
   const missing = [];
-  if (!schedule.startDate) missing.push(v231Local("Outbound date", "ì¶œêµ­ ë‚ ì§œ", "Fecha de salida"));
-  if (!schedule.endDate) missing.push(v231Local("Return date or trip length", "ê·€êµ­ ë‚ ì§œ ë˜ëŠ” ì—¬í–‰ ê¸°ê°„", "Fecha de regreso o duraciÃ³n"));
-  if (!answers.adults && !currentResult?.travelerCount && !currentResult?.travelers) missing.push(v231Local("Number of travelers", "ì—¬í–‰ ì¸ì›", "NÃºmero de viajeros"));
-  if (!answers.originAirport && !currentResult?.originAirport) missing.push(v231Local("Departure airport confirmation", "ì¶œë°œ ê³µí•­ í™•ì¸", "Aeropuerto de salida"));
-  if (!answers.rooms && !currentResult?.rooms) missing.push(v231Local("Number of rooms", "ê°ì‹¤ ìˆ˜", "NÃºmero de habitaciones"));
-  if (!currentResult?.budget?.preference && !currentResult?.budget?.userBudget && !currentResult?.budget?.estimatedTotal) missing.push(v231Local("Preferred budget range", "ì„ í˜¸ ì˜ˆì‚° ë²”ìœ„", "Rango de presupuesto preferido"));
+  if (!schedule.startDate) missing.push(v231Local("Outbound date", "출국 날짜", "Fecha de salida"));
+  if (!schedule.endDate) missing.push(v231Local("Return date or trip length", "귀국 날짜 또는 여행 기간", "Fecha de regreso o duración"));
+  if (!answers.adults && !currentResult?.travelerCount && !currentResult?.travelers) missing.push(v231Local("Number of travelers", "여행 인원", "Número de viajeros"));
+  if (!answers.originAirport && !currentResult?.originAirport) missing.push(v231Local("Departure airport confirmation", "출발 공항 확인", "Aeropuerto de salida"));
+  if (!answers.rooms && !currentResult?.rooms) missing.push(v231Local("Number of rooms", "객실 수", "Número de habitaciones"));
+  if (!currentResult?.budget?.preference && !currentResult?.budget?.userBudget && !currentResult?.budget?.estimatedTotal) missing.push(v231Local("Preferred budget range", "선호 예산 범위", "Rango de presupuesto preferido"));
   return missing;
 };
 
@@ -5742,47 +5645,47 @@ const renderV231PreparationContinuation = ({ state = "preparation_approved" } = 
   const tags = (journey.tags || []).slice(0, 5).join(" · ");
   const missing = getV231MissingTravelFields();
   const approvedScope = [
-    v231Local("Keep the selected journey direction", "ì„ íƒí•œ ì—¬í–‰ ë°©í–¥ ìœ ì§€", "Mantener el viaje elegido"),
-    v231Local("Prepare live flight search criteria", "ì‹¤ì‹œê°„ í•­ê³µíŽ¸ ê²€ìƒ‰ ì¡°ê±´ ì¤€ë¹„", "Preparar criterios de vuelos en vivo"),
-    v231Local("Prepare accommodation search criteria", "ìˆ™ì†Œ ê²€ìƒ‰ ì¡°ê±´ ì¤€ë¹„", "Preparar criterios de alojamiento"),
-    v231Local("Organize transport, food, and activity criteria", "êµí†µ·ì‹ì‚¬·í™œë™ ì¡°ê±´ ì •ë¦¬", "Organizar transporte, comida y actividades"),
-    v231Local("Prepare a final comparison plan", "ìµœì¢… ë¹„êµì•ˆ ì¤€ë¹„", "Preparar comparaciÃ³n final")
+    v231Local("Keep the selected journey direction", "선택한 여행 방향 유지", "Mantener el viaje elegido"),
+    v231Local("Prepare live flight search criteria", "실시간 항공편 검색 조건 준비", "Preparar criterios de vuelos en vivo"),
+    v231Local("Prepare accommodation search criteria", "숙소 검색 조건 준비", "Preparar criterios de alojamiento"),
+    v231Local("Organize transport, food, and activity criteria", "교통·식사·활동 조건 정리", "Organizar transporte, comida y actividades"),
+    v231Local("Prepare a final comparison plan", "최종 비교안 준비", "Preparar comparación final")
   ];
   const actionRows = [
-    { title: v231Local("Flights", "í•­ê³µíŽ¸", "Vuelos"), body: journey.details?.flight || "â€”", state: source.flight || "unavailable" },
-    { title: v231Local("Accommodation", "ìˆ™ì†Œ", "Alojamiento"), body: journey.details?.hotel || "â€”", state: source.hotel || "unavailable" },
-    { title: v231Local("Local transportation", "í˜„ì§€ ì´ë™", "Transporte local"), body: journey.details?.transport || "â€”", state: source.transport || "placeholder" },
-    { title: v231Local("Food and activities", "ì‹ì‚¬ì™€ í™œë™", "Comida y actividades"), body: journey.details?.food || "â€”", state: source.food || "placeholder" }
+    { title: v231Local("Flights", "항공편", "Vuelos"), body: journey.details?.flight || "—", state: source.flight || "unavailable" },
+    { title: v231Local("Accommodation", "숙소", "Alojamiento"), body: journey.details?.hotel || "—", state: source.hotel || "unavailable" },
+    { title: v231Local("Local transportation", "현지 이동", "Transporte local"), body: journey.details?.transport || "—", state: source.transport || "placeholder" },
+    { title: v231Local("Food and activities", "식사와 활동", "Comida y actividades"), body: journey.details?.food || "—", state: source.food || "placeholder" }
   ];
   const stillNeeded = missing.length
     ? missing
-    : [v231Local("Nothing essential is missing for the next preparation step.", "ë‹¤ìŒ ì¤€ë¹„ ë‹¨ê³„ì— ê¼­ í•„ìš”í•œ ì •ë³´ëŠ” ì´ë¯¸ ìžˆìŠµë‹ˆë‹¤.", "No falta informaciÃ³n esencial para el siguiente paso.")];
+    : [v231Local("Nothing essential is missing for the next preparation step.", "다음 준비 단계에 꼭 필요한 정보는 이미 있습니다.", "No falta información esencial para el siguiente paso.")];
   const providerNotice = state === "live_search_requested"
     ? v231Local(
         "Live provider search was approved, but no live provider adapter is connected in this prototype yet.",
-        "ì‹¤ì‹œê°„ ì œê³µì—…ì²´ ì¡°íšŒëŠ” ìŠ¹ì¸ë˜ì—ˆì§€ë§Œ, ì´ í”„ë¡œí† íƒ€ìž…ì—ëŠ” ì•„ì§ ì—°ê²°ëœ ì‹¤ì‹œê°„ ì œê³µì—…ì²´ ì–´ëŒ‘í„°ê°€ ì—†ìŠµë‹ˆë‹¤.",
-        "La bÃºsqueda en vivo fue aprobada, pero este prototipo aÃºn no tiene un adaptador de proveedor en vivo conectado."
+        "실시간 제공업체 조회는 승인되었지만, 이 프로토타입에는 아직 연결된 실시간 제공업체 어댑터가 없습니다.",
+        "La búsqueda en vivo fue aprobada, pero este prototipo aún no tiene un adaptador de proveedor en vivo conectado."
       )
     : v231Local(
         "Provider search has not started yet. ONE only prepared the next step.",
-        "ì œê³µì—…ì²´ ì¡°íšŒëŠ” ì•„ì§ ì‹œìž‘ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ONEì€ ë‹¤ìŒ ë‹¨ê³„ë§Œ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤.",
-        "La bÃºsqueda de proveedores aÃºn no comenzÃ³. ONE solo preparÃ³ el siguiente paso."
+        "제공업체 조회는 아직 시작되지 않았습니다. ONE은 다음 단계만 준비했습니다.",
+        "La búsqueda de proveedores aún no comenzó. ONE solo preparó el siguiente paso."
       );
 
   setV231CompletionHeader(
-    v231Local("Next step prepared", "ë‹¤ìŒ ë‹¨ê³„ë¥¼ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤", "Siguiente paso preparado"),
+    v231Local("Next step prepared", "다음 단계를 준비했습니다", "Siguiente paso preparado"),
     v231Local(
-      `ONE organized the criteria needed to continue with â€œ${journey.name}â€.`,
-      `ì„ íƒí•œ â€˜${journey.name}â€™ ì—¬í–‰ì„ ê¸°ì¤€ìœ¼ë¡œ ë‹¤ìŒ í™•ì¸ì— í•„ìš”í•œ ì¡°ê±´ì„ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤.`,
-      `ONE organizÃ³ los criterios para continuar con â€œ${journey.name}â€.`
+      `ONE organized the criteria needed to continue with “${journey.name}”.`,
+      `선택한 ‘${journey.name}’ 여행을 기준으로 다음 확인에 필요한 조건을 정리했습니다.`,
+      `ONE organizó los criterios para continuar con “${journey.name}”.`
     )
   );
 
   executionSummary.innerHTML = `
     <section class="v231-continuation" data-stage="${escapeSummaryText(state)}">
-      <div class="v231-stage-strip">${escapeSummaryText(v231Local("No booking, payment, ticketing, submission, or provider contact has occurred.", "ì•„ì§ ì˜ˆì•½, ê²°ì œ, ë°œê¶Œ, ì œì¶œ, ì œê³µì—…ì²´ ì—°ë½ì€ ì§„í–‰ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.", "TodavÃ­a no hay reserva, pago, emisiÃ³n, envÃ­o ni contacto con proveedores."))}</div>
+      <div class="v231-stage-strip">${escapeSummaryText(v231Local("No booking, payment, ticketing, submission, or provider contact has occurred.", "아직 예약, 결제, 발권, 제출, 제공업체 연락은 진행되지 않았습니다.", "Todavía no hay reserva, pago, emisión, envío ni contacto con proveedores."))}</div>
       <article class="v231-selected-journey">
-        <span class="v23-eyebrow">${escapeSummaryText(v231Local("Selected journey", "ì„ íƒí•œ ì—¬í–‰", "Viaje elegido"))}</span>
+        <span class="v23-eyebrow">${escapeSummaryText(v231Local("Selected journey", "선택한 여행", "Viaje elegido"))}</span>
         <h4>${escapeSummaryText(journey.name)}</h4>
         <p>${escapeSummaryText(journey.purpose)}</p>
         <div class="v23-overview-meta">
@@ -5794,33 +5697,33 @@ const renderV231PreparationContinuation = ({ state = "preparation_approved" } = 
         <p class="v231-reason">${escapeSummaryText(journey.reason)}</p>
       </article>
       <article class="v231-card">
-        <h4>${escapeSummaryText(v231Local("Scope approved", "ìŠ¹ì¸í•œ ë²”ìœ„", "Alcance aprobado"))}</h4>
-        <ul>${approvedScope.map((item) => `<li>âœ“ ${escapeSummaryText(item)}</li>`).join("")}</ul>
+        <h4>${escapeSummaryText(v231Local("Scope approved", "승인한 범위", "Alcance aprobado"))}</h4>
+        <ul>${approvedScope.map((item) => `<li>✓ ${escapeSummaryText(item)}</li>`).join("")}</ul>
       </article>
       <article class="v231-card">
-        <h4>${escapeSummaryText(v231Local("What ONE will check next", "ONEì´ ë‹¤ìŒì— í™•ì¸í•  ë‚´ìš©", "Lo que ONE comprobarÃ¡ despuÃ©s"))}</h4>
+        <h4>${escapeSummaryText(v231Local("What ONE will check next", "ONE이 다음에 확인할 내용", "Lo que ONE comprobará después"))}</h4>
         <div class="v231-action-grid">
           ${actionRows.map((item) => `
             <section>
               <strong>${escapeSummaryText(item.title)}</strong>
               <p>${escapeSummaryText(item.body)}</p>
-              <small>${escapeSummaryText(v231Local("Current state", "í˜„ìž¬ ìƒíƒœ", "Estado actual"))}: ${escapeSummaryText(getV231SourceStateLabel(item.state))}</small>
+              <small>${escapeSummaryText(v231Local("Current state", "현재 상태", "Estado actual"))}: ${escapeSummaryText(getV231SourceStateLabel(item.state))}</small>
             </section>
           `).join("")}
         </div>
         <p class="v231-provider-notice">${escapeSummaryText(providerNotice)}</p>
       </article>
       <article class="v231-card">
-        <h4>${escapeSummaryText(v231Local("Information still needed", "ì•„ì§ í•„ìš”í•œ ì •ë³´", "InformaciÃ³n pendiente"))}</h4>
+        <h4>${escapeSummaryText(v231Local("Information still needed", "아직 필요한 정보", "Información pendiente"))}</h4>
         <ul>${stillNeeded.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
       </article>
       <article class="v231-next-action">
-        <strong>${escapeSummaryText(v231Local("One safe next action", "ì•ˆì „í•œ ë‹¤ìŒ ìž‘ì—… í•˜ë‚˜", "Una acciÃ³n segura siguiente"))}</strong>
+        <strong>${escapeSummaryText(v231Local("One safe next action", "안전한 다음 작업 하나", "Una acción segura siguiente"))}</strong>
         <button type="button" class="v231-primary" data-v231-live-search>${escapeSummaryText(v231Local("Approve live search only", "실시간 조회만 승인하기", "Aprobar solo búsqueda en vivo"))}</button>
         <p>${escapeSummaryText(v231Local(
           "This allows search and comparison only. Before any booking or payment, ONE must show exact options, price, provider, terms, and ask for separate approval.",
-          "ì´ ìŠ¹ì¸ì€ ê²€ìƒ‰ê³¼ ë¹„êµê¹Œì§€ë§Œ í—ˆìš©í•©ë‹ˆë‹¤. ì˜ˆì•½ì´ë‚˜ ê²°ì œ ì „ì—ëŠ” ONEì´ ì •í™•í•œ ì˜µì…˜, ê¸ˆì•¡, ì œê³µì—…ì²´, ì¡°ê±´ì„ ë‹¤ì‹œ ë³´ì—¬ë“œë¦¬ê³  ë³„ë„ ìŠ¹ì¸ì„ ìš”ì²­í•´ì•¼ í•©ë‹ˆë‹¤.",
-          "Esto permite solo bÃºsqueda y comparaciÃ³n. Antes de reservar o pagar, ONE debe mostrar opciones, precio, proveedor y condiciones exactas, y pedir otra aprobaciÃ³n."
+          "이 승인은 검색과 비교까지만 허용합니다. 예약이나 결제 전에는 ONE이 정확한 옵션, 금액, 제공업체, 조건을 다시 보여드리고 별도 승인을 요청해야 합니다.",
+          "Esto permite solo búsqueda y comparación. Antes de reservar o pagar, ONE debe mostrar opciones, precio, proveedor y condiciones exactas, y pedir otra aprobación."
         ))}</p>
       </article>
     </section>
@@ -5830,21 +5733,21 @@ const renderV231PreparationContinuation = ({ state = "preparation_approved" } = 
 const renderV231BlockedCompletionState = () => {
   if (!executionSummary) return;
   setV231CompletionHeader(
-    v231Local("Completion requires evidence", "ì™„ë£Œì—ëŠ” í™•ì¸ ì¦ê±°ê°€ í•„ìš”í•©ë‹ˆë‹¤", "La finalizaciÃ³n requiere evidencia"),
+    v231Local("Completion requires evidence", "완료에는 확인 증거가 필요합니다", "La finalización requiere evidencia"),
     v231Local(
       "ONE did not open a completed booking screen because no verified provider result exists.",
-      "í™•ì¸ëœ ì œê³µì—…ì²´ ê²°ê³¼ê°€ ì—†ê¸° ë•Œë¬¸ì— ì™„ë£Œëœ ì˜ˆì•½ í™”ë©´ì„ ì—´ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.",
-      "ONE no abriÃ³ una pantalla de reserva completada porque no existe un resultado verificado del proveedor."
+      "확인된 제공업체 결과가 없기 때문에 완료된 예약 화면을 열지 않았습니다.",
+      "ONE no abrió una pantalla de reserva completada porque no existe un resultado verificado del proveedor."
     )
   );
   executionSummary.innerHTML = `
     <section class="v231-continuation v231-blocked" data-stage="completion-blocked">
-      <div class="v231-stage-strip">${escapeSummaryText(v231Local("No booking, payment, ticketing, submission, or provider contact has occurred.", "ì•„ì§ ì˜ˆì•½, ê²°ì œ, ë°œê¶Œ, ì œì¶œ, ì œê³µì—…ì²´ ì—°ë½ì€ ì§„í–‰ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.", "TodavÃ­a no hay reserva, pago, emisiÃ³n, envÃ­o ni contacto con proveedores."))}</div>
+      <div class="v231-stage-strip">${escapeSummaryText(v231Local("No booking, payment, ticketing, submission, or provider contact has occurred.", "아직 예약, 결제, 발권, 제출, 제공업체 연락은 진행되지 않았습니다.", "Todavía no hay reserva, pago, emisión, envío ni contacto con proveedores."))}</div>
       <article class="v231-card">
-        <h4>${escapeSummaryText(v231Local("Why this was blocked", "ì°¨ë‹¨ëœ ì´ìœ ", "Por quÃ© se bloqueÃ³"))}</h4>
+        <h4>${escapeSummaryText(v231Local("Why this was blocked", "차단된 이유", "Por qué se bloqueó"))}</h4>
         <p>${escapeSummaryText(v231Local(
           "A prototype reference or direct completion link cannot prove that a real provider completed anything.",
-          "í”„ë¡œí† íƒ€ìž… ì°¸ì¡° ë²ˆí˜¸ë‚˜ ì§ì ‘ ì™„ë£Œ ë§í¬ëŠ” ì‹¤ì œ ì œê³µì—…ì²´ê°€ ë¬´ì–¸ê°€ë¥¼ ì™„ë£Œí–ˆë‹¤ëŠ” ì¦ê±°ê°€ ë  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.",
+          "프로토타입 참조 번호나 직접 완료 링크는 실제 제공업체가 무언가를 완료했다는 증거가 될 수 없습니다.",
           "Una referencia de prototipo o un enlace directo no demuestra que un proveedor haya completado algo."
         ))}</p>
       </article>
@@ -5870,8 +5773,8 @@ const applyV231ManualApprovalScenario = () => {
     const notice = executionSummary.querySelector(".v231-stage-strip");
     if (notice) notice.textContent = v231Local(
       "Verified completion requires a real provider receipt. This preview stops before fake completion.",
-      "ê²€ì¦ëœ ì™„ë£Œì—ëŠ” ì‹¤ì œ ì œê³µì—…ì²´ ì˜ìˆ˜ì¦ì´ í•„ìš”í•©ë‹ˆë‹¤. ì´ ë¯¸ë¦¬ë³´ê¸°ëŠ” ê°€ì§œ ì™„ë£Œ í™”ë©´ìœ¼ë¡œ ê°€ì§€ ì•ŠìŠµë‹ˆë‹¤.",
-      "La finalizaciÃ³n verificada requiere un recibo real del proveedor. Esta vista previa no muestra una finalizaciÃ³n falsa."
+      "검증된 완료에는 실제 제공업체 영수증이 필요합니다. 이 미리보기는 가짜 완료 화면으로 가지 않습니다.",
+      "La finalización verificada requiere un recibo real del proveedor. Esta vista previa no muestra una finalización falsa."
     );
     return;
   }
@@ -5900,30 +5803,30 @@ const buildExecutionSummary = () => {
   const { rooms } = getTravelPartyDetails(currentResult);
   const dateRange = schedule.startDate && schedule.endDate
     ? `${schedule.startDate} → ${schedule.endDate}`
-    : `${schedule.startDate || "—"} → ${schedule.endDate || "—"}`;
+    : local("Dates can be confirmed before final provider check", "최종 제공업체 확인 전 날짜를 다시 확인할 수 있습니다", "Las fechas se pueden confirmar antes de la verificación final");
   const timeLabels = {
-    any: local("Time to be confirmed", "ì‹œê°„ í™•ì¸ í•„ìš”", "Hora por confirmar"),
-    morning: local("Morning", "ì˜¤ì „", "MaÃ±ana"),
-    afternoon: local("Afternoon", "ì˜¤í›„", "Tarde"),
-    evening: local("Evening", "ì €ë…", "Noche")
+    any: local("Time to be confirmed", "시간 확인 필요", "Hora por confirmar"),
+    morning: local("Morning", "오전", "Mañana"),
+    afternoon: local("Afternoon", "오후", "Tarde"),
+    evening: local("Evening", "저녁", "Noche")
   };
   const selectedTime = timeLabels[schedule.timePreference] || timeLabels.any;
   const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "American Airlines": "AA", "Avianca": "AV", "Aeromexico": "AM", "Copa Airlines": "CM", "Iberia": "IB", "LATAM Airlines": "LA", Lufthansa: "LH", "Air France": "AF", KLM: "KL", Emirates: "EK", "Qatar Airways": "QR", "Turkish Airlines": "TK" };
-  const airlineName = flight ? getFlightName(flight) : local("Flight search criteria ready", "í•­ê³µíŽ¸ ê²€ìƒ‰ ì¡°ê±´ ì¤€ë¹„ë¨", "Criterios de vuelo listos");
-  const flightCode = flight ? `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}` : local("Provider check needed", "ì œê³µì—…ì²´ í™•ì¸ í•„ìš”", "VerificaciÃ³n de proveedor necesaria");
-  const returnFlightCode = flight ? `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}` : local("Provider check needed", "ì œê³µì—…ì²´ í™•ì¸ í•„ìš”", "VerificaciÃ³n de proveedor necesaria");
+  const airlineName = flight ? getFlightName(flight) : local("Flight search criteria ready", "항공편 검색 조건 준비됨", "Criterios de vuelo listos");
+  const flightCode = flight ? `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
+  const returnFlightCode = flight ? `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
   const isRoundTrip = currentResult.tripType !== "one_way";
   const destinationName = activeLanguage === "ko"
     ? currentResult.destination?.cityKo || currentResult.destination?.countryKo || currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE"
     : currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE";
-  const hotelName = hotel ? getHotelName(hotel) : local("Stay search criteria ready", "ìˆ™ì†Œ ê²€ìƒ‰ ì¡°ê±´ ì¤€ë¹„ë¨", "Criterios de alojamiento listos");
-  const transferName = localize(transfer) || local("Local transfer criteria ready", "í˜„ì§€ ì´ë™ ì¡°ê±´ ì¤€ë¹„ë¨", "Criterios de transporte listos");
+  const hotelName = hotel ? getHotelName(hotel) : local("Stay search criteria ready", "숙소 검색 조건 준비됨", "Criterios de alojamiento listos");
+  const transferName = localize(transfer) || local("Local transfer criteria ready", "현지 이동 조건 준비됨", "Criterios de transporte listos");
   const totalRange = currentResult.budget?.estimatedTotal || {};
   const foodRange = currentResult.budget?.food || {};
   const transportRange = currentResult.budget?.transport || {};
   const activitiesRange = currentResult.budget?.activities || {};
   const weatherItems = (findLiveProvider(currentResult, "weather")?.items || []).slice(0, 7).map((item) => [item.label || "", item.value || "", item.humidity || "", item.precipitation || ""]);
-  const currencyItems = (findLiveProvider(currentResult, "currency")?.items || []).slice(0, 6).map((item) => [item.to || "", Number(item.rate || item.value) || 0]).filter(([to, rate]) => to && rate);
+  const currencyItems = (findLiveProvider(currentResult, "currency")?.items || []).slice(0, 6).map((item) => [item.to || "", Number(item.rate ?? item.value) || 0]).filter(([to, rate]) => to && rate);
   const reference = `ONE-DEMO-${String(currentResult.id || Date.now()).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase()}`;
   const selectedRestaurantNames = selectedRestaurantButtons.map((button) => {
     const restaurant = currentResult.restaurants?.[Number(button.dataset.optionIndex)] || {};
@@ -5954,12 +5857,12 @@ const buildExecutionSummary = () => {
   if (completionSubtitle) {
     completionSubtitle.textContent = local(
       "Your mission pass is ready. Review the plan, scan the QR, then approve any real provider action separately.",
-      "ë¯¸ì…˜ íŒ¨ìŠ¤ë¥¼ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤. ê³„íšê³¼ QRì„ í™•ì¸í•˜ê³ , ì‹¤ì œ ì œê³µì—…ì²´ ì‹¤í–‰ì€ ë³„ë„ë¡œ ìŠ¹ì¸í•˜ì„¸ìš”.",
-      "Tu pase de misiÃ³n estÃ¡ listo. Revisa el plan, escanea el QR y aprueba cualquier acciÃ³n real por separado."
+      "미션 패스를 준비했습니다. 계획과 QR을 확인하고, 실제 제공업체 실행은 별도로 승인하세요.",
+      "Tu pase de misión está listo. Revisa el plan, escanea el QR y aprueba cualquier acción real por separado."
     );
   }
 
-  const detailCard = (label, value, detail, icon = "âœ“", className = "") => `
+  const detailCard = (label, value, detail, icon = "✓", className = "") => `
     <article class="execution-summary-item mission-pass-card ${className}">
       <span class="mission-pass-icon" aria-hidden="true">${escapeSummaryText(icon)}</span>
       <span class="execution-summary-label">${escapeSummaryText(label)}</span>
@@ -5968,47 +5871,47 @@ const buildExecutionSummary = () => {
     </article>`;
   const diningDetail = suggestedRestaurantNames.length
     ? suggestedRestaurantNames.join(" · ")
-    : local("ONE will refresh restaurant options before any reservation step.", "ì˜ˆì•½ ë‹¨ê³„ ì „ ë ˆìŠ¤í† ëž‘ í›„ë³´ë¥¼ ë‹¤ì‹œ í™•ì¸í•©ë‹ˆë‹¤.", "ONE actualizarÃ¡ opciones de restaurantes antes de reservar.");
+    : local("ONE will refresh restaurant options before any reservation step.", "예약 단계 전 레스토랑 후보를 다시 확인합니다.", "ONE actualizará opciones de restaurantes antes de reservar.");
   const qrMarkup = `
     <article class="execution-summary-item is-wide is-reference mission-pass-reference">
-      <span class="execution-summary-label">${escapeSummaryText(local("Mission pass reference", "ë¯¸ì…˜ íŒ¨ìŠ¤ ì°¸ì¡° ë²ˆí˜¸", "Referencia del pase de misiÃ³n"))}</span>
+      <span class="execution-summary-label">${escapeSummaryText(local("Mission pass reference", "미션 패스 참조 번호", "Referencia del pase de misión"))}</span>
       <span class="execution-summary-value">${escapeSummaryText(reference)}</span>
-      <a href="${escapeSummaryText(portableUrl)}" aria-label="${escapeSummaryText(local("Reopen this mission pass from the QR link", "QR ë§í¬ë¡œ ë¯¸ì…˜ íŒ¨ìŠ¤ ë‹¤ì‹œ ì—´ê¸°", "Volver a abrir este pase desde el QR"))}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=900x900&amp;format=png&amp;ecc=L&amp;qzone=8&amp;data=${encodeURIComponent(portableUrl)}" alt="${escapeSummaryText(local("Mission pass QR code", "ë¯¸ì…˜ íŒ¨ìŠ¤ QR ì½”ë“œ", "CÃ³digo QR del pase"))}" width="320" height="320"></a>
-      <small class="prototype-reference-qr-help">${escapeSummaryText(local("Scan to reopen this exact prepared mission pass.", "ìŠ¤ìº”í•˜ë©´ ì¤€ë¹„ëœ ë¯¸ì…˜ íŒ¨ìŠ¤ë¥¼ ë‹¤ì‹œ ì—´ ìˆ˜ ìžˆìŠµë‹ˆë‹¤.", "Escanea para reabrir este pase preparado."))}</small>
-      <span class="execution-summary-detail">${escapeSummaryText(local("Prototype reference only â€” not a booking number.", "í”„ë¡œí† íƒ€ìž… ì°¸ì¡°ìš© â€” ì‹¤ì œ ì˜ˆì•½ ë²ˆí˜¸ê°€ ì•„ë‹™ë‹ˆë‹¤.", "Solo referencia de prototipo â€” no es una reserva."))}</span>
+      <a href="${escapeSummaryText(portableUrl)}" aria-label="${escapeSummaryText(local("Reopen this mission pass from the QR link", "QR 링크로 미션 패스 다시 열기", "Volver a abrir este pase desde el QR"))}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=900x900&amp;format=png&amp;ecc=L&amp;qzone=8&amp;data=${encodeURIComponent(portableUrl)}" alt="${escapeSummaryText(local("Mission pass QR code", "미션 패스 QR 코드", "Código QR del pase"))}" width="320" height="320"></a>
+      <small class="prototype-reference-qr-help">${escapeSummaryText(local("Scan to reopen this exact prepared mission pass.", "스캔하면 준비된 미션 패스를 다시 열 수 있습니다.", "Escanea para reabrir este pase preparado."))}</small>
+      <span class="execution-summary-detail">${escapeSummaryText(local("Prototype reference only — not a booking number.", "프로토타입 참조용 — 실제 예약 번호가 아닙니다.", "Solo referencia de prototipo — no es una reserva."))}</span>
     </article>`;
   const nextChecks = [
-    local("Confirm live provider availability and final prices", "ì‹¤ì‹œê°„ ì œê³µì—…ì²´ ê°€ëŠ¥ ì—¬ë¶€ì™€ ìµœì¢… ê°€ê²© í™•ì¸", "Confirmar disponibilidad y precios finales"),
-    local("Show exact terms before booking or payment", "ì˜ˆì•½·ê²°ì œ ì „ ì •í™•í•œ ì¡°ê±´ í‘œì‹œ", "Mostrar condiciones exactas antes de reservar o pagar"),
-    local("Ask again before any external action", "ì™¸ë¶€ ì‹¤í–‰ ì „ ë‹¤ì‹œ ìŠ¹ì¸ ìš”ì²­", "Pedir aprobaciÃ³n antes de cualquier acciÃ³n externa")
+    local("Confirm live provider availability and final prices", "실시간 제공업체 가능 여부와 최종 가격 확인", "Confirmar disponibilidad y precios finales"),
+    local("Show exact terms before booking or payment", "예약·결제 전 정확한 조건 표시", "Mostrar condiciones exactas antes de reservar o pagar"),
+    local("Ask again before any external action", "외부 실행 전 다시 승인 요청", "Pedir aprobación antes de cualquier acción externa")
   ];
 
   executionSummary.innerHTML = `
-    <section class="mission-pass-summary" aria-label="${escapeSummaryText(local("Prepared mission pass", "ì¤€ë¹„ëœ ë¯¸ì…˜ íŒ¨ìŠ¤", "Pase de misiÃ³n preparado"))}">
+    <section class="mission-pass-summary" aria-label="${escapeSummaryText(local("Prepared mission pass", "준비된 미션 패스", "Pase de misión preparado"))}">
       <div class="execution-summary-head mission-pass-head">
-        <span class="execution-summary-status">${escapeSummaryText(local("Plan ready · Nothing booked yet", "ê³„íš ì¤€ë¹„ ì™„ë£Œ · ì•„ì§ ì˜ˆì•½ ì•„ë‹˜", "Plan listo · Nada reservado"))}</span>
-        <h4>${escapeSummaryText(local("Your mission pass", "ë¯¸ì…˜ íŒ¨ìŠ¤", "Tu pase de misiÃ³n"))}</h4>
-        <p>${escapeSummaryText(local("Useful details are organized here. Real booking, payment, ticketing, or provider contact still needs separate approval.", "í•„ìš”í•œ ì •ë³´ë§Œ ì •ë¦¬í–ˆìŠµë‹ˆë‹¤. ì‹¤ì œ ì˜ˆì•½, ê²°ì œ, ë°œê¶Œ, ì œê³µì—…ì²´ ì—°ë½ì€ ë³„ë„ ìŠ¹ì¸ í›„ì—ë§Œ ì§„í–‰ë©ë‹ˆë‹¤.", "AquÃ­ estÃ¡ lo necesario. Reserva, pago, emisiÃ³n o contacto con proveedor requiere otra aprobaciÃ³n."))}</p>
+        <span class="execution-summary-status">${escapeSummaryText(local("Plan ready · Nothing booked yet", "계획 준비 완료 · 아직 예약 아님", "Plan listo · Nada reservado"))}</span>
+        <h4>${escapeSummaryText(local("Your mission pass", "미션 패스", "Tu pase de misión"))}</h4>
+        <p>${escapeSummaryText(local("Useful details are organized here. Real booking, payment, ticketing, or provider contact still needs separate approval.", "필요한 정보만 정리했습니다. 실제 예약, 결제, 발권, 제공업체 연락은 별도 승인 후에만 진행됩니다.", "Aquí está lo necesario. Reserva, pago, emisión o contacto con proveedor requiere otra aprobación."))}</p>
       </div>
       <article class="execution-summary-item is-wide is-schedule mission-pass-route">
-        <span class="execution-summary-label">${escapeSummaryText(local("Trip window", "ì—¬í–‰ ì¼ì •", "Fechas del viaje"))}</span>
-        <span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(schedule.startDate || "â€”")}</strong><i aria-hidden="true">â†’</i><strong>${escapeSummaryText(schedule.endDate || "â€”")}</strong></span>
-        <span class="execution-summary-detail">${escapeSummaryText(`${destinationName} · ${tripNights || 0} ${local("nights", "ë°•", "noches")} · ${rooms} ${local("room(s)", "ê°ì‹¤", "habitaciÃ³n(es)")} · ${selectedTime}`)}</span>
+        <span class="execution-summary-label">${escapeSummaryText(local("Trip window", "여행 일정", "Fechas del viaje"))}</span>
+        <span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(schedule.startDate || "—")}</strong><i aria-hidden="true">→</i><strong>${escapeSummaryText(schedule.endDate || "—")}</strong></span>
+        <span class="execution-summary-detail">${escapeSummaryText(`${destinationName} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${rooms} ${local("room(s)", "객실", "habitación(es)")} · ${selectedTime}`)}</span>
       </article>
       <div class="execution-summary-grid mission-pass-grid">
-        ${detailCard(local("Outbound", "ì¶œë°œ í•­ê³µ", "Ida"), flight ? `${airlineName} · ${flightCode}` : airlineName, `${schedule.startDate || dateRange} · ${formatRange(flight?.estimatedPrice) || local("Price check needed", "ê°€ê²© í™•ì¸ í•„ìš”", "Precio por confirmar")}`, "âœˆ")}
-        ${isRoundTrip ? detailCard(local("Return", "ê·€êµ­ í•­ê³µ", "Vuelta"), flight ? `${airlineName} · ${returnFlightCode}` : airlineName, `${schedule.endDate || dateRange} · ${local("Return time requires final provider check", "ê·€êµ­ ì‹œê°„ì€ ìµœì¢… ì œê³µì—…ì²´ í™•ì¸ í•„ìš”", "La hora de regreso requiere verificaciÃ³n")}`, "â†©") : ""}
-        ${detailCard(local("Stay", "ìˆ™ì†Œ", "Alojamiento"), hotelName, `${dateRange} · ${tripNights || 0} ${local("nights", "ë°•", "noches")} · ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice) || local("Final price check needed", "ìµœì¢… ê°€ê²© í™•ì¸ í•„ìš”", "Precio final por confirmar")}`, "ðŸ¨")}
-        ${detailCard(local("Local movement", "í˜„ì§€ ì´ë™", "Transporte local"), transferName, local("Route and licensed provider will be checked before execution.", "ì‹¤í–‰ ì „ ê²½ë¡œì™€ ê³µì‹ ì œê³µì—…ì²´ë¥¼ í™•ì¸í•©ë‹ˆë‹¤.", "La ruta y proveedor autorizado se verifican antes."), "ðŸš•")}
-        ${detailCard(local("Dining", "ì‹ì‚¬", "Comida"), suggestedRestaurantNames.length ? local("Shortlist ready", "í›„ë³´ ì¤€ë¹„ë¨", "Lista preparada") : local("Needs final picks", "ìµœì¢… í›„ë³´ í•„ìš”", "Faltan opciones"), diningDetail, "ðŸ½", "is-restaurant")}
-        ${detailCard(local("Budget", "ì˜ˆì‚°", "Presupuesto"), formatRange(totalRange) || local("Flexible", "ìœ ë™ì ", "Flexible"), local("Budget updates if you change flight, hotel, dining, or transport.", "í•­ê³µ·ìˆ™ì†Œ·ì‹ì‚¬·ì´ë™ì„ ë°”ê¾¸ë©´ ì˜ˆì‚°ë„ í•¨ê»˜ ì—…ë°ì´íŠ¸ë©ë‹ˆë‹¤.", "El presupuesto cambia si modificas vuelos, hotel, comida o transporte."), "â‚©")}
+        ${detailCard(local("Outbound", "출발 항공", "Ida"), flight ? `${airlineName} · ${flightCode}` : airlineName, `${schedule.startDate || dateRange} · ${formatRange(flight?.estimatedPrice) || local("Price check needed", "가격 확인 필요", "Precio por confirmar")}`, "✈")}
+        ${isRoundTrip ? detailCard(local("Return", "귀국 항공", "Vuelta"), flight ? `${airlineName} · ${returnFlightCode}` : airlineName, `${schedule.endDate || dateRange} · ${local("Return time requires final provider check", "귀국 시간은 최종 제공업체 확인 필요", "La hora de regreso requiere verificación")}`, "↩") : ""}
+        ${detailCard(local("Stay", "숙소", "Alojamiento"), hotelName, `${dateRange} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice) || local("Final price check needed", "최종 가격 확인 필요", "Precio final por confirmar")}`, "🏨")}
+        ${detailCard(local("Local movement", "현지 이동", "Transporte local"), transferName, local("Route and licensed provider will be checked before execution.", "실행 전 경로와 공식 제공업체를 확인합니다.", "La ruta y proveedor autorizado se verifican antes."), "🚕")}
+        ${detailCard(local("Dining", "식사", "Comida"), suggestedRestaurantNames.length ? local("Shortlist ready", "후보 준비됨", "Lista preparada") : local("Needs final picks", "최종 후보 필요", "Faltan opciones"), diningDetail, "🍽", "is-restaurant")}
+        ${detailCard(local("Budget", "예산", "Presupuesto"), formatRange(totalRange) || local("Flexible", "유동적", "Flexible"), local("Budget updates if you change flight, hotel, dining, or transport.", "항공·숙소·식사·이동을 바꾸면 예산도 함께 업데이트됩니다.", "El presupuesto cambia si modificas vuelos, hotel, comida o transporte."), "₩")}
         ${qrMarkup}
       </div>
       <article class="execution-summary-item is-wide mission-pass-next">
-        <span class="execution-summary-label">${escapeSummaryText(local("Before anything real happens", "ì‹¤ì œ ì‹¤í–‰ ì „ í™•ì¸", "Antes de cualquier acciÃ³n real"))}</span>
+        <span class="execution-summary-label">${escapeSummaryText(local("Before anything real happens", "실제 실행 전 확인", "Antes de cualquier acción real"))}</span>
         <ul>${nextChecks.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
       </article>
-      <a class="all-in-slogan" href="index.html" aria-label="${escapeSummaryText(local("Return home", "í™ˆìœ¼ë¡œ ëŒì•„ê°€ê¸°", "Volver al inicio"))}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>
+      <a class="all-in-slogan" href="index.html" aria-label="${escapeSummaryText(local("Return home", "홈으로 돌아가기", "Volver al inicio"))}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>
     </section>`;
   savePrototypeMission(reference);
 };
@@ -6020,7 +5923,7 @@ const runApprovalSequence = () => {
   makeRealityButton.disabled = true;
   bottomActions.hidden = true;
   approvalPanel.hidden = false;
-  if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Approval received. Preparing the next step safely.", "ìŠ¹ì¸ì„ ë°›ì•˜ìŠµë‹ˆë‹¤. ë‹¤ìŒ ë‹¨ê³„ë¥¼ ì•ˆì „í•˜ê²Œ ì¤€ë¹„í•©ë‹ˆë‹¤.", "AprobaciÃ³n recibida. Preparando el siguiente paso con seguridad.");
+  if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Approval received. Preparing the next step safely.", "승인을 받았습니다. 다음 단계를 안전하게 준비합니다.", "Aprobación recibida. Preparando el siguiente paso con seguridad.");
   document.querySelector('[data-lifecycle-step="approval"]')?.classList.replace("is-next", "is-current");
   approvalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -6028,7 +5931,7 @@ const runApprovalSequence = () => {
     trackEvent("simulated_step_started", { mission_type: currentResult?.type, language: activeLanguage, page: "results", step: String(index + 1) });
     window.setTimeout(() => {
       item.classList.add("is-complete");
-      item.querySelector(".approval-check").textContent = "âœ“";
+      item.querySelector(".approval-check").textContent = "✓";
       trackEvent("simulated_step_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", step: String(index + 1), success: true });
 
       if (index === items.length - 1) {
@@ -6041,7 +5944,7 @@ const runApprovalSequence = () => {
 
           buildExecutionSummary();
           completionMessage.hidden = false;
-          if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Ready. Nothing external happened without provider confirmation.", "ì¤€ë¹„ ì™„ë£Œ. ì œê³µì—…ì²´ í™•ì¸ ì—†ì´ ì™¸ë¶€ ì‹¤í–‰ì€ ì—†ì—ˆìŠµë‹ˆë‹¤.", "Listo. No hubo acciÃ³n externa sin confirmaciÃ³n del proveedor.");
+          if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Ready. Nothing external happened without provider confirmation.", "준비 완료. 제공업체 확인 없이 외부 실행은 없었습니다.", "Listo. No hubo acción externa sin confirmación del proveedor.");
           trackEvent("execution_summary_shown", {
             mission_type: currentResult?.type,
             language: activeLanguage,
@@ -6078,23 +5981,23 @@ const applySimulatedModification = (cardId, card, button) => {
   if (["flights", "hotel", "airport-transfer"].includes(cardId)) return;
 
   if (cardId === "flights" && value) {
-    value.textContent = activeLanguage === "ko" ? "ì œì£¼í•­ê³µ" : "Jeju Air";
+    value.textContent = activeLanguage === "ko" ? "제주항공" : "Jeju Air";
 
     if (reason) {
       reason.textContent =
         activeLanguage === "ko"
-          ? "ì˜ˆì‚°ì„ ì¤„ì´ê¸° ìœ„í•´ ì €ê°€ í•­ê³µ ì˜µì…˜ìœ¼ë¡œ ë³€ê²½í–ˆìŠµë‹ˆë‹¤. ì‹¤ì œ ì˜ˆì•½ì€ ìŠ¹ì¸ ì „ê¹Œì§€ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤."
+          ? "예산을 줄이기 위해 저가 항공 옵션으로 변경했습니다. 실제 예약은 승인 전까지 진행되지 않습니다."
           : "Changed to a lower-cost airline option to reduce budget. No booking will happen without approval.";
     }
   }
 
   if (cardId === "hotel" && value) {
-    value.textContent = activeLanguage === "ko" ? "ë„í ìŠ¤í…Œì´ ì‹ ì£¼ì¿ " : "Tokyu Stay Shinjuku";
+    value.textContent = activeLanguage === "ko" ? "도큐 스테이 신주쿠" : "Tokyu Stay Shinjuku";
 
     if (reason) {
       reason.textContent =
         activeLanguage === "ko"
-          ? "êµí†µ ì ‘ê·¼ì„±ê³¼ ì˜ˆì‚° ê· í˜•ì„ ìœ„í•´ ì‹¤ìš©ì ì¸ í˜¸í…” ì˜µì…˜ìœ¼ë¡œ ë³€ê²½í–ˆìŠµë‹ˆë‹¤."
+          ? "교통 접근성과 예산 균형을 위해 실용적인 호텔 옵션으로 변경했습니다."
           : "Changed to a practical hotel option for stronger balance between location and budget.";
     }
   }
@@ -6113,18 +6016,18 @@ const applySimulatedModification = (cardId, card, button) => {
     values.forEach((item) => {
       item.textContent =
         activeLanguage === "ko"
-          ? "ì˜ˆì‚° ì ˆê° ì˜µì…˜ ì ìš©ë¨"
+          ? "예산 절감 옵션 적용됨"
           : "Budget-saving option applied";
     });
   }
 
   if (cardId === "airport-transfer" && value) {
-    value.textContent = activeLanguage === "ko" ? "ê³µí•­ ë¦¬ë¬´ì§„ ë²„ìŠ¤" : "Airport Limousine Bus";
+    value.textContent = activeLanguage === "ko" ? "공항 리무진 버스" : "Airport Limousine Bus";
 
     if (reason) {
       reason.textContent =
         activeLanguage === "ko"
-          ? "ìˆ˜í•˜ë¬¼ ì´ë™ê³¼ ë¹„ìš© ê· í˜•ì„ ê¸°ì¤€ìœ¼ë¡œ ê³µí•­ ë¦¬ë¬´ì§„ ì˜µì…˜ì„ ìš°ì„  ì ìš©í–ˆìŠµë‹ˆë‹¤."
+          ? "수하물 이동과 비용 균형을 기준으로 공항 리무진 옵션을 우선 적용했습니다."
           : "Prioritized airport limousine service for better luggage convenience and cost balance.";
     }
   }
@@ -6135,7 +6038,7 @@ const applySimulatedModification = (cardId, card, button) => {
     if (list) {
       list.insertAdjacentHTML(
         "beforeend",
-        makeOptionRow("âœ“", activeLanguage === "ko" ? "ë¡œë° / eSIM ê°€ê²© ë¹„êµ" : "Roaming / eSIM price comparison")
+        makeOptionRow("✓", activeLanguage === "ko" ? "로밍 / eSIM 가격 비교" : "Roaming / eSIM price comparison")
       );
     }
   }
@@ -6143,7 +6046,7 @@ const applySimulatedModification = (cardId, card, button) => {
   if (cardId === "visa" && reason) {
     reason.textContent =
       activeLanguage === "ko"
-        ? "ë¹„ìž í™•ì¸ ìš”ì²­ì´ ì¶”ê°€ë˜ì—ˆìŠµë‹ˆë‹¤. ì‹¤í–‰ ì „ ì •ë¶€/ëŒ€ì‚¬ê´€ ë°ì´í„° ê¸°ì¤€ìœ¼ë¡œ í™•ì¸í•©ë‹ˆë‹¤."
+        ? "비자 확인 요청이 추가되었습니다. 실행 전 정부/대사관 데이터 기준으로 확인합니다."
         : "Visa verification request added. ONE will verify using government or embassy data before execution.";
   }
 };
@@ -6155,7 +6058,7 @@ const enableCustomization = () => {
       const card = categoryToggle.closest(".mission-card");
       const included = categoryToggle.getAttribute("aria-pressed") !== "true";
       categoryToggle.setAttribute("aria-pressed", String(included));
-      categoryToggle.textContent = included ? "âœ“" : "+";
+      categoryToggle.textContent = included ? "✓" : "+";
       card?.classList.toggle("is-excluded", !included);
       trackEvent("option_selected", { mission_type: currentResult?.type, language: activeLanguage, page: "results", option_category: card?.dataset.cardId });
       if (["flights", "hotel", "airport-transfer", "restaurants"].includes(card?.dataset.cardId)) {
@@ -6172,7 +6075,7 @@ const enableCustomization = () => {
         option.classList.toggle("is-selected", selected);
         option.setAttribute("aria-pressed", selected ? "true" : "false");
         const marker = option.querySelector("span");
-        if (marker) marker.textContent = selected ? "âœ“" : "+";
+        if (marker) marker.textContent = selected ? "✓" : "+";
       });
       currentResult.alpha03PreviewSelections = {
         ...(currentResult.alpha03PreviewSelections || {}),
@@ -6204,7 +6107,7 @@ const enableCustomization = () => {
           const selected = option === recommendation || option === chosen;
           option.setAttribute("aria-pressed", String(selected));
           option.classList.toggle("is-excluded", !selected);
-          option.querySelector(".option-key").textContent = selected ? "âœ“" : "+";
+          option.querySelector(".option-key").textContent = selected ? "✓" : "+";
         });
         const optionIndex = Number(chosen?.dataset.optionIndex || 0);
         const chosenName = chosen?.dataset.optionLabel ? decodeURIComponent(chosen.dataset.optionLabel) : chosen?.querySelector(".option-value strong")?.textContent;
@@ -6212,7 +6115,7 @@ const enableCustomization = () => {
         const recommendationValue = recommendation?.querySelector(".recommendation-value");
         if (recommendationValue && chosenName) {
           const suffix = card.dataset.cardId === "hotel" && chosenPrice
-            ? `${chosenPrice} / ${activeLanguage === "ko" ? "1ë°•" : "night"}`
+            ? `${chosenPrice} / ${activeLanguage === "ko" ? "1박" : "night"}`
             : chosenPrice || "";
           recommendationValue.innerHTML = `<span class="recommended-name">${chosenName}</span><span class="recommended-price">${suffix}</span>`;
         }
@@ -6234,14 +6137,14 @@ const enableCustomization = () => {
       const included = selectable.getAttribute("aria-pressed") !== "true";
       selectable.setAttribute("aria-pressed", String(included));
       selectable.classList.toggle("is-excluded", !included);
-      selectable.querySelector(".option-key").textContent = included ? "âœ“" : "+";
+      selectable.querySelector(".option-key").textContent = included ? "✓" : "+";
       if (card?.dataset.cardId === "restaurants") updateTravelBudgetFromSelections();
       if (card?.dataset.cardId === "budget") {
         const budgetKey = selectable.dataset.budgetKey;
         if (budgetKey === "estimatedTotal") {
           selectable.setAttribute("aria-pressed", "true");
           selectable.classList.remove("is-excluded");
-          selectable.querySelector(".option-key").textContent = "âœ“";
+          selectable.querySelector(".option-key").textContent = "✓";
         }
         updateTravelBudgetFromSelections();
       }
@@ -6257,7 +6160,7 @@ const enableCustomization = () => {
       const existing = [...(list?.querySelectorAll(".selectable-option") || [])]
         .find((row) => row.querySelector(".option-value")?.textContent.trim() === optionName);
       if (alternative.classList.contains("is-selected") && list && !existing) {
-        list.insertAdjacentHTML("beforeend", `<button class="option-row selectable-option" type="button" aria-pressed="true"><span class="option-key">âœ“</span><span class="option-value">${optionName}</span></button>`);
+        list.insertAdjacentHTML("beforeend", `<button class="option-row selectable-option" type="button" aria-pressed="true"><span class="option-key">✓</span><span class="option-value">${optionName}</span></button>`);
       } else if (!alternative.classList.contains("is-selected")) {
         existing?.remove();
       }
@@ -6277,10 +6180,10 @@ const enableCustomization = () => {
     const picker = card.querySelector("[data-alternatives-for]");
     if (picker && !picker.children.length) {
       const airlineOptions = ["Korean Air", "Asiana Airlines", "Delta Air Lines", "American Airlines", "United Airlines", "Japan Airlines"];
-      const hotelOptions = ["Four Seasons", "Rosewood", "Atlantis", "Lotte", "Shilla", "Le MÃ©ridien", "Sofitel", "Hyatt", "InterContinental", "JW Marriott", "Hilton", "APA Hotel"];
+      const hotelOptions = ["Four Seasons", "Rosewood", "Atlantis", "Lotte", "Shilla", "Le Méridien", "Sofitel", "Hyatt", "InterContinental", "JW Marriott", "Hilton", "APA Hotel"];
       const generalOptions = activeLanguage === "ko"
-        ? ["â­ ONE Pick", "ì˜ˆì‚° ì¤‘ì‹¬", "í’ˆì§ˆ ì¤‘ì‹¬", "ê°€ê¹Œìš´ ìœ„ì¹˜", "í”„ë¦¬ë¯¸ì—„"]
-        : ["â­ ONE Pick", "Budget", "Best quality", "Nearest", "Premium"];
+        ? ["⭐ ONE Pick", "예산 중심", "품질 중심", "가까운 위치", "프리미엄"]
+        : ["⭐ ONE Pick", "Budget", "Best quality", "Nearest", "Premium"];
       const options = cardId === "flights" ? airlineOptions : cardId === "hotel" ? hotelOptions : generalOptions;
       picker.innerHTML = options.map((option) => `<button class="alternative-choice" type="button">${option}</button>`).join("");
     }
@@ -6324,8 +6227,8 @@ const applyRevisionCommand = async () => {
     sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
     if (revisionStatus) revisionStatus.textContent = v22Local(
       `Updated ${result.affectedSections.length} parts of your mission.`,
-      `ë¯¸ì…˜ ${result.affectedSections.length}ê³³ì„ ì—…ë°ì´íŠ¸í–ˆìŠµë‹ˆë‹¤.`,
-      `Se actualizaron ${result.affectedSections.length} partes de la misiÃ³n.`
+      `미션 ${result.affectedSections.length}곳을 업데이트했습니다.`,
+      `Se actualizaron ${result.affectedSections.length} partes de la misión.`
     );
     trackEvent("mission_revision_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", revision_type: result.intent.type, approval_invalidated: result.affectedSections.includes("approval"), affected_sections: result.affectedSections.join("|"), provider: "MISSION_ORCHESTRATION_ENGINE" });
     additionalServiceInput.value = "";
@@ -6336,8 +6239,8 @@ const applyRevisionCommand = async () => {
   } catch {
     if (revisionStatus) revisionStatus.textContent = completeMissionLocal(
       "I couldn't apply that change safely. Your current mission is still available.",
-      "ê·¸ ë³€ê²½ì„ ì•ˆì „í•˜ê²Œ ì ìš©í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. í˜„ìž¬ ë¯¸ì…˜ì€ ê·¸ëŒ€ë¡œ ì‚¬ìš©í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.",
-      "No pude aplicar ese cambio con seguridad. Tu misiÃ³n actual sigue disponible."
+      "그 변경을 안전하게 적용하지 못했습니다. 현재 미션은 그대로 사용할 수 있습니다.",
+      "No pude aplicar ese cambio con seguridad. Tu misión actual sigue disponible."
     );
   } finally {
     addServiceButton.disabled = false;
@@ -6364,7 +6267,7 @@ document.addEventListener("click", (event) => {
   const completeUndoButton = event.target.closest?.("[data-mission-undo]");
   if (completeUndoButton && missionExperienceState().undoStack.length) {
     if (undoMissionEdit()) {
-      if (revisionStatus) revisionStatus.textContent = completeMissionLocal("Undone.", "ë˜ëŒë ¸ìŠµë‹ˆë‹¤.", "Deshecho.");
+      if (revisionStatus) revisionStatus.textContent = completeMissionLocal("Undone.", "되돌렸습니다.", "Deshecho.");
       renderMission();
       trackEvent("mission_revision_undone", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
     }
@@ -6373,7 +6276,7 @@ document.addEventListener("click", (event) => {
   const completeRedoButton = event.target.closest?.("[data-mission-redo]");
   if (completeRedoButton) {
     if (redoMissionEdit()) {
-      if (revisionStatus) revisionStatus.textContent = completeMissionLocal("Redone.", "ë‹¤ì‹œ ì ìš©í–ˆìŠµë‹ˆë‹¤.", "Rehecho.");
+      if (revisionStatus) revisionStatus.textContent = completeMissionLocal("Redone.", "다시 적용했습니다.", "Rehecho.");
       renderMission();
       trackEvent("mission_revision_redone", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
     }
@@ -6433,7 +6336,7 @@ document.addEventListener("click", (event) => {
       sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
       if (revisionStatus) revisionStatus.textContent = v22Local(
         `Applied. Updated ${result.affectedSections.length} parts.`,
-        `ì ìš©í–ˆìŠµë‹ˆë‹¤. ${result.affectedSections.length}ê³³ì„ ì—…ë°ì´íŠ¸í–ˆìŠµë‹ˆë‹¤.`,
+        `적용했습니다. ${result.affectedSections.length}곳을 업데이트했습니다.`,
         `Aplicado. Se actualizaron ${result.affectedSections.length} partes.`
       );
       trackEvent("ai_decision_accepted", { mission_type: currentResult?.type, language: activeLanguage, page: "results", decision_id: id, affected_sections: result.affectedSections.join("|") });
@@ -6449,7 +6352,7 @@ document.addEventListener("click", (event) => {
       currentResult.alpha15LastAddition = null;
       sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
       sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
-      if (revisionStatus) revisionStatus.textContent = v22Local("Undone.", "ë˜ëŒë ¸ìŠµë‹ˆë‹¤.", "Deshecho.");
+      if (revisionStatus) revisionStatus.textContent = v22Local("Undone.", "되돌렸습니다.", "Deshecho.");
       renderMission();
       trackEvent("mission_revision_undone", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
     }
@@ -6508,7 +6411,7 @@ document.addEventListener("click", (event) => {
   if (event.target.closest("#prepareVisaButton")) {
     const status = document.getElementById("visaDocumentStatus");
     if (status) status.textContent = activeLanguage === "ko"
-      ? "ë¹„ìž ì‹ ì²­ ì¤€ë¹„ í•­ëª©ì´ ìµœì¢… ìŠ¹ì¸ ëª©ë¡ì— ì¶”ê°€ë˜ì—ˆìŠµë‹ˆë‹¤. ì•„ì§ ì œì¶œë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤."
+      ? "비자 신청 준비 항목이 최종 승인 목록에 추가되었습니다. 아직 제출되지 않았습니다."
       : "Visa application preparation was added to final approval. Nothing has been submitted.";
   }
 });
@@ -6521,7 +6424,7 @@ document.addEventListener("change", (event) => {
     button?.classList.toggle("has-file", Boolean(input.files?.length));
     const status = document.getElementById("visaDocumentStatus");
     if (status && input.files?.length) status.textContent = activeLanguage === "ko"
-      ? `${type === "passport" ? "ì—¬ê¶Œ" : "ë¹„ìž"} ë¬¸ì„œê°€ ì´ ì„¸ì…˜ì— ì¶”ê°€ë˜ì—ˆìŠµë‹ˆë‹¤.`
+      ? `${type === "passport" ? "여권" : "비자"} 문서가 이 세션에 추가되었습니다.`
       : `${type === "passport" ? "Passport" : "Visa"} document added for this session.`;
   }
 
@@ -6580,7 +6483,35 @@ const enableTimelineDragScroll = () => {
 };
 
 returnHomeButton.addEventListener("click", returnHome);
+const hasValidApprovalPackage = () => Boolean(currentResult && (getV231SelectedJourney() || currentExperienceReview?.generatedExperience?.onePick || currentResult?.mission || currentResult?.display?.title));
+
+const persistDemoApprovalRecord = (record) => {
+  try {
+    const key = `kastiz-one-demo-approval-${record.reference}`;
+    sessionStorage.setItem(key, JSON.stringify(record));
+    currentResult.demoApproval = record;
+    localStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+  } catch {}
+};
+
+const runPreviewApprovalConfirmation = () => {
+  if (makeRealityButton.dataset.approvalPending === "true") return;
+  makeRealityButton.dataset.approvalPending = "true";
+  const reference = `ONE-DEMO-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+  persistDemoApprovalRecord({
+    reference,
+    status: "demo_approved_not_booked",
+    mission: approvalMissionName(),
+    createdAt: new Date().toISOString(),
+    language: activeLanguage,
+    truth: "No booking, payment, ticketing, provider contact, or external execution occurred."
+  });
+  makeRealityButton.dataset.approvalPending = "false";
+  runApprovalSequence();
+};
+
 makeRealityButton.addEventListener("click", () => {
+  if (!hasValidApprovalPackage()) return;
   trackEvent("make_it_reality_clicked", { mission_type: currentResult?.type, language: activeLanguage, page: "results", schedule_used: Boolean(currentResult?.schedule?.startDate && currentResult?.schedule?.endDate) });
   const schedule = currentResult?.schedule || {};
   const flight = currentResult?.flights?.find?.((item) => item.recommended) || currentResult?.flights?.[0];
@@ -6588,69 +6519,33 @@ makeRealityButton.addEventListener("click", () => {
   const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
   const experience = currentExperienceReview?.generatedExperience?.onePick;
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
-  const previewProfile = profileForResult(result, destination);
-  if (previewProfile?.journeys?.length) {
-    return rotateList(previewProfile.journeys, seed).map((item, index) => ({
-      id: `v23-preview-journey-${previewProfile.id}-${index}`,
-      name: local(item[0], item[1], item[2]),
-      purpose: local(item[3], item[4], item[3]),
-      tags: item[5] || [],
-      reason: local(
-        "This option is built from curated destination highlights and the current mission context.",
-        "현재 미션과 실제 목적지 하이라이트를 기준으로 구성했습니다.",
-        "Esta opción usa puntos reales del destino y el contexto de la misión."
-      ),
-      duration,
-      tone: ["balanced", "culture", "food", "local"][index] || "balanced",
-      comfort: local("Practical", "실용적", "Práctico"),
-      budget: getTravelBudgetLabel(result, index === 2 ? "food" : "balanced"),
-      timeline: item[5] || [],
-      selected: index === 0,
-      details: {
-        flight: local("Round-trip options are compared after approval for live price and schedule.", "왕복 항공권은 승인 후 실시간 가격과 일정을 확인합니다.", "Vuelos ida y vuelta se comparan tras aprobación."),
-        hotel: local("Hotel candidates are matched to the route, walking load, and room count.", "숙소 후보는 동선, 도보 부담, 객실 수에 맞춰 비교합니다.", "Hoteles según ruta, caminata y habitaciones."),
-        transport: local("Daily movement is grouped by neighborhood to avoid unnecessary backtracking.", "불필요한 왕복 이동을 줄이도록 날마다 지역을 묶습니다.", "Se agrupa por zonas para evitar traslados inútiles."),
-        food: local("Food candidates are placed near the day route instead of as a random list.", "맛집 후보는 무작위 목록이 아니라 그날 동선 근처로 배치합니다.", "Comida cerca de la ruta del día."),
-        entry: local("Entry and document rules are rechecked through official sources before action.", "입국·서류 요건은 실행 전 공식 출처로 다시 확인합니다.", "Requisitos se verifican con fuentes oficiales."),
-        insurance: local("Insurance and cancellation rules are prepared for review before booking.", "예약 전 보험과 취소 규정을 검토할 수 있게 준비합니다.", "Seguro y cancelación se preparan antes de reservar.")
-      },
-      sourceStates: {
-        flight: getScenarioSourceState(result, "flight", "estimated"),
-        hotel: getScenarioSourceState(result, "hotel", "estimated"),
-        transport: getScenarioSourceState(result, "transport", "placeholder"),
-        food: getScenarioSourceState(result, "food", "cached_public"),
-        entry: getScenarioSourceState(result, "entry", "unavailable"),
-        insurance: getScenarioSourceState(result, "insurance", "placeholder")
-      }
-    }));
-  }
   const journey = isV231TravelPreparationFlow() ? getV231SelectedJourney() : null;
   const reviewItems = journey
     ? [
-        { label: local("Mission", "ë¯¸ì…˜", "MisiÃ³n"), value: approvalMissionName() },
-        { label: local("Selected journey", "ì„ íƒí•œ ì—¬í–‰", "Viaje elegido"), value: journey.name },
-        { label: local("Journey style", "ì—¬í–‰ ìŠ¤íƒ€ì¼", "Estilo de viaje"), value: `${journey.duration} · ${journey.comfort} · ${journey.budget}` },
-        { label: local("Approved scope", "ìŠ¹ì¸ ë²”ìœ„", "Alcance aprobado"), value: local("Prepare search and comparison only", "ê²€ìƒ‰ê³¼ ë¹„êµ ì¤€ë¹„ê¹Œì§€ë§Œ ìŠ¹ì¸", "Solo preparar bÃºsqueda y comparaciÃ³n") },
-        { label: local("Not approved", "ìŠ¹ì¸ë˜ì§€ ì•Šì€ ê²ƒ", "No aprobado"), value: local("No booking, payment, ticketing, submission, or provider contact", "ì˜ˆì•½, ê²°ì œ, ë°œê¶Œ, ì œì¶œ, ì œê³µì—…ì²´ ì—°ë½ ì—†ìŒ", "Sin reserva, pago, emisiÃ³n, envÃ­o ni contacto con proveedores") }
+        { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
+        { label: local("Selected journey", "선택한 여행", "Viaje elegido"), value: journey.name },
+        { label: local("Journey style", "여행 스타일", "Estilo de viaje"), value: `${journey.duration} · ${journey.comfort} · ${journey.budget}` },
+        { label: local("Approved scope", "승인 범위", "Alcance aprobado"), value: local("Prepare search and comparison only", "검색과 비교 준비까지만 승인", "Solo preparar búsqueda y comparación") },
+        { label: local("Not approved", "승인되지 않은 것", "No aprobado"), value: local("No booking, payment, ticketing, submission, or provider contact", "예약, 결제, 발권, 제출, 제공업체 연락 없음", "Sin reserva, pago, emisión, envío ni contacto con proveedores") }
       ]
     : experienceMission && experience
     ? [
-        { label: local("Mission", "ë¯¸ì…˜", "MisiÃ³n"), value: approvalMissionName() },
+        { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
         { label: "ONE Pick", value: currentExperienceReview.recommendation },
-        { label: local("Timeline", "ì‹œê°„ë³„ ì¼ì •", "Horario"), value: experience.timeline.map((item) => `${item.time} · ${item.title}`).join(" / ") },
-        { label: local("Transportation", "ì´ë™ ë°©ë²•", "Transporte"), value: experience.transportation },
-        { label: local("Weather backup", "ë‚ ì”¨ ëŒ€ì•ˆ", "Alternativa climÃ¡tica"), value: experience.rainPlan }
+        { label: local("Timeline", "시간별 일정", "Horario"), value: experience.timeline.map((item) => `${item.time} · ${item.title}`).join(" / ") },
+        { label: local("Transportation", "이동 방법", "Transporte"), value: experience.transportation },
+        { label: local("Weather backup", "날씨 대안", "Alternativa climática"), value: experience.rainPlan }
       ]
     : [
-        { label: activeLanguage === "ko" ? "ë¯¸ì…˜" : "Mission", value: approvalMissionName() },
-        { label: activeLanguage === "ko" ? "ì—¬í–‰ ë‚ ì§œ" : "Travel dates", value: schedule.startDate && schedule.endDate ? `${schedule.startDate} â†’ ${schedule.endDate}` : "" },
-        { label: activeLanguage === "ko" ? "í•­ê³µíŽ¸ ì„¤ì •" : "Flight preference", value: flight?.provider || "" },
-        { label: activeLanguage === "ko" ? "í˜¸í…” ì„¤ì •" : "Hotel preference", value: hotel?.name || "" }
+        { label: activeLanguage === "ko" ? "미션" : "Mission", value: approvalMissionName() },
+        { label: activeLanguage === "ko" ? "여행 날짜" : "Travel dates", value: schedule.startDate && schedule.endDate ? `${schedule.startDate} → ${schedule.endDate}` : "" },
+        { label: activeLanguage === "ko" ? "항공편 설정" : "Flight preference", value: flight?.provider || "" },
+        { label: activeLanguage === "ko" ? "호텔 설정" : "Hotel preference", value: hotel?.name || "" }
       ];
   openApprovalInformationReview({
     language: activeLanguage,
     items: reviewItems,
-    onApprove: runApprovalSequence
+    onApprove: runPreviewApprovalConfirmation
   });
 
 });
@@ -6658,7 +6553,7 @@ makeRealityButton.addEventListener("click", () => {
 activeLanguage = getLanguage();
 
 document.documentElement.lang = activeLanguage;
-document.title = activeLanguage === "ko" ? "Kastiz ONE â€” ë¯¸ì…˜ ì¤€ë¹„ ì™„ë£Œ" : "Kastiz ONE â€” Mission Ready";
+document.title = activeLanguage === "ko" ? "Kastiz ONE — 미션 준비 완료" : "Kastiz ONE — Mission Ready";
 
 setTheme();
 updateTextContent();
@@ -6679,7 +6574,7 @@ if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
   bottomActions.hidden = true;
   approvalPanel.hidden = false;
   approvalList.hidden = true;
-  document.title = activeLanguage === "ko" ? "Kastiz ONE â€” ì™„ë£Œ í™•ì¸ í•„ìš”" : activeLanguage === "es" ? "Kastiz ONE â€” FinalizaciÃ³n pendiente" : "Kastiz ONE â€” Completion Requires Evidence";
+  document.title = activeLanguage === "ko" ? "Kastiz ONE — 완료 확인 필요" : activeLanguage === "es" ? "Kastiz ONE — Finalización pendiente" : "Kastiz ONE — Completion Requires Evidence";
   window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
 } else if (currentResult?.portableShare === true) {
   document.body.classList.add("portable-summary-view");
@@ -6690,7 +6585,7 @@ if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
   bottomActions.hidden = true;
   approvalPanel.hidden = false;
   approvalList.hidden = true;
-  document.title = activeLanguage === "ko" ? "Kastiz ONE â€” ì™„ë£Œëœ ì‹¤í–‰ ìš”ì•½" : "Kastiz ONE â€” Completed Summary";
+  document.title = activeLanguage === "ko" ? "Kastiz ONE — 완료된 실행 요약" : "Kastiz ONE — Completed Summary";
   window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
 }
 trackEvent("page_visit", { page: "results", language: activeLanguage });

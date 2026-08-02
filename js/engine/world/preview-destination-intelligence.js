@@ -1,150 +1,1159 @@
-﻿const normalizeText = (value = "") => String(value)
-  .normalize("NFKD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .toLowerCase()
-  .replace(/[^\p{L}\p{N}]+/gu, " ")
-  .trim();
-
-const localized = (language, en, ko = en, es = en) => language === "ko" ? ko : language === "es" ? es : en;
-
-const asRichItems = (names, city, type) => names.map((name, index) => ({
-  icon: type === "restaurant" ? ["food", "noodle", "coffee", "dessert", "dinner", "local"][index % 6] : ["pin", "view", "culture", "shopping", "nature", "show"][index % 6],
-  name,
-  tags: [],
-  source: "curated_preview",
-  advice: {
-    en: type === "restaurant"
-      ? `A strong ${city} food stop; ONE will verify the best dish and timing before action.`
-      : `A real ${city} highlight; ONE connects it with route timing, nearby food, and weather backup.`,
-    ko: type === "restaurant"
-      ? `${city}에서 넣을 만한 식사 후보입니다. 실행 전 대표 메뉴와 시간을 확인합니다.`
-      : `${city} 일정에 넣을 만한 실제 장소입니다. 동선, 주변 식사, 날씨 대안과 함께 확인합니다.`,
-    es: type === "restaurant"
-      ? `Buena parada gastronomica en ${city}; ONE verifica plato y horario antes de actuar.`
-      : `Lugar real de ${city}; ONE lo conecta con ruta, comida cercana y clima.`
+export const PREVIEW_DESTINATION_PROFILES = {
+  "tokyo": {
+    "id": "tokyo",
+    "city": "Tokyo",
+    "country": "Japan",
+    "countryCode": "JP",
+    "currency": "JPY",
+    "continent": "Asia",
+    "latitude": 35.6762,
+    "longitude": 139.6503,
+    "zoom": 12,
+    "aliases": [
+      "tokyo",
+      "tokio",
+      "\ub3c4\ucfc4",
+      "\uc77c\ubcf8",
+      "\uc77c\ubcf8\uc5ec\ud589",
+      "japan",
+      "japon",
+      "japon",
+      "viaje a japon",
+      "viaje a tokio",
+      "\u6771\u4eac"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80",
+      "alt": "Tokyo skyline and city lights",
+      "line": {
+        "en": "Food alleys, skyline views, and calm neighborhood rituals.",
+        "ko": "\ub3c4\ucfc4\uc758 \uc74c\uc2dd, \uc804\ub9dd, \ub3d9\ub124 \uacbd\ud5d8\uc744 \uade0\ud615 \uc788\uac8c \uc900\ube44\ud588\uc5b4\uc694.",
+        "es": "Comida, vistas y barrios con un ritmo claro.",
+        "fr": "Cuisine, vues et quartiers avec un rythme clair."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Toyosu sushi counter",
+        "category": "food",
+        "latitude": 35.6431,
+        "longitude": 139.7848,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=900&q=80",
+          "alt": "Fresh sushi at a Tokyo counter"
+        },
+        "advice": {
+          "en": "Order seasonal nigiri and confirm timing before approval.",
+          "ko": "\uc81c\ucca0 \ub2c8\uae30\ub9ac\ub97c \ucd94\ucc9c\ud558\uace0 \uc2dc\uac04\uc740 \uc2b9\uc778 \uc804 \ub2e4\uc2dc \ud655\uc778\ud569\ub2c8\ub2e4.",
+          "es": "Pide nigiri de temporada y confirma horarios antes de aprobar.",
+          "fr": "Prends des nigiri de saison et confirme l horaire avant approbation."
+        }
+      },
+      {
+        "name": "Shinjuku ramen lane",
+        "category": "food",
+        "latitude": 35.6938,
+        "longitude": 139.7034,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=80",
+          "alt": "Tokyo ramen bowl"
+        },
+        "advice": {
+          "en": "Use ramen as a late lunch or casual dinner after a busy area.",
+          "ko": "\ubc14\uc05c \ub3d9\uc120 \ud6c4 \ub77c\uba58\uc744 \ub290\uc2a8\ud55c \uc810\uc2ec\uc774\ub098 \uc800\ub141\uc73c\ub85c \uc5f0\uacb0\ud558\uc138\uc694.",
+          "es": "Buen almuerzo tarde o cena casual.",
+          "fr": "Bon dejeuner tardif ou diner simple."
+        }
+      },
+      {
+        "name": "Ginza dessert cafe",
+        "category": "food",
+        "latitude": 35.6717,
+        "longitude": 139.7649,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=80",
+          "alt": "Dessert cafe table"
+        },
+        "advice": {
+          "en": "A soft reset between shopping and evening views.",
+          "ko": "\uc1fc\ud551\uacfc \uc57c\uacbd \uc0ac\uc774\uc5d0 \uc26c\uc5b4\uac00\ub294 \ub514\uc800\ud2b8 \uc2a4\ud1b1\uc774\uc5d0\uc694.",
+          "es": "Descanso dulce entre compras y vistas nocturnas.",
+          "fr": "Pause sucree entre shopping et vue du soir."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Shibuya Sky",
+        "category": "attraction",
+        "latitude": 35.6585,
+        "longitude": 139.702,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=900&q=80",
+          "alt": "Shibuya crossing at night"
+        },
+        "advice": {
+          "en": "Book sunset timing for the strongest first Tokyo memory.",
+          "ko": "\ub178\uc744 \uc2dc\uac04\uc73c\ub85c \uc608\uc57d\ud558\uba74 \ub3c4\ucfc4\uc758 \uccab \uc778\uc0c1\uc774 \uac15\ud574\uc9d1\ub2c8\ub2e4.",
+          "es": "Reserva al atardecer para el mejor recuerdo inicial.",
+          "fr": "Reserve au coucher du soleil."
+        }
+      },
+      {
+        "name": "teamLab Planets",
+        "category": "attraction",
+        "latitude": 35.6491,
+        "longitude": 139.7898,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1558008258-3256797b43f3?auto=format&fit=crop&w=900&q=80",
+          "alt": "Immersive digital art lights"
+        },
+        "advice": {
+          "en": "A strong indoor anchor when weather changes.",
+          "ko": "\ub0a0\uc528\uac00 \ubc14\ub00c\uba74 \uac15\ub825\ud55c \uc2e4\ub0b4 \ud558\uc774\ub77c\uc774\ud2b8\uac00 \ub429\ub2c8\ub2e4.",
+          "es": "Gran opcion interior si cambia el clima.",
+          "fr": "Excellent plan interieur si la meteo change."
+        }
+      },
+      {
+        "name": "Asakusa and Senso-ji",
+        "category": "attraction",
+        "latitude": 35.7148,
+        "longitude": 139.7967,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=900&q=80",
+          "alt": "Senso-ji temple in Tokyo"
+        },
+        "advice": {
+          "en": "Pair the temple with street snacks and a slower morning.",
+          "ko": "\uc808, \uac04\uc2dd, \ucc9c\ucc9c\ud55c \uc624\uc804 \uc0b0\ucc45\uc73c\ub85c \uc5f0\uacb0\ud558\uc138\uc694.",
+          "es": "Combina templo, snacks y manana tranquila.",
+          "fr": "Combine temple, snacks et matinee calme."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Tokyo food, skyline and neighborhoods",
+          "ko": "\ub3c4\ucfc4 \ubbf8\uc2dd\uacfc \uc804\ub9dd \ucf54\uc2a4",
+          "es": "Tokio: comida, vistas y barrios",
+          "fr": "Tokyo: cuisine, vues et quartiers"
+        },
+        "purpose": {
+          "en": "A first Tokyo route with food, one visual highlight, and flexible indoor backup.",
+          "ko": "\uc74c\uc2dd, \uc804\ub9dd, \uc2e4\ub0b4 \ub300\uc548\uc744 \uac16\ucd98 \ub3c4\ucfc4 \uc77c\uc815\uc785\ub2c8\ub2e4.",
+          "es": "Ruta con comida, vista principal y plan interior.",
+          "fr": "Route avec cuisine, vue forte et option interieure."
+        },
+        "timeline": [
+          "Arrival",
+          "Toyosu sushi",
+          "Ginza walk",
+          "Shibuya Sky",
+          "Yakiniku dinner",
+          "Night view",
+          "Hotel"
+        ]
+      }
+    ]
+  },
+  "paris": {
+    "id": "paris",
+    "city": "Paris",
+    "country": "France",
+    "countryCode": "FR",
+    "currency": "EUR",
+    "continent": "Europe",
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "zoom": 12,
+    "aliases": [
+      "paris",
+      "paris",
+      "\ud30c\ub9ac",
+      "voyage a paris",
+      "viaje a paris"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=900&q=80",
+      "alt": "Eiffel Tower in Paris",
+      "line": {
+        "en": "Museums, river walks, patisserie, and a graceful evening.",
+        "ko": "\ubc15\ubb3c\uad00, \uc13c\uac15 \uc0b0\ucc45, \ub514\uc800\ud2b8, \uc800\ub141 \ubd84\uc704\uae30\ub97c \uade0\ud615 \uc788\uac8c \uc900\ube44\ud588\uc5b4\uc694.",
+        "es": "Museos, paseo por el Sena, pasteleria y una noche elegante.",
+        "fr": "Musees, Seine, patisserie et soiree elegante."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Saint-Germain bistro",
+        "category": "food",
+        "latitude": 48.8543,
+        "longitude": 2.333,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80",
+          "alt": "Paris bistro table"
+        },
+        "advice": {
+          "en": "Choose duck confit or steak frites and keep dinner unhurried.",
+          "ko": "\uc624\ub9ac \ucf69\ud53c\ub098 \uc2a4\ud14c\uc774\ud06c \ud504\ub9ac\ud2b8\ub97c \ucc9c\ucc9c\ud788 \uc990\uae30\uc138\uc694.",
+          "es": "Prueba confit de pato o steak frites sin prisa.",
+          "fr": "Essaie confit de canard ou steak frites."
+        }
+      },
+      {
+        "name": "Marais patisserie",
+        "category": "food",
+        "latitude": 48.859,
+        "longitude": 2.362,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80",
+          "alt": "French pastries"
+        },
+        "advice": {
+          "en": "Use this as the sweet stop between walking and museum time.",
+          "ko": "\uc0b0\ucc45\uacfc \ubc15\ubb3c\uad00 \uc0ac\uc774\uc758 \ub2ec\ucf64\ud55c \ud734\uc2dd\uc73c\ub85c \uc88b\uc544\uc694.",
+          "es": "Parada dulce entre paseo y museo.",
+          "fr": "Pause sucree entre promenade et musee."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Eiffel Tower and Champ de Mars",
+        "category": "attraction",
+        "latitude": 48.8584,
+        "longitude": 2.2945,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=900&q=80",
+          "alt": "Eiffel Tower from Champ de Mars"
+        },
+        "advice": {
+          "en": "Best near golden hour, then continue to the Seine.",
+          "ko": "\ub178\uc744 \uc2dc\uac04\uc5d0 \ubcf4\uace0 \uc13c\uac15\uc73c\ub85c \uc774\uc5b4\uac00\uc138\uc694.",
+          "es": "Mejor al atardecer y luego al Sena.",
+          "fr": "Ideal a l heure doree puis vers la Seine."
+        }
+      },
+      {
+        "name": "Musee d'Orsay",
+        "category": "attraction",
+        "latitude": 48.86,
+        "longitude": 2.3266,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1500048993953-d23a436266cf?auto=format&fit=crop&w=900&q=80",
+          "alt": "Paris museum gallery"
+        },
+        "advice": {
+          "en": "A stronger first museum than trying to overpack everything.",
+          "ko": "\ud558\ub8e8\uc5d0 \ub108\ubb34 \ub9ce\uc774 \ub123\uae30\ubcf4\ub2e4 \uc624\ub974\uc138 \ud558\ub098\uac00 \uc88b\uc544\uc694.",
+          "es": "Mejor un museo fuerte que sobrecargar el dia.",
+          "fr": "Un excellent premier musee sans surcharger."
+        }
+      },
+      {
+        "name": "Ile-de-France Seine walk",
+        "category": "attraction",
+        "latitude": 48.853,
+        "longitude": 2.3499,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=900&q=80",
+          "alt": "Seine river in Paris"
+        },
+        "advice": {
+          "en": "Use this as the connective tissue between food and landmarks.",
+          "ko": "\ub9db\uc9d1\uacfc \uba85\uc18c \uc0ac\uc774\ub97c \uc790\uc5f0\uc2a4\ub7fd\uac8c \uc774\uc5b4\uc90d\ub2c8\ub2e4.",
+          "es": "Une comida, monumentos y paseo de forma natural.",
+          "fr": "Le lien naturel entre repas et monuments."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Paris food, Seine and museum rhythm",
+          "ko": "\ud30c\ub9ac \ubbf8\uc2dd\uacfc \uc13c\uac15 \ucf54\uc2a4",
+          "es": "Paris: comida, Sena y museo",
+          "fr": "Paris: cuisine, Seine et musee"
+        },
+        "purpose": {
+          "en": "A clean Paris plan with one museum, one river moment, and memorable food.",
+          "ko": "\ubc15\ubb3c\uad00 \ud558\ub098, \uac15\ubcc0 \uc0b0\ucc45, \uae30\uc5b5\ub098\ub294 \uc2dd\uc0ac\ub97c \ub2f4\uc740 \uc77c\uc815\uc774\uc5d0\uc694.",
+          "es": "Plan con museo, rio y comida memorable.",
+          "fr": "Un plan avec musee, Seine et repas memorable."
+        },
+        "timeline": [
+          "Patisserie",
+          "Musee d'Orsay",
+          "Bistro lunch",
+          "Seine walk",
+          "Eiffel Tower",
+          "Saint-Germain dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "new_york": {
+    "id": "new_york",
+    "city": "New York City",
+    "country": "United States",
+    "countryCode": "US",
+    "currency": "USD",
+    "continent": "North America",
+    "latitude": 40.7128,
+    "longitude": -74.006,
+    "zoom": 12,
+    "aliases": [
+      "new york",
+      "nyc",
+      "nueva york",
+      "\ub274\uc695"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80",
+      "alt": "New York City preview",
+      "line": {
+        "en": "New York City highlights, local food, and a practical route.",
+        "ko": "New York City highlights, local food, and a practical route.",
+        "es": "New York City: lugares clave, comida local y ruta practica.",
+        "fr": "New York City: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Katz deli or pizza slice",
+        "category": "food",
+        "latitude": 40.7228,
+        "longitude": -73.996,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Statue of Liberty and Lower Manhattan",
+        "category": "attraction",
+        "latitude": 40.7128,
+        "longitude": -74.006,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80",
+          "alt": "New York City landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "New York City local highlights",
+          "ko": "New York City local highlights",
+          "es": "New York City: ruta local",
+          "fr": "New York City: route locale"
+        },
+        "purpose": {
+          "en": "A specific New York City preview that avoids blank results.",
+          "ko": "A specific New York City preview that avoids blank results.",
+          "es": "Vista previa concreta para New York City.",
+          "fr": "Apercu concret pour New York City."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "los_angeles": {
+    "id": "los_angeles",
+    "city": "Los Angeles",
+    "country": "United States",
+    "countryCode": "US",
+    "currency": "USD",
+    "continent": "North America",
+    "latitude": 34.0522,
+    "longitude": -118.2437,
+    "zoom": 12,
+    "aliases": [
+      "los angeles",
+      "la",
+      "\uc5d8\uc5d0\uc774"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?auto=format&fit=crop&w=900&q=80",
+      "alt": "Los Angeles preview",
+      "line": {
+        "en": "Los Angeles highlights, local food, and a practical route.",
+        "ko": "Los Angeles highlights, local food, and a practical route.",
+        "es": "Los Angeles: lugares clave, comida local y ruta practica.",
+        "fr": "Los Angeles: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Koreatown BBQ or taco stop",
+        "category": "food",
+        "latitude": 34.0622,
+        "longitude": -118.2337,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Griffith Observatory",
+        "category": "attraction",
+        "latitude": 34.0522,
+        "longitude": -118.2437,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?auto=format&fit=crop&w=900&q=80",
+          "alt": "Los Angeles landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Los Angeles local highlights",
+          "ko": "Los Angeles local highlights",
+          "es": "Los Angeles: ruta local",
+          "fr": "Los Angeles: route locale"
+        },
+        "purpose": {
+          "en": "A specific Los Angeles preview that avoids blank results.",
+          "ko": "A specific Los Angeles preview that avoids blank results.",
+          "es": "Vista previa concreta para Los Angeles.",
+          "fr": "Apercu concret pour Los Angeles."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "london": {
+    "id": "london",
+    "city": "London",
+    "country": "United Kingdom",
+    "countryCode": "GB",
+    "currency": "GBP",
+    "continent": "Europe",
+    "latitude": 51.5072,
+    "longitude": -0.1276,
+    "zoom": 12,
+    "aliases": [
+      "london",
+      "londres",
+      "\ub7f0\ub358"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80",
+      "alt": "London preview",
+      "line": {
+        "en": "London highlights, local food, and a practical route.",
+        "ko": "London highlights, local food, and a practical route.",
+        "es": "London: lugares clave, comida local y ruta practica.",
+        "fr": "London: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Soho dinner",
+        "category": "food",
+        "latitude": 51.517199999999995,
+        "longitude": -0.1176,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Westminster and South Bank",
+        "category": "attraction",
+        "latitude": 51.5072,
+        "longitude": -0.1276,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80",
+          "alt": "London landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "London local highlights",
+          "ko": "London local highlights",
+          "es": "London: ruta local",
+          "fr": "London: route locale"
+        },
+        "purpose": {
+          "en": "A specific London preview that avoids blank results.",
+          "ko": "A specific London preview that avoids blank results.",
+          "es": "Vista previa concreta para London.",
+          "fr": "Apercu concret pour London."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "seoul": {
+    "id": "seoul",
+    "city": "Seoul",
+    "country": "South Korea",
+    "countryCode": "KR",
+    "currency": "KRW",
+    "continent": "Asia",
+    "latitude": 37.5665,
+    "longitude": 126.978,
+    "zoom": 12,
+    "aliases": [
+      "seoul",
+      "soul",
+      "\uc11c\uc6b8"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1538485399081-7c8edb9c1759?auto=format&fit=crop&w=900&q=80",
+      "alt": "Seoul preview",
+      "line": {
+        "en": "Seoul highlights, local food, and a practical route.",
+        "ko": "Seoul highlights, local food, and a practical route.",
+        "es": "Seoul: lugares clave, comida local y ruta practica.",
+        "fr": "Seoul: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Han River ramyeon or Korean BBQ",
+        "category": "food",
+        "latitude": 37.576499999999996,
+        "longitude": 126.988,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Namsan and Ikseon-dong",
+        "category": "attraction",
+        "latitude": 37.5665,
+        "longitude": 126.978,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1538485399081-7c8edb9c1759?auto=format&fit=crop&w=900&q=80",
+          "alt": "Seoul landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Seoul local highlights",
+          "ko": "Seoul local highlights",
+          "es": "Seoul: ruta local",
+          "fr": "Seoul: route locale"
+        },
+        "purpose": {
+          "en": "A specific Seoul preview that avoids blank results.",
+          "ko": "A specific Seoul preview that avoids blank results.",
+          "es": "Vista previa concreta para Seoul.",
+          "fr": "Apercu concret pour Seoul."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "bangkok": {
+    "id": "bangkok",
+    "city": "Bangkok",
+    "country": "Thailand",
+    "countryCode": "TH",
+    "currency": "THB",
+    "continent": "Asia",
+    "latitude": 13.7563,
+    "longitude": 100.5018,
+    "zoom": 12,
+    "aliases": [
+      "bangkok",
+      "\ubc29\ucf55"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=900&q=80",
+      "alt": "Bangkok preview",
+      "line": {
+        "en": "Bangkok highlights, local food, and a practical route.",
+        "ko": "Bangkok highlights, local food, and a practical route.",
+        "es": "Bangkok: lugares clave, comida local y ruta practica.",
+        "fr": "Bangkok: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Thai street food dinner",
+        "category": "food",
+        "latitude": 13.7663,
+        "longitude": 100.51180000000001,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Grand Palace",
+        "category": "attraction",
+        "latitude": 13.7563,
+        "longitude": 100.5018,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=900&q=80",
+          "alt": "Bangkok landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Bangkok local highlights",
+          "ko": "Bangkok local highlights",
+          "es": "Bangkok: ruta local",
+          "fr": "Bangkok: route locale"
+        },
+        "purpose": {
+          "en": "A specific Bangkok preview that avoids blank results.",
+          "ko": "A specific Bangkok preview that avoids blank results.",
+          "es": "Vista previa concreta para Bangkok.",
+          "fr": "Apercu concret pour Bangkok."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "singapore": {
+    "id": "singapore",
+    "city": "Singapore",
+    "country": "Singapore",
+    "countryCode": "SG",
+    "currency": "SGD",
+    "continent": "Asia",
+    "latitude": 1.3521,
+    "longitude": 103.8198,
+    "zoom": 12,
+    "aliases": [
+      "singapore",
+      "singapur",
+      "\uc2f1\uac00\ud3ec\ub974"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=900&q=80",
+      "alt": "Singapore preview",
+      "line": {
+        "en": "Singapore highlights, local food, and a practical route.",
+        "ko": "Singapore highlights, local food, and a practical route.",
+        "es": "Singapore: lugares clave, comida local y ruta practica.",
+        "fr": "Singapore: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Maxwell hawker lunch",
+        "category": "food",
+        "latitude": 1.3621,
+        "longitude": 103.8298,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Gardens by the Bay",
+        "category": "attraction",
+        "latitude": 1.3521,
+        "longitude": 103.8198,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=900&q=80",
+          "alt": "Singapore landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Singapore local highlights",
+          "ko": "Singapore local highlights",
+          "es": "Singapore: ruta local",
+          "fr": "Singapore: route locale"
+        },
+        "purpose": {
+          "en": "A specific Singapore preview that avoids blank results.",
+          "ko": "A specific Singapore preview that avoids blank results.",
+          "es": "Vista previa concreta para Singapore.",
+          "fr": "Apercu concret pour Singapore."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "rome": {
+    "id": "rome",
+    "city": "Rome",
+    "country": "Italy",
+    "countryCode": "IT",
+    "currency": "EUR",
+    "continent": "Europe",
+    "latitude": 41.9028,
+    "longitude": 12.4964,
+    "zoom": 12,
+    "aliases": [
+      "rome",
+      "roma",
+      "\ub85c\ub9c8"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=900&q=80",
+      "alt": "Rome preview",
+      "line": {
+        "en": "Rome highlights, local food, and a practical route.",
+        "ko": "Rome highlights, local food, and a practical route.",
+        "es": "Rome: lugares clave, comida local y ruta practica.",
+        "fr": "Rome: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Trastevere trattoria",
+        "category": "food",
+        "latitude": 41.9128,
+        "longitude": 12.5064,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Colosseum",
+        "category": "attraction",
+        "latitude": 41.9028,
+        "longitude": 12.4964,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Rome landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Rome local highlights",
+          "ko": "Rome local highlights",
+          "es": "Rome: ruta local",
+          "fr": "Rome: route locale"
+        },
+        "purpose": {
+          "en": "A specific Rome preview that avoids blank results.",
+          "ko": "A specific Rome preview that avoids blank results.",
+          "es": "Vista previa concreta para Rome.",
+          "fr": "Apercu concret pour Rome."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "barcelona": {
+    "id": "barcelona",
+    "city": "Barcelona",
+    "country": "Spain",
+    "countryCode": "ES",
+    "currency": "EUR",
+    "continent": "Europe",
+    "latitude": 41.3874,
+    "longitude": 2.1686,
+    "zoom": 12,
+    "aliases": [
+      "barcelona",
+      "\ubc14\ub974\uc140\ub85c\ub098"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=900&q=80",
+      "alt": "Barcelona preview",
+      "line": {
+        "en": "Barcelona highlights, local food, and a practical route.",
+        "ko": "Barcelona highlights, local food, and a practical route.",
+        "es": "Barcelona: lugares clave, comida local y ruta practica.",
+        "fr": "Barcelona: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Tapas in El Born",
+        "category": "food",
+        "latitude": 41.3974,
+        "longitude": 2.1786,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Sagrada Familia",
+        "category": "attraction",
+        "latitude": 41.3874,
+        "longitude": 2.1686,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=900&q=80",
+          "alt": "Barcelona landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Barcelona local highlights",
+          "ko": "Barcelona local highlights",
+          "es": "Barcelona: ruta local",
+          "fr": "Barcelona: route locale"
+        },
+        "purpose": {
+          "en": "A specific Barcelona preview that avoids blank results.",
+          "ko": "A specific Barcelona preview that avoids blank results.",
+          "es": "Vista previa concreta para Barcelona.",
+          "fr": "Apercu concret pour Barcelona."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
+  },
+  "sydney": {
+    "id": "sydney",
+    "city": "Sydney",
+    "country": "Australia",
+    "countryCode": "AU",
+    "currency": "AUD",
+    "continent": "Oceania",
+    "latitude": -33.8688,
+    "longitude": 151.2093,
+    "zoom": 12,
+    "aliases": [
+      "sydney",
+      "\uc2dc\ub4dc\ub2c8"
+    ],
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=900&q=80",
+      "alt": "Sydney preview",
+      "line": {
+        "en": "Sydney highlights, local food, and a practical route.",
+        "ko": "Sydney highlights, local food, and a practical route.",
+        "es": "Sydney: lugares clave, comida local y ruta practica.",
+        "fr": "Sydney: lieux cles, cuisine locale et route pratique."
+      }
+    },
+    "restaurants": [
+      {
+        "name": "Harbour seafood lunch",
+        "category": "food",
+        "latitude": -33.8588,
+        "longitude": 151.2193,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
+          "alt": "Local restaurant table"
+        },
+        "advice": {
+          "en": "Choose the signature local dish and keep one flexible backup nearby.",
+          "ko": "Choose the signature local dish and keep one flexible backup nearby.",
+          "es": "Elige el plato local y deja una alternativa cerca.",
+          "fr": "Choisis le plat local et garde une option proche."
+        }
+      }
+    ],
+    "places": [
+      {
+        "name": "Sydney Opera House",
+        "category": "attraction",
+        "latitude": -33.8688,
+        "longitude": 151.2093,
+        "image": {
+          "url": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=900&q=80",
+          "alt": "Sydney landmark"
+        },
+        "advice": {
+          "en": "Make this the anchor stop, then build food and rest around it.",
+          "ko": "Make this the anchor stop, then build food and rest around it.",
+          "es": "Usa este lugar como punto central.",
+          "fr": "Utilise ce lieu comme point central."
+        }
+      }
+    ],
+    "journeys": [
+      {
+        "name": {
+          "en": "Sydney local highlights",
+          "ko": "Sydney local highlights",
+          "es": "Sydney: ruta local",
+          "fr": "Sydney: route locale"
+        },
+        "purpose": {
+          "en": "A specific Sydney preview that avoids blank results.",
+          "ko": "A specific Sydney preview that avoids blank results.",
+          "es": "Vista previa concreta para Sydney.",
+          "fr": "Apercu concret pour Sydney."
+        },
+        "timeline": [
+          "Arrival",
+          "Local lunch",
+          "Main landmark",
+          "Cafe break",
+          "Neighborhood walk",
+          "Dinner",
+          "Return"
+        ]
+      }
+    ]
   }
-}));
-
-const baseProfiles = {
-  tokyo: {
-    city: "Tokyo", country: "Japan", countryCode: "JP", currency: "JPY", continent: "Asia", latitude: 35.6762, longitude: 139.6503,
-    aliases: ["tokyo", "tokio", "도쿄", "東京", "東京都", "japan", "japon", "japón", "japonia", "일본"],
-    hero: { icon: "torii", className: "is-japan", line: ["City lights, food alleys, quiet rituals.", "도시의 불빛, 골목 맛집, 조용한 순간.", "Luces, comida y momentos tranquilos."] },
-    journeys: [
-      ["Tokyo food, skyline and neighborhoods", "도쿄 미식·전망·동네 산책", "Tokio: comida, vistas y barrios", "Shibuya, Tsukiji/Toyosu, teamLab, Ginza, and a night view with realistic pacing.", "시부야, 츠키지/도요스, 팀랩, 긴자, 야경을 무리 없이 묶은 구성입니다.", ["Shibuya Sky", "Tsukiji sushi", "teamLab", "Ginza"]],
-      ["Classic Tokyo first trip", "처음 가는 도쿄 핵심", "Tokio esencial", "Asakusa, Harajuku, Akihabara, ramen, cafes, and one indoor backup.", "아사쿠사, 하라주쿠, 아키하바라, 라멘, 카페, 실내 대안을 함께 둡니다.", ["Asakusa", "Harajuku", "Akihabara", "Ramen"]],
-      ["Tokyo plus a day escape", "도쿄와 하루 근교", "Tokio con escapada", "Keeps Tokyo easy but adds Hakone, Kamakura, or Yokohama when there is enough time.", "도쿄 동선은 편하게 두고 기간이 충분하면 하코네·가마쿠라·요코하마를 더합니다.", ["Hakone", "Kamakura", "Yokohama", "Onsen"]],
-      ["Anime, shopping and late cafes", "애니·쇼핑·늦은 카페", "Anime, compras y cafes", "Akihabara, Nakano, Shinjuku, Harajuku, character cafes, and night snacks.", "아키하바라, 나카노, 신주쿠, 하라주쿠, 캐릭터 카페와 야식을 엮습니다.", ["Akihabara", "Nakano", "Shinjuku", "Cafe"]]
-    ],
-    restaurants: ["Tsukiji / Toyosu sushi counter", "Tokyo ramen alley", "Wagyu yakiniku table", "Uji matcha dessert stop", "Kissaten coffee break", "Ekiben train lunch"],
-    places: ["Shibuya Sky and Scramble Crossing", "teamLab Planets / Borderless", "Asakusa Senso-ji and Nakamise", "Ginza / Harajuku shopping route", "Akihabara retro arcade", "Hakone onsen and Mt. Fuji view", "Sunshine Aquarium", "Tokyo Tower night view"]
-  },
-  newyork: {
-    city: "New York City", country: "United States", countryCode: "US", currency: "USD", continent: "North America", latitude: 40.7128, longitude: -74.006,
-    aliases: ["new york", "new york city", "nyc", "nueva york", "뉴욕"],
-    hero: { icon: "liberty", className: "is-nyc", line: ["Skyline, food, Broadway, neighborhoods.", "스카이라인, 음식, 브로드웨이, 동네 감성.", "Skyline, comida, Broadway y barrios."] },
-    journeys: [
-      ["NYC first-timer essentials", "뉴욕 핵심 일정", "Nueva York esencial", "Manhattan icons, Brooklyn, food, shopping, and night views without rushing.", "맨해튼 대표 명소, 브루클린, 음식, 쇼핑, 야경을 날마다 나눕니다.", ["Statue of Liberty", "Broadway", "Central Park", "Brooklyn"]],
-      ["Broadway, museums and skyline", "브로드웨이·미술관·전망", "Broadway, museos y vistas", "Culture, indoor options, and skyline moments with clean routes.", "공연, 미술관, 실내 대안, 전망대를 차분히 즐깁니다.", ["Broadway", "MoMA", "The Met", "Top of the Rock"]],
-      ["Shopping and food New York", "쇼핑과 맛집 뉴욕", "Compras y comida", "SoHo, Fifth Avenue, Chelsea Market, bakeries, steak, pizza, and outlet time.", "소호, 5번가, 첼시마켓, 베이커리, 스테이크, 피자, 아울렛 선택지를 둡니다.", ["SoHo", "Macy's", "Chelsea Market", "Woodbury"]],
-      ["Brooklyn and local neighborhoods", "브루클린과 로컬 동네", "Brooklyn y barrios", "More parks, cafes, photos, and less checklist pressure.", "체크리스트보다 동네 산책, 사진, 공원, 카페 시간을 살립니다.", ["DUMBO", "High Line", "Village", "Cafes"]]
-    ],
-    restaurants: ["Russ & Daughters", "Katz's Delicatessen", "Joe's Pizza", "Los Tacos No. 1", "Levain Bakery", "Keens Steakhouse"],
-    places: ["Statue of Liberty and Ellis Island", "Central Park", "Brooklyn Bridge and DUMBO", "Broadway or Times Square", "Top of the Rock / Empire State", "Fifth Avenue and Macy's Herald Square", "B&H Photo Video", "Chelsea Market"]
-  },
-  losangeles: { city: "Los Angeles", country: "United States", countryCode: "US", currency: "USD", continent: "North America", latitude: 34.0522, longitude: -118.2437, aliases: ["los angeles", "la", "l a", "로스앤젤레스"], places: ["Griffith Observatory", "Santa Monica Pier", "The Getty Center", "Hollywood Bowl", "Grand Central Market", "Abbot Kinney"], restaurants: ["Grand Central Market", "Koreatown BBQ", "In-N-Out route stop", "Urth Caffe", "Arts District dinner", "Taco truck stop"] },
-  paris: { city: "Paris", country: "France", countryCode: "FR", currency: "EUR", continent: "Europe", latitude: 48.8566, longitude: 2.3522, aliases: ["paris", "parís", "파리"], places: ["Eiffel Tower and Trocadero", "Louvre Museum", "Le Marais", "Montmartre", "Seine river walk", "Galeries Lafayette rooftop"], restaurants: ["Boulangerie breakfast", "Bistro steak frites", "Crepe stop", "Le Marais falafel", "Saint-Germain cafe", "Patisserie dessert route"] },
-  london: { city: "London", country: "United Kingdom", countryCode: "GB", currency: "GBP", continent: "Europe", latitude: 51.5074, longitude: -0.1278, aliases: ["london", "londres", "런던"], places: ["Tower Bridge", "British Museum", "West End show", "Borough Market", "Notting Hill", "Sky Garden"], restaurants: ["Borough Market lunch", "Sunday roast", "Dishoom-style curry", "Afternoon tea", "Soho small plates", "Brick Lane bites"] },
-  seoul: { city: "Seoul", country: "South Korea", countryCode: "KR", currency: "KRW", continent: "Asia", latitude: 37.5665, longitude: 126.978, aliases: ["seoul", "서울", "seúl"], places: ["Seoul Forest", "Han River ramen picnic", "Ikseon-dong", "Namsan Seoul Tower", "COEX Starfield Library", "Seongsu cafe street"], restaurants: ["Han River ramyeon", "Korean BBQ", "Gwangjang Market bindaetteok", "Seongsu dessert cafe", "Makgeolli and jeon", "Myeongdong street food"] },
-  bangkok: { city: "Bangkok", country: "Thailand", countryCode: "TH", currency: "THB", continent: "Asia", latitude: 13.7563, longitude: 100.5018, aliases: ["bangkok", "방콕"], places: ["Grand Palace", "Wat Arun sunset", "Chatuchak Market", "ICONSIAM riverfront", "Chinatown Yaowarat", "Thai massage stop"], restaurants: ["Pad Thai stop", "Boat noodles", "Mango sticky rice", "Yaowarat street food", "Thai iced tea cafe", "Riverside dinner"] },
-  singapore: { city: "Singapore", country: "Singapore", countryCode: "SG", currency: "SGD", continent: "Asia", latitude: 1.3521, longitude: 103.8198, aliases: ["singapore", "singapur", "싱가포르"], places: ["Gardens by the Bay", "Marina Bay Sands", "Jewel Changi", "Sentosa", "Haji Lane", "National Gallery Singapore"], restaurants: ["Hawker chicken rice", "Laksa stop", "Chili crab dinner", "Kaya toast breakfast", "Satay by the Bay", "Tiong Bahru cafe"] },
-  rome: { city: "Rome", country: "Italy", countryCode: "IT", currency: "EUR", continent: "Europe", latitude: 41.9028, longitude: 12.4964, aliases: ["rome", "roma", "로마"], places: ["Colosseum", "Roman Forum", "Trevi Fountain", "Vatican Museums", "Trastevere", "Spanish Steps"], restaurants: ["Carbonara trattoria", "Suppli snack", "Gelato stop", "Cacio e pepe dinner", "Espresso bar", "Trastevere aperitivo"] },
-  barcelona: { city: "Barcelona", country: "Spain", countryCode: "ES", currency: "EUR", continent: "Europe", latitude: 41.3874, longitude: 2.1686, aliases: ["barcelona", "바르셀로나"], places: ["Sagrada Familia", "Park Guell", "Gothic Quarter", "La Boqueria", "Casa Batllo", "Barceloneta"], restaurants: ["Tapas crawl", "Paella by the beach", "Churros and chocolate", "Boqueria market lunch", "Catalan seafood", "Vermouth bar"] },
-  sydney: { city: "Sydney", country: "Australia", countryCode: "AU", currency: "AUD", continent: "Oceania", latitude: -33.8688, longitude: 151.2093, aliases: ["sydney", "시드니"], places: ["Sydney Opera House", "Harbour Bridge", "Bondi to Coogee walk", "The Rocks", "Manly ferry", "Darling Harbour"], restaurants: ["Harbour brunch", "Fish and chips by Bondi", "Asian fusion dinner", "Flat white cafe", "Seafood market", "Rooftop bar"] }
 };
 
-const enrichProfile = (id, profile) => Object.freeze({
-  id,
-  ...profile,
-  hero: profile.hero || { icon: "star", className: "is-global", line: ["Local highlights, food, and simple movement.", "현지 하이라이트, 음식, 쉬운 동선.", "Lugares locales, comida y ruta simple."] },
-  journeys: profile.journeys || [
-    [`${profile.city} essentials`, `${profile.city} 핵심 일정`, `${profile.city} esencial`, `A balanced route through ${profile.city}'s most useful first-visit highlights.`, `${profile.city}의 첫 방문 핵심을 무리 없이 묶은 구성입니다.`, profile.places.slice(0, 4)],
-    [`Food and neighborhoods in ${profile.city}`, `${profile.city} 맛집과 동네`, `Comida y barrios en ${profile.city}`, `Food, cafes, walking areas, and one flexible evening plan.`, `음식, 카페, 산책 구역과 저녁 선택지를 둡니다.`, profile.restaurants.slice(0, 4)],
-    [`Culture and views in ${profile.city}`, `${profile.city} 문화와 전망`, `Cultura y vistas en ${profile.city}`, `Indoor culture, skyline moments, and weather-safe pacing.`, `실내 문화, 전망 포인트, 날씨 대안을 함께 둡니다.`, profile.places.slice(1, 5)],
-    [`Slow local ${profile.city}`, `천천히 즐기는 ${profile.city}`, `${profile.city} local y tranquilo`, `A lighter route with fewer transfers and more time to enjoy each stop.`, `이동을 줄이고 각 장소를 더 여유 있게 즐기는 구성입니다.`, profile.places.slice(2, 6)]
-  ],
-  restaurants: asRichItems(profile.restaurants, profile.city, "restaurant"),
-  places: asRichItems(profile.places, profile.city, "place")
-});
-
-export const PREVIEW_DESTINATION_PROFILES = Object.freeze(Object.fromEntries(
-  Object.entries(baseProfiles).map(([id, profile]) => [id, enrichProfile(id, profile)])
-));
-
-export const previewTravelIntent = (mission = "") => /travel|trip|vacation|holiday|honeymoon|flight|hotel|airport|tour|visit|journey|viaje|viajar|vacaciones|vuelo|aeropuerto|turismo|voyage|voyager|vacances|sejour|séjour|vol|aeroport|aéroport|tourisme|여행|항공|호텔|공항|관광/i.test(String(mission || ""));
-
-export const resolvePreviewDestination = (value = "") => {
-  const text = normalizeText(value);
-  if (!text) return null;
-  return Object.values(PREVIEW_DESTINATION_PROFILES).find((profile) => profile.aliases.some((alias) => text.includes(normalizeText(alias)))) || null;
-};
-
-export const canonicalDestinationKey = (candidate = {}) => {
-  const combined = [candidate.id, candidate.city, candidate.state, candidate.country, candidate.countryCode || candidate.code, candidate.description].filter(Boolean).join(" ");
-  const profile = resolvePreviewDestination(combined);
-  if (profile) return profile.id;
-  const country = String(candidate.countryCode || candidate.code || candidate.country || "").toUpperCase();
-  const city = normalizeText(candidate.city || candidate.name || candidate.displayName || "");
-  const lat = Number(candidate.latitude);
-  const lng = Number(candidate.longitude);
-  const geo = Number.isFinite(lat) && Number.isFinite(lng) ? `${lat.toFixed(1)},${lng.toFixed(1)}` : "";
-  return [country, city, geo].filter(Boolean).join("|") || normalizeText(combined);
-};
-
-export const dedupePreviewDestinations = (candidates = []) => {
-  const map = new Map();
-  candidates.filter(Boolean).forEach((candidate) => {
-    const key = canonicalDestinationKey(candidate);
-    if (!key) return;
-    const existing = map.get(key);
-    const score = Number(Boolean(candidate.city)) + Number(Boolean(candidate.countryCode || candidate.code)) + Number(Boolean(candidate.latitude && candidate.longitude));
-    const existingScore = Number(Boolean(existing?.city)) + Number(Boolean(existing?.countryCode || existing?.code)) + Number(Boolean(existing?.latitude && existing?.longitude));
-    map.set(key, existing && existingScore >= score ? existing : candidate);
+const normalize = (value = "") => String(value).toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+const travelWords = ["trip", "travel", "journey", "vacation", "holiday", "\uc5ec\ud589", "\ub370\uc774\ud2b8", "viaje", "voyage", "reise", "viaggio", "viagem", "\u65c5\u884c"];
+export function previewTravelIntent(input = "") {
+  const raw = String(input || "");
+  const normalized = normalize(raw);
+  if (travelWords.some((word) => raw.toLowerCase().includes(word.toLowerCase()) || normalized.includes(normalize(word)))) return true;
+  return Object.values(PREVIEW_DESTINATION_PROFILES).some((profile) => profile.aliases.some((alias) => normalized.includes(normalize(alias))));
+}
+export function resolvePreviewDestination(input = "") {
+  const raw = String(input || "");
+  const normalized = normalize(raw);
+  const matches = Object.values(PREVIEW_DESTINATION_PROFILES).map((profile) => {
+    const alias = profile.aliases.find((candidate) => normalized.includes(normalize(candidate)) || raw.includes(candidate));
+    if (!alias) return null;
+    const specificity = normalize(alias).split(" ").filter(Boolean).length;
+    return { profile, alias, confidence: Math.min(99, 88 + specificity * 4) };
+  }).filter(Boolean).sort((a, b) => b.confidence - a.confidence || b.alias.length - a.alias.length);
+  return matches[0] || null;
+}
+export function profileForResult(result = {}, destination = {}) {
+  const direct = result?.previewDestination || result?.detectedDestination || destination;
+  const key = canonicalDestinationKey(direct?.id || direct?.city || direct?.name || result?.destinationName || result?.title || "");
+  if (key && PREVIEW_DESTINATION_PROFILES[key]) return PREVIEW_DESTINATION_PROFILES[key];
+  const fromText = resolvePreviewDestination([result?.mission, result?.query, result?.goal, result?.title, destination?.city, destination?.country].filter(Boolean).join(" "));
+  return fromText?.profile || null;
+}
+export function canonicalDestinationKey(value = "") {
+  const normalized = normalize(value);
+  if (!normalized) return "";
+  for (const [key, profile] of Object.entries(PREVIEW_DESTINATION_PROFILES)) {
+    if (normalize(profile.id) === normalized || normalize(profile.city) === normalized || profile.aliases.some((alias) => normalize(alias) === normalized || normalized.includes(normalize(alias)))) return key;
+  }
+  return normalized.replace(/\s+/g, "_");
+}
+export function dedupePreviewDestinations(destinations = []) {
+  const seen = new Set();
+  return destinations.filter((destination) => {
+    const key = canonicalDestinationKey(destination?.id || destination?.city || destination?.name || destination?.country || "");
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
-  return [...map.values()];
-};
-
-export const profileForResult = (result = {}, fallbackDestination = "") => resolvePreviewDestination([
-  result.destination?.city,
-  result.destination?.country,
-  result.countryProfile?.capital,
-  result.countryProfile?.name,
-  result.rawInput,
-  result.mission,
-  fallbackDestination
-].filter(Boolean).join(" "));
-
-export const previewItemAdvice = (item = {}, language = "en") => {
-  if (item.advice) return localized(language, item.advice.en, item.advice.ko, item.advice.es);
-  return "";
-};
-
-export const mapTileUrlForProfile = (profile) => {
+}
+export function localizedProfileText(value, language = "en") {
+  if (!value || typeof value !== "object") return value || "";
+  return value[language] || value.en || value.ko || value.es || value.fr || "";
+}
+export function previewItemAdvice(item = {}, language = "en") {
+  return localizedProfileText(item.advice, language) || "Prepared as a destination-specific preview item.";
+}
+export function previewItemImage(item = {}) { return item?.image?.url ? item.image : null; }
+export function osmEmbedUrlForProfile(profile) {
   if (!profile?.latitude || !profile?.longitude) return "";
-  const zoom = 11;
-  const latRad = profile.latitude * Math.PI / 180;
-  const n = 2 ** zoom;
-  const x = Math.floor((profile.longitude + 180) / 360 * n);
-  const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
-  return `https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
-};
-
-export const buildPreviewMapMarkers = (profile, places = [], restaurants = []) => {
-  const source = [...(places || []), ...(restaurants || [])].slice(0, 8);
-  return source.map((item, index) => ({
-    label: item.name || profile?.city || "Destination",
-    category: index < places.length ? "place" : "food",
-    left: [47, 58, 38, 65, 52, 43, 70, 31][index % 8],
-    top: [42, 48, 55, 35, 62, 33, 56, 45][index % 8]
-  }));
-};
+  const lat = Number(profile.latitude); const lon = Number(profile.longitude); const delta = 0.055;
+  const bbox = [lon - delta, lat - delta, lon + delta, lat + delta].map((value) => value.toFixed(5)).join("%2C");
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat.toFixed(5)}%2C${lon.toFixed(5)}`;
+}
+export function mapTileUrlForProfile(profile) { return osmEmbedUrlForProfile(profile); }
+export function buildPreviewMapMarkers(profile) {
+  if (!profile) return [];
+  const points = [...(profile.restaurants || []), ...(profile.places || [])].filter((point) => Number.isFinite(Number(point.latitude)) && Number.isFinite(Number(point.longitude)));
+  return points.slice(0, 10).map((point, index) => {
+    const x = Math.max(8, Math.min(92, 50 + (Number(point.longitude) - Number(profile.longitude)) * 700));
+    const y = Math.max(10, Math.min(90, 50 - (Number(point.latitude) - Number(profile.latitude)) * 700));
+    return {
+      id: `${profile.id}-${index}`,
+      name: point.name,
+      label: point.name,
+      category: point.category,
+      type: point.category === "food" ? "food" : "place",
+      latitude: Number(point.latitude),
+      longitude: Number(point.longitude),
+      x: Number(x.toFixed(2)),
+      y: Number(y.toFixed(2)),
+      left: `${x.toFixed(2)}%`,
+      top: `${y.toFixed(2)}%`
+    };
+  });
+}

@@ -1,13 +1,13 @@
-﻿import { trackEvent } from "../analytics.js";
+import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
 import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-mobile-country-fallback-1";
+import { dedupePreviewDestinations, previewTravelIntent, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-repair";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
-import { dedupePreviewDestinations, previewTravelIntent, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-qa";
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260730-investor-demo-mode";
 
 const root = document.documentElement;
@@ -134,9 +134,9 @@ const translations = {
     endDate: "End date",
     timePreference: "Time preference",
     anyTime: "Any time / No preference",
-    morning: "Morning Â· 06:00â€“12:00",
-    afternoon: "Afternoon Â· 12:00â€“17:00",
-    evening: "Evening Â· 17:00â€“22:00",
+    morning: "Morning · 06:00–12:00",
+    afternoon: "Afternoon · 12:00–17:00",
+    evening: "Evening · 17:00–22:00",
     travelerCount: "Travelers",
     roomCount: "Rooms",
     departureAirport: "Departure airport",
@@ -164,7 +164,7 @@ const translations = {
     },
     languages: {
       en: "English",
-      ko: "í•œêµ­ì–´"
+      ko: "한국어"
     },
     missions: [
       "Plan my Japan trip.",
@@ -186,76 +186,76 @@ const translations = {
     ]
   },
   ko: {
-    description: "Kastiz ONEì€ í˜„ì‹¤ì˜ ë¯¸ì…˜ì„ ì™„ì„±í•©ë‹ˆë‹¤.",
-    siteNavigation: "Kastiz ONE ë‚´ë¹„ê²Œì´ì…˜",
-    preferences: "ì„¤ì •",
-    themeLabel: "í…Œë§ˆ",
-    languageLabel: "ì–¸ì–´",
-    account: "ê³„ì •",
-    upgrade: "ì—…ê·¸ë ˆì´ë“œ",
-    login: "ë¡œê·¸ì¸",
-    loginWelcome: "Kastiz ONEì— ì˜¤ì‹  ê²ƒì„ í™˜ì˜í•©ë‹ˆë‹¤",
-    loginComingSoon: "ê³„ì • ê¸°ëŠ¥ì€ ê³§ ì œê³µë©ë‹ˆë‹¤.",
-    loginPriority: "ì´ˆê¸° ì‚¬ìš©ìžì—ê²Œ ìš°ì„  ì´ìš© ê¸°íšŒë¥¼ ë“œë¦½ë‹ˆë‹¤.",
-    joinEarlyAccess: "ì–¼ë¦¬ ì•¡ì„¸ìŠ¤ ì°¸ì—¬",
-    requestInvitation: "ì´ˆëŒ€ ìš”ì²­",
-    contactSupport: "ê³ ê° ì§€ì› ë¬¸ì˜",
-    notifyMe: "ì•Œë¦¼ ì‹ ì²­",
-    notifyConfirmed: "ìš°ì„  ì•Œë¦¼ ëª©ë¡ì— ë“±ë¡ë˜ì—ˆìŠµë‹ˆë‹¤.",
-    scheduleTitle: "ë‚ ì§œì™€ ì‹œê°„ì„ ì„ íƒí•˜ì„¸ìš”",
-    scheduleHelp: "í•„ìš”í•œ ë‚ ì§œ ë²”ìœ„ë¥¼ ì„ íƒí•˜ì„¸ìš”. ì‹œê°„ì€ ì„ íƒ ì‚¬í•­ìž…ë‹ˆë‹¤.",
-    startDate: "ì‹œìž‘ ë‚ ì§œ",
-    endDate: "ì¢…ë£Œ ë‚ ì§œ",
-    timePreference: "ì„ í˜¸ ì‹œê°„",
-    anyTime: "ì‹œê°„ ë¬´ê´€ / ì„ í˜¸ ì—†ìŒ",
-    morning: "ì˜¤ì „ Â· 06:00â€“12:00",
-    afternoon: "ì˜¤í›„ Â· 12:00â€“17:00",
-    evening: "ì €ë… Â· 17:00â€“22:00",
-    travelerCount: "ì—¬í–‰ ì¸ì›",
-    roomCount: "ê°ì‹¤ ìˆ˜",
-    departureAirport: "ì¶œë°œ ê³µí•­",
-    confirmSchedule: "í™•ì¸ í›„ ê³„ì†",
-    searchLabel: "ë¯¸ì…˜ ìž…ë ¥",
-    searchDefault: "ì¼ë³¸ ì—¬í–‰ ê³„íší•´ì¤˜",
-    missionTools: "ë¯¸ì…˜ ë„êµ¬",
-    microphone: "ë§ˆì´í¬ ì‚¬ìš©",
-    uploadImage: "ì´ë¯¸ì§€ ì—…ë¡œë“œ",
-    aiPowered: "AI ê¸°ë°˜",
-    startMission: "ë¯¸ì…˜ ì‹œìž‘",
-    footer: "í‘¸í„°",
-    partners: "íŒŒíŠ¸ë„ˆ",
-    business: "ë¹„ì¦ˆë‹ˆìŠ¤",
-    developers: "ê°œë°œìž",
-    poweredBy: "Kastiz ì œê³µ",
-    privacy: "ê°œì¸ì •ë³´",
-    terms: "ì•½ê´€",
-    settings: "ì„¤ì •",
-    unknownLocation: "ì•Œ ìˆ˜ ì—†ëŠ” ìœ„ì¹˜",
+    description: "Kastiz ONE은 현실의 미션을 완성합니다.",
+    siteNavigation: "Kastiz ONE 내비게이션",
+    preferences: "설정",
+    themeLabel: "테마",
+    languageLabel: "언어",
+    account: "계정",
+    upgrade: "업그레이드",
+    login: "로그인",
+    loginWelcome: "Kastiz ONE에 오신 것을 환영합니다",
+    loginComingSoon: "계정 기능은 곧 제공됩니다.",
+    loginPriority: "초기 사용자에게 우선 이용 기회를 드립니다.",
+    joinEarlyAccess: "얼리 액세스 참여",
+    requestInvitation: "초대 요청",
+    contactSupport: "고객 지원 문의",
+    notifyMe: "알림 신청",
+    notifyConfirmed: "우선 알림 목록에 등록되었습니다.",
+    scheduleTitle: "날짜와 시간을 선택하세요",
+    scheduleHelp: "필요한 날짜 범위를 선택하세요. 시간은 선택 사항입니다.",
+    startDate: "시작 날짜",
+    endDate: "종료 날짜",
+    timePreference: "선호 시간",
+    anyTime: "시간 무관 / 선호 없음",
+    morning: "오전 · 06:00–12:00",
+    afternoon: "오후 · 12:00–17:00",
+    evening: "저녁 · 17:00–22:00",
+    travelerCount: "여행 인원",
+    roomCount: "객실 수",
+    departureAirport: "출발 공항",
+    confirmSchedule: "확인 후 계속",
+    searchLabel: "미션 입력",
+    searchDefault: "일본 여행 계획해줘",
+    missionTools: "미션 도구",
+    microphone: "마이크 사용",
+    uploadImage: "이미지 업로드",
+    aiPowered: "AI 기반",
+    startMission: "미션 시작",
+    footer: "푸터",
+    partners: "파트너",
+    business: "비즈니스",
+    developers: "개발자",
+    poweredBy: "Kastiz 제공",
+    privacy: "개인정보",
+    terms: "약관",
+    settings: "설정",
+    unknownLocation: "알 수 없는 위치",
     themes: {
-      light: "ë¼ì´íŠ¸",
-      gray: "ê·¸ë ˆì´",
-      midnight: "ë¯¸ë“œë‚˜ì´íŠ¸"
+      light: "라이트",
+      gray: "그레이",
+      midnight: "미드나이트"
     },
     languages: {
       en: "English",
-      ko: "í•œêµ­ì–´"
+      ko: "한국어"
     },
     missions: [
-      "ì¼ë³¸ ì—¬í–‰ ê³„íší•´ì¤˜",
-      "ì˜ì–´ ì„ ìƒë‹˜ ì°¾ì•„ì¤˜",
-      "ì¢‹ì€ ë…¸íŠ¸ë¶ ì¶”ì²œí•´ì¤˜",
-      "ìºë‚˜ë‹¤ ì´ì£¼ ë„ì™€ì¤˜",
-      "ì•„ì´ ëŒë´„ ì„œë¹„ìŠ¤ ì°¾ì•„ì¤˜",
-      "ìƒí‘œ ë“±ë¡ ë„ì™€ì¤˜",
-      "ì‹ í˜¼ì—¬í–‰ ê³„íší•´ì¤˜",
-      "ëˆì„ ì ˆì•½í•  ë°©ë²• ì°¾ì•„ì¤˜",
-      "ìµœê³ ì˜ ì´í˜¼ ì „ë¬¸ ë³€í˜¸ì‚¬ ì°¾ì•„ì¤˜",
-      "ì¤‘êµ­ì—ì„œ ìƒí’ˆ ìˆ˜ìž… ë„ì™€ì¤˜",
-      "ê¿ˆì˜ PC ì¡°ë¦½í•´ì¤˜",
-      "í•´ì™¸ ì´ì£¼ ì¤€ë¹„í•´ì¤˜",
-      "ì£¼íƒë‹´ë³´ëŒ€ì¶œ ë¹„êµí•´ì¤˜",
-      "ì€í‡´ ê³„íš ì„¸ì›Œì¤˜",
-      "ê¿ˆì˜ íœ´ê°€ ì˜ˆì•½ ì¤€ë¹„í•´ì¤˜"
+      "일본 여행 계획해줘",
+      "영어 선생님 찾아줘",
+      "좋은 노트북 추천해줘",
+      "캐나다 이주 도와줘",
+      "아이 돌봄 서비스 찾아줘",
+      "상표 등록 도와줘",
+      "신혼여행 계획해줘",
+      "돈을 절약할 방법 찾아줘",
+      "최고의 이혼 전문 변호사 찾아줘",
+      "중국에서 상품 수입 도와줘",
+      "꿈의 PC 조립해줘",
+      "해외 이주 준비해줘",
+      "주택담보대출 비교해줘",
+      "은퇴 계획 세워줘",
+      "꿈의 휴가 예약 준비해줘"
     ]
   }
 };
@@ -295,7 +295,7 @@ const KASTIZ_ONE_VERSION = "V9_MISSION_ENGINE_FREE_API_MVP";
 
 const approvalProtectionMessages = {
   en: "Nothing will be booked, purchased, reserved, signed, submitted, paid for, or legally committed until you approve.",
-  ko: "ì‚¬ìš©ìžê°€ ìŠ¹ì¸í•˜ê¸° ì „ì—ëŠ” ì˜ˆì•½, ê²°ì œ, êµ¬ë§¤, ì„œëª…, ì œì¶œ ë˜ëŠ” ë²•ì  ì•½ì†ì´ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤."
+  ko: "사용자가 승인하기 전에는 예약, 결제, 구매, 서명, 제출 또는 법적 약속이 진행되지 않습니다."
 };
 
 const universalMissionTypes = {
@@ -316,63 +316,63 @@ const missionKeywordMap = {
   travel: {
     subtype: "trip_planning",
     en: ["travel", "trip", "vacation", "honeymoon", "flight", "hotel", "japan", "tokyo", "osaka", "kyoto", "airport"],
-    ko: ["ì—¬í–‰", "ì¶œìž¥", "í•´ì™¸ì¶œìž¥", "ì—…ë¬´ì¶œìž¥", "ì¼ë³¸", "ë„ì¿„", "ì˜¤ì‚¬ì¹´", "êµí† ", "í•­ê³µê¶Œ", "í˜¸í…”", "ì‹ í˜¼ì—¬í–‰", "ê³µí•­"]
+    ko: ["여행", "출장", "해외출장", "업무출장", "일본", "도쿄", "오사카", "교토", "항공권", "호텔", "신혼여행", "공항"]
   },
   shopping: {
     subtype: "product_research",
     en: ["buy", "laptop", "phone", "iphone", "macbook", "product", "compare", "cheapest", "best deal"],
-    ko: ["êµ¬ë§¤", "ë…¸íŠ¸ë¶", "í•¸ë“œí°", "ì•„ì´í°", "ë§¥ë¶", "ì œí’ˆ", "ë¹„êµ", "ìµœì €ê°€", "ì¶”ì²œ"]
+    ko: ["구매", "노트북", "핸드폰", "아이폰", "맥북", "제품", "비교", "최저가", "추천"]
   },
   housing: {
     subtype: "housing_search",
     en: ["home", "house", "apartment", "rent", "mortgage", "real estate", "property"],
-    ko: ["ì§‘", "ì•„íŒŒíŠ¸", "ì „ì„¸", "ì›”ì„¸", "ë¶€ë™ì‚°", "ì£¼íƒë‹´ë³´ëŒ€ì¶œ"]
+    ko: ["집", "아파트", "전세", "월세", "부동산", "주택담보대출"]
   },
   legal: {
     subtype: "legal_service_preparation",
     en: ["lawyer", "legal", "attorney", "divorce", "contract", "lawsuit", "trademark"],
-    ko: ["ë³€í˜¸ì‚¬", "ë²•ë¥ ", "ì´í˜¼", "ê³„ì•½ì„œ", "ì†Œì†¡", "ìƒí‘œ"]
+    ko: ["변호사", "법률", "이혼", "계약서", "소송", "상표"]
   },
   moving: {
     subtype: "relocation_preparation",
     en: ["move", "immigration", "visa", "overseas", "canada", "america", "relocation"],
-    ko: ["ì´ì£¼", "ì´ë¯¼", "ë¹„ìž", "í•´ì™¸", "ìºë‚˜ë‹¤", "ë¯¸êµ­"]
+    ko: ["이주", "이민", "비자", "해외", "캐나다", "미국"]
   },
   business: {
     subtype: "business_setup",
     en: ["business", "company", "startup", "register", "tax", "accountant", "supplier"],
-    ko: ["ì‚¬ì—…", "ì°½ì—…", "íšŒì‚¬", "ë²•ì¸", "ì„¸ê¸ˆ", "íšŒê³„ì‚¬", "ê³µê¸‰ì—…ì²´"]
+    ko: ["사업", "창업", "회사", "법인", "세금", "회계사", "공급업체"]
   },
   healthcare: {
     subtype: "healthcare_search",
     en: ["doctor", "dentist", "hospital", "clinic", "checkup", "appointment"],
-    ko: ["ë³‘ì›", "ì˜ì‚¬", "ì¹˜ê³¼", "ê±´ê°•ê²€ì§„", "ì˜ˆì•½"]
+    ko: ["병원", "의사", "치과", "건강검진", "예약"]
   },
   finance: {
     subtype: "financial_comparison",
     en: ["loan", "mortgage", "savings", "credit card", "investment", "insurance"],
-    ko: ["ëŒ€ì¶œ", "ì ê¸ˆ", "ì‹ ìš©ì¹´ë“œ", "íˆ¬ìž", "ë³´í—˜"]
+    ko: ["대출", "적금", "신용카드", "투자", "보험"]
   },
   career: {
     subtype: "career_search",
     en: ["job", "resume", "career", "interview", "salary", "recruiter", "tutor", "teacher", "lesson", "english teacher"],
-    ko: ["ì·¨ì—…", "ì´ì§", "ì´ë ¥ì„œ", "ë©´ì ‘", "ì—°ë´‰", "ì„ ìƒë‹˜", "íŠœí„°", "ê³¼ì™¸", "ì˜ì–´ ìˆ˜ì—…"]
+    ko: ["취업", "이직", "이력서", "면접", "연봉", "선생님", "튜터", "과외", "영어 수업"]
   },
   lifestyle: {
     subtype: "lifestyle_planning",
     en: ["wedding", "restaurant", "event", "birthday", "party", "gym", "trainer", "date", "girlfriend", "boyfriend", "couple", "anniversary"],
-    ko: ["ê²°í˜¼ì‹", "ì‹ë‹¹", "ì´ë²¤íŠ¸", "ìƒì¼", "íŒŒí‹°", "í—¬ìŠ¤ìž¥", "íŠ¸ë ˆì´ë„ˆ", "ë°ì´íŠ¸", "ì—¬ì¹œ", "ì—¬ìžì¹œêµ¬", "ë‚¨ì¹œ", "ë‚¨ìžì¹œêµ¬", "ì»¤í”Œ", "ê¸°ë…ì¼"]
+    ko: ["결혼식", "식당", "이벤트", "생일", "파티", "헬스장", "트레이너", "데이트", "여친", "여자친구", "남친", "남자친구", "커플", "기념일"]
   }
 };
 
 const countryProfiles = {
-  JP: { code: "JP", name: "Japan", nameKo: "ì¼ë³¸", currency: "JPY", capital: "Tokyo", capitalKo: "ë„ì¿„", latitude: 35.6762, longitude: 139.6503 },
-  KR: { code: "KR", name: "South Korea", nameKo: "ëŒ€í•œë¯¼êµ­", currency: "KRW", capital: "Seoul", capitalKo: "ì„œìš¸", latitude: 37.5665, longitude: 126.978 },
-  CA: { code: "CA", name: "Canada", nameKo: "ìºë‚˜ë‹¤", currency: "CAD", capital: "Ottawa", capitalKo: "ì˜¤íƒ€ì™€", latitude: 45.4215, longitude: -75.6972 },
-  US: { code: "US", name: "United States", nameKo: "ë¯¸êµ­", currency: "USD", capital: "Washington, D.C.", capitalKo: "ì›Œì‹±í„´ D.C.", latitude: 38.9072, longitude: -77.0369 },
-  CN: { code: "CN", name: "China", nameKo: "ì¤‘êµ­", currency: "CNY", capital: "Beijing", capitalKo: "ë² ì´ì§•", latitude: 39.9042, longitude: 116.4074 },
-  ES: { code: "ES", name: "Spain", nameKo: "ìŠ¤íŽ˜ì¸", currency: "EUR", capital: "Madrid", capitalKo: "ë§ˆë“œë¦¬ë“œ", latitude: 40.4168, longitude: -3.7038 },
-  CO: { code: "CO", name: "Colombia", nameKo: "ì½œë¡¬ë¹„ì•„", currency: "COP", capital: "BogotÃ¡", capitalKo: "ë³´ê³ íƒ€", latitude: 4.711, longitude: -74.0721 }
+  JP: { code: "JP", name: "Japan", nameKo: "일본", currency: "JPY", capital: "Tokyo", capitalKo: "도쿄", latitude: 35.6762, longitude: 139.6503 },
+  KR: { code: "KR", name: "South Korea", nameKo: "대한민국", currency: "KRW", capital: "Seoul", capitalKo: "서울", latitude: 37.5665, longitude: 126.978 },
+  CA: { code: "CA", name: "Canada", nameKo: "캐나다", currency: "CAD", capital: "Ottawa", capitalKo: "오타와", latitude: 45.4215, longitude: -75.6972 },
+  US: { code: "US", name: "United States", nameKo: "미국", currency: "USD", capital: "Washington, D.C.", capitalKo: "워싱턴 D.C.", latitude: 38.9072, longitude: -77.0369 },
+  CN: { code: "CN", name: "China", nameKo: "중국", currency: "CNY", capital: "Beijing", capitalKo: "베이징", latitude: 39.9042, longitude: 116.4074 },
+  ES: { code: "ES", name: "Spain", nameKo: "스페인", currency: "EUR", capital: "Madrid", capitalKo: "마드리드", latitude: 40.4168, longitude: -3.7038 },
+  CO: { code: "CO", name: "Colombia", nameKo: "콜롬비아", currency: "COP", capital: "Bogotá", capitalKo: "보고타", latitude: 4.711, longitude: -74.0721 }
 };
 
 const createProvider = (providerName, category, sourceStatus, liveData, requiresKey, requiresPartnerAccess) => ({
@@ -467,44 +467,44 @@ const travelKeywordMap = {
     "kyoto"
   ],
   ko: [
-    "ì—¬í–‰",
-    "ì¶œìž¥",
-    "í•´ì™¸ì¶œìž¥",
-    "ì—…ë¬´ì¶œìž¥",
-    "ì¼ë³¸",
-    "ë„ì¿„",
-    "ì˜¤ì‚¬ì¹´",
-    "êµí† ",
-    "í•­ê³µê¶Œ",
-    "í˜¸í…”",
-    "ì‹ í˜¼ì—¬í–‰"
+    "여행",
+    "출장",
+    "해외출장",
+    "업무출장",
+    "일본",
+    "도쿄",
+    "오사카",
+    "교토",
+    "항공권",
+    "호텔",
+    "신혼여행"
   ]
 };
 
 const destinationPatterns = [
-  { destination: "United States", destinationKo: "ë¯¸êµ­", city: "New York", cityKo: "ë‰´ìš•", latitude: 40.7128, longitude: -74.006, aliases: ["new york", "nyc", "newyork", "ë‰´ìš•"] },
-  { destination: "Spain", destinationKo: "ìŠ¤íŽ˜ì¸", city: "Madrid", cityKo: "ë§ˆë“œë¦¬ë“œ", latitude: 40.4168, longitude: -3.7038, aliases: ["madrid", "spain", "ë§ˆë“œë¦¬ë“œ", "ìŠ¤íŽ˜ì¸"] },
-  { destination: "Colombia", destinationKo: "ì½œë¡¬ë¹„ì•„", city: "BogotÃ¡", cityKo: "ë³´ê³ íƒ€", latitude: 4.711, longitude: -74.0721, aliases: ["colombia", "bogota", "bogotÃ¡", "ì½œë¡¬ë¹„ì•„", "ë³´ê³ íƒ€"] },
+  { destination: "United States", destinationKo: "미국", city: "New York", cityKo: "뉴욕", latitude: 40.7128, longitude: -74.006, aliases: ["new york", "nyc", "newyork", "뉴욕"] },
+  { destination: "Spain", destinationKo: "스페인", city: "Madrid", cityKo: "마드리드", latitude: 40.4168, longitude: -3.7038, aliases: ["madrid", "spain", "마드리드", "스페인"] },
+  { destination: "Colombia", destinationKo: "콜롬비아", city: "Bogotá", cityKo: "보고타", latitude: 4.711, longitude: -74.0721, aliases: ["colombia", "bogota", "bogotá", "콜롬비아", "보고타"] },
   {
     destination: "Japan",
-    destinationKo: "ì¼ë³¸",
+    destinationKo: "일본",
     city: "Tokyo",
-    cityKo: "ë„ì¿„",
-    aliases: ["japan", "tokyo", "ì¼ë³¸", "ë„ì¿„"]
+    cityKo: "도쿄",
+    aliases: ["japan", "tokyo", "일본", "도쿄"]
   },
   {
     destination: "Japan",
-    destinationKo: "ì¼ë³¸",
+    destinationKo: "일본",
     city: "Osaka",
-    cityKo: "ì˜¤ì‚¬ì¹´",
-    aliases: ["osaka", "ì˜¤ì‚¬ì¹´"]
+    cityKo: "오사카",
+    aliases: ["osaka", "오사카"]
   },
   {
     destination: "Japan",
-    destinationKo: "ì¼ë³¸",
+    destinationKo: "일본",
     city: "Kyoto",
-    cityKo: "êµí† ",
-    aliases: ["kyoto", "êµí† "]
+    cityKo: "교토",
+    aliases: ["kyoto", "교토"]
   }
 ];
 
@@ -612,7 +612,7 @@ const updateLocation = () => {
   ).matches;
 
   locationText.textContent = usesPhoneFooter
-    ? (activeLanguage === "ko" ? "ëŒ€í•œë¯¼êµ­" : activeLanguage === "es" ? "Corea del Sur" : "South Korea")
+    ? (activeLanguage === "ko" ? "대한민국" : activeLanguage === "es" ? "Corea del Sur" : "South Korea")
     : countryNamesByRegion[region] || getTranslation("unknownLocation");
 };
 
@@ -684,7 +684,7 @@ const normalizeMission = (value) => {
 const createMissionSlug = (mission) => {
   return mission
     .toLowerCase()
-    .replace(/[^a-z0-9\u3131-\uD79D\s-]/g, "")
+    .replace(/[^a-z0-9가-힣\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "")
@@ -700,8 +700,8 @@ const createMissionId = (type) => {
 };
 
 const detectInputLanguage = (mission) => {
-  if (/[\u3131-\u318E\uAC00-\uD79D]/u.test(mission)) return "ko";
-  if (/[¿¡ñáéíóúü]/i.test(mission)) return "es";
+  if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/u.test(mission)) return "ko";
+  if (/[¿¡ñáéíóú]/i.test(mission)) return "es";
   return activeLanguage;
 };
 
@@ -730,13 +730,13 @@ const detectCountry = (mission, type) => {
   const text = normalizeForDetection(mission);
 
   const matches = [
-    { code: "JP", keywords: ["japan", "tokyo", "osaka", "kyoto", "ì¼ë³¸", "ë„ì¿„", "ì˜¤ì‚¬ì¹´", "êµí† "] },
-    { code: "KR", keywords: ["korea", "seoul", "busan", "incheon", "í•œêµ­", "ì„œìš¸", "ë¶€ì‚°", "ì¸ì²œ"] },
-    { code: "CA", keywords: ["canada", "toronto", "vancouver", "ìºë‚˜ë‹¤", "í† ë¡ í† ", "ë°´ì¿ ë²„"] },
-    { code: "US", keywords: ["america", "usa", "united states", "new york", "nyc", "ë¯¸êµ­", "ë‰´ìš•"] },
-    { code: "CN", keywords: ["china", "beijing", "shanghai", "ì¤‘êµ­", "ë² ì´ì§•", "ìƒí•˜ì´"] },
-    { code: "ES", keywords: ["spain", "madrid", "ìŠ¤íŽ˜ì¸", "ë§ˆë“œë¦¬ë“œ"] },
-    { code: "CO", keywords: ["colombia", "bogota", "bogotÃ¡", "ì½œë¡¬ë¹„ì•„", "ë³´ê³ íƒ€"] }
+    { code: "JP", keywords: ["japan", "tokyo", "osaka", "kyoto", "일본", "도쿄", "오사카", "교토"] },
+    { code: "KR", keywords: ["korea", "seoul", "busan", "incheon", "한국", "서울", "부산", "인천"] },
+    { code: "CA", keywords: ["canada", "toronto", "vancouver", "캐나다", "토론토", "밴쿠버"] },
+    { code: "US", keywords: ["america", "usa", "united states", "new york", "nyc", "미국", "뉴욕"] },
+    { code: "CN", keywords: ["china", "beijing", "shanghai", "중국", "베이징", "상하이"] },
+    { code: "ES", keywords: ["spain", "madrid", "스페인", "마드리드"] },
+    { code: "CO", keywords: ["colombia", "bogota", "bogotá", "콜롬비아", "보고타"] }
   ];
 
   const found = matches.find((item) => item.keywords.some((keyword) => text.includes(keyword.toLowerCase())));
@@ -750,17 +750,17 @@ const missionText = (en, ko) => {
 
 const buildIntent = (type) => {
   const map = {
-    travel: missionText("Prepare a trip plan and compare practical options.", "ì—¬í–‰ ê³„íšì„ ì¤€ë¹„í•˜ê³  ì‹¤ìš©ì ì¸ ì„ íƒì§€ë¥¼ ë¹„êµí•©ë‹ˆë‹¤."),
-    shopping: missionText("Prepare product options, prices, reviews, and a buying checklist.", "ì œí’ˆ í›„ë³´, ê°€ê²©, ë¦¬ë·°, êµ¬ë§¤ ì „ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    housing: missionText("Prepare housing options, budget assumptions, and a pre-contract checklist.", "ì£¼ê±° í›„ë³´, ì˜ˆì‚° ê°€ì •, ê³„ì•½ ì „ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    legal: missionText("Prepare legal service types, required documents, and questions to ask.", "ë²•ë¥  ì„œë¹„ìŠ¤ ìœ í˜•, í•„ìš” ì„œë¥˜, ìƒë‹´ ì§ˆë¬¸ì„ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    moving: missionText("Prepare relocation steps, visa, housing, and shipping checklist.", "ì´ì£¼ ë‹¨ê³„, ë¹„ìž, ì£¼ê±°, ë°°ì†¡ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    business: missionText("Prepare business setup, registration, tax, suppliers, and launch steps.", "ì‚¬ì—… ì‹œìž‘, ë“±ë¡, ì„¸ê¸ˆ, ê³µê¸‰ì—…ì²´, ëŸ°ì¹­ ë‹¨ê³„ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    healthcare: missionText("Prepare clinic options, appointment preparation, documents, and costs.", "ë³‘ì› í›„ë³´, ì˜ˆì•½ ì¤€ë¹„, í•„ìš” ì„œë¥˜, ì˜ˆìƒ ë¹„ìš©ì„ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    finance: missionText("Compare financial options, rates, documents, and risks.", "ê¸ˆìœµ ì˜µì…˜, ê¸ˆë¦¬, í•„ìš” ì„œë¥˜, ë¦¬ìŠ¤í¬ë¥¼ ë¹„êµí•©ë‹ˆë‹¤."),
-    career: missionText("Prepare job targets, resume, interview, and recruiter steps.", "ì±„ìš© ëª©í‘œ, ì´ë ¥ì„œ, ë©´ì ‘, ë¦¬í¬ë£¨í„° ë‹¨ê³„ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    lifestyle: missionText("Prepare vendors, timeline, budget, reservations, and checklist.", "ì—…ì²´, ì¼ì •, ì˜ˆì‚°, ì˜ˆì•½, ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    general_mission: missionText("Turn the request into a structured mission plan.", "ìš”ì²­ì„ êµ¬ì¡°í™”ëœ ë¯¸ì…˜ ê³„íšìœ¼ë¡œ ì •ë¦¬í•©ë‹ˆë‹¤.")
+    travel: missionText("Prepare a trip plan and compare practical options.", "여행 계획을 준비하고 실용적인 선택지를 비교합니다."),
+    shopping: missionText("Prepare product options, prices, reviews, and a buying checklist.", "제품 후보, 가격, 리뷰, 구매 전 체크리스트를 준비합니다."),
+    housing: missionText("Prepare housing options, budget assumptions, and a pre-contract checklist.", "주거 후보, 예산 가정, 계약 전 체크리스트를 준비합니다."),
+    legal: missionText("Prepare legal service types, required documents, and questions to ask.", "법률 서비스 유형, 필요 서류, 상담 질문을 준비합니다."),
+    moving: missionText("Prepare relocation steps, visa, housing, and shipping checklist.", "이주 단계, 비자, 주거, 배송 체크리스트를 준비합니다."),
+    business: missionText("Prepare business setup, registration, tax, suppliers, and launch steps.", "사업 시작, 등록, 세금, 공급업체, 런칭 단계를 준비합니다."),
+    healthcare: missionText("Prepare clinic options, appointment preparation, documents, and costs.", "병원 후보, 예약 준비, 필요 서류, 예상 비용을 준비합니다."),
+    finance: missionText("Compare financial options, rates, documents, and risks.", "금융 옵션, 금리, 필요 서류, 리스크를 비교합니다."),
+    career: missionText("Prepare job targets, resume, interview, and recruiter steps.", "채용 목표, 이력서, 면접, 리크루터 단계를 준비합니다."),
+    lifestyle: missionText("Prepare vendors, timeline, budget, reservations, and checklist.", "업체, 일정, 예산, 예약, 체크리스트를 준비합니다."),
+    general_mission: missionText("Turn the request into a structured mission plan.", "요청을 구조화된 미션 계획으로 정리합니다.")
   };
 
   return map[type] || map.general_mission;
@@ -768,18 +768,18 @@ const buildIntent = (type) => {
 
 const buildAssumptions = (type, country) => {
   const assumptions = [
-    missionText("ONE prepares and compares only; real-world execution requires explicit approval.", "ONEì€ ì¤€ë¹„ì™€ ë¹„êµë§Œ ìˆ˜í–‰í•˜ë©° ì‹¤ì œ ì‹¤í–‰ì€ ëª…ì‹œì  ìŠ¹ì¸ í›„ì—ë§Œ ê°€ëŠ¥í•©ë‹ˆë‹¤."),
-    missionText("When details are missing, ONE uses balanced recommendations by default.", "ì„¸ë¶€ ì¡°ê±´ì´ ë¶€ì¡±í•˜ë©´ ê· í˜•í˜• ì¶”ì²œì„ ê¸°ë³¸ê°’ìœ¼ë¡œ ì‚¬ìš©í•©ë‹ˆë‹¤.")
+    missionText("ONE prepares and compares only; real-world execution requires explicit approval.", "ONE은 준비와 비교만 수행하며 실제 실행은 명시적 승인 후에만 가능합니다."),
+    missionText("When details are missing, ONE uses balanced recommendations by default.", "세부 조건이 부족하면 균형형 추천을 기본값으로 사용합니다.")
   ];
 
   if (type === "travel") {
-    assumptions.push(missionText("If dates are missing, ONE assumes a 7-day trip.", "ë‚ ì§œê°€ ì—†ìœ¼ë©´ 7ì¼ ì—¬í–‰ìœ¼ë¡œ ê°€ì •í•©ë‹ˆë‹¤."));
+    assumptions.push(missionText("If dates are missing, ONE assumes a 7-day trip.", "날짜가 없으면 7일 여행으로 가정합니다."));
   }
 
   if (country && countryProfiles[country]) {
     assumptions.push(
       activeLanguage === "ko"
-        ? `êµ­ê°€ ê¸°ì¤€ì€ ${countryProfiles[country].nameKo}ë¡œ ì„¤ì •ë˜ì—ˆìŠµë‹ˆë‹¤.`
+        ? `국가 기준은 ${countryProfiles[country].nameKo}로 설정되었습니다.`
         : `Country context is set to ${countryProfiles[country].name}.`
     );
   }
@@ -789,17 +789,17 @@ const buildAssumptions = (type, country) => {
 
 const buildSteps = (type) => {
   const map = {
-    travel: [["flights","Prepare flight options","í•­ê³µê¶Œ ì˜µì…˜ ì¤€ë¹„"],["hotels","Prepare hotel options","ìˆ™ì†Œ ì˜µì…˜ ì¤€ë¹„"],["weather","Check weather","ë‚ ì”¨ í™•ì¸"],["currency","Check exchange rates","í™˜ìœ¨ í™•ì¸"],["visa","Check visa / entry requirements","ë¹„ìž / ìž…êµ­ ìš”ê±´ í™•ì¸"],["restaurants","Prepare restaurant options","ì‹ë‹¹ ì˜µì…˜ ì¤€ë¹„"],["airport_transfer","Prepare airport transfer","ê³µí•­ ì´ë™ ì¤€ë¹„"],["checklist","Prepare travel checklist","ì—¬í–‰ ì²´í¬ë¦¬ìŠ¤íŠ¸ ì¤€ë¹„"]],
-    shopping: [["recommended_product","Select recommended product","ì¶”ì²œ ì œí’ˆ ì„ ì •"],["alternatives","Compare alternative products","ëŒ€ì•ˆ ì œí’ˆ ë¹„êµ"],["price_comparison","Compare prices","ê°€ê²© ë¹„êµ"],["where_to_buy","Prepare where to buy","êµ¬ë§¤ì²˜ ì¤€ë¹„"],["warranty","Check warranty","ë³´ì¦ í™•ì¸"],["delivery","Prepare delivery options","ë°°ì†¡ ì˜µì…˜ ì¤€ë¹„"],["checklist","Pre-purchase checklist","êµ¬ë§¤ ì „ ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    housing: [["housing_options","Prepare housing options","ì£¼ê±° ì˜µì…˜ ì¤€ë¹„"],["area_comparison","Compare areas","ì§€ì—­ ë¹„êµ"],["budget","Prepare budget range","ì˜ˆì‚° ë²”ìœ„ ì¤€ë¹„"],["documents","Prepare document checklist","ì„œë¥˜ ì²´í¬ë¦¬ìŠ¤íŠ¸ ì¤€ë¹„"],["risks","Check contract risks","ê³„ì•½ ë¦¬ìŠ¤í¬ í™•ì¸"]],
-    legal: [["lawyer_type","Define lawyer type","í•„ìš”í•œ ë³€í˜¸ì‚¬ ìœ í˜• ì •ë¦¬"],["documents","Prepare documents needed","í•„ìš” ì„œë¥˜ ì¤€ë¹„"],["process","Outline estimated process","ì˜ˆìƒ ì ˆì°¨ ì •ë¦¬"],["risks","Identify risks","ë¦¬ìŠ¤í¬ ì •ë¦¬"],["questions","Prepare questions to ask","ìƒë‹´ ì§ˆë¬¸ ì¤€ë¹„"],["checklist","Legal checklist","ë²•ë¥  ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    moving: [["visa","Prepare visa","ë¹„ìž ì¤€ë¹„"],["housing","Prepare housing","ì£¼ê±° ì¤€ë¹„"],["shipping","Prepare shipping","ë°°ì†¡ ì¤€ë¹„"],["banking","Prepare banking","ì€í–‰ ì¤€ë¹„"],["insurance","Prepare insurance","ë³´í—˜ ì¤€ë¹„"],["schools","Prepare schools","í•™êµ ì •ë³´ ì¤€ë¹„"],["checklist","Moving checklist","ì´ì£¼ ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    business: [["registration","Prepare business registration","ì‚¬ì—…ìž / ë²•ì¸ ë“±ë¡ ì¤€ë¹„"],["tax","Prepare tax / accounting","ì„¸ê¸ˆ / íšŒê³„ ì¤€ë¹„"],["brand","Prepare brand / domain","ë¸Œëžœë“œ / ë„ë©”ì¸ ì¤€ë¹„"],["suppliers","Prepare suppliers","ê³µê¸‰ì—…ì²´ ì¤€ë¹„"],["budget","Prepare business budget","ì‚¬ì—… ì˜ˆì‚° ì¤€ë¹„"],["checklist","Business checklist","ì‚¬ì—… ì‹œìž‘ ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    healthcare: [["clinic","Prepare clinic / hospital options","ë³‘ì› / í´ë¦¬ë‹‰ í›„ë³´ ì¤€ë¹„"],["appointment","Prepare appointment","ì˜ˆì•½ ì¤€ë¹„"],["documents","Prepare documents","í•„ìš” ì„œë¥˜ ì¤€ë¹„"],["cost","Prepare cost estimate","ì˜ˆìƒ ë¹„ìš© ì¤€ë¹„"],["checklist","Healthcare checklist","ì§„ë£Œ ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    finance: [["loan_options","Prepare loan options","ëŒ€ì¶œ ì˜µì…˜ ì¤€ë¹„"],["rates","Compare rates","ê¸ˆë¦¬ ë¹„êµ"],["documents","Prepare documents","í•„ìš” ì„œë¥˜ ì¤€ë¹„"],["risks","Identify risks","ë¦¬ìŠ¤í¬ ì •ë¦¬"],["checklist","Finance checklist","ê¸ˆìœµ ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    career: [["targets","Prepare job targets","ì±„ìš© ëª©í‘œ ì •ë¦¬"],["resume","Prepare resume","ì´ë ¥ì„œ ì¤€ë¹„"],["interview","Prepare interview","ë©´ì ‘ ì¤€ë¹„"],["recruiters","Prepare recruiters","ë¦¬í¬ë£¨í„° í›„ë³´ ì¤€ë¹„"],["checklist","Career checklist","ì»¤ë¦¬ì–´ ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    lifestyle: [["vendors","Prepare vendors","ì—…ì²´ í›„ë³´ ì¤€ë¹„"],["timeline","Prepare timeline","ì¼ì • ì¤€ë¹„"],["budget","Prepare budget","ì˜ˆì‚° ì¤€ë¹„"],["reservations","Prepare reservations","ì˜ˆì•½ ì¤€ë¹„"],["checklist","Prepare checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸ ì¤€ë¹„"]],
-    general_mission: [["understand","Understand request","ìš”ì²­ ë¶„ì„"],["options","Prepare options","ì„ íƒì§€ ì¤€ë¹„"],["plan","Prepare action plan","ì‹¤í–‰ ê³„íš ì¤€ë¹„"],["checklist","Prepare checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸ ì¤€ë¹„"]]
+    travel: [["flights","Prepare flight options","항공권 옵션 준비"],["hotels","Prepare hotel options","숙소 옵션 준비"],["weather","Check weather","날씨 확인"],["currency","Check exchange rates","환율 확인"],["visa","Check visa / entry requirements","비자 / 입국 요건 확인"],["restaurants","Prepare restaurant options","식당 옵션 준비"],["airport_transfer","Prepare airport transfer","공항 이동 준비"],["checklist","Prepare travel checklist","여행 체크리스트 준비"]],
+    shopping: [["recommended_product","Select recommended product","추천 제품 선정"],["alternatives","Compare alternative products","대안 제품 비교"],["price_comparison","Compare prices","가격 비교"],["where_to_buy","Prepare where to buy","구매처 준비"],["warranty","Check warranty","보증 확인"],["delivery","Prepare delivery options","배송 옵션 준비"],["checklist","Pre-purchase checklist","구매 전 체크리스트"]],
+    housing: [["housing_options","Prepare housing options","주거 옵션 준비"],["area_comparison","Compare areas","지역 비교"],["budget","Prepare budget range","예산 범위 준비"],["documents","Prepare document checklist","서류 체크리스트 준비"],["risks","Check contract risks","계약 리스크 확인"]],
+    legal: [["lawyer_type","Define lawyer type","필요한 변호사 유형 정리"],["documents","Prepare documents needed","필요 서류 준비"],["process","Outline estimated process","예상 절차 정리"],["risks","Identify risks","리스크 정리"],["questions","Prepare questions to ask","상담 질문 준비"],["checklist","Legal checklist","법률 체크리스트"]],
+    moving: [["visa","Prepare visa","비자 준비"],["housing","Prepare housing","주거 준비"],["shipping","Prepare shipping","배송 준비"],["banking","Prepare banking","은행 준비"],["insurance","Prepare insurance","보험 준비"],["schools","Prepare schools","학교 정보 준비"],["checklist","Moving checklist","이주 체크리스트"]],
+    business: [["registration","Prepare business registration","사업자 / 법인 등록 준비"],["tax","Prepare tax / accounting","세금 / 회계 준비"],["brand","Prepare brand / domain","브랜드 / 도메인 준비"],["suppliers","Prepare suppliers","공급업체 준비"],["budget","Prepare business budget","사업 예산 준비"],["checklist","Business checklist","사업 시작 체크리스트"]],
+    healthcare: [["clinic","Prepare clinic / hospital options","병원 / 클리닉 후보 준비"],["appointment","Prepare appointment","예약 준비"],["documents","Prepare documents","필요 서류 준비"],["cost","Prepare cost estimate","예상 비용 준비"],["checklist","Healthcare checklist","진료 체크리스트"]],
+    finance: [["loan_options","Prepare loan options","대출 옵션 준비"],["rates","Compare rates","금리 비교"],["documents","Prepare documents","필요 서류 준비"],["risks","Identify risks","리스크 정리"],["checklist","Finance checklist","금융 체크리스트"]],
+    career: [["targets","Prepare job targets","채용 목표 정리"],["resume","Prepare resume","이력서 준비"],["interview","Prepare interview","면접 준비"],["recruiters","Prepare recruiters","리크루터 후보 준비"],["checklist","Career checklist","커리어 체크리스트"]],
+    lifestyle: [["vendors","Prepare vendors","업체 후보 준비"],["timeline","Prepare timeline","일정 준비"],["budget","Prepare budget","예산 준비"],["reservations","Prepare reservations","예약 준비"],["checklist","Prepare checklist","체크리스트 준비"]],
+    general_mission: [["understand","Understand request","요청 분석"],["options","Prepare options","선택지 준비"],["plan","Prepare action plan","실행 계획 준비"],["checklist","Prepare checklist","체크리스트 준비"]]
   };
 
   return (map[type] || map.general_mission).map(([id, en, ko], index) => ({
@@ -816,22 +816,22 @@ const buildSteps = (type) => {
 
 const buildRecommendations = (type) => {
   const map = {
-    travel: missionText("Prioritize a balanced itinerary, direct flights, and hotels with strong transport access.", "ê· í˜•í˜• ì¼ì •, ì§í•­ ì¤‘ì‹¬ í•­ê³µ, êµí†µ íŽ¸ë¦¬í•œ ìˆ™ì†Œë¥¼ ìš°ì„  ì¶”ì²œí•©ë‹ˆë‹¤."),
-    shopping: missionText("Recommend based on quality, warranty, delivery, reviews, and price balance.", "í’ˆì§ˆ, ë³´ì¦, ë°°ì†¡, ë¦¬ë·°, ê°€ê²© ê· í˜•ì„ ê¸°ì¤€ìœ¼ë¡œ ì¶”ì²œí•©ë‹ˆë‹¤."),
-    housing: missionText("Compare location, monthly cost, contract risk, and transport access.", "ìœ„ì¹˜, ì›” ë¹„ìš©, ê³„ì•½ ë¦¬ìŠ¤í¬, êµí†µ ì ‘ê·¼ì„±ì„ ë¹„êµí•©ë‹ˆë‹¤."),
-    legal: missionText("Prepare the right lawyer type, documents, and consultation questions first.", "ì „ë¬¸ ë¶„ì•¼ê°€ ë§žëŠ” ë³€í˜¸ì‚¬ ìœ í˜•, ì„œë¥˜, ìƒë‹´ ì§ˆë¬¸ì„ ë¨¼ì € ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    moving: missionText("Prepare visa, housing, banking, insurance, and shipping in order.", "ë¹„ìž, ì£¼ê±°, ì€í–‰, ë³´í—˜, ë°°ì†¡ ìˆœì„œë¡œ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    business: missionText("Prepare registration, tax, brand, suppliers, and starting budget.", "ë“±ë¡, ì„¸ê¸ˆ, ë¸Œëžœë“œ, ê³µê¸‰ì—…ì²´, ì´ˆê¸° ì˜ˆì‚°ì„ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    healthcare: missionText("Compare clinics by location, specialty, cost, and appointment availability.", "ìœ„ì¹˜, ì „ë¬¸ ë¶„ì•¼, ë¹„ìš©, ì˜ˆì•½ ê°€ëŠ¥ì„±ì„ ê¸°ì¤€ìœ¼ë¡œ ë³‘ì›ì„ ë¹„êµí•©ë‹ˆë‹¤."),
-    finance: missionText("Compare total cost, risk, documents, and rates together.", "ì´ ë¹„ìš©, ë¦¬ìŠ¤í¬, í•„ìš” ì„œë¥˜, ê¸ˆë¦¬ë¥¼ í•¨ê»˜ ë¹„êµí•©ë‹ˆë‹¤."),
-    career: missionText("Prepare target roles, resume, interview, and recruiter outreach.", "ëª©í‘œ ì§ë¬´, ì´ë ¥ì„œ, ë©´ì ‘, ë¦¬í¬ë£¨í„° ì ‘ê·¼ì„ ì¤€ë¹„í•©ë‹ˆë‹¤."),
-    lifestyle: missionText("Start with budget, timeline, vendors, and reservation risks.", "ì˜ˆì‚°, ì¼ì •, ì—…ì²´, ì˜ˆì•½ ë¦¬ìŠ¤í¬ë¥¼ ë¨¼ì € ì •ë¦¬í•©ë‹ˆë‹¤."),
-    general_mission: missionText("Break the request into executable steps and prepare only before approval.", "ìš”ì²­ì„ ì‹¤í–‰ ê°€ëŠ¥í•œ ë‹¨ê³„ë¡œ ë‚˜ëˆ„ê³  ìŠ¹ì¸ ì „ê¹Œì§€ ì¤€ë¹„ë§Œ ì§„í–‰í•©ë‹ˆë‹¤.")
+    travel: missionText("Prioritize a balanced itinerary, direct flights, and hotels with strong transport access.", "균형형 일정, 직항 중심 항공, 교통 편리한 숙소를 우선 추천합니다."),
+    shopping: missionText("Recommend based on quality, warranty, delivery, reviews, and price balance.", "품질, 보증, 배송, 리뷰, 가격 균형을 기준으로 추천합니다."),
+    housing: missionText("Compare location, monthly cost, contract risk, and transport access.", "위치, 월 비용, 계약 리스크, 교통 접근성을 비교합니다."),
+    legal: missionText("Prepare the right lawyer type, documents, and consultation questions first.", "전문 분야가 맞는 변호사 유형, 서류, 상담 질문을 먼저 준비합니다."),
+    moving: missionText("Prepare visa, housing, banking, insurance, and shipping in order.", "비자, 주거, 은행, 보험, 배송 순서로 준비합니다."),
+    business: missionText("Prepare registration, tax, brand, suppliers, and starting budget.", "등록, 세금, 브랜드, 공급업체, 초기 예산을 준비합니다."),
+    healthcare: missionText("Compare clinics by location, specialty, cost, and appointment availability.", "위치, 전문 분야, 비용, 예약 가능성을 기준으로 병원을 비교합니다."),
+    finance: missionText("Compare total cost, risk, documents, and rates together.", "총 비용, 리스크, 필요 서류, 금리를 함께 비교합니다."),
+    career: missionText("Prepare target roles, resume, interview, and recruiter outreach.", "목표 직무, 이력서, 면접, 리크루터 접근을 준비합니다."),
+    lifestyle: missionText("Start with budget, timeline, vendors, and reservation risks.", "예산, 일정, 업체, 예약 리스크를 먼저 정리합니다."),
+    general_mission: missionText("Break the request into executable steps and prepare only before approval.", "요청을 실행 가능한 단계로 나누고 승인 전까지 준비만 진행합니다.")
   };
 
   return [{
     id: "recommended-plan",
-    title: "â­ ONE Pick",
+    title: "⭐ ONE Pick",
     summary: map[type] || map.general_mission,
     priority: "Balanced",
     editable: true,
@@ -859,21 +859,21 @@ const buildBudget = (type) => {
 
 const buildRisks = (type) => {
   const risks = [
-    missionText("Actual price and availability must be verified before real-world execution.", "ì‹¤ì œ ê°€ê²©ê³¼ ê°€ëŠ¥ ì—¬ë¶€ëŠ” ìµœì¢… ì‹¤í–‰ ì „ ë‹¤ì‹œ í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤."),
-    missionText("No contract, booking, submission, or payment happens before approval.", "ìŠ¹ì¸ ì „ì—ëŠ” ê³„ì•½, ì˜ˆì•½, ì œì¶œ, ê²°ì œê°€ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.")
+    missionText("Actual price and availability must be verified before real-world execution.", "실제 가격과 가능 여부는 최종 실행 전 다시 확인해야 합니다."),
+    missionText("No contract, booking, submission, or payment happens before approval.", "승인 전에는 계약, 예약, 제출, 결제가 진행되지 않습니다.")
   ];
 
   const map = {
-    travel: missionText("Flight and hotel prices can change quickly.", "í•­ê³µê¶Œê³¼ ìˆ™ì†Œ ê°€ê²©ì€ ë¹ ë¥´ê²Œ ë³€ë™ë  ìˆ˜ ìžˆìŠµë‹ˆë‹¤."),
-    shopping: missionText("Lowest-price products require delivery, warranty, and authenticity checks.", "ìµœì €ê°€ ì œí’ˆì€ ë°°ì†¡, ë³´ì¦, ì •í’ˆ ì—¬ë¶€ë¥¼ í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤."),
-    housing: missionText("Contract terms, deposit, fees, and registration details must be checked.", "ê³„ì•½ ì¡°ê±´, ë³´ì¦ê¸ˆ, ê´€ë¦¬ë¹„, ë“±ê¸° ì‚¬í•­ í™•ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤."),
-    legal: missionText("Legal information is for preparation only and requires professional review.", "ë²•ë¥  ì •ë³´ëŠ” ì¼ë°˜ ì¤€ë¹„ìš©ì´ë©° ìµœì¢… íŒë‹¨ì€ ì „ë¬¸ê°€ í™•ì¸ì´ í•„ìš”í•©ë‹ˆë‹¤."),
-    moving: missionText("Visa and immigration requirements can change by country.", "ë¹„ìžì™€ ì´ë¯¼ ìš”ê±´ì€ êµ­ê°€ë³„ë¡œ ë°”ë€” ìˆ˜ ìžˆìŠµë‹ˆë‹¤."),
-    business: missionText("Business registration, taxes, and permits may differ by location.", "ì‚¬ì—… ë“±ë¡, ì„¸ê¸ˆ, í—ˆê°€ ìš”ê±´ì€ ì§€ì—­ë³„ë¡œ ë‹¤ë¥¼ ìˆ˜ ìžˆìŠµë‹ˆë‹¤."),
-    healthcare: missionText("For emergencies, use local emergency services, not ONE.", "ì‘ê¸‰ ìƒí™©ì—ì„œëŠ” ONEì´ ì•„ë‹ˆë¼ í˜„ì§€ ì‘ê¸‰ ì„œë¹„ìŠ¤ë¥¼ ì´ìš©í•´ì•¼ í•©ë‹ˆë‹¤."),
-    finance: missionText("Financial products can involve loss, interest, and fee risks.", "ê¸ˆìœµ ìƒí’ˆì€ ì†ì‹¤, ì´ìž, ìˆ˜ìˆ˜ë£Œ ë¦¬ìŠ¤í¬ê°€ ìžˆìŠµë‹ˆë‹¤."),
-    career: missionText("Company and role conditions must be checked before applying.", "ì§€ì›ì„œ ì œì¶œ ì „ íšŒì‚¬ì™€ ì¡°ê±´ì„ ì§ì ‘ í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤."),
-    lifestyle: missionText("Availability and cancellation rules must be checked.", "ì˜ˆì•½ ê°€ëŠ¥ ì—¬ë¶€ì™€ ì·¨ì†Œ ê·œì •ì„ í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤.")
+    travel: missionText("Flight and hotel prices can change quickly.", "항공권과 숙소 가격은 빠르게 변동될 수 있습니다."),
+    shopping: missionText("Lowest-price products require delivery, warranty, and authenticity checks.", "최저가 제품은 배송, 보증, 정품 여부를 확인해야 합니다."),
+    housing: missionText("Contract terms, deposit, fees, and registration details must be checked.", "계약 조건, 보증금, 관리비, 등기 사항 확인이 필요합니다."),
+    legal: missionText("Legal information is for preparation only and requires professional review.", "법률 정보는 일반 준비용이며 최종 판단은 전문가 확인이 필요합니다."),
+    moving: missionText("Visa and immigration requirements can change by country.", "비자와 이민 요건은 국가별로 바뀔 수 있습니다."),
+    business: missionText("Business registration, taxes, and permits may differ by location.", "사업 등록, 세금, 허가 요건은 지역별로 다를 수 있습니다."),
+    healthcare: missionText("For emergencies, use local emergency services, not ONE.", "응급 상황에서는 ONE이 아니라 현지 응급 서비스를 이용해야 합니다."),
+    finance: missionText("Financial products can involve loss, interest, and fee risks.", "금융 상품은 손실, 이자, 수수료 리스크가 있습니다."),
+    career: missionText("Company and role conditions must be checked before applying.", "지원서 제출 전 회사와 조건을 직접 확인해야 합니다."),
+    lifestyle: missionText("Availability and cancellation rules must be checked.", "예약 가능 여부와 취소 규정을 확인해야 합니다.")
   };
 
   if (map[type]) risks.unshift(map[type]);
@@ -882,17 +882,17 @@ const buildRisks = (type) => {
 
 const buildCards = (type) => {
   const map = {
-    travel: [["flights","Flights","í•­ê³µê¶Œ"],["hotels","Hotels","ìˆ™ì†Œ"],["weather","Weather","ë‚ ì”¨"],["currency","Currency","í™˜ìœ¨"],["visa","Visa","ë¹„ìž"],["restaurants","Restaurants","ì‹ë‹¹"],["airport_transfer","Airport Transfer","ê³µí•­ ì´ë™"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    shopping: [["recommended_product","Recommended Product","ì¶”ì²œ ì œí’ˆ"],["alternative_products","Alternative Products","ëŒ€ì•ˆ ì œí’ˆ"],["price_comparison","Price Comparison","ê°€ê²© ë¹„êµ"],["where_to_buy","Where to Buy","êµ¬ë§¤ì²˜"],["warranty","Warranty","ë³´ì¦"],["delivery","Delivery","ë°°ì†¡"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    housing: [["housing_options","Housing Options","ì£¼ê±° ì˜µì…˜"],["area_comparison","Area Comparison","ì§€ì—­ ë¹„êµ"],["budget","Budget","ì˜ˆì‚°"],["documents","Documents","ì„œë¥˜"],["risks","Risks","ë¦¬ìŠ¤í¬"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    legal: [["lawyer_type","Recommended Lawyer Type","ì¶”ì²œ ë³€í˜¸ì‚¬ ìœ í˜•"],["documents","Documents Needed","í•„ìš” ì„œë¥˜"],["process","Estimated Process","ì˜ˆìƒ ì ˆì°¨"],["risks","Risks","ë¦¬ìŠ¤í¬"],["questions","Questions to Ask","ì§ˆë¬¸ ë¦¬ìŠ¤íŠ¸"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    moving: [["visa","Visa","ë¹„ìž"],["housing","Housing","ì£¼ê±°"],["shipping","Shipping","ë°°ì†¡"],["banking","Banking","ì€í–‰"],["insurance","Insurance","ë³´í—˜"],["schools","Schools","í•™êµ"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    business: [["registration","Business Registration","ì‚¬ì—…ìž / ë²•ì¸ ë“±ë¡"],["tax","Tax / Accounting","ì„¸ê¸ˆ / íšŒê³„"],["brand","Brand / Domain","ë¸Œëžœë“œ / ë„ë©”ì¸"],["suppliers","Suppliers","ê³µê¸‰ì—…ì²´"],["budget","Budget","ì˜ˆì‚°"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    healthcare: [["clinic","Clinic / Hospital","ë³‘ì› / í´ë¦¬ë‹‰"],["appointment","Appointment Prep","ì˜ˆì•½ ì¤€ë¹„"],["documents","Documents","ì„œë¥˜"],["cost","Cost Estimate","ì˜ˆìƒ ë¹„ìš©"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    finance: [["loan_options","Loan Options","ëŒ€ì¶œ ì˜µì…˜"],["rates","Rates","ê¸ˆë¦¬"],["documents","Documents","ì„œë¥˜"],["risks","Risks","ë¦¬ìŠ¤í¬"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    career: [["targets","Job Targets","ì±„ìš© ëª©í‘œ"],["resume","Resume","ì´ë ¥ì„œ"],["interview","Interview Prep","ë©´ì ‘ ì¤€ë¹„"],["recruiters","Recruiters","ë¦¬í¬ë£¨í„°"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    lifestyle: [["vendors","Vendors","ì—…ì²´"],["timeline","Timeline","ì¼ì •"],["budget","Budget","ì˜ˆì‚°"],["reservations","Reservations","ì˜ˆì•½"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]],
-    general_mission: [["mission_plan","Mission Plan","ë¯¸ì…˜ í”Œëžœ"],["options","Options","ì„ íƒì§€"],["budget","Budget","ì˜ˆì‚°"],["risks","Risks","ë¦¬ìŠ¤í¬"],["checklist","Checklist","ì²´í¬ë¦¬ìŠ¤íŠ¸"]]
+    travel: [["flights","Flights","항공권"],["hotels","Hotels","숙소"],["weather","Weather","날씨"],["currency","Currency","환율"],["visa","Visa","비자"],["restaurants","Restaurants","식당"],["airport_transfer","Airport Transfer","공항 이동"],["checklist","Checklist","체크리스트"]],
+    shopping: [["recommended_product","Recommended Product","추천 제품"],["alternative_products","Alternative Products","대안 제품"],["price_comparison","Price Comparison","가격 비교"],["where_to_buy","Where to Buy","구매처"],["warranty","Warranty","보증"],["delivery","Delivery","배송"],["checklist","Checklist","체크리스트"]],
+    housing: [["housing_options","Housing Options","주거 옵션"],["area_comparison","Area Comparison","지역 비교"],["budget","Budget","예산"],["documents","Documents","서류"],["risks","Risks","리스크"],["checklist","Checklist","체크리스트"]],
+    legal: [["lawyer_type","Recommended Lawyer Type","추천 변호사 유형"],["documents","Documents Needed","필요 서류"],["process","Estimated Process","예상 절차"],["risks","Risks","리스크"],["questions","Questions to Ask","질문 리스트"],["checklist","Checklist","체크리스트"]],
+    moving: [["visa","Visa","비자"],["housing","Housing","주거"],["shipping","Shipping","배송"],["banking","Banking","은행"],["insurance","Insurance","보험"],["schools","Schools","학교"],["checklist","Checklist","체크리스트"]],
+    business: [["registration","Business Registration","사업자 / 법인 등록"],["tax","Tax / Accounting","세금 / 회계"],["brand","Brand / Domain","브랜드 / 도메인"],["suppliers","Suppliers","공급업체"],["budget","Budget","예산"],["checklist","Checklist","체크리스트"]],
+    healthcare: [["clinic","Clinic / Hospital","병원 / 클리닉"],["appointment","Appointment Prep","예약 준비"],["documents","Documents","서류"],["cost","Cost Estimate","예상 비용"],["checklist","Checklist","체크리스트"]],
+    finance: [["loan_options","Loan Options","대출 옵션"],["rates","Rates","금리"],["documents","Documents","서류"],["risks","Risks","리스크"],["checklist","Checklist","체크리스트"]],
+    career: [["targets","Job Targets","채용 목표"],["resume","Resume","이력서"],["interview","Interview Prep","면접 준비"],["recruiters","Recruiters","리크루터"],["checklist","Checklist","체크리스트"]],
+    lifestyle: [["vendors","Vendors","업체"],["timeline","Timeline","일정"],["budget","Budget","예산"],["reservations","Reservations","예약"],["checklist","Checklist","체크리스트"]],
+    general_mission: [["mission_plan","Mission Plan","미션 플랜"],["options","Options","선택지"],["budget","Budget","예산"],["risks","Risks","리스크"],["checklist","Checklist","체크리스트"]]
   };
 
   return (map[type] || map.general_mission).map(([id, en, ko]) => ({
@@ -936,17 +936,17 @@ const buildMissionObject = (mission) => {
   const country = detectCountry(cleanMission, type);
   const theme = root.getAttribute("data-theme") || "light";
   const providers = providerCatalog[type] || providerCatalog.general_mission;
-  const isTutorMission = type === "tutoring" || (type === "career" && /tutor|teacher|lesson|ì„ ìƒë‹˜|íŠœí„°|ê³¼ì™¸|ìˆ˜ì—…/i.test(cleanMission));
+  const isTutorMission = type === "tutoring" || (type === "career" && /tutor|teacher|lesson|선생님|튜터|과외|수업/i.test(cleanMission));
   const tutorSteps = [
-    ["tutors", "Tutor shortlist", "íŠœí„° í›„ë³´"],
-    ["style", "Teaching style", "ìˆ˜ì—… ë°©ì‹"],
-    ["format", "Online / Offline", "ì˜¨ë¼ì¸ / ì˜¤í”„ë¼ì¸"],
-    ["experience", "Experience", "ê²½ë ¥"],
-    ["price", "Price", "ê°€ê²©"],
-    ["languages", "Languages", "ì‚¬ìš© ì–¸ì–´"],
-    ["availability", "Availability", "ê°€ëŠ¥ ì‹œê°„"],
-    ["questions", "Interview questions", "ì¸í„°ë·° ì§ˆë¬¸"],
-    ["trial", "Trial lesson", "ì²´í—˜ ìˆ˜ì—…"]
+    ["tutors", "Tutor shortlist", "튜터 후보"],
+    ["style", "Teaching style", "수업 방식"],
+    ["format", "Online / Offline", "온라인 / 오프라인"],
+    ["experience", "Experience", "경력"],
+    ["price", "Price", "가격"],
+    ["languages", "Languages", "사용 언어"],
+    ["availability", "Availability", "가능 시간"],
+    ["questions", "Interview questions", "인터뷰 질문"],
+    ["trial", "Trial lesson", "체험 수업"]
   ];
   const tutorCards = tutorSteps.map(([id, en, ko]) => ({
     id,
@@ -963,7 +963,7 @@ const buildMissionObject = (mission) => {
   }));
   const preparedTutorSteps = tutorSteps.map(([id, en, ko], index) => ({
     id,
-    title: activeLanguage === "ko" ? `${ko} ì¤€ë¹„ ì™„ë£Œ` : `${en} prepared`,
+    title: activeLanguage === "ko" ? `${ko} 준비 완료` : `${en} prepared`,
     order: index + 1,
     status: "prepared",
     editable: true,
@@ -1005,9 +1005,9 @@ const buildMissionObject = (mission) => {
     executionSimulation: {
       status: "not_started",
       messages: activeLanguage === "ko"
-        ? ["ì„ íƒí•œ ë‹¨ê³„ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ìµœì¢… ìš”êµ¬ì‚¬í•­ì„ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ì œê³µìž ì‹¤í–‰ í•­ëª©ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ìŠ¹ì¸ ìš”ì•½ì„ ë§Œë“¤ê³  ìžˆì–´ìš”...", "ì‹¤ì œ ì‹¤í–‰ ì¤€ë¹„ê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤."]
+        ? ["선택한 단계를 준비하고 있어요...", "최종 요구사항을 확인하고 있어요...", "제공자 실행 항목을 준비하고 있어요...", "승인 요약을 만들고 있어요...", "실제 실행 준비가 완료되었습니다."]
         : ["Preparing selected steps...", "Checking final requirements...", "Preparing provider actions...", "Creating approval summary...", "Ready for real-world execution."],
-      finalMessage: "Your future is now in motion.\\nâ€” ONE â€”"
+      finalMessage: "Your future is now in motion.\\n— ONE —"
     }
   };
 };
@@ -1035,16 +1035,16 @@ const detectDestination = (mission, countryProfile = null) => {
 
   return {
     destination: "Destination to confirm",
-    destinationKo: "í™•ì¸ì´ í•„ìš”í•œ ëª©ì ì§€",
+    destinationKo: "확인이 필요한 목적지",
     city: "City to confirm",
-    cityKo: "í™•ì¸ì´ í•„ìš”í•œ ë„ì‹œ",
+    cityKo: "확인이 필요한 도시",
     aliases: []
   };
 };
 
 const detectDurationDays = (mission) => {
   const englishMatch = mission.match(/(\d+)\s*(day|days)/i);
-  const koreanMatch = mission.match(/(\d+)\s*(ì¼|ë°•)/);
+  const koreanMatch = mission.match(/(\d+)\s*(일|박)/);
 
   if (englishMatch) {
     return Number(englishMatch[1]);
@@ -1072,7 +1072,7 @@ const detectTripType = (mission) => {
   const oneWayKeywords = [
     "one way", "one-way", "migrate", "migration", "immigrate", "immigration",
     "relocate", "relocation", "moving permanently", "permanent move",
-    "íŽ¸ë„", "ì´ë¯¼", "ì´ì£¼", "ì˜êµ¬ ì´ì£¼"
+    "편도", "이민", "이주", "영구 이주"
   ];
 
   return oneWayKeywords.some((keyword) => text.includes(keyword)) ? "one_way" : "round_trip";
@@ -1149,10 +1149,10 @@ const buildTravelMission = (mission) => {
       {
         id: "flight-korean-air",
         provider: "Korean Air",
-        providerKo: "ëŒ€í•œí•­ê³µ",
+        providerKo: "대한항공",
         category: "recommended",
         reason: "Best balance of comfort, direct routes, and service quality.",
-        reasonKo: "íŽ¸ì•ˆí•¨, ì§í•­ ë…¸ì„ , ì„œë¹„ìŠ¤ í’ˆì§ˆì˜ ê· í˜•ì´ ê°€ìž¥ ì¢‹ìŠµë‹ˆë‹¤.",
+        reasonKo: "편안함, 직항 노선, 서비스 품질의 균형이 가장 좋습니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 420000,
@@ -1163,10 +1163,10 @@ const buildTravelMission = (mission) => {
       {
         id: "flight-asiana",
         provider: "Asiana Airlines",
-        providerKo: "ì•„ì‹œì•„ë‚˜í•­ê³µ",
+        providerKo: "아시아나항공",
         category: "quality",
         reason: "Strong service quality and convenient Korea to Japan schedules.",
-        reasonKo: "ì„œë¹„ìŠ¤ í’ˆì§ˆì´ ì¢‹ê³  í•œêµ­-ì¼ë³¸ ë…¸ì„  ì¼ì •ì´ íŽ¸ë¦¬í•©ë‹ˆë‹¤.",
+        reasonKo: "서비스 품질이 좋고 한국-일본 노선 일정이 편리합니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 390000,
@@ -1177,10 +1177,10 @@ const buildTravelMission = (mission) => {
       {
         id: "flight-jeju-air",
         provider: "Jeju Air",
-        providerKo: "ì œì£¼í•­ê³µ",
+        providerKo: "제주항공",
         category: "budget",
         reason: "Lower-cost option for flexible travelers.",
-        reasonKo: "ì¼ì •ì´ ìœ ì—°í•œ ì—¬í–‰ìžì—ê²Œ ì í•©í•œ ì €ê°€ ì˜µì…˜ìž…ë‹ˆë‹¤.",
+        reasonKo: "일정이 유연한 여행자에게 적합한 저가 옵션입니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 180000,
@@ -1191,10 +1191,10 @@ const buildTravelMission = (mission) => {
       {
         id: "flight-jal",
         provider: "Japan Airlines",
-        providerKo: "ì¼ë³¸í•­ê³µ",
+        providerKo: "일본항공",
         category: "premium",
         reason: "Premium Japan-based carrier with excellent reliability.",
-        reasonKo: "ì•ˆì •ì„±ì´ ë›°ì–´ë‚œ ì¼ë³¸ ê¸°ë°˜ í”„ë¦¬ë¯¸ì—„ í•­ê³µì‚¬ìž…ë‹ˆë‹¤.",
+        reasonKo: "안정성이 뛰어난 일본 기반 프리미엄 항공사입니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 460000,
@@ -1205,10 +1205,10 @@ const buildTravelMission = (mission) => {
       {
         id: "flight-united",
         provider: "United Airlines",
-        providerKo: "ìœ ë‚˜ì´í‹°ë“œí•­ê³µ",
+        providerKo: "유나이티드항공",
         category: "alternative",
         reason: "Useful alternative depending on route availability.",
-        reasonKo: "ë…¸ì„  ê°€ëŠ¥ ì—¬ë¶€ì— ë”°ë¼ ì„ íƒí•  ìˆ˜ ìžˆëŠ” ëŒ€ì•ˆìž…ë‹ˆë‹¤.",
+        reasonKo: "노선 가능 여부에 따라 선택할 수 있는 대안입니다.",
         estimatedPrice: {
           currency: "KRW",
           min: 430000,
@@ -1221,10 +1221,10 @@ const buildTravelMission = (mission) => {
       {
         id: "hotel-metropolitan",
         name: "Hotel Metropolitan Tokyo Marunouchi",
-        nameKo: "í˜¸í…” ë©”íŠ¸ë¡œí´ë¦¬íƒ„ ë„ì¿„ ë§ˆë£¨ë…¸ìš°ì¹˜",
+        nameKo: "호텔 메트로폴리탄 도쿄 마루노우치",
         category: "recommended",
         reason: "Central location, strong reviews, easy access to transport.",
-        reasonKo: "ì¤‘ì‹¬ ìœ„ì¹˜, ì¢‹ì€ ë¦¬ë·°, íŽ¸ë¦¬í•œ êµí†µ ì ‘ê·¼ì„±ì„ ê°–ì·„ìŠµë‹ˆë‹¤.",
+        reasonKo: "중심 위치, 좋은 리뷰, 편리한 교통 접근성을 갖췄습니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 240000,
@@ -1235,10 +1235,10 @@ const buildTravelMission = (mission) => {
       {
         id: "hotel-hilton-tokyo",
         name: "Hilton Tokyo",
-        nameKo: "ížíŠ¼ ë„ì¿„",
+        nameKo: "힐튼 도쿄",
         category: "premium",
         reason: "Premium comfort and reliable international service.",
-        reasonKo: "í”„ë¦¬ë¯¸ì—„ ìˆ™ë°• ê²½í—˜ê³¼ ì•ˆì •ì ì¸ ê¸€ë¡œë²Œ ì„œë¹„ìŠ¤ë¥¼ ì œê³µí•©ë‹ˆë‹¤.",
+        reasonKo: "프리미엄 숙박 경험과 안정적인 글로벌 서비스를 제공합니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 320000,
@@ -1249,10 +1249,10 @@ const buildTravelMission = (mission) => {
       {
         id: "hotel-tokyu-stay",
         name: "Tokyu Stay Shinjuku",
-        nameKo: "ë„í ìŠ¤í…Œì´ ì‹ ì£¼ì¿ ",
+        nameKo: "도큐 스테이 신주쿠",
         category: "value",
         reason: "Practical location and strong value for longer stays.",
-        reasonKo: "ì‹¤ìš©ì ì¸ ìœ„ì¹˜ì™€ ìž¥ê¸° ìˆ™ë°•ì— ì¢‹ì€ ê°€ì„±ë¹„ë¥¼ ì œê³µí•©ë‹ˆë‹¤.",
+        reasonKo: "실용적인 위치와 장기 숙박에 좋은 가성비를 제공합니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 160000,
@@ -1263,10 +1263,10 @@ const buildTravelMission = (mission) => {
       {
         id: "hotel-apa",
         name: "APA Hotel",
-        nameKo: "APA í˜¸í…”",
+        nameKo: "APA 호텔",
         category: "budget",
         reason: "Budget-friendly and widely available across Tokyo.",
-        reasonKo: "ë„ì¿„ ì „ì—­ì—ì„œ ì°¾ê¸° ì‰½ê³  ì˜ˆì‚°ì„ ì•„ë¼ê¸° ì¢‹ì€ ì˜µì…˜ìž…ë‹ˆë‹¤.",
+        reasonKo: "도쿄 전역에서 찾기 쉽고 예산을 아끼기 좋은 옵션입니다.",
         estimatedNightlyPrice: {
           currency: "KRW",
           min: 95000,
@@ -1278,24 +1278,24 @@ const buildTravelMission = (mission) => {
     airportTransfer: {
       recommended: {
         en: "Narita Express or Airport Limousine Bus",
-        ko: "ë‚˜ë¦¬íƒ€ ìµìŠ¤í”„ë ˆìŠ¤ ë˜ëŠ” ê³µí•­ ë¦¬ë¬´ì§„ ë²„ìŠ¤"
+        ko: "나리타 익스프레스 또는 공항 리무진 버스"
       },
       reason: {
         en: "Best balance of reliability, luggage convenience, and access to central Tokyo.",
-        ko: "ì •ì‹œì„±, ìˆ˜í•˜ë¬¼ íŽ¸ì˜ì„±, ë„ì¿„ ì¤‘ì‹¬ ì ‘ê·¼ì„±ì˜ ê· í˜•ì´ ì¢‹ìŠµë‹ˆë‹¤."
+        ko: "정시성, 수하물 편의성, 도쿄 중심 접근성의 균형이 좋습니다."
       },
       options: [
         {
           en: "Narita Express",
-          ko: "ë‚˜ë¦¬íƒ€ ìµìŠ¤í”„ë ˆìŠ¤"
+          ko: "나리타 익스프레스"
         },
         {
           en: "Airport Limousine Bus",
-          ko: "ê³µí•­ ë¦¬ë¬´ì§„ ë²„ìŠ¤"
+          ko: "공항 리무진 버스"
         },
         {
           en: "Private airport transfer",
-          ko: "í”„ë¼ì´ë¹— ê³µí•­ í”½ì—…"
+          ko: "프라이빗 공항 픽업"
         }
       ],
       editable: true
@@ -1304,7 +1304,7 @@ const buildTravelMission = (mission) => {
       status: "provider_ready",
       message: {
         en: "Weather will be checked with a live weather API before execution.",
-        ko: "ì‹¤í–‰ ì „ ì‹¤ì‹œê°„ ë‚ ì”¨ APIë¡œ ë‚ ì”¨ë¥¼ í™•ì¸í•©ë‹ˆë‹¤."
+        ko: "실행 전 실시간 날씨 API로 날씨를 확인합니다."
       },
       providerCandidates: ["Open-Meteo API"]
     },
@@ -1314,7 +1314,7 @@ const buildTravelMission = (mission) => {
       to: "JPY",
       message: {
         en: "Exchange rate will be checked with a live currency API before execution.",
-        ko: "ì‹¤í–‰ ì „ ì‹¤ì‹œê°„ í™˜ìœ¨ APIë¡œ í™˜ìœ¨ì„ í™•ì¸í•©ë‹ˆë‹¤."
+        ko: "실행 전 실시간 환율 API로 환율을 확인합니다."
       },
       providerCandidates: ["Frankfurter API"]
     },
@@ -1322,7 +1322,7 @@ const buildTravelMission = (mission) => {
       status: "requires-verification",
       message: {
         en: "For many travelers visa-free entry may apply, but ONE must verify before execution.",
-        ko: "ë§Žì€ ì—¬í–‰ìžì—ê²Œ ë¬´ë¹„ìž ìž…êµ­ì´ ê°€ëŠ¥í•  ìˆ˜ ìžˆì§€ë§Œ, ì‹¤í–‰ ì „ ONEì´ ë°˜ë“œì‹œ í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤."
+        ko: "많은 여행자에게 무비자 입국이 가능할 수 있지만, 실행 전 ONE이 반드시 확인해야 합니다."
       },
       providerCandidates: ["Government embassy data", "Timatic-style API"]
     },
@@ -1330,14 +1330,14 @@ const buildTravelMission = (mission) => {
       {
         id: "passport",
         en: "Passport",
-        ko: "ì—¬ê¶Œ",
+        ko: "여권",
         required: true,
         editable: true
       },
       {
         id: "travel-insurance",
         en: "Travel insurance",
-        ko: "ì—¬í–‰ìž ë³´í—˜",
+        ko: "여행자 보험",
         required: true,
         editable: true
       },
@@ -1351,28 +1351,28 @@ const buildTravelMission = (mission) => {
       {
         id: "currency",
         en: "Currency",
-        ko: "í™˜ì „",
+        ko: "환전",
         required: true,
         editable: true
       },
       {
         id: "transit-card",
         en: "Transit card",
-        ko: "êµí†µì¹´ë“œ",
+        ko: "교통카드",
         required: false,
         editable: true
       },
       {
         id: "hotel-confirmation",
         en: "Hotel confirmation",
-        ko: "í˜¸í…” ì˜ˆì•½ í™•ì¸ì„œ",
+        ko: "호텔 예약 확인서",
         required: true,
         editable: true
       },
       {
         id: "emergency-contacts",
         en: "Emergency contacts",
-        ko: "ë¹„ìƒ ì—°ë½ì²˜",
+        ko: "비상 연락처",
         required: true,
         editable: true
       }
@@ -1381,41 +1381,41 @@ const buildTravelMission = (mission) => {
       {
         id: "sushi",
         type: "Sushi",
-        typeKo: "ìŠ¤ì‹œ",
+        typeKo: "스시",
         recommendation: "Reservation-ready sushi options near your route.",
-        recommendationKo: "ë™ì„  ê·¼ì²˜ ì˜ˆì•½ ê°€ëŠ¥í•œ ìŠ¤ì‹œ ì˜µì…˜ì„ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "동선 근처 예약 가능한 스시 옵션을 준비합니다.",
         editable: true
       },
       {
         id: "ramen",
         type: "Ramen",
-        typeKo: "ë¼ë©˜",
+        typeKo: "라멘",
         recommendation: "Local ramen shortlist based on location and wait time.",
-        recommendationKo: "ìœ„ì¹˜ì™€ ëŒ€ê¸° ì‹œê°„ì„ ê¸°ì¤€ìœ¼ë¡œ í˜„ì§€ ë¼ë©˜ í›„ë³´ë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "위치와 대기 시간을 기준으로 현지 라멘 후보를 준비합니다.",
         editable: true
       },
       {
         id: "wagyu",
         type: "Wagyu",
-        typeKo: "ì™€ê·œ",
+        typeKo: "와규",
         recommendation: "Premium wagyu options for one special meal.",
-        recommendationKo: "íŠ¹ë³„í•œ ì‹ì‚¬ë¥¼ ìœ„í•œ í”„ë¦¬ë¯¸ì—„ ì™€ê·œ ì˜µì…˜ì„ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "특별한 식사를 위한 프리미엄 와규 옵션을 준비합니다.",
         editable: true
       },
       {
         id: "izakaya",
         type: "Izakaya",
-        typeKo: "ì´ìžì¹´ì•¼",
+        typeKo: "이자카야",
         recommendation: "Casual evening options near hotel or station.",
-        recommendationKo: "í˜¸í…”ì´ë‚˜ ì—­ ê·¼ì²˜ì˜ ìºì£¼ì–¼í•œ ì €ë… ì˜µì…˜ì„ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "호텔이나 역 근처의 캐주얼한 저녁 옵션을 준비합니다.",
         editable: true
       },
       {
         id: "cafe",
         type: "Cafe",
-        typeKo: "ì¹´íŽ˜",
+        typeKo: "카페",
         recommendation: "Premium cafes and quiet stops along the itinerary.",
-        recommendationKo: "ì¼ì • ì¤‘ ë“¤ë¥´ê¸° ì¢‹ì€ í”„ë¦¬ë¯¸ì—„ ì¹´íŽ˜ì™€ ì¡°ìš©í•œ ìž¥ì†Œë¥¼ ì¤€ë¹„í•©ë‹ˆë‹¤.",
+        recommendationKo: "일정 중 들르기 좋은 프리미엄 카페와 조용한 장소를 준비합니다.",
         editable: true
       }
     ],
@@ -1450,37 +1450,37 @@ const buildTravelMission = (mission) => {
     recommendedOption: {
       level: "balanced",
       en: "Balanced quality plan",
-      ko: "ê· í˜•í˜• í’ˆì§ˆ í”Œëžœ",
+      ko: "균형형 품질 플랜",
       reason: {
         en: "Best overall mix of comfort, price control, transport access, and reliable providers.",
-        ko: "íŽ¸ì•ˆí•¨, ê°€ê²© í†µì œ, êµí†µ ì ‘ê·¼ì„±, ì‹ ë¢° ê°€ëŠ¥í•œ ì œê³µì—…ì²´ì˜ ê· í˜•ì´ ê°€ìž¥ ì¢‹ìŠµë‹ˆë‹¤."
+        ko: "편안함, 가격 통제, 교통 접근성, 신뢰 가능한 제공업체의 균형이 가장 좋습니다."
       }
     },
     modifyOptions: [
       {
         id: "change-airline",
         en: "Change airline",
-        ko: "í•­ê³µì‚¬ ë³€ê²½"
+        ko: "항공사 변경"
       },
       {
         id: "change-hotel-type",
         en: "Change hotel type",
-        ko: "í˜¸í…” ìœ í˜• ë³€ê²½"
+        ko: "호텔 유형 변경"
       },
       {
         id: "remove-restaurants",
         en: "Remove restaurants",
-        ko: "ë ˆìŠ¤í† ëž‘ ì œì™¸"
+        ko: "레스토랑 제외"
       },
       {
         id: "reduce-budget",
         en: "Reduce budget",
-        ko: "ì˜ˆì‚° ì¤„ì´ê¸°"
+        ko: "예산 줄이기"
       },
       {
         id: "upgrade-quality",
         en: "Upgrade quality",
-        ko: "í’ˆì§ˆ ì—…ê·¸ë ˆì´ë“œ"
+        ko: "품질 업그레이드"
       }
     ]
   };
@@ -1492,7 +1492,7 @@ const buildGeneralMission = (mission) => {
     const output = createHOSKernel().run({
       mission,
       language: activeLanguage,
-      currentLocation: activeLanguage === "ko" ? "ì„œìš¸" : "Seoul"
+      currentLocation: activeLanguage === "ko" ? "서울" : "Seoul"
     });
     const plan = output.resolutionPlan;
     return {
@@ -1513,7 +1513,7 @@ const buildGeneralMission = (mission) => {
 const saveMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
   const classifiedType = classifyMission(cleanMission);
-  const destinationTravelIntent = Boolean(pendingDetectedDestination) && previewTravelIntent(cleanMission);
+  const destinationTravelIntent = Boolean(pendingDetectedDestination) || previewTravelIntent(cleanMission);
   const missionType = pendingFollowUp?.type === "travel" || classifiedType === "travel" || destinationTravelIntent
     ? "travel"
     : pendingFollowUp?.type || classifiedType;
@@ -1661,8 +1661,8 @@ const startMission = (mission, schedule = null) => {
 
 const destinationFlag = (code = "") => String(code).toUpperCase().replace(/[A-Z]/g, (letter) => String.fromCodePoint(127397 + letter.charCodeAt(0)));
 const MISSION_AMBIGUITIES = Object.freeze([
-  { aliases: ["paris", "parÃ­s", "\uD30C\uB9AC"], places: [
-    { city: "Paris", state: "ÃŽle-de-France", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 48.8566, longitude: 2.3522 },
+  { aliases: ["paris", "parís", "\uD30C\uB9AC"], places: [
+    { city: "Paris", state: "Île-de-France", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 48.8566, longitude: 2.3522 },
     { city: "Paris", state: "Texas", country: "United States", code: "US", continent: "North America", currency: "USD", latitude: 33.6609, longitude: -95.5555 },
     { city: "Paris", state: "Ontario", country: "Canada", code: "CA", continent: "North America", currency: "CAD", latitude: 43.194, longitude: -80.3845 }
   ]},
@@ -1672,7 +1672,7 @@ const MISSION_AMBIGUITIES = Object.freeze([
   ]},
   { aliases: ["surat", "\uC218\uB77C\uD2B8"], places: [
     { city: "Surat", state: "Gujarat", country: "India", code: "IN", continent: "Asia", currency: "INR", latitude: 21.1702, longitude: 72.8311 },
-    { city: "Surat", state: "Puy-de-DÃ´me", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 45.965, longitude: 3.255 }
+    { city: "Surat", state: "Puy-de-Dôme", country: "France", code: "FR", continent: "Europe", currency: "EUR", latitude: 45.965, longitude: 3.255 }
   ]},
   { aliases: ["santiago", "\uC0B0\uD2F0\uC544\uACE0"], places: [
     { city: "Santiago", state: "Santiago Metropolitan Region", country: "Chile", code: "CL", continent: "South America", currency: "CLP", latitude: -33.4489, longitude: -70.6693 },
@@ -1693,7 +1693,7 @@ const missionAmbiguityMatches = (mission) => {
     currency: place.currency,
     latitude: place.latitude,
     longitude: place.longitude,
-    description: [place.placeType || "Destination", place.state, place.country].filter(Boolean).join(" Â· ")
+    description: [place.placeType || "Destination", place.state, place.country].filter(Boolean).join(" · ")
   }));
   const normalized = String(mission || "").normalize("NFKC").toLocaleLowerCase();
   const entry = MISSION_AMBIGUITIES.find(({ aliases }) => aliases.some((alias) => normalized.includes(alias)));
@@ -1715,58 +1715,26 @@ const openDestinationChoice = (mission, schedule) => {
   }
   const heading = activeLanguage === "ko" ? "어느 목적지를 말씀하셨나요?" : activeLanguage === "es" ? "¿Qué destino quisiste decir?" : "Which destination did you mean?";
   const detail = activeLanguage === "ko" ? "계획을 시작하기 전에 정확한 위치를 선택하세요." : activeLanguage === "es" ? "Elige la ubicación exacta antes de preparar el plan." : "Choose the exact location before ONE prepares the plan.";
-  dialog.replaceChildren();
-  const card = document.createElement("div");
-  card.className = "schedule-modal-card destination-choice-card";
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "schedule-modal-close";
-  close.setAttribute("aria-label", "Close");
-  close.textContent = "×";
-  const kicker = document.createElement("p");
-  kicker.className = "login-modal-kicker";
-  kicker.textContent = "KASTIZ ONE";
-  const title = document.createElement("h2");
-  title.textContent = heading;
-  const summary = document.createElement("p");
-  summary.textContent = detail;
-  const list = document.createElement("div");
-  list.className = "destination-choice-list";
-  pendingDestinationMatches.forEach((place, index) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.dataset.destinationIndex = String(index);
-    const strong = document.createElement("strong");
-    strong.textContent = `${destinationFlag(place.code)} ${destinationDisplayName(place)}`;
-    button.append(strong);
-    if (place.description) {
-      const span = document.createElement("span");
-      span.textContent = place.description;
-      button.append(span);
-    }
-    button.addEventListener("click", () => {
-      const selectedPlace = pendingDestinationMatches[Number(button.dataset.destinationIndex)];
-      if (!selectedPlace) return;
-      pendingDetectedDestination = {
-        id: String(selectedPlace.city || selectedPlace.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),
-        city: selectedPlace.city,
-        country: selectedPlace.country,
-        countryCode: selectedPlace.code || selectedPlace.countryCode,
-        continent: selectedPlace.continent,
-        currency: selectedPlace.currency,
-        state: selectedPlace.state,
-        latitude: selectedPlace.latitude,
-        longitude: selectedPlace.longitude
-      };
-      pendingDestinationMatches = [];
-      dialog.close();
-      startMission(mission, schedule);
-    });
-    list.append(button);
-  });
-  close.addEventListener("click", () => dialog.close());
-  card.append(close, kicker, title, summary, list);
-  dialog.append(card);
+  dialog.innerHTML = `<div class="schedule-modal-card destination-choice-card"><button type="button" class="schedule-modal-close" data-close aria-label="Close">×</button><p class="login-modal-kicker">KASTIZ ONE</p><h2>${heading}</h2><p>${detail}</p><div class="destination-choice-list">${pendingDestinationMatches.map((place, index) => `<button type="button" data-destination-index="${index}"><strong>${destinationFlag(place.code)} ${destinationDisplayName(place)}</strong>${place.description ? `<span>${place.description}</span>` : ""}</button>`).join("")}</div></div>`;
+  dialog.querySelector("[data-close]")?.addEventListener("click", () => dialog.close());
+  dialog.querySelectorAll("[data-destination-index]").forEach((button) => button.addEventListener("click", () => {
+    const place = pendingDestinationMatches[Number(button.dataset.destinationIndex)];
+    if (!place) return;
+    pendingDetectedDestination = {
+      id: String(place.city || place.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),
+      city: place.city,
+      country: place.country,
+      countryCode: place.code,
+      continent: place.continent,
+      currency: place.currency,
+      state: place.state,
+      latitude: place.latitude,
+      longitude: place.longitude
+    };
+    pendingDestinationMatches = [];
+    dialog.close();
+    startMission(mission, schedule);
+  }));
   if (typeof dialog.showModal === "function") dialog.showModal();
   else dialog.setAttribute("open", "");
 };
@@ -1804,7 +1772,7 @@ const getPreferredVoice = (language) => {
 
 const speakWelcomeMessage = async () => {
   if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
-    announceMissionTool("Voice is not supported in this browser.", "ì´ ë¸Œë¼ìš°ì €ì—ì„œëŠ” ìŒì„±ì„ ì§€ì›í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
+    announceMissionTool("Voice is not supported in this browser.", "이 브라우저에서는 음성을 지원하지 않습니다.");
     return;
   }
 
@@ -1838,7 +1806,7 @@ const speakWelcomeMessage = async () => {
   message.onend = () => microphoneButton?.classList.remove("is-active");
   message.onerror = () => microphoneButton?.classList.remove("is-active");
   window.speechSynthesis.speak(message);
-  announceMissionTool("ONE is speaking.", "ONEì´ ìŒì„±ìœ¼ë¡œ ì•ˆë‚´í•©ë‹ˆë‹¤.");
+  announceMissionTool("ONE is speaking.", "ONE이 음성으로 안내합니다.");
 };
 
 const closeDropdowns = () => {
@@ -1928,7 +1896,7 @@ aiModeButton?.addEventListener("click", () => {
   aiModeButton.setAttribute("aria-pressed", String(aiModeEnabled));
   announceMissionTool(
     aiModeEnabled ? "AI assistant mode is on." : "AI assistant mode is off.",
-    aiModeEnabled ? "AI ì–´ì‹œìŠ¤í„´íŠ¸ ëª¨ë“œê°€ ì¼œì¡ŒìŠµë‹ˆë‹¤." : "AI ì–´ì‹œìŠ¤í„´íŠ¸ ëª¨ë“œê°€ êº¼ì¡ŒìŠµë‹ˆë‹¤."
+    aiModeEnabled ? "AI 어시스턴트 모드가 켜졌습니다." : "AI 어시스턴트 모드가 꺼졌습니다."
   );
   missionInput.focus();
 });
@@ -1948,12 +1916,12 @@ imageUploadInput?.addEventListener("change", async () => {
     missionInput.value = detectedReference;
     syncInputState();
     if (reopenPrototypeMission(detectedReference)) return;
-    announceMissionTool("Reference detected, but it is not saved in this browser.", "ì°¸ì¡° ë²ˆí˜¸ë¥¼ ì°¾ì•˜ì§€ë§Œ ì´ ë¸Œë¼ìš°ì €ì— ì €ìž¥ëœ ê¸°ë¡ì´ ì—†ìŠµë‹ˆë‹¤.");
+    announceMissionTool("Reference detected, but it is not saved in this browser.", "참조 번호를 찾았지만 이 브라우저에 저장된 기록이 없습니다.");
     return;
   }
   announceMissionTool(
     typeof window.BarcodeDetector === "function" || typeof window.TextDetector === "function" ? (selectedImageFiles.length === 1 ? "1 image attached. No saved reference or QR code was detected." : `${selectedImageFiles.length} images attached.`) : "Image attached. Copy the ONE-DEMO reference into the search box for lookup.",
-    typeof window.BarcodeDetector === "function" || typeof window.TextDetector === "function" ? `ì´ë¯¸ì§€ ${selectedImageFiles.length}ê°œê°€ ì²¨ë¶€ë˜ì—ˆìŠµë‹ˆë‹¤. ì €ìž¥ëœ ì°¸ì¡° ë²ˆí˜¸ ë˜ëŠ” QR ì½”ë“œë¥¼ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.` : "ì´ë¯¸ì§€ê°€ ì²¨ë¶€ë˜ì—ˆìŠµë‹ˆë‹¤. ì¡°íšŒí•˜ë ¤ë©´ ONE-DEMO ì°¸ì¡° ë²ˆí˜¸ë¥¼ ê²€ìƒ‰ì°½ì— ìž…ë ¥í•˜ì„¸ìš”."
+    typeof window.BarcodeDetector === "function" || typeof window.TextDetector === "function" ? `이미지 ${selectedImageFiles.length}개가 첨부되었습니다. 저장된 참조 번호 또는 QR 코드를 찾지 못했습니다.` : "이미지가 첨부되었습니다. 조회하려면 ONE-DEMO 참조 번호를 검색창에 입력하세요."
   );
 });
 
@@ -1984,10 +1952,10 @@ const normalizeScheduleCount = (value, fallback = 1) => {
 
 const scheduleAirportLabel = (value) => {
   const labels = {
-    ICN: activeLanguage === "ko" ? "ì¸ì²œê³µí•­" : "Incheon",
-    GMP: activeLanguage === "ko" ? "ê¹€í¬ê³µí•­" : "Gimpo",
-    current: activeLanguage === "ko" ? "í˜„ìž¬ ìœ„ì¹˜ ê¸°ì¤€" : activeLanguage === "es" ? "UbicaciÃ³n actual" : "Current location",
-    unsure: activeLanguage === "ko" ? "ë‚˜ì¤‘ì— í™•ì¸" : activeLanguage === "es" ? "Confirmar despuÃ©s" : "Confirm later"
+    ICN: activeLanguage === "ko" ? "인천공항" : "Incheon",
+    GMP: activeLanguage === "ko" ? "김포공항" : "Gimpo",
+    current: activeLanguage === "ko" ? "현재 위치 기준" : activeLanguage === "es" ? "Ubicación actual" : "Current location",
+    unsure: activeLanguage === "ko" ? "나중에 확인" : activeLanguage === "es" ? "Confirmar después" : "Confirm later"
   };
   return labels[value] || labels.ICN;
 };
@@ -2017,9 +1985,9 @@ const updateScheduleSummary = () => {
   const startLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${start}T00:00:00`));
   const endLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${finalEnd}T00:00:00`));
   const timeLabel = scheduleTimePreference.options[scheduleTimePreference.selectedIndex]?.textContent || "";
-  const outgoingLabel = activeLanguage === "ko" ? "ì¶œêµ­ ë‚ ì§œ" : "Outgoing date";
-  const returningLabel = activeLanguage === "ko" ? "ê·€êµ­ ë‚ ì§œ" : "Returning date";
-  const timeHeading = activeLanguage === "ko" ? "ì‹œê°„" : "Time";
+  const outgoingLabel = activeLanguage === "ko" ? "출국 날짜" : "Outgoing date";
+  const returningLabel = activeLanguage === "ko" ? "귀국 날짜" : "Returning date";
+  const timeHeading = activeLanguage === "ko" ? "시간" : "Time";
   const details = collectScheduleDetails();
   scheduleSummary.innerHTML = `
     <span class="schedule-summary-row"><strong>${outgoingLabel}</strong><span>${startLabel}</span></span>
@@ -2091,39 +2059,35 @@ missionForm.addEventListener("submit", async (event) => {
   const prototypeReference = mission.toUpperCase().match(/^ONE-DEMO-[A-Z0-9]{8}$/)?.[0];
   if (prototypeReference) {
     if (reopenPrototypeMission(prototypeReference)) return;
-    missionInput.setCustomValidity(activeLanguage === "ko" ? "ì´ ë¸Œë¼ìš°ì €ì— ì €ìž¥ëœ í”„ë¡œí† íƒ€ìž… ì°¸ì¡° ë²ˆí˜¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤." : "This prototype reference is not saved in this browser.");
+    missionInput.setCustomValidity(activeLanguage === "ko" ? "이 브라우저에 저장된 프로토타입 참조 번호를 찾을 수 없습니다." : "This prototype reference is not saved in this browser.");
     missionInput.reportValidity();
     return;
   }
   let type = classifyMission(mission);
   if (previewTravelIntent(mission)) type = "travel";
   pendingDestinationMatches = [];
-  const previewDestination = resolvePreviewDestination(mission);
-  pendingDetectedDestination = previewDestination || resolveWorldDestination(mission);
+  const previewDestination = resolvePreviewDestination(mission)?.profile;
+  pendingDetectedDestination = previewDestination ? {
+    id: previewDestination.id,
+    city: previewDestination.city,
+    country: previewDestination.country,
+    countryCode: previewDestination.countryCode,
+    continent: previewDestination.continent,
+    currency: previewDestination.currency,
+    latitude: previewDestination.latitude,
+    longitude: previewDestination.longitude
+  } : resolveWorldDestination(mission);
   if (type === "travel" || type === "general_mission") {
     const knownAmbiguityMatches = missionAmbiguityMatches(mission);
-    const rawDestinationMatches = knownAmbiguityMatches.length
+    const destinationMatches = knownAmbiguityMatches.length
       ? knownAmbiguityMatches
       : await Promise.race([
         detectWorldwideTravelDestination(mission, activeLanguage).catch(() => []),
         new Promise((resolve) => setTimeout(() => resolve([]), 4200))
       ]);
-    const previewMatch = previewDestination ? [{
-      city: previewDestination.city,
-      country: previewDestination.country,
-      countryKo: previewDestination.country,
-      countryEs: previewDestination.country,
-      code: previewDestination.countryCode,
-      continent: previewDestination.continent,
-      currency: previewDestination.currency,
-      latitude: previewDestination.latitude,
-      longitude: previewDestination.longitude,
-      description: "Curated preview destination"
-    }] : [];
-    const destinationMatches = dedupePreviewDestinations([...previewMatch, ...rawDestinationMatches]);
     if (destinationMatches.length) {
-      pendingDestinationMatches = destinationMatches;
-      const detected = destinationMatches[0];
+      pendingDestinationMatches = dedupePreviewDestinations(destinationMatches);
+      const detected = pendingDestinationMatches[0];
       pendingDetectedDestination = {
         id: String(detected.city || detected.country || "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-"),
         city: detected.city,
@@ -2197,4 +2161,3 @@ trackEvent("homepage_loaded", { page: "home", language: getInitialLanguage() });
 setLanguage(getInitialLanguage());
 syncInputState();
 mountInvestorDemoHome({ language: getInitialLanguage() });
-
