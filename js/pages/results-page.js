@@ -9,7 +9,7 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, profileForResult } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-repair";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-repair";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -552,6 +552,115 @@ const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => 
   };
 };
 
+
+const addDaysToIsoDate = (startDate, daysToAdd) => {
+  const start = startDate ? new Date(`${startDate}T00:00:00Z`) : new Date();
+  if (Number.isNaN(start.valueOf())) return new Date().toISOString().slice(0, 10);
+  start.setUTCDate(start.getUTCDate() + Number(daysToAdd || 0));
+  return start.toISOString().slice(0, 10);
+};
+
+const inferManualTravelDurationDays = (prompt = "", params = new URLSearchParams()) => {
+  const explicit = Number(params.get("days") || params.get("durationDays") || params.get("tripDays"));
+  if (Number.isFinite(explicit) && explicit > 0) return Math.min(30, Math.max(1, Math.round(explicit)));
+  const text = String(prompt || "");
+  const match = text.match(/(\d{1,2})\s*(?:day|days|\uC77C|dias|d\u00EDas|jours|\u65E5)/iu);
+  if (match) return Math.min(30, Math.max(1, Number(match[1])));
+  if (/week|\uC8FC|semana|semaine/iu.test(text)) return 7;
+  return 7;
+};
+
+const inferManualTravelerCount = (prompt = "", params = new URLSearchParams()) => {
+  const explicit = Number(params.get("travelers") || params.get("travelerCount") || params.get("people"));
+  if (Number.isFinite(explicit) && explicit > 0) return Math.min(12, Math.max(1, Math.round(explicit)));
+  const text = String(prompt || "").toLowerCase();
+  if (/solo|alone|one traveler|1 traveler|\uD63C\uC790|\uB098\uD640\uB85C|un viajero|viajero solo|voyageur solo/iu.test(text)) return 1;
+  const match = text.match(/(\d{1,2})\s*(?:travelers|people|\uBA85|personas|personnes)/iu);
+  if (match) return Math.min(12, Math.max(1, Number(match[1])));
+  return 1;
+};
+
+const shouldHydrateManualTravelResult = (prompt = "", params = new URLSearchParams(), scenario = "") => {
+  if (params.get("demoScenario") === "travel" || params.get("investorDemo") === "1") return true;
+  if (MANUAL_V23_TRAVEL_SCENARIOS[scenario] || MANUAL_V22_SCENARIOS[scenario] === MANUAL_V22_SCENARIOS.travel) return true;
+  return previewTravelIntent(prompt) || Boolean(resolvePreviewDestination(prompt));
+};
+
+const hydrateManualTravelResultForPreview = (result, prompt = "", language = activeLanguage, params = new URLSearchParams(), scenario = "") => {
+  if (!shouldHydrateManualTravelResult(prompt, params, scenario)) return result;
+  const destinationMatch = resolvePreviewDestination([
+    params.get("destination"),
+    params.get("city"),
+    params.get("country"),
+    prompt
+  ].filter(Boolean).join(" "));
+  if (!destinationMatch?.profile) return result;
+  const profile = destinationMatch.profile;
+  const durationDays = inferManualTravelDurationDays(prompt, params);
+  const travelerCount = inferManualTravelerCount(prompt, params);
+  const startDate = params.get("startDate") || params.get("from") || result.schedule?.startDate || new Date().toISOString().slice(0, 10);
+  const endDate = params.get("endDate") || params.get("to") || result.schedule?.endDate || addDaysToIsoDate(startDate, durationDays - 1);
+  const destination = {
+    ...(result.destination || {}),
+    id: profile.id,
+    city: profile.city,
+    cityKo: profile.cityKo || profile.city,
+    country: profile.country,
+    countryKo: profile.countryKo || profile.country,
+    countryCode: profile.countryCode,
+    code: profile.countryCode,
+    continent: profile.continent,
+    currency: profile.currency,
+    latitude: profile.latitude,
+    longitude: profile.longitude,
+    confidence: destinationMatch.confidence,
+    source: "preview_destination_intelligence"
+  };
+  return {
+    ...result,
+    type: "travel",
+    domain: "travel",
+    missionType: "travel-preparation",
+    travelType: "international",
+    missionSeed: `${prompt}|${profile.id}|${durationDays}|${travelerCount}`,
+    previewDestination: { id: profile.id, city: profile.city, country: profile.country, countryCode: profile.countryCode },
+    detectedDestination: destination,
+    destination,
+    country: profile.countryCode,
+    countryProfile: {
+      ...(result.countryProfile || {}),
+      code: profile.countryCode,
+      name: profile.country,
+      nameKo: profile.countryKo || profile.country,
+      capital: profile.city,
+      capitalKo: profile.cityKo || profile.city,
+      currency: profile.currency,
+      continent: profile.continent
+    },
+    schedule: {
+      ...(result.schedule || {}),
+      startDate,
+      endDate,
+      durationDays,
+      timePreference: result.schedule?.timePreference || "flexible"
+    },
+    travelerCount,
+    travelers: travelerCount,
+    rooms: Number(params.get("rooms") || result.rooms || 1),
+    v23TravelExperience: true,
+    v23TravelScenario: scenario || result.v23TravelScenario || params.get("demoScenario") || "manual-travel-preview",
+    display: {
+      ...(result.display || {}),
+      title: language === "ko" ? `${profile.cityKo || profile.city} \uC5EC\uD589` : language === "es" ? `Viaje a ${profile.city}` : language === "fr" ? `Voyage \u00E0 ${profile.city}` : `${profile.city} Trip`,
+      destination: language === "ko" ? (profile.countryKo || profile.country) : profile.country,
+      city: language === "ko" ? (profile.cityKo || profile.city) : profile.city,
+      missionReady: result.display?.missionReady || t("missionReady"),
+      approvalProtection: result.display?.approvalProtection || t("approvalProtection")
+    },
+    approvalRequired: true
+  };
+};
+
 function getManualScenarioResult() {
   const params = new URLSearchParams(window.location.search);
   const scenario = params.get("v23TravelScenario") || params.get("v22Scenario") || params.get("v21Scenario") || params.get("scenario");
@@ -576,7 +685,7 @@ function getManualScenarioResult() {
     result.country = "JP";
     result.countryProfile = { ...(result.countryProfile || {}), code: "JP", name: "Japan", nameKo: "일본", capital: "Tokyo", currency: "JPY", continent: "Asia" };
   }
-  return result;
+  return hydrateManualTravelResultForPreview(result, prompt, language, params, scenario);
 }
 
 const createNeutralMissionResult = () => createResolutionResultFromPrompt(
