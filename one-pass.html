@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="one-pass.css?v=20260802-one-pass-continuity">
+  <link rel="stylesheet" href="one-pass.css?v=20260802-travel-loyalty">
 </head>
 <body>
   <div class="pass-page">
@@ -27,35 +27,80 @@
         <p class="eyebrow">KASTIZ ONE</p>
         <h1>ONE Pass</h1>
         <p data-copy="tagline">Set up once. ONE handles the details.</p>
-        <div class="pass-readiness"><span id="readyDot" aria-hidden="true"></span><strong id="readyStatus" data-copy="checking">Checking secure account…</strong></div>
+        <div class="pass-readiness"><span id="readyDot" aria-hidden="true"></span><strong id="readyStatus" data-copy="checking">Checking secure account...</strong></div>
       </section>
       <p id="pageStatus" class="page-status" role="status" aria-live="polite"></p>
       <section class="pass-grid" aria-label="ONE Pass sections">
         <a class="pass-card" href="#identity"><span>01</span><h2 data-copy="identity">Identity Pass</h2><p id="identityStatus" data-copy="notSetup">Not set up</p></a>
         <a class="pass-card" href="#travel"><span>02</span><h2 data-copy="travel">Travel Profile</h2><p id="travelStatus" data-copy="notSetup">Not set up</p></a>
         <a class="pass-card" href="#loyalty"><span>03</span><h2 data-copy="loyalty">Loyalty Wallet</h2><p id="loyaltyStatus">0</p></a>
-        <a class="pass-card" href="#payment"><span>04</span><h2 data-copy="payment">Payment Hub</h2><p id="paymentStatus">0</p></a>
+        <a class="pass-card" href="#comparison"><span>04</span><h2 data-copy="comparison">Comparison Preview</h2><p data-copy="demoOnly">Fictional demo only</p></a>
         <a class="pass-card" href="#connections"><span>05</span><h2 data-copy="connections">Connections</h2><p data-copy="handoff">Secure handoff only</p></a>
         <a class="pass-card" href="#security"><span>06</span><h2 data-copy="security">Security &amp; Activity</h2><p id="securityStatus" data-copy="passkeyOff">Passkey not enabled</p></a>
       </section>
+
       <section id="identity" class="pass-panel">
         <div><p class="eyebrow" data-copy="sensitive">SENSITIVE</p><h2 data-copy="identity">Identity Pass</h2><p data-copy="identityCopy">Passport storage remains disabled until an approved production vault and identity-verification provider are configured.</p></div>
-        <div class="masked-box"><strong id="maskedPassport">•••• Not stored</strong><span data-copy="neverImages">No passport image, NFC data, or biometric is stored.</span></div>
+        <div class="masked-box"><strong id="maskedPassport">Not stored</strong><span data-copy="neverImages">No passport image, NFC data, or biometric is stored.</span></div>
         <button type="button" disabled data-copy="identityDisabled">Identity setup unavailable in this environment</button>
       </section>
-      <section id="travel" class="pass-panel">
+
+      <section id="travel" class="pass-panel wide">
         <div><p class="eyebrow" data-copy="editable">EDITABLE</p><h2 data-copy="travel">Travel Profile</h2><p data-copy="travelCopy">Save ordinary travel preferences separately from sensitive identity.</p></div>
-        <form id="travelForm">
+        <form id="travelForm" class="expanded-form">
+          <label><span data-copy="preferredName">Preferred name</span><input name="preferred_name" placeholder="CEO" autocomplete="name"></label>
+          <label><span data-copy="homeCity">Home city / region</span><input name="home_city_region" placeholder="Seoul" autocomplete="address-level2"></label>
           <label><span data-copy="airports">Departure airports</span><input name="departure_airports" placeholder="ICN, GMP" autocomplete="off"></label>
-          <label><span data-copy="airlines">Preferred airlines</span><input name="airlines" placeholder="Korean Air, Asiana" autocomplete="off"></label>
-          <label><span data-copy="hotels">Hotel brands</span><input name="hotel_brands" placeholder="Hilton, Hyatt" autocomplete="off"></label>
-          <label><span data-copy="seat">Seat preference</span><select name="seat_preference"><option value="">—</option><option value="window" data-copy="window">Window</option><option value="aisle" data-copy="aisle">Aisle</option></select></label>
-          <label><span data-copy="priority">Permanent priority</span><select name="budget_preference"><option value="best_balance" data-copy="balance">Best balance</option><option value="lowest_price" data-copy="lowest">Lowest total price</option><option value="maximum_points" data-copy="points">Maximum points/miles</option><option value="preferred_brands" data-copy="brands">Preferred brands first</option></select></label>
-          <button class="primary" type="submit" data-copy="save">Save Travel Profile</button>
+          <label><span data-copy="arrivalAirports">Arrival airports</span><input name="arrival_airports" placeholder="HND, NRT" autocomplete="off"></label>
+          <label><span data-copy="airlines">Preferred airlines</span><input name="airlines" placeholder="Korean Air, ANA" autocomplete="off"></label>
+          <label><span data-copy="avoidAirlines">Avoided airlines</span><input name="avoided_airlines" placeholder="Optional" autocomplete="off"></label>
+          <label><span data-copy="hotels">Preferred hotel brands</span><input name="hotel_brands" placeholder="Hilton, Hyatt" autocomplete="off"></label>
+          <label><span data-copy="avoidHotels">Avoided hotel brands</span><input name="avoided_hotel_brands" placeholder="Optional" autocomplete="off"></label>
+          <label><span data-copy="seat">Seat location</span><select name="seat_location"><option value="">-</option><option value="window" data-copy="window">Window</option><option value="aisle" data-copy="aisle">Aisle</option><option value="middle" data-copy="middle">Middle</option><option value="no_preference" data-copy="noPreference">No preference</option></select></label>
+          <label><span data-copy="cabin">Cabin</span><select name="cabin_preference"><option value="">-</option><option value="economy">Economy</option><option value="premium_economy">Premium economy</option><option value="business">Business</option><option value="first">First</option><option value="no_preference" data-copy="noPreference">No preference</option></select></label>
+          <label><span data-copy="meal">Meal preference</span><input name="meal_preference" placeholder="Vegetarian, no seafood"></label>
+          <label><span data-copy="diet">Dietary preferences</span><input name="dietary_restrictions" placeholder="Vegetarian, halal, no seafood" maxlength="120"></label>
+          <label><span data-copy="accessibility">Accessibility needs</span><input name="accessibility_requirements" placeholder="Accessible room, step-free route" maxlength="120"></label>
+          <label><span data-copy="room">Room type</span><input name="room_type" placeholder="Quiet room, ryokan, suite"></label>
+          <label><span data-copy="bed">Bed type</span><input name="bed_type" placeholder="King, twin"></label>
+          <label><span data-copy="smoking">Smoking</span><select name="smoking_preference"><option value="">-</option><option value="non_smoking">Non-smoking</option><option value="smoking">Smoking</option><option value="no_preference" data-copy="noPreference">No preference</option></select></label>
+          <label><span data-copy="transport">Transport preference</span><input name="preferred_transport" placeholder="Subway, taxi, walking"></label>
+          <label><span data-copy="pace">Travel pace</span><select name="travel_pace"><option value="balanced">Balanced</option><option value="relaxed">Relaxed</option><option value="packed">Packed</option></select></label>
+          <label><span data-copy="currency">Preferred currencies</span><input name="preferred_currencies" placeholder="KRW, USD, JPY"></label>
+          <label><span data-copy="directFlight">Direct flight</span><select name="direct_flight_preference"><option value="prefer_direct">Prefer direct</option><option value="allow_one_stop">Allow one stop</option><option value="price_first">Price first</option></select></label>
+          <label><span data-copy="maxStops">Maximum stopovers</span><input name="maximum_stopovers" type="number" min="0" max="5" placeholder="1"></label>
+          <label><span data-copy="refundability">Refundability</span><select name="refundability_preference"><option value="refundable_preferred">Refundable preferred</option><option value="nonrefundable_ok">Non-refundable OK</option><option value="depends_on_savings">Depends on savings</option></select></label>
+          <label><span data-copy="purpose">Travel purpose</span><select name="travel_purpose"><option value="solo">Solo</option><option value="couple">Couple</option><option value="family">Family</option><option value="business">Business</option><option value="friends">Friends</option><option value="mixed">Mixed</option></select></label>
+          <label><span data-copy="priority">Price vs points</span><select name="price_points_strategy"><option value="best_balance" data-copy="balance">Best balance</option><option value="lowest_total_price" data-copy="lowest">Lowest total price</option><option value="maximum_points" data-copy="points">Maximum points/miles</option><option value="preferred_brands_first" data-copy="brands">Preferred brands first</option></select></label>
+          <div class="form-actions"><button class="primary" type="submit" data-copy="save">Save Travel Profile</button><button id="resetTravel" type="button" data-copy="reset">Reset</button><button id="deleteTravel" type="button" data-copy="deleteProfile">Delete profile</button></div>
         </form>
       </section>
-      <section id="loyalty" class="pass-panel compact"><div><h2 data-copy="loyalty">Loyalty Wallet</h2><p data-copy="loyaltyCopy">Membership references only. ONE never asks for loyalty-program passwords.</p></div><button type="button" disabled data-copy="connectLater">Secure connection required</button></section>
-      <section id="payment" class="pass-panel compact"><div><h2 data-copy="payment">Payment Hub</h2><p data-copy="paymentCopy">Only provider-managed payment references may be stored. Card numbers and CVV are never collected here.</p></div><button type="button" disabled data-copy="paymentsDisabled">Payments disabled</button></section>
+
+      <section id="loyalty" class="pass-panel wide">
+        <div><h2 data-copy="loyalty">Loyalty Wallet</h2><p data-copy="loyaltyCopy">Membership references only. ONE never asks for loyalty-program passwords.</p></div>
+        <div>
+          <form id="loyaltyForm" class="expanded-form loyalty-form">
+            <label><span data-copy="category">Category</span><select name="program_category"><option value="airline">Airline</option><option value="hotel">Hotel</option><option value="ota">OTA</option><option value="car_rental">Car rental</option><option value="credit_card_rewards">Credit-card rewards reference</option><option value="other_travel_program">Other</option></select></label>
+            <label><span data-copy="provider">Provider</span><input name="provider" placeholder="korean_air" autocomplete="off"></label>
+            <label><span data-copy="program">Program</span><input name="program" placeholder="Korean Air SKYPASS" autocomplete="off"></label>
+            <label><span data-copy="memberNumber">Membership number</span><input name="membership_number" placeholder="Stored as masked reference only" autocomplete="off" maxlength="40"></label>
+            <label><span data-copy="memberName">Member name</span><input name="member_name" placeholder="Optional" autocomplete="off"></label>
+            <label><span data-copy="tier">Tier / status</span><input name="tier" placeholder="Gold, Platinum" autocomplete="off"></label>
+            <label><span data-copy="expires">Expiration date</span><input name="expires_at" type="date"></label>
+            <label><span data-copy="preferredUsage">Preferred usage</span><select name="preferred_usage"><option value="best_balance" data-copy="balance">Best balance</option><option value="lowest_total_price" data-copy="lowest">Lowest total price</option><option value="maximum_points" data-copy="points">Maximum points/miles</option><option value="preferred_brands_first" data-copy="brands">Preferred brands first</option></select></label>
+            <label class="full"><span data-copy="notes">Notes</span><input name="notes" placeholder="Short non-sensitive note" maxlength="300"></label>
+            <button class="primary full" type="submit" data-copy="addProgram">Add program</button>
+          </form>
+          <p class="page-status" data-copy="noPasswords">Never enter loyalty-program passwords, security answers, or provider login credentials.</p>
+          <div id="loyaltyList" class="wallet-list"></div>
+        </div>
+      </section>
+
+      <section id="comparison" class="pass-panel wide">
+        <div><p class="eyebrow" data-copy="demoOnly">FICTIONAL DEMO ONLY</p><h2 data-copy="comparison">Comparison Preview</h2><p data-copy="comparisonCopy">See how ONE weighs cheapest, points, and balanced options using saved preferences. No live providers are contacted.</p><button id="runComparison" type="button" data-copy="runComparison">Run fictional comparison</button></div>
+        <div id="comparisonResults" class="comparison-results"></div>
+      </section>
+
       <section id="connections" class="pass-panel compact"><div><h2 data-copy="connections">Connections</h2><p data-copy="connectionCopy">OAuth, official APIs, app handoff, or secure deep links only. Provider passwords are never accepted.</p></div><span class="state-pill" data-copy="handoff">Secure handoff only</span></section>
       <section id="security" class="pass-panel">
         <div><h2 data-copy="security">Security &amp; Activity</h2><p data-copy="securityCopy">Passkeys confirm cryptographic device authentication. Kastiz never receives your face or fingerprint.</p></div>
@@ -70,6 +115,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="one-pass.js?v=20260802-one-pass-continuity"></script>
+  <script type="module" src="one-pass.js?v=20260802-travel-loyalty"></script>
 </body>
 </html>

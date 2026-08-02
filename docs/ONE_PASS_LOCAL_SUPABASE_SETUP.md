@@ -1,11 +1,13 @@
-﻿# ONE Pass Local Supabase Setup
+# ONE Pass Local Supabase Setup
 
-Status in this Codex workspace: local Supabase is not configured because `supabase/config.toml` is absent. The migration below has not been applied to any live, staging, or production database by this task.
+Status in this Codex workspace: local Supabase configuration now exists for development, but the local database was not started or reset in this checkpoint because Docker virtualization was not available. The migration set has not been applied to any live, staging, or production database by this task.
 
-Migration to verify locally or in staging only:
+Migrations to verify locally or in staging only:
 
 ```bash
 supabase/migrations/202608020001_one_pass_privacy_actions.sql
+supabase/migrations/202608020002_one_pass_webauthn_metadata.sql
+supabase/migrations/202608020003_one_pass_travel_profile_loyalty.sql
 ```
 
 ## Safe setup steps
@@ -57,7 +59,7 @@ Expected result:
 
 ## Current blocker
 
-This workspace has `supabase/migrations`, but no local Supabase project configuration file. Therefore this task can validate migration contents statically, but cannot truthfully claim a local or staging database migration was applied.
+This workspace has `supabase/migrations` and `supabase/config.toml`, but Docker virtualization was not available for this checkpoint. Therefore this task can validate migration contents statically, but cannot truthfully claim a local or staging database migration was applied.
 
 ## Real WebAuthn local configuration
 
@@ -88,8 +90,37 @@ supabase db reset
 
 Create fictional users only. Never import production users into local Supabase.
 
-This checkpoint added `supabase/config.toml`, but this Codex environment does not have Docker or Supabase CLI installed. Therefore local migration reset, live RLS checks, and two-user database isolation checks were not executed here.
+This checkpoint added `supabase/config.toml`, but Docker virtualization was unavailable. Therefore local migration reset, live RLS checks, and two-user database isolation checks were not executed here.
 
 ## Browser E2E blocker
 
 Browser E2E requires an E2E runner such as Playwright plus a local backend, local Supabase, and virtual authenticator support. This repository currently has no browser E2E script or Playwright dependency, so browser E2E was not executed in this checkpoint.
+
+## Travel Profile and Loyalty Wallet local verification
+
+After Docker virtualization and Supabase CLI are available, verify the ONE Pass travel and loyalty foundation locally:
+
+```bash
+pnpm install
+supabase start
+supabase db reset
+pnpm test
+```
+
+Recommended SQL spot checks:
+
+```sql
+select column_name from information_schema.columns where table_schema='public' and table_name='travel_preferences' order by column_name;
+select column_name from information_schema.columns where table_schema='public' and table_name='loyalty_accounts' order by column_name;
+select relrowsecurity from pg_class where oid = 'public.travel_preferences'::regclass;
+select relrowsecurity from pg_class where oid = 'public.loyalty_accounts'::regclass;
+select grantee, privilege_type from information_schema.role_table_grants where table_schema='public' and table_name='loyalty_accounts';
+```
+
+Expected result:
+
+- Travel profile columns include ordinary travel preferences such as preferred airports, airlines, hotels, currencies, cabin, meal, pace, budget and accessibility values.
+- Loyalty wallet columns include program category, opaque `masked-only` or future `vault` membership reference, masked membership reference, preferred usage, verification status and soft-delete metadata.
+- RLS remains enabled on both user-owned tables.
+- Direct authenticated writes to loyalty references are revoked; API routes must use trusted server-owned writes scoped to the authenticated user.
+- No passport numbers, government IDs, payment cards, CVVs, bank credentials, provider passwords, OAuth tokens, or full loyalty membership numbers are stored by these travel profile and loyalty wallet flows.

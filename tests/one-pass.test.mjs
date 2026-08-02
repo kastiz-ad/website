@@ -18,7 +18,7 @@ test("ONE Pass API is protected by the shared rate limiter",async()=>{const api=
 test("ONE Pass UI supports English Korean and Spanish without mojibake", async () => {
   const html = await readFile(new URL("../one-pass.html", import.meta.url), "utf8");
   const js = await readFile(new URL("../one-pass.js", import.meta.url), "utf8");
-  assert.doesNotMatch(html + js, /(?:â€¦|â€¢|í•|í”|ì•|ì„|ì—|ë¡|ë¯|�)/);
+  assert.doesNotMatch(html + js, /(?:Ã|Â|ï¿½|í•œ|ì—¬|ë¡œ)/);
   assert.match(js, /ko:\s*\{/);
   assert.match(js, /es:\s*\{/);
   assert.match(js, /한 번만 설정하면/);

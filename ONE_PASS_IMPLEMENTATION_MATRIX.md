@@ -1,4 +1,4 @@
-﻿# ONE Pass Implementation Matrix
+# ONE Pass Implementation Matrix
 
 Current branch: `feature/one-pass`  
 Baseline commit inspected: `a950c9e`  
@@ -87,3 +87,12 @@ Status language for this checkpoint:
 - Added local Supabase config for reproducible development setup only; no production services were touched.
 - Local Supabase migration and RLS checks remain blocked in this environment because Supabase CLI and Docker are unavailable.
 - Browser E2E remains blocked because no Playwright/browser E2E runner is configured in this repository.
+
+## Travel Profile and Loyalty Wallet checkpoint
+
+- Expanded Travel Profile storage and API validation for ordinary reusable travel preferences, including airports, airlines, hotels, seating, cabin, meal, diet, accessibility, transport, pace, budget, currencies, stopovers, refundability and purpose.
+- Added Loyalty Wallet foundation for saved membership references across airline, hotel, OTA, car-rental, credit-card-rewards labels and other travel programs.
+- Loyalty references are public-masked by default; full-number persistence is disabled in this checkpoint and `reveal` fails closed until a production vault/KMS path is configured. The sensitive route remains owner/passkey/resource-bound for future vault-backed reveal.
+- Added safe mission personalization context and deterministic travel option comparison preview without claiming live points, live pricing, award availability, booking or provider execution.
+- Added migration `202608020003_one_pass_travel_profile_loyalty.sql`; migration was not applied locally, in staging, or in production.
+- Docker/Supabase live RLS checks and browser WebAuthn E2E remain deferred because virtualization/local E2E prerequisites were unavailable for this checkpoint.
