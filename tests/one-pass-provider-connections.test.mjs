@@ -151,3 +151,19 @@ test("connections UI is localized and has no password/token inputs or storage", 
   assert.doesNotMatch(html, /name=["'](?:password|provider_password|otp|token|access_token|refresh_token|client_secret|card_number|cvv)["']/i);
   assert.doesNotMatch(js, /localStorage\.setItem\([^)]*(token|password|secret)|sessionStorage\.setItem\([^)]*(token|password|secret)/i);
 });
+
+test("ONE Pass preview fallback works without Supabase, auth, providers or passkeys", async () => {
+  const js = await readFile(new URL("../one-pass.js", import.meta.url), "utf8");
+  assert.match(js, /function loadDemoPreview\(error\)/);
+  assert.match(js, /demoPreview: true/);
+  assert.match(js, /demoTravelProfile/);
+  assert.match(js, /DEMO Airline Rewards/);
+  assert.match(js, /DEMO Pay · setup required/);
+  assert.match(js, /demoProviderCatalog/);
+  assert.match(js, /connect\.disabled = !provider\.oauthSupported \|\| passState\.demoPreview/);
+  assert.match(js, /handoff\.disabled = passState\.demoPreview/);
+  assert.match(js, /Preview mode: demo data only/);
+  assert.match(js, /미리보기 모드: 데모 데이터만 표시됩니다/);
+  assert.match(js, /Modo de vista previa: solo datos demo/);
+  assert.doesNotMatch(js, /DEMO-[0-9]{8,}|411111|passport_number|provider_password\s*:/i);
+});
