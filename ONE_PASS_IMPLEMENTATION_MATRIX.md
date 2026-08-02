@@ -109,3 +109,13 @@ Status language for this checkpoint:
 | Webhook/idempotency foundation | Created | Migration created but not applied; production verifier not configured |
 | Real provider payments | Not ready | No merchant credentials, no live provider authentication, no real money movement |
 | Production status | Not ready | Migrations not applied, live RLS not tested, browser E2E not tested |
+## Provider Connections and Secure Handoff Checkpoint
+
+- Added explicit provider catalog for identity/login, payment, travel inventory/booking, and consumer handoff providers.
+- Added safe provider connection model with server-derived ownership, safe scopes, protected token references, and server-controlled states.
+- Added ProviderTokenVault interface; production fails closed without vault/KMS and development uses fictional references only.
+- Added OAuth/OIDC authorization foundation with PKCE, state, nonce, redirect allowlist, scope allowlist, expiration, and single-use callback handling.
+- Added secure handoff intent foundation with provider-domain allowlist, mission/option binding, nonce, expiration, single-use return, manual confirmation, and no sensitive URL parameters.
+- Added Connections UI in English, Korean, and Spanish; no provider password/token inputs are rendered.
+- Added migration `202608030001_one_pass_provider_connections.sql`; migration was not applied and live RLS was not tested.
+- No provider is marked live/verified unless credentials and provider response evidence exist. Current live provider integrations remain not connected.

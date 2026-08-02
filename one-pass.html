@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="one-pass.css?v=20260802-payment-hub">
+  <link rel="stylesheet" href="one-pass.css?v=20260803-provider-connections">
 </head>
 <body>
   <div class="pass-page">
@@ -117,7 +117,16 @@
           <div id="paymentProviders" class="comparison-results"></div>
         </div>
       </section>
-      <section id="connections" class="pass-panel compact"><div><h2 data-copy="connections">Connections</h2><p data-copy="connectionCopy">OAuth, official APIs, app handoff, or secure deep links only. Provider passwords are never accepted.</p></div><span class="state-pill" data-copy="handoff">Secure handoff only</span></section>
+            <section id="connections" class="pass-panel wide">
+        <div><p class="eyebrow" data-copy="providerSafe">PROVIDER SAFE</p><h2 data-copy="connections">Connections</h2><p data-copy="connectionCopy">OAuth, official APIs, app handoff, or secure deep links only. Provider passwords are never accepted.</p><p class="page-status" data-copy="connectionNoPasswords">Do not enter provider passwords, OTP codes, tokens, or account secrets.</p></div>
+        <div class="connections-layout">
+          <div id="connectionList" class="wallet-list"></div>
+          <h3 data-copy="availableProviders">Available provider paths</h3>
+          <div id="providerCatalog" class="provider-catalog"></div>
+          <h3 data-copy="handoffIntents">Secure handoffs</h3>
+          <div id="handoffList" class="wallet-list"></div>
+        </div>
+      </section>
       <section id="security" class="pass-panel">
         <div><h2 data-copy="security">Security &amp; Activity</h2><p data-copy="securityCopy">Passkeys confirm cryptographic device authentication. Kastiz never receives your face or fingerprint.</p></div>
         <div class="security-actions">
@@ -131,6 +140,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="one-pass.js?v=20260802-payment-hub"></script>
+  <script type="module" src="one-pass.js?v=20260803-provider-connections"></script>
 </body>
 </html>

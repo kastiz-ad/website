@@ -134,3 +134,10 @@ A new migration was created but not applied:
 It extends safe payment references and creates provider-neutral payment transaction, event, and idempotency tables. It must be reviewed before application. Do not paste payment provider secrets into chat, source files, migrations, or ordinary database rows. Real provider credentials belong only in secure environment variables or provider-managed vaults.
 
 Until provider credentials, webhook verification, RLS verification, and browser passkey E2E are completed, Payment Hub remains a safe reference/demo foundation only and is not production payment functionality.
+## Provider Connections checkpoint
+
+Migration file: `supabase/migrations/202608030001_one_pass_provider_connections.sql`
+
+This migration creates or extends provider connection tables for safe OAuth/OIDC state, secure handoff intents, connection events, and protected token references. It must be applied only in a controlled local/staging Supabase environment first.
+
+Do not paste provider OAuth secrets, payment credentials, or partner API keys into Codex chat. Configure them only as secure environment variables or provider dashboards. Until real credentials, redirect allowlists, provider confirmation, and token vault/KMS are configured, ONE Pass must show setup-required or handoff-only states.

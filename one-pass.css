@@ -6,3 +6,8 @@
 .inline-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .75rem; }
 .inline-actions button { min-width: 0; padding: .65rem .85rem; }
 .wallet-item .inline-actions { justify-content: flex-start; }
+.connections-layout { display: grid; gap: 1rem; }
+.provider-catalog { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; margin-top: .75rem; }
+.provider-card h3 { overflow-wrap: anywhere; }
+.provider-card .inline-actions { margin-top: .85rem; }
+@media(max-width:760px){.provider-catalog{grid-template-columns:1fr}}
