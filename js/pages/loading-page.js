@@ -30,8 +30,8 @@ root.setAttribute("lang", fallbackLanguage);
 
 const approvalMessages = {
   en: "Nothing will be booked, purchased, reserved, signed, submitted, paid for, or legally committed until you approve.",
-  ko: "사용자가 승인하기 전에는 예약, 결제, 구매, 서명, 제출 또는 법적 약속이 진행되지 않습니다.",
-  es: "Nada se reserva, compra, paga, envía, firma ni comparte con un proveedor sin tu aprobación explícita."
+  ko: "ì‚¬ìš©ìžê°€ ìŠ¹ì¸í•˜ê¸° ì „ì—ëŠ” ì˜ˆì•½, ê²°ì œ, êµ¬ë§¤, ì„œëª…, ì œì¶œ ë˜ëŠ” ë²•ì  ì•½ì†ì´ ì§„í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
+  es: "Nada se reserva, compra, paga, envÃ­a, firma ni comparte con un proveedor sin tu aprobaciÃ³n explÃ­cita."
 };
 
 const loadingMessages = {
@@ -52,24 +52,24 @@ const loadingMessages = {
     lifestyle: ["Understanding your lifestyle mission...", "Preparing vendors...", "Preparing timeline...", "Preparing budget options...", "Preparing reservation checklist..."]
   },
   ko: {
-    general_mission: ["미션을 이해하고 있어요...", "신뢰할 수 있는 선택지를 찾고 있어요...", "실시간 데이터를 확인하고 있어요...", "ONE Pick을 준비하고 있어요...", "당신의 아이디어를 현실로 만들고 있어요..."],
-    travel: ["여행 미션을 이해하고 있어요...", "날씨를 확인하고 있어요...", "환율을 확인하고 있어요...", "항공권 옵션을 준비하고 있어요...", "숙소 옵션을 준비하고 있어요...", "여행 체크리스트를 준비하고 있어요..."],
-    shopping: ["쇼핑 미션을 이해하고 있어요...", "제품을 비교하고 있어요...", "가격 옵션을 확인하고 있어요...", "가성비 좋은 선택지를 준비하고 있어요...", "구매 체크리스트를 준비하고 있어요..."],
-    housing: ["주거 미션을 이해하고 있어요...", "지역 후보를 준비하고 있어요...", "예산 가정을 확인하고 있어요...", "계약 체크리스트를 준비하고 있어요...", "주거 추천 결과를 준비하고 있어요..."],
-    legal: ["법률 미션을 이해하고 있어요...", "법률 서비스 옵션을 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "상담 질문을 준비하고 있어요...", "법률 체크리스트를 준비하고 있어요..."],
-    moving: ["이주 미션을 이해하고 있어요...", "국가 정보를 확인하고 있어요...", "비자 단계를 준비하고 있어요...", "주거와 배송 옵션을 준비하고 있어요...", "이주 체크리스트를 준비하고 있어요..."],
-    business: ["사업 미션을 이해하고 있어요...", "사업 시작 단계를 준비하고 있어요...", "등록 요건을 확인하고 있어요...", "세금과 공급업체 옵션을 준비하고 있어요...", "사업 체크리스트를 준비하고 있어요..."],
-    healthcare: ["의료 미션을 이해하고 있어요...", "병원과 클리닉 옵션을 준비하고 있어요...", "예약 단계를 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "의료 체크리스트를 준비하고 있어요..."],
-    finance: ["금융 미션을 이해하고 있어요...", "대출과 금리 옵션을 준비하고 있어요...", "필요 서류를 확인하고 있어요...", "리스크를 정리하고 있어요...", "금융 체크리스트를 준비하고 있어요..."],
-    career: ["커리어 미션을 이해하고 있어요...", "채용 목표를 준비하고 있어요...", "이력서 단계를 준비하고 있어요...", "면접 계획을 준비하고 있어요...", "커리어 체크리스트를 준비하고 있어요..."],
-    tutoring: ["학습 목표를 이해하고 있어요...", "튜터 후보를 비교하고 있어요...", "수업 방식과 일정을 확인하고 있어요...", "수업 선택지를 준비하고 있어요...", "체험 수업 체크리스트를 준비하고 있어요..."],
-    childcare: ["돌봄 조건을 이해하고 있어요...", "신뢰와 안전 확인 항목을 준비하고 있어요...", "돌봄 제공자 조건을 비교하고 있어요...", "일정과 예산 선택지를 준비하고 있어요...", "아이 돌봄 체크리스트를 준비하고 있어요..."],
-    language_exchange: ["언어 목표를 이해하고 있어요...", "수준과 관심사를 맞추고 있어요...", "온라인과 현지 방식을 비교하고 있어요...", "대화 파트너 선택지를 준비하고 있어요...", "안전한 첫 만남 체크리스트를 준비하고 있어요..."],
-    lifestyle: ["라이프스타일 미션을 이해하고 있어요...", "업체 후보를 준비하고 있어요...", "일정을 준비하고 있어요...", "예산 옵션을 준비하고 있어요...", "예약 체크리스트를 준비하고 있어요..."]
+    general_mission: ["ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ì‹ ë¢°í•  ìˆ˜ ìžˆëŠ” ì„ íƒì§€ë¥¼ ì°¾ê³  ìžˆì–´ìš”...", "ì‹¤ì‹œê°„ ë°ì´í„°ë¥¼ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ONE Pickì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ë‹¹ì‹ ì˜ ì•„ì´ë””ì–´ë¥¼ í˜„ì‹¤ë¡œ ë§Œë“¤ê³  ìžˆì–´ìš”..."],
+    travel: ["ì—¬í–‰ ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ë‚ ì”¨ë¥¼ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "í™˜ìœ¨ì„ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "í•­ê³µê¶Œ ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ìˆ™ì†Œ ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì—¬í–‰ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    shopping: ["ì‡¼í•‘ ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ì œí’ˆì„ ë¹„êµí•˜ê³  ìžˆì–´ìš”...", "ê°€ê²© ì˜µì…˜ì„ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ê°€ì„±ë¹„ ì¢‹ì€ ì„ íƒì§€ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "êµ¬ë§¤ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    housing: ["ì£¼ê±° ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ì§€ì—­ í›„ë³´ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì˜ˆì‚° ê°€ì •ì„ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ê³„ì•½ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì£¼ê±° ì¶”ì²œ ê²°ê³¼ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    legal: ["ë²•ë¥  ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ë²•ë¥  ì„œë¹„ìŠ¤ ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "í•„ìš” ì„œë¥˜ë¥¼ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ìƒë‹´ ì§ˆë¬¸ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ë²•ë¥  ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    moving: ["ì´ì£¼ ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "êµ­ê°€ ì •ë³´ë¥¼ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ë¹„ìž ë‹¨ê³„ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì£¼ê±°ì™€ ë°°ì†¡ ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì´ì£¼ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    business: ["ì‚¬ì—… ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ì‚¬ì—… ì‹œìž‘ ë‹¨ê³„ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ë“±ë¡ ìš”ê±´ì„ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ì„¸ê¸ˆê³¼ ê³µê¸‰ì—…ì²´ ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì‚¬ì—… ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    healthcare: ["ì˜ë£Œ ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ë³‘ì›ê³¼ í´ë¦¬ë‹‰ ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì˜ˆì•½ ë‹¨ê³„ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "í•„ìš” ì„œë¥˜ë¥¼ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ì˜ë£Œ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    finance: ["ê¸ˆìœµ ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ëŒ€ì¶œê³¼ ê¸ˆë¦¬ ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "í•„ìš” ì„œë¥˜ë¥¼ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ë¦¬ìŠ¤í¬ë¥¼ ì •ë¦¬í•˜ê³  ìžˆì–´ìš”...", "ê¸ˆìœµ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    career: ["ì»¤ë¦¬ì–´ ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ì±„ìš© ëª©í‘œë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì´ë ¥ì„œ ë‹¨ê³„ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ë©´ì ‘ ê³„íšì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì»¤ë¦¬ì–´ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    tutoring: ["í•™ìŠµ ëª©í‘œë¥¼ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "íŠœí„° í›„ë³´ë¥¼ ë¹„êµí•˜ê³  ìžˆì–´ìš”...", "ìˆ˜ì—… ë°©ì‹ê³¼ ì¼ì •ì„ í™•ì¸í•˜ê³  ìžˆì–´ìš”...", "ìˆ˜ì—… ì„ íƒì§€ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì²´í—˜ ìˆ˜ì—… ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    childcare: ["ëŒë´„ ì¡°ê±´ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ì‹ ë¢°ì™€ ì•ˆì „ í™•ì¸ í•­ëª©ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ëŒë´„ ì œê³µìž ì¡°ê±´ì„ ë¹„êµí•˜ê³  ìžˆì–´ìš”...", "ì¼ì •ê³¼ ì˜ˆì‚° ì„ íƒì§€ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì•„ì´ ëŒë´„ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    language_exchange: ["ì–¸ì–´ ëª©í‘œë¥¼ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ìˆ˜ì¤€ê³¼ ê´€ì‹¬ì‚¬ë¥¼ ë§žì¶”ê³  ìžˆì–´ìš”...", "ì˜¨ë¼ì¸ê³¼ í˜„ì§€ ë°©ì‹ì„ ë¹„êµí•˜ê³  ìžˆì–´ìš”...", "ëŒ€í™” íŒŒíŠ¸ë„ˆ ì„ íƒì§€ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì•ˆì „í•œ ì²« ë§Œë‚¨ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."],
+    lifestyle: ["ë¼ì´í”„ìŠ¤íƒ€ì¼ ë¯¸ì…˜ì„ ì´í•´í•˜ê³  ìžˆì–´ìš”...", "ì—…ì²´ í›„ë³´ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì¼ì •ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì˜ˆì‚° ì˜µì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...", "ì˜ˆì•½ ì²´í¬ë¦¬ìŠ¤íŠ¸ë¥¼ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”..."]
   }
 };
 
-loadingMessages.es = Object.fromEntries(Object.keys(loadingMessages.en).map(key => [key, ["Entendiendo tu misión...", "Revisando información disponible...", "Comparando opciones...", "Preparando ONE Pick...", "Organizando tu misión..."]]));
+loadingMessages.es = Object.fromEntries(Object.keys(loadingMessages.en).map(key => [key, ["Entendiendo tu misiÃ³n...", "Revisando informaciÃ³n disponible...", "Comparando opciones...", "Preparando ONE Pick...", "Organizando tu misiÃ³n..."]]));
 
 const fallbackProvider = (provider, category, message, error = null) => ({
   provider,
@@ -84,7 +84,7 @@ const fallbackProvider = (provider, category, message, error = null) => ({
 });
 
 const prototypeNotice = (language) => language === "ko"
-  ? "프로토타입 예상 정보입니다. 실제 가격과 이용 가능 여부는 승인 전 다시 확인됩니다."
+  ? "í”„ë¡œí† íƒ€ìž… ì˜ˆìƒ ì •ë³´ìž…ë‹ˆë‹¤. ì‹¤ì œ ê°€ê²©ê³¼ ì´ìš© ê°€ëŠ¥ ì—¬ë¶€ëŠ” ìŠ¹ì¸ ì „ ë‹¤ì‹œ í™•ì¸ë©ë‹ˆë‹¤."
   : "Prototype estimate. Price and availability are checked again before approval.";
 
 const getStoredMission = () => {
@@ -121,10 +121,10 @@ const loadingUi = {
     steps: ["Understanding your goal", "Collecting live information", "Comparing available options", "Organizing your mission", "Almost ready"]
   },
   ko: {
-    title: "ONE이 미션을 준비하고 있어요...",
-    steps: ["목표 이해하기", "실시간 정보 수집하기", "선택지 비교하기", "미션 정리하기", "거의 준비 완료"]
+    title: "ONEì´ ë¯¸ì…˜ì„ ì¤€ë¹„í•˜ê³  ìžˆì–´ìš”...",
+    steps: ["ëª©í‘œ ì´í•´í•˜ê¸°", "ì‹¤ì‹œê°„ ì •ë³´ ìˆ˜ì§‘í•˜ê¸°", "ì„ íƒì§€ ë¹„êµí•˜ê¸°", "ë¯¸ì…˜ ì •ë¦¬í•˜ê¸°", "ê±°ì˜ ì¤€ë¹„ ì™„ë£Œ"]
   },
-  es: { title: "ONE está preparando tu misión...", steps: ["Entendiendo tu objetivo", "Recopilando información", "Comparando opciones", "Organizando tu misión", "Casi listo"] }
+  es: { title: "ONE estÃ¡ preparando tu misiÃ³n...", steps: ["Entendiendo tu objetivo", "Recopilando informaciÃ³n", "Comparando opciones", "Organizando tu misiÃ³n", "Casi listo"] }
 };
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -171,9 +171,9 @@ const fetchWeather = async (mission) => {
     const data = await fetchJson(url);
     const items = data?.daily?.time?.slice(0, Math.min(scheduledDays, 16)).map((date, index) => ({
       label: date,
-      value: `${Math.round(data.daily.temperature_2m_min[index])}°C ~ ${Math.round(data.daily.temperature_2m_max[index])}°C`,
+      value: `${Math.round(data.daily.temperature_2m_min[index])}Â°C ~ ${Math.round(data.daily.temperature_2m_max[index])}Â°C`,
       precipitation: `${data.daily.precipitation_probability_max[index] ?? 0}%`,
-      humidity: `${data.daily.relative_humidity_2m_max?.[index] ?? "—"}%`
+      humidity: `${data.daily.relative_humidity_2m_max?.[index] ?? "â€”"}%`
     })) || [];
 
     return { provider: "Open-Meteo", category: "weather", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items, error: null };
@@ -187,7 +187,7 @@ const fetchCurrency = async (mission) => {
   const to = mission?.countryProfile?.currency || mission?.exchangeRate?.to || "USD";
 
   if (from === to) {
-    return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} → ${to}`, value: "Same currency" }], error: null };
+    return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [{ label: `${from} â†’ ${to}`, value: "Same currency" }], error: null };
   }
 
   try {
@@ -203,8 +203,8 @@ const fetchCurrency = async (mission) => {
     }
 
     return { provider: "Frankfurter", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [
-      { label: `${from} → ${to}`, value: String(rate), from, to, rate },
-      { label: `${from} → USD`, value: Number.isFinite(usdRate) ? String(usdRate) : "Unavailable", from, to: "USD", rate: usdRate }
+      { label: `${from} â†’ ${to}`, value: String(rate), from, to, rate },
+      { label: `${from} â†’ USD`, value: Number.isFinite(usdRate) ? String(usdRate) : "Unavailable", from, to: "USD", rate: usdRate }
     ], error: null };
   } catch (error) {
     try {
@@ -213,8 +213,8 @@ const fetchCurrency = async (mission) => {
       const usdRate = Number(data?.rates?.USD);
       if (!Number.isFinite(rate) || rate <= 0) throw new Error("Fallback rate unavailable");
       return { provider: "ExchangeRate-API Open Access", category: "currency", sourceStatus: "free_live_api", liveData: true, requiresKey: false, requiresPartnerAccess: false, items: [
-        { label: `${from} → ${to}`, value: String(rate), from, to, rate },
-        { label: `${from} → USD`, value: Number.isFinite(usdRate) ? String(usdRate) : "Unavailable", from, to: "USD", rate: usdRate }
+        { label: `${from} â†’ ${to}`, value: String(rate), from, to, rate },
+        { label: `${from} â†’ USD`, value: Number.isFinite(usdRate) ? String(usdRate) : "Unavailable", from, to: "USD", rate: usdRate }
       ], error: null };
     } catch (fallbackError) {
       return fallbackProvider("Currency providers", "currency", "Live exchange rate is unavailable and must be checked before approval.", `${error.message}; ${fallbackError.message}`);
@@ -341,7 +341,7 @@ const fetchLocalPlaces = async (mission) => {
       });
     }
     const scopedItems = enforceGeographicScope(items, geographicScope);
-    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: scopedItems.length > 0, requiresKey: false, requiresPartnerAccess: false, items: scopedItems, geographicScope, attribution: "© OpenStreetMap contributors", error: null };
+    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: scopedItems.length > 0, requiresKey: false, requiresPartnerAccess: false, items: scopedItems, geographicScope, attribution: "Â© OpenStreetMap contributors", error: null };
   } catch (error) {
     return fallbackProvider("OpenStreetMap Overpass", "local_places", "Public hotel, restaurant and transport names could not be loaded; prototype fallbacks are shown.", error.message);
   }
@@ -372,7 +372,7 @@ const fetchWikipediaInfo = async (mission) => {
 };
 
 const govUkCountrySlug = (country = "") => {
-  const aliases = { "United States": "usa", "South Korea": "south-korea", "North Korea": "north-korea", "Czech Republic": "czechia", "Côte d'Ivoire": "ivory-coast", "Democratic Republic of the Congo": "democratic-republic-of-the-congo", "Republic of the Congo": "republic-of-the-congo" };
+  const aliases = { "United States": "usa", "South Korea": "south-korea", "North Korea": "north-korea", "Czech Republic": "czechia", "CÃ´te d'Ivoire": "ivory-coast", "Democratic Republic of the Congo": "democratic-republic-of-the-congo", "Republic of the Congo": "republic-of-the-congo" };
   return aliases[country] || String(country).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 };
 
@@ -390,7 +390,7 @@ const fetchOfficialTravelAdvice = async (mission) => {
       requiresKey: false,
       requiresPartnerAccess: false,
       items: [{ label: data?.title || `${country} travel advice`, value: data?.description || "Official entry, safety and local-law information", url: `https://www.gov.uk${data?.base_path || `/foreign-travel-advice/${slug}`}`, updatedAt: data?.public_updated_at || data?.updated_at || "" }],
-      attribution: "UK Foreign, Commonwealth & Development Office · Open Government Licence",
+      attribution: "UK Foreign, Commonwealth & Development Office Â· Open Government Licence",
       error: null
     };
   } catch (error) {
@@ -405,7 +405,7 @@ const buildTravelResourceLinks = (mission) => {
   const destination = [city, country].filter(Boolean).join(", ");
   const query = encodeURIComponent(destination || "international travel");
   const countryCode = String(mission?.countryProfile?.code || mission?.destination?.countryCode || "").toUpperCase();
-  const isKorea = countryCode === "KR" || /Korea|대한민국|한국/i.test(country);
+  const isKorea = countryCode === "KR" || /Korea|ëŒ€í•œë¯¼êµ­|í•œêµ­/i.test(country);
   const koreaResources = isKorea ? [
     { label: ko ? `${destination} 네이버 지도·대중교통` : `${destination} Naver Map and public transit`, value: ko ? "버스·지하철·도보 경로" : "Bus, subway and walking routes", url: `https://map.naver.com/p/search/${encodeURIComponent(destination)}` },
     { label: ko ? `${destination} 식당 예약 찾기` : `Find restaurant reservations in ${destination}`, value: ko ? "네이버 예약 검색 · 외부 서비스" : "Naver booking search · external service", url: `https://search.naver.com/search.naver?query=${encodeURIComponent(`${destination} 식당 네이버 예약`)}` },
@@ -419,11 +419,11 @@ const buildTravelResourceLinks = (mission) => {
     requiresKey: false,
     requiresPartnerAccess: false,
     items: [
-      { label: ko ? `${destination} 여행 가이드 영상` : `${destination} travel guide videos`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+travel+guide+things+to+know` },
-      { label: ko ? `${destination} 출국 전 알아둘 점` : `Things to know before visiting ${destination}`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+before+you+go+local+tips` },
-      { label: ko ? "미국 국무부 여행경보" : "U.S. State Department travel advisories", value: ko ? "공식 여행경보 목록" : "Official advisory directory", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/" },
-      { label: ko ? "대한민국 재외공관" : "Korean embassies and consulates", value: ko ? "외교부 재외공관 목록" : "Official overseas missions directory", url: "https://overseas.mofa.go.kr/" },
-      { label: ko ? `${destination} 지하철·대중교통 지도` : `${destination} subway and transit map`, value: "OpenStreetMap", url: `https://www.openstreetmap.org/search?query=${encodeURIComponent(`${destination} subway station`)}` },
+      { label: ko ? `${destination} ì—¬í–‰ ê°€ì´ë“œ ì˜ìƒ` : `${destination} travel guide videos`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+travel+guide+things+to+know` },
+      { label: ko ? `${destination} ì¶œêµ­ ì „ ì•Œì•„ë‘˜ ì ` : `Things to know before visiting ${destination}`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+before+you+go+local+tips` },
+      { label: ko ? "ë¯¸êµ­ êµ­ë¬´ë¶€ ì—¬í–‰ê²½ë³´" : "U.S. State Department travel advisories", value: ko ? "ê³µì‹ ì—¬í–‰ê²½ë³´ ëª©ë¡" : "Official advisory directory", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories.html/" },
+      { label: ko ? "ëŒ€í•œë¯¼êµ­ ìž¬ì™¸ê³µê´€" : "Korean embassies and consulates", value: ko ? "ì™¸êµë¶€ ìž¬ì™¸ê³µê´€ ëª©ë¡" : "Official overseas missions directory", url: "https://overseas.mofa.go.kr/" },
+      { label: ko ? `${destination} ì§€í•˜ì² Â·ëŒ€ì¤‘êµí†µ ì§€ë„` : `${destination} subway and transit map`, value: "OpenStreetMap", url: `https://www.openstreetmap.org/search?query=${encodeURIComponent(`${destination} subway station`)}` },
       ...koreaResources
     ],
     error: null
@@ -442,10 +442,10 @@ const buildLearningResourceLinks = (mission) => {
     requiresKey: false,
     requiresPartnerAccess: false,
     items: [
-      { label: ko ? "British Council 무료 영어 학습 자료" : "British Council free English resources", value: ko ? "공식 학습 자료" : "Official learning resources", url: "https://learnenglish.britishcouncil.org/" },
-      { label: ko ? `${subject} 추천 학습 영상` : `Recommended ${subject} learning videos`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+lesson+tutorial` },
-      { label: "Duolingo", value: ko ? "공식 학습 서비스" : "Official learning service", url: "https://www.duolingo.com/" },
-      { label: "HelloTalk", value: ko ? "언어교환 서비스 · 외부 앱" : "Language exchange service · external app", url: "https://www.hellotalk.com/" }
+      { label: ko ? "British Council ë¬´ë£Œ ì˜ì–´ í•™ìŠµ ìžë£Œ" : "British Council free English resources", value: ko ? "ê³µì‹ í•™ìŠµ ìžë£Œ" : "Official learning resources", url: "https://learnenglish.britishcouncil.org/" },
+      { label: ko ? `${subject} ì¶”ì²œ í•™ìŠµ ì˜ìƒ` : `Recommended ${subject} learning videos`, value: "YouTube", url: `https://www.youtube.com/results?search_query=${query}+lesson+tutorial` },
+      { label: "Duolingo", value: ko ? "ê³µì‹ í•™ìŠµ ì„œë¹„ìŠ¤" : "Official learning service", url: "https://www.duolingo.com/" },
+      { label: "HelloTalk", value: ko ? "ì–¸ì–´êµí™˜ ì„œë¹„ìŠ¤ Â· ì™¸ë¶€ ì•±" : "Language exchange service Â· external app", url: "https://www.hellotalk.com/" }
     ],
     error: null
   };
@@ -518,8 +518,8 @@ const enrichMission = async (mission) => {
   providerResults.forEach((result) => {
     if (!result || (Array.isArray(result.items) && result.items.length)) return;
     result.items = [{
-      label: mission.language === "ko" ? "목적지 기반 대안" : mission.language === "es" ? "Alternativa basada en el destino" : "Destination-based alternative",
-      value: mission.language === "ko" ? "ONE이 국가·지역 정보와 공개 검색을 사용해 유용한 대안을 준비했습니다." : mission.language === "es" ? "ONE preparó una alternativa útil con datos del país, la región y búsqueda pública." : "ONE prepared a useful alternative using country, regional and public-search context."
+      label: mission.language === "ko" ? "ëª©ì ì§€ ê¸°ë°˜ ëŒ€ì•ˆ" : mission.language === "es" ? "Alternativa basada en el destino" : "Destination-based alternative",
+      value: mission.language === "ko" ? "ONEì´ êµ­ê°€Â·ì§€ì—­ ì •ë³´ì™€ ê³µê°œ ê²€ìƒ‰ì„ ì‚¬ìš©í•´ ìœ ìš©í•œ ëŒ€ì•ˆì„ ì¤€ë¹„í–ˆìŠµë‹ˆë‹¤." : mission.language === "es" ? "ONE preparÃ³ una alternativa Ãºtil con datos del paÃ­s, la regiÃ³n y bÃºsqueda pÃºblica." : "ONE prepared a useful alternative using country, regional and public-search context."
     }];
     result.sourceStatus ||= "fallback_demo";
   });
@@ -562,7 +562,7 @@ const runLoadingSequence = async () => {
 
   const loadingTitle = document.getElementById("loadingTitle");
   if (loadingTitle) loadingTitle.textContent = loadingUi[language].title;
-  document.title = language === "ko" ? "Kastiz ONE — 미션 준비 중" : language === "es" ? "Kastiz ONE — Preparando misión" : "Kastiz ONE — Preparing Mission";
+  document.title = language === "ko" ? "Kastiz ONE â€” ë¯¸ì…˜ ì¤€ë¹„ ì¤‘" : language === "es" ? "Kastiz ONE â€” Preparando misiÃ³n" : "Kastiz ONE â€” Preparing Mission";
   loadingSteps.forEach((step, index) => {
     const label = step.querySelector("strong");
     if (label) label.textContent = loadingUi[language].steps[index] || "";
@@ -579,7 +579,29 @@ const runLoadingSequence = async () => {
     await wait(index === 0 ? 720 : 620);
   }
 
-  const enrichedMission = await enrichMission(mission);
+  let enrichedMission;
+  try {
+    enrichedMission = await Promise.race([
+      enrichMission(mission),
+      wait(18000).then(() => ({
+        ...mission,
+        status: "mission_ready",
+        providerResults: [fallbackProvider("ONE Safe Loader", "fallback", language === "ko" ? "제공업체 응답이 늦어 기본 미션 결과를 먼저 준비했습니다." : language === "es" ? "Un proveedor tardó demasiado; ONE preparó primero un resultado seguro." : "A provider took too long, so ONE prepared a safe result first.", "loading_timeout")],
+        placeIntelligence: { fallback: { AI_REASONING: true }, blankResultsAllowed: false },
+        approvalProtection: { required: true, message: language === "ko" ? approvalMessages.ko : language === "es" ? approvalMessages.es : approvalMessages.en },
+        updatedAt: new Date().toISOString()
+      }))
+    ]);
+  } catch (error) {
+    enrichedMission = {
+      ...mission,
+      status: "mission_ready",
+      providerResults: [fallbackProvider("ONE Safe Loader", "fallback", language === "ko" ? "언어 또는 제공업체 오류가 있었지만 빈 결과 대신 안전한 기본 결과를 준비했습니다." : language === "es" ? "Hubo un error de idioma o proveedor; ONE preparó un resultado seguro en vez de una página vacía." : "A language or provider error occurred; ONE prepared a safe result instead of a blank page.", error?.message || "loading_error")],
+      placeIntelligence: { fallback: { AI_REASONING: true }, blankResultsAllowed: false },
+      approvalProtection: { required: true, message: language === "ko" ? approvalMessages.ko : language === "es" ? approvalMessages.es : approvalMessages.en },
+      updatedAt: new Date().toISOString()
+    };
+  }
   (enrichedMission.providerResults || []).filter(Boolean).forEach((provider) => {
     const status = provider.sourceStatus || "unknown";
     trackEvent("provider_request_started", { mission_type: enrichedMission.type, mission_subtype: provider.category, language, page: "loading", source_status: status });
@@ -594,7 +616,7 @@ const runLoadingSequence = async () => {
     });
   });
 
-  updateLoadingMessage(language === "ko" ? "미션 준비가 완료되었습니다..." : "Mission ready...", 100, loadingSteps.length);
+  updateLoadingMessage(language === "ko" ? "ë¯¸ì…˜ ì¤€ë¹„ê°€ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤..." : "Mission ready...", 100, loadingSteps.length);
   saveMission(enrichedMission);
   trackEvent("loading_complete", { mission_type: enrichedMission.type, language, page: "loading", schedule_used: Boolean(enrichedMission.schedule?.startDate && enrichedMission.schedule?.endDate) });
 
