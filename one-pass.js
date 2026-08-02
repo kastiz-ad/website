@@ -16,7 +16,7 @@ const translations = {
     comparisonCopy: "See how ONE weighs cheapest, points, and balanced options using saved preferences. No live providers are contacted.", runComparison: "Run fictional comparison", bestPrice: "Cheapest", bestPoints: "Maximum points", bestBalanced: "Best balance",
     connectionCopy: "OAuth, official APIs, app handoff, or secure deep links only. Provider passwords are never accepted.", securityCopy: "Passkeys confirm cryptographic device authentication. Kastiz never receives your face or fingerprint.", passkeyPending: "Set up passkey", export: "Export ONE Pass data", deleteIdentity: "Delete Identity Pass", deleteOnePass: "Request ONE Pass deletion", deleteNotice: "Deletion and sensitive reveal require signed-in ownership and recent device confirmation.",
     login: "Sign in to use ONE Pass.", unavailable: "Secure device confirmation is unavailable in this preview.", saved: "Travel Profile saved.", ready: "Ready to approve", setup: "Setup in progress", complete: "Complete", programs: "programs", methods: "methods", nextLanguage: "한국어",
-    unsupported: "This browser or device does not support passkeys.", cancelled: "Device confirmation was cancelled.", passkeyAdded: "Passkey added. Sensitive actions are now available.", exactAction: "Confirm this exact action with your device.", exportDone: "ONE Pass export downloaded.", identityDeleted: "Identity Pass deleted safely.", deletionRequested: "ONE Pass deletion request recorded. It is not complete yet.", deletionExists: "A deletion request already exists.", noIdentity: "No Identity Pass is available to delete.", profileReset: "Travel Profile reset.", profileDeleted: "Travel Profile deleted."
+    unsupported: "This browser or device does not support passkeys.", cancelled: "Device confirmation was cancelled.", passkeyAdded: "Passkey added. Sensitive actions are now available.", exactAction: "Confirm this exact action with your device.", exportDone: "ONE Pass export downloaded.", identityDeleted: "Identity Pass deleted safely.", deletionRequested: "ONE Pass deletion request recorded. It is not complete yet.", deletionExists: "A deletion request already exists.", noIdentity: "No Identity Pass is available to delete.", profileReset: "Travel Profile reset.", profileDeleted: "Travel Profile deleted.", safeReference: "Safe references only", paymentCopy: "Save masked payment references and provider capabilities. ONE never asks for card numbers, CVV, PINs, bank passwords, or provider login credentials.", paymentCategory: "Payment category", maskedDisplay: "Masked display", savePaymentReference: "Save safe reference", paymentNoSecrets: "Do not enter full card numbers, CVV, bank credentials, provider passwords, OTP codes, or raw tokens.", referenceSaved: "Payment reference saved.", referenceRevoked: "Payment reference revoked.", setDefault: "Set default", defaultSet: "Default reference updated.", noPaymentMethods: "No payment references saved yet.", setupRequired: "Setup required", demoCapability: "Demo capability", noRealMoney: "No real money. Provider setup is required."
   },
   ko: {
     profile: "프로필", settings: "설정", tagline: "한 번만 설정하면 ONE이 필요한 세부 정보를 준비합니다.", checking: "안전한 계정 확인 중...",
@@ -29,7 +29,7 @@ const translations = {
     comparisonCopy: "저장된 선호도로 최저가, 포인트, 균형 옵션을 어떻게 비교하는지 보여줍니다. 실시간 제공업체는 호출하지 않습니다.", runComparison: "가상 비교 실행", bestPrice: "최저가", bestPoints: "포인트 최대", bestBalanced: "균형 추천",
     connectionCopy: "OAuth, 공식 API, 앱 연결, 안전한 딥링크만 사용합니다. 제공업체 비밀번호는 받지 않습니다.", securityCopy: "패스키는 기기의 암호학적 인증을 확인합니다. Kastiz는 얼굴이나 지문 정보를 받지 않습니다.", passkeyPending: "패스키 설정", export: "ONE Pass 데이터 내보내기", deleteIdentity: "Identity Pass 삭제", deleteOnePass: "ONE Pass 삭제 요청", deleteNotice: "삭제와 민감 정보 확인은 로그인된 소유자와 최근 기기 확인이 필요합니다.",
     login: "ONE Pass를 사용하려면 로그인하세요.", unavailable: "이 미리보기에서는 안전한 기기 확인을 사용할 수 없습니다.", saved: "여행 프로필을 저장했습니다.", ready: "승인 준비 완료", setup: "설정 진행 중", complete: "완료", programs: "개 프로그램", methods: "개 수단", nextLanguage: "Español",
-    unsupported: "이 브라우저나 기기는 패스키를 지원하지 않습니다.", cancelled: "기기 확인이 취소되었습니다.", passkeyAdded: "패스키가 추가되었습니다. 민감 작업을 사용할 수 있습니다.", exactAction: "이 정확한 작업을 기기로 확인하세요.", exportDone: "ONE Pass 내보내기 파일을 다운로드했습니다.", identityDeleted: "Identity Pass를 안전하게 삭제했습니다.", deletionRequested: "ONE Pass 삭제 요청을 기록했습니다. 아직 완료된 것은 아닙니다.", deletionExists: "이미 진행 중인 삭제 요청이 있습니다.", noIdentity: "삭제할 Identity Pass가 없습니다.", profileReset: "여행 프로필을 초기화했습니다.", profileDeleted: "여행 프로필을 삭제했습니다."
+    unsupported: "이 브라우저나 기기는 패스키를 지원하지 않습니다.", cancelled: "기기 확인이 취소되었습니다.", passkeyAdded: "패스키가 추가되었습니다. 민감 작업을 사용할 수 있습니다.", exactAction: "이 정확한 작업을 기기로 확인하세요.", exportDone: "ONE Pass 내보내기 파일을 다운로드했습니다.", identityDeleted: "Identity Pass를 안전하게 삭제했습니다.", deletionRequested: "ONE Pass 삭제 요청을 기록했습니다. 아직 완료된 것은 아닙니다.", deletionExists: "이미 진행 중인 삭제 요청이 있습니다.", noIdentity: "삭제할 Identity Pass가 없습니다.", profileReset: "여행 프로필을 초기화했습니다.", profileDeleted: "여행 프로필을 삭제했습니다.", safeReference: "안전한 참조만 저장", paymentCopy: "마스킹된 결제 참조와 제공업체 기능만 저장합니다. ONE은 카드번호, CVV, PIN, 은행 비밀번호, 제공업체 로그인 정보를 요구하지 않습니다.", paymentCategory: "결제 분류", maskedDisplay: "마스킹 표시", savePaymentReference: "안전한 참조 저장", paymentNoSecrets: "전체 카드번호, CVV, 은행 정보, 제공업체 비밀번호, OTP, 원본 토큰을 입력하지 마세요.", referenceSaved: "결제 참조를 저장했습니다.", referenceRevoked: "결제 참조를 해지했습니다.", setDefault: "기본으로 설정", defaultSet: "기본 참조를 업데이트했습니다.", noPaymentMethods: "저장된 결제 참조가 없습니다.", setupRequired: "설정 필요", demoCapability: "데모 기능", noRealMoney: "실제 결제 없음. 제공업체 설정이 필요합니다."
   },
   es: {
     profile: "Perfil", settings: "Ajustes", tagline: "Configúralo una vez. ONE prepara los detalles.", checking: "Comprobando cuenta segura...",
@@ -42,14 +42,14 @@ const translations = {
     comparisonCopy: "Muestra cómo ONE compara precio, puntos y equilibrio usando preferencias guardadas. No se contacta a proveedores en vivo.", runComparison: "Ejecutar comparación ficticia", bestPrice: "Más barato", bestPoints: "Más puntos", bestBalanced: "Mejor equilibrio",
     connectionCopy: "Solo OAuth, APIs oficiales, transferencia de app o enlaces profundos seguros. Nunca se aceptan contraseñas de proveedores.", securityCopy: "Las passkeys confirman autenticación criptográfica del dispositivo. Kastiz nunca recibe tu cara ni huella.", passkeyPending: "Configurar passkey", export: "Exportar datos de ONE Pass", deleteIdentity: "Eliminar Identity Pass", deleteOnePass: "Solicitar eliminación de ONE Pass", deleteNotice: "Eliminar o revelar datos sensibles requiere cuenta verificada y confirmación reciente del dispositivo.",
     login: "Inicia sesión para usar ONE Pass.", unavailable: "La confirmación segura del dispositivo no está disponible en esta vista previa.", saved: "Perfil de viaje guardado.", ready: "Listo para aprobar", setup: "Configuración en curso", complete: "Completo", programs: "programas", methods: "métodos", nextLanguage: "English",
-    unsupported: "Este navegador o dispositivo no admite passkeys.", cancelled: "La confirmación del dispositivo fue cancelada.", passkeyAdded: "Passkey añadida. Las acciones sensibles están disponibles.", exactAction: "Confirma esta acción exacta con tu dispositivo.", exportDone: "Exportación de ONE Pass descargada.", identityDeleted: "Identity Pass eliminado de forma segura.", deletionRequested: "Solicitud de eliminación de ONE Pass registrada. Aún no está completa.", deletionExists: "Ya existe una solicitud de eliminación.", noIdentity: "No hay Identity Pass para eliminar.", profileReset: "Perfil de viaje restablecido.", profileDeleted: "Perfil de viaje eliminado."
+    unsupported: "Este navegador o dispositivo no admite passkeys.", cancelled: "La confirmación del dispositivo fue cancelada.", passkeyAdded: "Passkey añadida. Las acciones sensibles están disponibles.", exactAction: "Confirma esta acción exacta con tu dispositivo.", exportDone: "Exportación de ONE Pass descargada.", identityDeleted: "Identity Pass eliminado de forma segura.", deletionRequested: "Solicitud de eliminación de ONE Pass registrada. Aún no está completa.", deletionExists: "Ya existe una solicitud de eliminación.", noIdentity: "No hay Identity Pass para eliminar.", profileReset: "Perfil de viaje restablecido.", profileDeleted: "Perfil de viaje eliminado.", safeReference: "Solo referencias seguras", paymentCopy: "Guarda referencias de pago enmascaradas y capacidades del proveedor. ONE nunca pide números de tarjeta, CVV, PIN, contraseñas bancarias ni credenciales externas.", paymentCategory: "Categoría de pago", maskedDisplay: "Visualización enmascarada", savePaymentReference: "Guardar referencia segura", paymentNoSecrets: "No introduzcas números completos de tarjeta, CVV, credenciales bancarias, contraseñas, OTP ni tokens sin procesar.", referenceSaved: "Referencia de pago guardada.", referenceRevoked: "Referencia de pago revocada.", setDefault: "Definir como predeterminada", defaultSet: "Referencia predeterminada actualizada.", noPaymentMethods: "Aún no hay referencias de pago.", setupRequired: "Configuración requerida", demoCapability: "Capacidad demo", noRealMoney: "No hay dinero real. Se requiere configurar el proveedor."
   }
 };
 const t = translations[language] || translations.en;
 const copy = key => t[key] || translations.en[key] || key;
 const status = document.getElementById("pageStatus");
 let passState = { identityId: null, passkeyEnabled: false, passkeyConfigured: false };
-const arrayFields = ["departure_airports", "arrival_airports", "airlines", "avoided_airlines", "hotel_brands", "avoided_hotel_brands", "dietary_restrictions", "accessibility_requirements", "preferred_transport", "preferred_currencies"];
+const arrayFields = ["departure_airports", "arrival_airports", "airlines", "avoided_airlines", "hotel_brands", "avoided_hotel_brands", "dietary_restrictions", "accessibility_requirements", "preferred_transport", "preferred_currencies", "supported_currencies"];
 
 const csrf = () => document.cookie.split(";").map(value => value.trim()).find(value => value.startsWith("kastiz_csrf="))?.split("=").slice(1).join("=") || "";
 const b64uToBytes = value => Uint8Array.from(atob(String(value).replaceAll("-", "+").replaceAll("_", "/").padEnd(Math.ceil(String(value).length / 4) * 4, "=")), c => c.charCodeAt(0));
@@ -136,6 +136,30 @@ function renderLoyalty(accounts = []) {
 }
 async function loadLoyalty() { const data = await api("/loyalty"); renderLoyalty(data.accounts || []); document.getElementById("loyaltyStatus").textContent = `${(data.accounts || []).length} ${copy("programs")}`; }
 async function saveLoyalty(event) { event.preventDefault(); try { await api("/loyalty", { method: "POST", body: JSON.stringify(formData(event.currentTarget)) }); event.currentTarget.reset(); setStatus(copy("programSaved")); await loadLoyalty(); } catch (error) { setStatus(error.message); } }
+function renderPayments(methods = [], providers = []) {
+  const list = document.getElementById("paymentList");
+  const providerTarget = document.getElementById("paymentProviders");
+  list.textContent = ""; providerTarget.textContent = "";
+  if (!methods.length) { const p = document.createElement("p"); p.className = "page-status"; p.textContent = copy("noPaymentMethods"); list.append(p); }
+  methods.forEach(method => {
+    const card = document.createElement("article"); card.className = "wallet-item";
+    const title = document.createElement("strong"); title.textContent = `${method.display_name || method.masked_label} · ${method.method_category}`;
+    const meta = document.createElement("span"); meta.textContent = `${method.connection_status || copy("setupRequired")} · ${(method.supported_transaction_types || []).join(", ") || "authorize"}`;
+    const row = document.createElement("div"); row.className = "inline-actions";
+    const def = document.createElement("button"); def.type = "button"; def.textContent = method.is_default ? copy("complete") : copy("setDefault"); def.disabled = method.unavailable; def.addEventListener("click", async () => { try { await api(`/payments/${encodeURIComponent(method.id)}/default`, { method: "POST", body: JSON.stringify({}) }); setStatus(copy("defaultSet")); await loadPayments(); } catch (error) { setStatus(error.message); } });
+    const remove = document.createElement("button"); remove.type = "button"; remove.textContent = copy("remove"); remove.addEventListener("click", async () => { try { await api(`/payments/${encodeURIComponent(method.id)}`, { method: "DELETE", body: JSON.stringify({}) }); setStatus(copy("referenceRevoked")); await loadPayments(); } catch (error) { setStatus(error.message); } });
+    row.append(def, remove); card.append(title, meta, row); list.append(card);
+  });
+  providers.forEach(provider => {
+    const card = document.createElement("article"); card.className = "comparison-card";
+    const h = document.createElement("h3"); h.textContent = provider.label;
+    const p = document.createElement("p"); p.textContent = `${provider.category} · ${provider.productionStatus || provider.status}`;
+    const small = document.createElement("small"); small.textContent = provider.noRealMoney ? copy("noRealMoney") : copy("setupRequired");
+    card.append(h, p, small); providerTarget.append(card);
+  });
+}
+async function loadPayments() { const data = await api("/payments"); renderPayments(data.methods || [], data.providers || []); document.getElementById("paymentStatus").textContent = `${(data.methods || []).length} ${copy("methods")}`; }
+async function savePayment(event) { event.preventDefault(); try { await api("/payments", { method: "POST", body: JSON.stringify(formData(event.currentTarget)) }); event.currentTarget.reset(); setStatus(copy("referenceSaved")); await loadPayments(); } catch (error) { setStatus(error.message); } }
 async function runComparison() {
   const target = document.getElementById("comparisonResults"); target.textContent = "";
   try {
@@ -163,11 +187,12 @@ async function load() {
     document.getElementById("travelStatus").textContent = data.status.travelProfile ? copy("complete") : copy("notSetup");
     document.getElementById("loyaltyStatus").textContent = `${data.status.loyaltyPrograms} ${copy("programs")}`;
     document.getElementById("securityStatus").textContent = data.status.passkeyEnabled ? copy("passkeyReady") : copy("passkeyOff");
+    document.getElementById("paymentStatus").textContent = `${data.status.paymentMethods} ${copy("methods")}`;
     document.getElementById("readyStatus").textContent = data.status.ready ? copy("ready") : copy("setup");
     document.querySelector(".pass-readiness").classList.toggle("ready", Boolean(data.status.ready));
     if (data.status.identity?.passportNumber) document.getElementById("maskedPassport").textContent = data.status.identity.passportNumber;
     const travel = await api("/travel-profile"); if (travel.travelProfile) fillTravel(travel.travelProfile);
-    await loadLoyalty(); await loadActivity(); configureSecurityButtons();
+    await loadLoyalty(); await loadPayments(); await loadActivity(); configureSecurityButtons();
   } catch (error) { setStatus(error.message); configureSecurityButtons(); }
 }
 
@@ -179,6 +204,7 @@ document.getElementById("travelForm").addEventListener("submit", saveTravel);
 document.getElementById("resetTravel").addEventListener("click", resetTravel);
 document.getElementById("deleteTravel").addEventListener("click", deleteTravel);
 document.getElementById("loyaltyForm").addEventListener("submit", saveLoyalty);
+document.getElementById("paymentForm").addEventListener("submit", savePayment);
 document.getElementById("runComparison").addEventListener("click", runComparison);
 document.getElementById("addPasskey").addEventListener("click", addPasskey);
 document.getElementById("exportPass").addEventListener("click", exportPass);

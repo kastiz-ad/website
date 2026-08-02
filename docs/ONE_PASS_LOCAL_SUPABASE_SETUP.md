@@ -124,3 +124,13 @@ Expected result:
 - RLS remains enabled on both user-owned tables.
 - Direct authenticated writes to loyalty references are revoked; API routes must use trusted server-owned writes scoped to the authenticated user.
 - No passport numbers, government IDs, payment cards, CVVs, bank credentials, provider passwords, OAuth tokens, or full loyalty membership numbers are stored by these travel profile and loyalty wallet flows.
+
+## Payment Hub checkpoint migration
+
+A new migration was created but not applied:
+
+- `supabase/migrations/202608020004_one_pass_payment_hub.sql`
+
+It extends safe payment references and creates provider-neutral payment transaction, event, and idempotency tables. It must be reviewed before application. Do not paste payment provider secrets into chat, source files, migrations, or ordinary database rows. Real provider credentials belong only in secure environment variables or provider-managed vaults.
+
+Until provider credentials, webhook verification, RLS verification, and browser passkey E2E are completed, Payment Hub remains a safe reference/demo foundation only and is not production payment functionality.

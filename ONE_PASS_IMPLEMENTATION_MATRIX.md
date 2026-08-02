@@ -96,3 +96,16 @@ Status language for this checkpoint:
 - Added safe mission personalization context and deterministic travel option comparison preview without claiming live points, live pricing, award availability, booking or provider execution.
 - Added migration `202608020003_one_pass_travel_profile_loyalty.sql`; migration was not applied locally, in staging, or in production.
 - Docker/Supabase live RLS checks and browser WebAuthn E2E remain deferred because virtualization/local E2E prerequisites were unavailable for this checkpoint.
+
+## Payment Hub and Secure Provider References Checkpoint
+
+| Area | Status | Evidence |
+| --- | --- | --- |
+| Safe payment references | Implemented | `functions/api/v1/_lib/one-pass-payments.js`, `payment_method_references` migration extension |
+| Raw credential rejection | Implemented | Helper validation and `tests/one-pass-payment-hub.test.mjs` |
+| Demo provider adapters | Implemented | Toss, Kakao Pay, Apple Pay capability, carrier billing demo adapters; production fail-closed |
+| Exact payment approval package | Implemented | Payment package binds amount, currency, method, merchant, product, conditions, idempotency and hash |
+| Payment state machine | Implemented | Server-controlled transitions; browser cannot declare provider success |
+| Webhook/idempotency foundation | Created | Migration created but not applied; production verifier not configured |
+| Real provider payments | Not ready | No merchant credentials, no live provider authentication, no real money movement |
+| Production status | Not ready | Migrations not applied, live RLS not tested, browser E2E not tested |
