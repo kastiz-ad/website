@@ -342,10 +342,23 @@ html[data-theme="light"] .header-brand-mark img {
 }
 
 .nav-arrow {
-  font-size: 11px;
-  line-height: 1;
-  opacity: 0.68;
-  transform: translateY(-1px);
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  opacity: 0.72;
+  transform: rotate(45deg) translateY(-1px);
+  transform-origin: 55% 55%;
+  transition: transform 160ms ease, opacity 160ms ease;
+  font-size: 0;
+  line-height: 0;
+  flex: 0 0 auto;
+}
+
+.nav-dropdown.is-open .nav-arrow {
+  transform: rotate(225deg) translate(-1px, -1px);
+  opacity: 0.95;
 }
 
 .nav-dropdown-menu {
@@ -1934,3 +1947,27 @@ html[data-theme="midnight"] .header-mini-symbol {
 }
 
 /* ONE Intelligence Layer: quiet secondary assistant row */
+
+
+/* Reliable dropdown chevrons: no emoji, icon font, or Unicode glyph dependency. */
+.nav-text-trigger .nav-arrow {
+  display: inline-block !important;
+  width: 0.42rem !important;
+  height: 0.42rem !important;
+  border-right: 1.6px solid currentColor !important;
+  border-bottom: 1.6px solid currentColor !important;
+  color: currentColor !important;
+  opacity: 0.72 !important;
+  transform: rotate(45deg) translateY(-1px) !important;
+  transform-origin: 55% 55% !important;
+  transition: transform 160ms ease, opacity 160ms ease !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  overflow: hidden !important;
+  flex: 0 0 auto !important;
+}
+
+.nav-dropdown.is-open > .nav-text-trigger .nav-arrow {
+  transform: rotate(225deg) translate(-1px, -1px) !important;
+  opacity: 0.95 !important;
+}

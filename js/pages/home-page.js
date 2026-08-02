@@ -1,7 +1,7 @@
 import { trackEvent } from "../analytics.js";
 import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
 import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-mobile-country-fallback-1";
-import { dedupePreviewDestinations, previewTravelIntent, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-repair";
+import { dedupePreviewDestinations, previewTravelIntent, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-chevron-fix";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
