@@ -5045,6 +5045,85 @@ const createAIDecisionPanel = (result) => {
   return panel;
 };
 
+
+const shouldForceInvestorTravelDemo = (result = currentResult) => {
+  if (!isInvestorDemoMode(window.location)) return false;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("demoScenario") === "travel" || isTravelResult(result) || previewTravelIntent(params.get("mission") || "");
+};
+
+const renderGuaranteedInvestorTravelDemo = (result = currentResult) => {
+  if (!missionGrid || !shouldForceInvestorTravelDemo(result)) return false;
+  const localKo = activeLanguage === "ko";
+  const title = localKo ? "도쿄 7일 미식 여행" : "Tokyo 7-day food trip";
+  document.body.classList.add("travel-premium-result-view");
+  missionGrid.classList.add("is-travel-package-layout", "is-v23-travel-layout");
+  const card = (html) => {
+    const section = document.createElement("section");
+    section.className = "mission-card is-wide guaranteed-investor-travel-card";
+    section.innerHTML = html;
+    return section;
+  };
+  missionTitle.textContent = title;
+  const hero = card(`
+    <div class="card-top"><span class="eyebrow">Investor Demo · Preview</span><h2 class="card-title">${localKo ? "일본 여행 패키지가 준비됐어요" : "Japan travel package ready"}</h2></div>
+    <div class="alpha03-hero-grid">
+      <div>
+        <p class="v23-journey-lead">${localKo ? "혼자 여행하는 7일 일정으로 음식, 숙소, 항공, 이동, 날씨 대안을 한 번에 볼 수 있게 정리했습니다." : "A 7-day solo itinerary with food, hotels, flights, transport, and weather backup."}</p>
+        <div class="travel-package-meta"><span>7 days</span><span>1 traveler</span><span>Tokyo · Japan</span><span>Demo data</span></div>
+      </div>
+      <img class="alpha03-photo" src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80" alt="Tokyo skyline" loading="lazy" />
+    </div>
+  `);
+  const picks = card(`
+    <div class="card-top"><span class="eyebrow">ONE Pick</span><h2 class="card-title">${localKo ? "도쿄 첫 방문에 좋은 균형형 코스" : "Balanced Tokyo first-visit route"}</h2></div>
+    <div class="result-section-grid">
+      <article><strong>Toyosu sushi breakfast</strong><p>${localKo ? "새벽 시장 분위기와 신선한 스시로 시작합니다." : "Start with market energy and fresh sushi."}</p></article>
+      <article><strong>Asakusa + Senso-ji</strong><p>${localKo ? "전통적인 도쿄 분위기와 사진 포인트가 좋아요." : "Classic Tokyo atmosphere and easy photo spots."}</p></article>
+      <article><strong>Shibuya Sky</strong><p>${localKo ? "저녁 전망으로 여행의 하이라이트를 만듭니다." : "Evening skyline moment for the trip highlight."}</p></article>
+      <article><strong>Rain backup</strong><p>${localKo ? "비가 오면 teamLab, 긴자 쇼핑, 카페 코스로 바꿉니다." : "If it rains, switch to teamLab, Ginza shopping, and cafés."}</p></article>
+    </div>
+  `);
+  const map = card(`
+    <div class="card-top"><span class="eyebrow">Map</span><h2 class="card-title">${localKo ? "동선 미리보기" : "Route preview"}</h2></div>
+    <div class="alpha03-map-shell"><iframe title="Tokyo map preview" src="https://www.openstreetmap.org/export/embed.html?bbox=139.60%2C35.62%2C139.82%2C35.75&layer=mapnik&marker=35.6762%2C139.6503" loading="lazy"></iframe></div>
+    <div class="travel-package-meta"><span>🍣 Food</span><span>📍 Places</span><span>🏨 Hotel area</span><span>🚇 Transit</span></div>
+  `);
+  const options = card(`
+    <div class="card-top"><span class="eyebrow">Choices</span><h2 class="card-title">${localKo ? "항공 · 숙소 · 이동 선택" : "Flights · Hotels · Transport"}</h2></div>
+    <div class="result-section-grid">
+      <article><strong>Korean Air / Asiana</strong><p>${localKo ? "직항 중심. 실제 가격과 좌석은 제공업체 연결 후 확인합니다." : "Direct-flight focused. Live price and seats require provider check."}</p></article>
+      <article><strong>JAL / ANA</strong><p>${localKo ? "일본 항공사 서비스와 시간대를 비교합니다." : "Compare Japanese carrier service and schedules."}</p></article>
+      <article><strong>Shinjuku / Ginza Hotel</strong><p>${localKo ? "이동 편의와 식당 접근성을 우선합니다." : "Prioritizes transit and restaurant access."}</p></article>
+      <article><strong>JR + Subway + Taxi backup</strong><p>${localKo ? "공항철도, 지하철, 짧은 택시 이동을 조합합니다." : "Mix airport rail, subway, and short taxi backup."}</p></article>
+    </div>
+  `);
+  const food = card(`
+    <div class="card-top"><span class="eyebrow">Food</span><h2 class="card-title">${localKo ? "먹어볼 만한 곳" : "Food worth trying"}</h2></div>
+    <div class="result-section-grid">
+      <article><strong>Toyosu sushi</strong><p>${localKo ? "오마카세보다 부담 낮게, 제철 네타 중심으로 추천합니다." : "Seasonal sushi without forcing a luxury omakase."}</p></article>
+      <article><strong>Tsukemen / ramen</strong><p>${localKo ? "점심엔 줄이 짧은 시간대로 배치합니다." : "Placed around lunch with lower queue risk."}</p></article>
+      <article><strong>Wagyu yakiniku</strong><p>${localKo ? "저녁 하이라이트로 예산에 맞춰 등급을 조절합니다." : "Dinner highlight with budget-adjustable grade."}</p></article>
+      <article><strong>Matcha dessert</strong><p>${localKo ? "긴자나 아사쿠사 산책 후 말차 디저트를 넣습니다." : "Matcha dessert after Ginza or Asakusa walking."}</p></article>
+    </div>
+  `);
+  const itinerary = card(`
+    <div class="card-top"><span class="eyebrow">Itinerary</span><h2 class="card-title">${localKo ? "7일 일정" : "7-day schedule"}</h2></div>
+    <div class="alpha03-day-strip">
+      ${["Arrival · Shinjuku dinner", "Toyosu · Asakusa · Skytree", "Harajuku · Shibuya Sky", "Ginza · teamLab · Odaiba", "Kamakura day trip", "Akihabara · Ueno · wagyu", "Checkout · last café · airport"].map((day, index) => `<article class="alpha03-day-card"><span>DAY ${index + 1}</span><strong>${day}</strong><p>${localKo ? "동선과 식사를 함께 맞춘 하루입니다." : "Balanced around route and meals."}</p></article>`).join("")}
+    </div>
+  `);
+  missionGrid.replaceChildren(hero, picks, map, options, food, itinerary);
+  additionalServicesForm.hidden = false;
+  missionGrid.appendChild(additionalServicesForm);
+  missionGrid.appendChild(createApprovalCard(result));
+  const missionUnderstood = document.getElementById("missionUnderstood");
+  if (missionUnderstood) missionUnderstood.hidden = true;
+  if (pathwayOpportunityPanel) pathwayOpportunityPanel.hidden = true;
+  bottomActions.hidden = false;
+  return true;
+};
+
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
@@ -6691,6 +6770,7 @@ setTheme();
 updateTextContent();
 updateLocation();
 renderMission();
+renderGuaranteedInvestorTravelDemo(currentResult);
 initializeOptionSelections();
 renderApprovalList();
 enableCustomization();

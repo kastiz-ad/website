@@ -48,6 +48,16 @@ test("legacy release preview URL without session storage falls back to rich Toky
   assert.match(resultsPage, /const params = new URLSearchParams\(window\.location\.search\);\s*if \(shouldUseReleasePreviewTravelFallback\(params\)\) return createReleasePreviewTravelFallback\(params\);/);
 });
 
+test("investor demo travel has a guaranteed rich fallback renderer", () => {
+  assert.match(resultsPage, /renderGuaranteedInvestorTravelDemo/);
+  assert.match(resultsPage, /shouldForceInvestorTravelDemo/);
+  assert.match(resultsPage, /Tokyo 7-day food trip/);
+  assert.match(resultsPage, /Toyosu sushi breakfast/);
+  assert.match(resultsPage, /Korean Air \/ Asiana/);
+  assert.match(resultsPage, /OpenStreetMap/);
+  assert.match(resultsPage, /missionGrid\.replaceChildren\(hero, picks, map, options, food, itinerary\)/);
+});
+
 test("rich travel renderer still includes populated result sections", () => {
   const requiredPatterns = [
     /createTravelPackagesCard\(result, missionContext\)/,
@@ -66,11 +76,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260810-preview-demo-direct/);
-  assert.match(resultsHtml, /results\.js\?v=20260810-preview-demo-direct/);
-  assert.match(resultsJs, /results-page\.js\?v=20260810-preview-demo-direct/);
-  assert.match(homepageHtml, /style\.css\?v=20260810-preview-demo-direct/);
-  assert.match(homepageHtml, /script\.js\?v=20260810-preview-demo-direct/);
+  assert.match(resultsHtml, /results\.css\?v=20260810-guaranteed-rich-demo/);
+  assert.match(resultsHtml, /results\.js\?v=20260810-guaranteed-rich-demo/);
+  assert.match(resultsJs, /results-page\.js\?v=20260810-guaranteed-rich-demo/);
+  assert.match(homepageHtml, /style\.css\?v=20260810-guaranteed-rich-demo/);
+  assert.match(homepageHtml, /script\.js\?v=20260810-guaranteed-rich-demo/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {
