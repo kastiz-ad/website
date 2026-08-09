@@ -45,7 +45,7 @@ test("legacy release preview URL without session storage falls back to rich Toky
   assert.match(resultsPage, /createReleasePreviewTravelFallback/);
   assert.match(resultsPage, /params\.get\("mission"\) \|\| params\.get\("q"\) \|\| "trip to Tokyo"/);
   assert.match(resultsPage, /\^202607\(\?:13\|22\|26\|29\|30\)/);
-  assert.match(resultsPage, /if \(shouldUseReleasePreviewTravelFallback\(params\)\) return createReleasePreviewTravelFallback\(params\);/);
+  assert.match(resultsPage, /const params = new URLSearchParams\(window\.location\.search\);\s*if \(shouldUseReleasePreviewTravelFallback\(params\)\) return createReleasePreviewTravelFallback\(params\);/);
 });
 
 test("rich travel renderer still includes populated result sections", () => {

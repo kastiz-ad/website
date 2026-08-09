@@ -465,6 +465,7 @@ const createReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
 
 const getStoredResult = () => {
   const params = new URLSearchParams(window.location.search);
+  if (shouldUseReleasePreviewTravelFallback(params)) return createReleasePreviewTravelFallback(params);
   const manualScenario = getManualScenarioResult();
   if (manualScenario) return manualScenario;
   const sharedResult = getPortableSharedResult();
@@ -477,8 +478,6 @@ const getStoredResult = () => {
 
     if (parsed?.type) return parsed;
   } catch {}
-
-  if (shouldUseReleasePreviewTravelFallback(params)) return createReleasePreviewTravelFallback(params);
 
   return null;
 };
