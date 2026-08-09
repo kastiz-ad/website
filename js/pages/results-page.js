@@ -3096,9 +3096,9 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       <summary>${escapeSummaryText(alpha03Copy("Preparation details", "준비 세부사항", "Detalles de preparación"))}</summary>
       <div class="v23-detail-grid">
         ${[
-          ["insurance", alpha03Copy("Insurance and risk", "보험과 리스크", "Seguro y riesgo"), journey.details.insurance, journey.sourceStates.insurance],
-          ["entry", alpha03Copy("Entry requirements", "입국 요건", "Requisitos de entrada"), journey.details.entry, journey.sourceStates.entry],
-          ["transport-detail", alpha03Copy("Transport details", "교통 세부사항", "Detalles de transporte"), journey.details.transport, journey.sourceStates.transport],
+          ["insurance", alpha03Copy("Insurance and risk", "보험과 리스크", "Seguro y riesgo"), journeyDetails.insurance || alpha03Copy("Travel protection can be compared before approval.", "여행 보호 옵션은 승인 전에 비교할 수 있습니다.", "La protección de viaje se puede comparar antes de aprobar."), journeySourceStates.insurance],
+          ["entry", alpha03Copy("Entry requirements", "입국 요건", "Requisitos de entrada"), journeyDetails.entry || alpha03Copy("Official entry requirements must be checked before execution.", "실행 전 공식 입국 요건을 확인해야 합니다.", "Los requisitos oficiales de entrada deben verificarse antes de ejecutar."), journeySourceStates.entry],
+          ["transport-detail", alpha03Copy("Transport details", "교통 세부사항", "Detalles de transporte"), journeyDetails.transport || transportationSummary, journeySourceStates.transport],
           ["approval-check", alpha03Copy("Before live search", "실시간 검색 전", "Antes de buscar en vivo"), alpha03Copy("Live price, availability, rules, and material changes are checked before any external action.", "외부 실행 전 실시간 가격, 가능 여부, 규정, 중요한 변경사항을 다시 확인합니다.", "Se verifican precio, disponibilidad, reglas y cambios antes de cualquier acción externa."), "estimated"]
         ].map(([id, title, body, source]) => `
           <details class="v23-detail-card" data-detail-id="${id}">
