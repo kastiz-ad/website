@@ -442,7 +442,29 @@ const getPortableSharedResult = () => {
   }
 };
 
+const shouldUseReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
+  const version = params.get("v") || "";
+  return params.get("demo") === "1"
+    || params.get("investorDemo") === "1"
+    || params.get("demoScenario") === "travel"
+    || /^202607(?:13|22|26|29|30)/.test(version)
+    || /^20260803/.test(version);
+};
+
+const createReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
+  const prompt = params.get("mission") || params.get("q") || "trip to Tokyo";
+  const language = params.get("lang") || activeLanguage || "ko";
+  return hydrateManualTravelResultForPreview(
+    createFallbackTravelResult(),
+    prompt,
+    language,
+    params,
+    "legacy-release-preview"
+  );
+};
+
 const getStoredResult = () => {
+  const params = new URLSearchParams(window.location.search);
   const manualScenario = getManualScenarioResult();
   if (manualScenario) return manualScenario;
   const sharedResult = getPortableSharedResult();
@@ -455,6 +477,8 @@ const getStoredResult = () => {
 
     if (parsed?.type) return parsed;
   } catch {}
+
+  if (shouldUseReleasePreviewTravelFallback(params)) return createReleasePreviewTravelFallback(params);
 
   return null;
 };

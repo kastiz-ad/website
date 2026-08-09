@@ -40,6 +40,14 @@ test("results bootstrap hydrates manual/demo routes before the travel renderer",
   assert.match(resultsPage, /return adaptTravelResultToDestination\(result\)/);
 });
 
+test("legacy release preview URL without session storage falls back to rich Tokyo travel", () => {
+  assert.match(resultsPage, /shouldUseReleasePreviewTravelFallback/);
+  assert.match(resultsPage, /createReleasePreviewTravelFallback/);
+  assert.match(resultsPage, /params\.get\("mission"\) \|\| params\.get\("q"\) \|\| "trip to Tokyo"/);
+  assert.match(resultsPage, /\^202607\(\?:13\|22\|26\|29\|30\)/);
+  assert.match(resultsPage, /if \(shouldUseReleasePreviewTravelFallback\(params\)\) return createReleasePreviewTravelFallback\(params\);/);
+});
+
 test("rich travel renderer still includes populated result sections", () => {
   const requiredPatterns = [
     /createTravelPackagesCard\(result, missionContext\)/,
@@ -58,11 +66,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260803-rich-preview-fix/);
-  assert.match(resultsHtml, /results\.js\?v=20260803-rich-preview-fix/);
-  assert.match(resultsJs, /results-page\.js\?v=20260803-rich-preview-fix/);
-  assert.match(homepageHtml, /style\.css\?v=20260803-rich-preview-fix/);
-  assert.match(homepageHtml, /script\.js\?v=20260803-rich-preview-fix/);
+  assert.match(resultsHtml, /results\.css\?v=20260810-release-preview-fallback/);
+  assert.match(resultsHtml, /results\.js\?v=20260810-release-preview-fallback/);
+  assert.match(resultsJs, /results-page\.js\?v=20260810-release-preview-fallback/);
+  assert.match(homepageHtml, /style\.css\?v=20260810-release-preview-fallback/);
+  assert.match(homepageHtml, /script\.js\?v=20260810-release-preview-fallback/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {
