@@ -2530,46 +2530,46 @@ const renderInvestorMedicalAppointmentMission = (result = currentResult) => {
 
 const renderInvestorRestaurantReservationMission = (result = currentResult) => {
   const local = investorMedicalText;
-  const title = local("One perfect Seoul dinner", "One perfect Seoul dinner", "Una cena especial en Seul");
+  const title = local("One perfect Seoul dinner", "\uC11C\uC6B8\uC5D0\uC11C \uAE30\uC5B5\uC5D0 \uB0A8\uC744 \uD55C \uB07C", "Una cena especial en Seul");
   missionTitle.textContent = title;
   missionGrid.innerHTML = "";
   missionGrid.classList.add("is-domain-layout", "is-investor-restaurant-layout", "is-investor-focused-layout");
   missionGrid.dataset.domain = "restaurant";
   currentResult.v22DomainLayout = true;
   const disclosure = document.querySelector(".prototype-disclosure");
-  if (disclosure) disclosure.textContent = local("Investor demo - restaurant reservation", "Investor demo - restaurant reservation", "Demo inversor - reserva de restaurante");
+  if (disclosure) disclosure.textContent = local("Investor demo - restaurant reservation", "\uD22C\uC790\uC790 \uB370\uBAA8 - \uB808\uC2A4\uD1A0\uB791 \uC608\uC57D", "Demo inversor - reserva de restaurante");
 
   const hero = createInvestorMedicalCard({
     className: "investor-restaurant-hero is-wide",
-    kicker: local("One meal - approval first", "One meal - approval first", "Una comida - aprobacion primero"),
+    kicker: local("One meal - approval first", "\uD558\uB8E8 \uD55C \uB07C - \uC2B9\uC778 \uC6B0\uC120", "Una comida - aprobacion primero"),
     title,
     body: local(
       "Not a 7-day trip. ONE prepares one dinner decision: mood, table style, route, budget, and the exact approval boundary before any contact.",
-      "Not a 7-day trip. ONE prepares one dinner decision: mood, table style, route, budget, and the exact approval boundary before any contact.",
+      "7\uC77C \uC5EC\uD589\uC774 \uC544\uB2C8\uB77C \uC624\uB298 \uC800\uB141 \uD55C \uB07C\uB97C \uACE0\uB974\uB294 \uD654\uBA74\uC785\uB2C8\uB2E4. \uBD84\uC704\uAE30, \uC88C\uC11D, \uC774\uB3D9, \uC608\uC0B0, \uC2B9\uC778 \uBC94\uC704\uB97C \uD55C \uBC88\uC5D0 \uC815\uB9AC\uD569\uB2C8\uB2E4.",
       "No es un viaje de 7 dias. ONE prepara una decision de cena: ambiente, mesa, ruta, presupuesto y aprobacion."
     )
   });
   const visual = document.createElement("div");
   visual.className = "investor-restaurant-visual";
-  visual.setAttribute("aria-label", local("Han River dinner preview", "Han River dinner preview", "Vista de cena junto al rio"));
+  visual.setAttribute("aria-label", local("Han River dinner preview", "\uD55C\uAC15 \uC800\uB141 \uC2DD\uC0AC \uD504\uB9AC\uBDF0", "Vista de cena junto al rio"));
   appendInvestorMedicalText(visual, "span", "restaurant-skyline", "").setAttribute("aria-hidden", "true");
   appendInvestorMedicalText(visual, "span", "restaurant-table", "").setAttribute("aria-hidden", "true");
-  appendInvestorMedicalText(visual, "strong", "", local("Han River night table", "Han River night table", "Mesa nocturna junto al rio"));
+  appendInvestorMedicalText(visual, "strong", "", local("Han River night table", "\uD55C\uAC15 \uC57C\uACBD \uD14C\uC774\uBE14", "Mesa nocturna junto al rio"));
   appendInvestorMedicalText(visual, "small", "", local("DEMO preview - live availability not connected", "DEMO preview - live availability not connected", "DEMO - disponibilidad no conectada"));
   hero.appendChild(visual);
   missionGrid.appendChild(hero);
 
   const optionsCard = createInvestorMedicalCard({
     className: "is-wide investor-restaurant-options-card",
-    kicker: local("Choose the mood", "Choose the mood", "Elige el estilo"),
-    title: local("Three investor-demo dinner paths", "Three investor-demo dinner paths", "Tres opciones de cena demo")
+    kicker: local("Choose the mood", "\uBD84\uC704\uAE30 \uC120\uD0DD", "Elige el estilo"),
+    title: local("Three investor-demo dinner paths", "\uD22C\uC790\uC790\uC5D0\uAC8C \uBCF4\uC5EC\uC8FC\uAE30 \uC88B\uC740 \uC800\uB141 \uC120\uD0DD\uC9C0", "Tres opciones de cena demo")
   });
   const optionGrid = document.createElement("div");
   optionGrid.className = "investor-restaurant-option-grid";
   const options = [
-    { icon: "river", title: local("River-view Korean table", "River-view Korean table", "Mesa coreana con vista al rio"), note: local("For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "Momento pulido: galbi, banchan de temporada, ventana y ruta en taxi."), tags: [local("Scenic", "Scenic", "Vista"), local("Korean", "Korean", "Coreano"), local("Dinner", "Dinner", "Cena")] },
-    { icon: "bbq", title: local("Private-room K-BBQ", "Private-room K-BBQ", "K-BBQ privado"), note: local("Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Animado pero controlado: hanwoo, privacidad y postre cerca."), tags: [local("Premium", "Premium", "Premium"), local("Private", "Private", "Privado"), local("BBQ", "BBQ", "BBQ")] },
-    { icon: "dessert", title: local("Modern dessert finish", "Modern dessert finish", "Final con postre moderno"), note: local("For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "Cena ligera: menu de temporada, postre de matcha o fruta y paseo corto."), tags: [local("Date", "Date", "Cita"), local("Dessert", "Dessert", "Postre"), local("Walk", "Walk", "Paseo")] }
+    { icon: "river", title: local("River-view Korean table", "\uD55C\uAC15 \uC57C\uACBD \uD55C\uC2DD \uD14C\uC774\uBE14", "Mesa coreana con vista al rio"), note: local("For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "Momento pulido: galbi, banchan de temporada, ventana y ruta en taxi."), tags: [local("Scenic", "Scenic", "Vista"), local("Korean", "Korean", "Coreano"), local("Dinner", "Dinner", "Cena")] },
+    { icon: "bbq", title: local("Private-room K-BBQ", "\uD504\uB77C\uC774\uBE57 \uB8F8 K-BBQ", "K-BBQ privado"), note: local("Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Animado pero controlado: hanwoo, privacidad y postre cerca."), tags: [local("Premium", "Premium", "Premium"), local("Private", "Private", "Privado"), local("BBQ", "BBQ", "BBQ")] },
+    { icon: "dessert", title: local("Modern dessert finish", "\uBAA8\uB358 \uB514\uC800\uD2B8 \uB9C8\uBB34\uB9AC", "Final con postre moderno"), note: local("For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "Cena ligera: menu de temporada, postre de matcha o fruta y paseo corto."), tags: [local("Date", "Date", "Cita"), local("Dessert", "Dessert", "Postre"), local("Walk", "Walk", "Paseo")] }
   ];
   options.forEach((item, index) => {
     const button = document.createElement("button");
@@ -2596,14 +2596,14 @@ const renderInvestorRestaurantReservationMission = (result = currentResult) => {
   optionsCard.appendChild(optionGrid);
   missionGrid.appendChild(optionsCard);
 
-  const planCard = createInvestorMedicalCard({ className: "investor-restaurant-plan", kicker: local("Tonight", "Tonight", "Esta noche"), title: local("Simple reservation flow", "Simple reservation flow", "Flujo simple") });
+  const planCard = createInvestorMedicalCard({ className: "investor-restaurant-plan", kicker: local("Tonight", "\uC624\uB298 \uC800\uB141", "Esta noche"), title: local("Simple reservation flow", "\uAE54\uB054\uD55C \uC608\uC57D \uD750\uB984", "Flujo simple") });
   const steps = document.createElement("ol");
   steps.className = "investor-restaurant-steps";
   [
-    ["18:30", local("Pick mood and budget", "Pick mood and budget", "Elegir estilo y presupuesto")],
-    ["19:00", local("Availability check after approval", "Availability check after approval", "Disponibilidad tras aprobar")],
-    ["19:30", local("Route to table", "Route to table", "Ruta al restaurante")],
-    ["21:00", local("Dessert or riverside walk", "Dessert or riverside walk", "Postre o paseo")]
+    ["18:30", local("Pick mood and budget", "\uBD84\uC704\uAE30\uC640 \uC608\uC0B0 \uC120\uD0DD", "Elegir estilo y presupuesto")],
+    ["19:00", local("Availability check after approval", "\uC2B9\uC778 \uD6C4 \uC88C\uC11D \uD655\uC778", "Disponibilidad tras aprobar")],
+    ["19:30", local("Route to table", "\uC2DD\uB2F9\uC73C\uB85C \uC774\uB3D9", "Ruta al restaurante")],
+    ["21:00", local("Dessert or riverside walk", "\uB514\uC800\uD2B8 \uB610\uB294 \uAC15\uBCC0 \uC0B0\uCC45", "Postre o paseo")]
   ].forEach((item) => {
     const li = document.createElement("li");
     appendInvestorMedicalText(li, "span", "", item[0]);
@@ -2615,15 +2615,15 @@ const renderInvestorRestaurantReservationMission = (result = currentResult) => {
 
   const approvalCard = createInvestorMedicalCard({
     className: "investor-restaurant-approval",
-    kicker: local("Before contact", "Before contact", "Antes de contactar"),
-    title: local("Approve one availability check", "Approve one availability check", "Aprobar solo consulta"),
+    kicker: local("Before contact", "\uC5F0\uB77D \uC804", "Antes de contactar"),
+    title: local("Approve one availability check", "\uC88C\uC11D \uAC00\uB2A5 \uC5EC\uBD80\uB9CC \uC2B9\uC778", "Aprobar solo consulta"),
     body: local("No restaurant is contacted and no deposit is paid in this preview. A real provider connection is required for live availability.", "No restaurant is contacted and no deposit is paid in this preview. A real provider connection is required for live availability.", "No se contacta ni se paga deposito. Hace falta proveedor real.")
   });
   const approveButton = document.createElement("button");
   approveButton.type = "button";
   approveButton.className = "investor-restaurant-primary";
   approveButton.setAttribute("data-open-approval-review", "true");
-  approveButton.textContent = local("Approve", "Approve", "Aprobar");
+  approveButton.textContent = local("Approve", "\uC2B9\uC778\uD558\uAE30", "Aprobar");
   approveButton.addEventListener("click", () => makeRealityButton?.click());
   approvalCard.appendChild(approveButton);
   missionGrid.appendChild(approvalCard);
