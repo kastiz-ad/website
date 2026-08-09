@@ -5074,10 +5074,10 @@ const renderMission = () => {
     currentResult.providerOrchestration = createProviderOrchestrationFromMissionData(currentResult);
   }
 
-  if (isExperienceMission(currentResult, currentResult.missionContext)) {
-    renderGeneratedExperienceMission(currentResult);
-  } else if (isTravelResult(currentResult)) {
+  if (isTravelResult(currentResult)) {
     renderTravelMission(currentResult, currentResult.missionContext);
+  } else if (isExperienceMission(currentResult, currentResult.missionContext)) {
+    renderGeneratedExperienceMission(currentResult);
   } else if (currentResult.resolutionPlan) {
     renderResolutionPlanMission(currentResult);
   } else {
