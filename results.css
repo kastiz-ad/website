@@ -4831,3 +4831,6 @@ body:has(.alpha03-premium-card) {
 .alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(8) { left: 64% !important; top: 70% !important; }
 .alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(9) { left: 82% !important; top: 63% !important; }
 .alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(10) { left: 55% !important; top: 82% !important; }
+
+/* Release preview map preview mode: prevent iframe zoom from desyncing overlay pins. */
+.alpha03-map-canvas.is-osm-preview iframe { pointer-events: none; }

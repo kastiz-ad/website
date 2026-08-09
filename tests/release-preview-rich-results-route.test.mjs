@@ -45,7 +45,9 @@ test("legacy release preview URL without session storage falls back to rich Toky
   assert.match(resultsPage, /createReleasePreviewTravelFallback/);
   assert.match(resultsPage, /params\.get\("mission"\) \|\| params\.get\("q"\) \|\| "trip to Tokyo"/);
   assert.match(resultsPage, /\^202607\(\?:13\|22\|26\|29\|30\)/);
-  assert.match(resultsPage, /const params = new URLSearchParams\(window\.location\.search\);\s*if \(shouldUseReleasePreviewTravelFallback\(params\)\) return createReleasePreviewTravelFallback\(params\);/);
+  assert.match(resultsPage, /const releasePreviewFallback = shouldUseReleasePreviewTravelFallback\(params\)/);
+  assert.match(resultsPage, /const hasExplicitPreviewMission = Boolean/);
+  assert.ok(resultsPage.indexOf('sessionStorage.getItem(STORAGE_KEYS.results)') < resultsPage.indexOf('if (releasePreviewFallback) return createReleasePreviewTravelFallback(params);'));
 });
 
 test("rich travel renderer still includes populated result sections", () => {
@@ -67,11 +69,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260810-map-csp-pin-fix/);
-  assert.match(resultsHtml, /results\.js\?v=20260810-map-csp-pin-fix/);
-  assert.match(resultsJs, /results-page\.js\?v=20260810-map-csp-pin-fix/);
-  assert.match(homepageHtml, /style\.css\?v=20260810-map-csp-pin-fix/);
-  assert.match(homepageHtml, /script\.js\?v=20260810-map-csp-pin-fix/);
+  assert.match(resultsHtml, /results\.css\?v=20260810-search-map-airport-fix/);
+  assert.match(resultsHtml, /results\.js\?v=20260810-search-map-airport-fix/);
+  assert.match(resultsJs, /results-page\.js\?v=20260810-search-map-airport-fix/);
+  assert.match(homepageHtml, /style\.css\?v=20260810-search-map-airport-fix/);
+  assert.match(homepageHtml, /script\.js\?v=20260810-search-map-airport-fix/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {
@@ -86,4 +88,9 @@ test("language and theme controls do not use broken question-mark indicators", (
   assert.equal((homepageHtml.match(/<span class="nav-arrow" aria-hidden="true"><\/span>/g) || []).length, 2);
   assert.match(homepageCss, /\.nav-text-trigger \.nav-arrow\s*\{[\s\S]*border-right:\s*1\.6px solid currentColor/);
   assert.match(homepageCss, /\.nav-dropdown\.is-open\s*>\s*\.nav-text-trigger \.nav-arrow\s*\{[\s\S]*rotate\(225deg\)/);
+});
+
+test('airport selector uses a clean separator instead of a question-mark glyph', () => {
+  assert.equal(/ICN \? Incheon/.test(homepageHtml), false);
+  assert.equal(/ICN\s+.\s+Incheon/.test(homepageHtml), true);
 });

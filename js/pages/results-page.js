@@ -465,7 +465,9 @@ const createReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
 
 const getStoredResult = () => {
   const params = new URLSearchParams(window.location.search);
-  if (shouldUseReleasePreviewTravelFallback(params)) return createReleasePreviewTravelFallback(params);
+  const releasePreviewFallback = shouldUseReleasePreviewTravelFallback(params);
+  const hasExplicitPreviewMission = Boolean(params.get("mission") || params.get("q") || params.get("destination") || params.get("city") || params.get("country"));
+  if (releasePreviewFallback && hasExplicitPreviewMission) return createReleasePreviewTravelFallback(params);
   const manualScenario = getManualScenarioResult();
   if (manualScenario) return manualScenario;
   const sharedResult = getPortableSharedResult();
@@ -479,9 +481,9 @@ const getStoredResult = () => {
     if (parsed?.type) return parsed;
   } catch {}
 
+  if (releasePreviewFallback) return createReleasePreviewTravelFallback(params);
   return null;
 };
-
 const MANUAL_V21_SCENARIOS = Object.freeze({
   "child-english": "아이가 영어가 부족한데 어떻게 할까?",
   "academy-english": "인천 서구에서 중학생 영어 내신 학원 찾아줘",
@@ -2930,7 +2932,7 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
       <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(alpha03Copy("Itinerary markers", "Itinerary markers", "Marcadores del itinerario"))}">
         ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
       </div>
-      <p class="alpha03-map-note">${escapeSummaryText(alpha03Copy("OpenStreetMap preview - drag and zoom inside the map", "OpenStreetMap preview - drag and zoom inside the map", "Vista OpenStreetMap - puedes arrastrar y acercar"))}</p>
+      <p class='alpha03-map-note'>Preview map - pins show the suggested flow</p>
     </div>
   `;
 };
