@@ -5127,10 +5127,10 @@ const renderGuaranteedInvestorTravelDemo = (result = currentResult) => {
 const initializeResultsPage = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
-  if (renderGuaranteedInvestorTravelDemo(currentResult)) return;
   try {
     renderMission();
   } catch (error) {
+    console.warn("Investor preview rich renderer recovery", error);
     if (renderGuaranteedInvestorTravelDemo(currentResult)) return;
     throw error;
   }
