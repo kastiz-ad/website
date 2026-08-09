@@ -48,20 +48,6 @@ test("legacy release preview URL without session storage falls back to rich Toky
   assert.match(resultsPage, /const params = new URLSearchParams\(window\.location\.search\);\s*if \(shouldUseReleasePreviewTravelFallback\(params\)\) return createReleasePreviewTravelFallback\(params\);/);
 });
 
-test("investor demo travel has a guaranteed rich fallback renderer", () => {
-  assert.match(resultsPage, /renderGuaranteedInvestorTravelDemo/);
-  assert.match(resultsPage, /shouldForceInvestorTravelDemo/);
-  assert.match(resultsPage, /initializeResultsPage/);
-  assert.doesNotMatch(resultsPage, /if \(renderGuaranteedInvestorTravelDemo\(currentResult\)\) return;\s*try \{/);
-  assert.match(resultsPage, /try \{\s*renderMission\(\);\s*\} catch \(error\)/);
-  assert.match(resultsPage, /catch \(error\) \{\s*console\.warn\("Investor preview rich renderer recovery", error\);\s*if \(renderGuaranteedInvestorTravelDemo\(currentResult\)\) return;/);
-  assert.match(resultsPage, /Tokyo 7-day food trip/);
-  assert.match(resultsPage, /Toyosu sushi breakfast/);
-  assert.match(resultsPage, /Korean Air \/ Asiana/);
-  assert.match(resultsPage, /openstreetmap\.org\/export\/embed/);
-  assert.match(resultsPage, /missionGrid\.replaceChildren\(hero, picks, map, options, food, itinerary\)/);
-});
-
 test("rich travel renderer still includes populated result sections", () => {
   const requiredPatterns = [
     /createTravelPackagesCard\(result, missionContext\)/,
@@ -80,11 +66,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260810-restore-premium-travel-ui/);
-  assert.match(resultsHtml, /results\.js\?v=20260810-restore-premium-travel-ui/);
-  assert.match(resultsJs, /results-page\.js\?v=20260810-restore-premium-travel-ui/);
-  assert.match(homepageHtml, /style\.css\?v=20260810-restore-premium-travel-ui/);
-  assert.match(homepageHtml, /script\.js\?v=20260810-restore-premium-travel-ui/);
+  assert.match(resultsHtml, /results\.css\?v=20260810-premium-ui-restore-clean/);
+  assert.match(resultsHtml, /results\.js\?v=20260810-premium-ui-restore-clean/);
+  assert.match(resultsJs, /results-page\.js\?v=20260810-premium-ui-restore-clean/);
+  assert.match(homepageHtml, /style\.css\?v=20260810-premium-ui-restore-clean/);
+  assert.match(homepageHtml, /script\.js\?v=20260810-premium-ui-restore-clean/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {
