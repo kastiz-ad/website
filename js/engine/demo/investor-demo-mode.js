@@ -30,17 +30,17 @@ export const INVESTOR_DEMO_SCENARIOS = Object.freeze({
     id: "medical_appointment",
     category: "Medical appointment",
     missionType: "healthcare",
-    title: "Medical appointment",
-    mission: "Find a same-day dental appointment near Seoul for tooth pain, separate emergency signs, and prepare the next action without diagnosis.",
-    highlight: "Shows healthcare navigation, safety boundaries, no diagnosis, and setup-required provider honesty."
+    title: "Same-day dentist appointment",
+    mission: "Prepare a same-day dentist appointment in Gangnam for tooth pain. Show clinic-style options, documents to bring, transport, pharmacy follow-up, emergency warning signs, and approval before any contact. Do not diagnose.",
+    highlight: "Shows healthcare appointment navigation, safety boundaries, no diagnosis, and setup-required provider honesty."
   }),
   restaurant_reservation: Object.freeze({
     id: "restaurant_reservation",
     category: "Restaurant reservation",
     missionType: "restaurant",
-    title: "Restaurant reservation",
-    mission: "Prepare a restaurant reservation in Tokyo for two people tonight with cuisine options, budget, availability check, and approval before contact.",
-    highlight: "Shows provider category routing, reservation preparation, clear approval, and no fake confirmation."
+    title: "Seoul restaurant reservation",
+    mission: "Prepare a Seoul Han River restaurant reservation for two people tonight with Korean BBQ or river-view dining options, budget, availability check, and approval before contact.",
+    highlight: "Shows restaurant routing, Seoul dining options, reservation preparation, clear approval, and no fake confirmation."
   })
 });
 

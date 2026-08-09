@@ -69,11 +69,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260810-search-map-airport-fix/);
-  assert.match(resultsHtml, /results\.js\?v=20260810-search-map-airport-fix/);
-  assert.match(resultsJs, /results-page\.js\?v=20260810-search-map-airport-fix/);
-  assert.match(homepageHtml, /style\.css\?v=20260810-search-map-airport-fix/);
-  assert.match(homepageHtml, /script\.js\?v=20260810-search-map-airport-fix/);
+  assert.match(resultsHtml, /results\.css\?v=20260810-investor-medical-demo-fix/);
+  assert.match(resultsHtml, /results\.js\?v=20260810-investor-medical-demo-fix/);
+  assert.match(resultsJs, /results-page\.js\?v=20260810-investor-medical-demo-fix/);
+  assert.match(homepageHtml, /style\.css\?v=20260810-investor-medical-demo-fix/);
+  assert.match(homepageHtml, /script\.js\?v=20260810-investor-medical-demo-fix/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {
@@ -93,4 +93,11 @@ test("language and theme controls do not use broken question-mark indicators", (
 test('airport selector uses a clean separator instead of a question-mark glyph', () => {
   assert.equal(/ICN \? Incheon/.test(homepageHtml), false);
   assert.equal(/ICN\s+.\s+Incheon/.test(homepageHtml), true);
+});
+
+
+test("investor demo non-travel samples are not forced through travel fallback", () => {
+  assert.match(resultsPage, /INVESTOR_TRAVEL_FALLBACK_SCENARIOS = new Set\(\["travel", "business_trip", "family_vacation", "restaurant_reservation"\]\)/);
+  assert.match(resultsPage, /if \(scenario && !INVESTOR_TRAVEL_FALLBACK_SCENARIOS\.has\(scenario\)\) return false;/);
+  assert.match(resultsPage, /params\.get\("scenario"\) \|\| params\.get\("demoScenario"\)/);
 });

@@ -442,11 +442,15 @@ const getPortableSharedResult = () => {
   }
 };
 
+const INVESTOR_TRAVEL_FALLBACK_SCENARIOS = new Set(["travel", "business_trip", "family_vacation", "restaurant_reservation"]);
+
 const shouldUseReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
   const version = params.get("v") || "";
+  const scenario = params.get("demoScenario") || "";
+  if (scenario && !INVESTOR_TRAVEL_FALLBACK_SCENARIOS.has(scenario)) return false;
   return params.get("demo") === "1"
     || params.get("investorDemo") === "1"
-    || params.get("demoScenario") === "travel"
+    || scenario === "travel"
     || /^202607(?:13|22|26|29|30)/.test(version)
     || /^20260803/.test(version);
 };
@@ -688,7 +692,7 @@ const hydrateManualTravelResultForPreview = (result, prompt = "", language = act
 
 function getManualScenarioResult() {
   const params = new URLSearchParams(window.location.search);
-  const scenario = params.get("v23TravelScenario") || params.get("v22Scenario") || params.get("v21Scenario") || params.get("scenario");
+  const scenario = params.get("v23TravelScenario") || params.get("v22Scenario") || params.get("v21Scenario") || params.get("scenario") || params.get("demoScenario");
   const prompt = MANUAL_V23_TRAVEL_SCENARIOS[scenario] || MANUAL_V22_SCENARIOS[scenario] || MANUAL_V21_SCENARIOS[scenario] || params.get("mission");
   if (!prompt) return null;
   const language = params.get("lang") || (/[\u3131-\uD79D]/.test(prompt) ? "ko" : activeLanguage);

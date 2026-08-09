@@ -123,3 +123,16 @@ test("presentation snapshot includes scenario, controls, notes, flow and truthfu
   assert.ok(snapshot.controls.includes("fast_forward"));
   assert.ok(snapshot.notes.providerLayer.body.includes("Demo data stays labeled"));
 });
+
+
+test("Investor Demo Mode routes medical and restaurant samples to the right domains", () => {
+  const medical = getInvestorDemoScenario("medical_appointment");
+  assert.equal(medical.missionType, "healthcare");
+  assert.match(medical.mission, /dentist|clinic|emergency|Do not diagnose/i);
+  assert.doesNotMatch(medical.mission, /Han River|Korean BBQ|restaurant reservation/i);
+
+  const restaurant = getInvestorDemoScenario("restaurant_reservation");
+  assert.equal(restaurant.missionType, "restaurant");
+  assert.match(restaurant.mission, /Seoul Han River restaurant reservation|Korean BBQ|river-view dining/i);
+  assert.doesNotMatch(restaurant.mission, /dentist|tooth pain|diagnose/i);
+});
