@@ -2370,6 +2370,152 @@ const createV22PathCard = ({ id, title, reason, steps = [], selected = false }) 
   return article;
 };
 
+const isInvestorMedicalAppointmentDemo = (result = currentResult) => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const text = `${result?.mission || ""} ${result?.rawInput || ""}`;
+    return params.get("demoScenario") === "medical_appointment"
+      || /same-day dentist appointment|tooth pain|medical appointment|dentist|dental/i.test(text);
+  } catch {
+    return false;
+  }
+};
+
+const investorMedicalText = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+
+const appendInvestorMedicalText = (parent, tagName, className, text) => {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  element.textContent = text;
+  parent.appendChild(element);
+  return element;
+};
+
+const createInvestorMedicalCard = ({ className = "", kicker, title, body }) => {
+  const card = document.createElement("article");
+  card.className = `mission-card investor-medical-card ${className}`.trim();
+  if (kicker) appendInvestorMedicalText(card, "span", "v22-kicker", kicker);
+  if (title) appendInvestorMedicalText(card, "h2", "", title);
+  if (body) appendInvestorMedicalText(card, "p", "", body);
+  return card;
+};
+
+const renderInvestorMedicalAppointmentMission = (result = currentResult) => {
+  const title = investorMedicalText("Same-day dental appointment", "\uc624\ub298 \uac00\ub2a5\ud55c \uce58\uacfc \uc9c4\ub8cc", "Cita dental para hoy");
+  missionTitle.textContent = title;
+  missionGrid.innerHTML = "";
+  missionGrid.classList.add("is-domain-layout", "is-investor-medical-layout");
+  missionGrid.dataset.domain = "healthcare";
+  currentResult.v22DomainLayout = true;
+  const disclosure = document.querySelector(".prototype-disclosure");
+  if (disclosure) disclosure.textContent = investorMedicalText("Investor demo · healthcare appointment", "\ud22c\uc790\uc790 \ub370\ubaa8 · \uc758\ub8cc \uc608\uc57d", "Demo inversor · cita medica");
+
+  const hero = createInvestorMedicalCard({
+    className: "investor-medical-hero is-wide",
+    kicker: investorMedicalText("No diagnosis · approval first", "\uc9c4\ub2e8 \uc544\ub2d8 · \uc2b9\uc778 \uc6b0\uc120", "Sin diagnostico · aprobacion primero"),
+    title,
+    body: investorMedicalText(
+      "ONE prepares safe clinic-style options, visit logistics, pharmacy follow-up, and warning signs before any contact.",
+      "ONE\uc774 \ubcd1\uc6d0\uc5d0 \uc5f0\ub77d\ud558\uae30 \uc804\uc5d0 \uce58\uacfc \ud6c4\ubcf4, \ubc29\ubb38 \uc900\ube44, \uc57d\uad6d \ud6c4\uc18d, \uc751\uae09 \uc2e0\ud638\ub97c \ud55c \ud654\uba74\uc5d0 \uc815\ub9ac\ud569\ub2c8\ub2e4.",
+      "ONE prepara opciones, logistica, farmacia y alertas antes de contactar."
+    )
+  });
+  const pills = document.createElement("div");
+  pills.className = "investor-medical-pills";
+  [
+    investorMedicalText("Gangnam", "\uac15\ub0a8", "Gangnam"),
+    investorMedicalText("Same-day check", "\ub2f9\uc77c \ud655\uc778", "Revision hoy"),
+    investorMedicalText("Provider setup required", "\uc2e4\uc2dc\uac04 \uc81c\uacf5\uc5c5\uccb4 \uc5f0\uacb0 \ud544\uc694", "Proveedor requerido")
+  ].forEach((pill) => appendInvestorMedicalText(pills, "span", "", pill));
+  hero.appendChild(pills);
+  const safety = document.createElement("div");
+  safety.className = "investor-medical-safety";
+  appendInvestorMedicalText(safety, "span", "", "+");
+  appendInvestorMedicalText(safety, "strong", "", investorMedicalText("Emergency boundary", "\uc751\uae09 \uae30\uc900", "Limite de emergencia"));
+  appendInvestorMedicalText(safety, "p", "", investorMedicalText("Swelling, fever, breathing or swallowing trouble: use emergency care immediately.", "\ubd93\uae30, \uace0\uc5f4, \ud638\ud761\uc774\ub098 \uc0bc\ud0b4 \ubb38\uc81c\uac00 \uc788\uc73c\uba74 \uc989\uc2dc \uc751\uae09\uc9c4\ub8cc\ub97c \uc774\uc6a9\ud558\uc138\uc694.", "Hinchazon, fiebre o dificultad para respirar: emergencia."));
+  hero.appendChild(safety);
+  missionGrid.appendChild(hero);
+
+  const clinicCard = createInvestorMedicalCard({ className: "is-wide", kicker: investorMedicalText("Clinic shortlist", "\uce58\uacfc \ud6c4\ubcf4", "Clinicas"), title: investorMedicalText("Ranked by mission fit, not ads", "\uad11\uace0\uac00 \uc544\ub2cc \uc0c1\ud669 \uc801\ud569\uc131 \uae30\uc900", "Por ajuste, no publicidad") });
+  const clinicGrid = document.createElement("div");
+  clinicGrid.className = "investor-medical-clinic-grid";
+  const clinics = [
+    ["Gangnam same-day dental clinic", "\uac15\ub0a8 \uce58\uacfc \ub2f9\uc77c \uc9c4\ub8cc \ud6c4\ubcf4", "Clinica dental en Gangnam", "First option to call once approved. Good for quick availability comparison.", "\uc2b9\uc778 \ud6c4 \uba3c\uc800 \ud655\uc778\ud560 \ud6c4\ubcf4\uc785\ub2c8\ub2e4. \ub2f9\uc77c \uac00\ub2a5 \uc2dc\uac04 \ube44\uad50\uc5d0 \uc801\ud569\ud569\ub2c8\ub2e4.", "Primera opcion tras aprobar."],
+    ["Extended-hours dental option", "\uc57c\uac04 \uc9c4\ub8cc \uac00\ub2a5 \ud6c4\ubcf4", "Opcion con horario extendido", "Backup if daytime slots are unavailable.", "\ub0ae \uc2dc\uac04 \uc608\uc57d\uc774 \uc5b4\ub824\uc6b8 \ub54c\uc758 \ubc31\uc5c5\uc785\ub2c8\ub2e4.", "Respaldo si no hay horario diurno."],
+    ["Urgent care escalation", "\uc751\uae09 \uc9c4\ub8cc \uc804\ud658 \uacbd\ub85c", "Ruta urgente", "If warning signs exist, urgent care comes before appointment shopping.", "\uc751\uae09 \uc2e0\ud638\uac00 \uc788\uc73c\uba74 \uc608\uc57d \ube44\uad50\ubcf4\ub2e4 \uc989\uc2dc \uc9c4\ub8cc\uac00 \uc6b0\uc120\uc785\ub2c8\ub2e4.", "Urgencia antes de comparar citas."]
+  ];
+  clinics.forEach((clinic, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `investor-medical-clinic${index === 0 ? " is-selected" : ""}`;
+    button.setAttribute("aria-pressed", index === 0 ? "true" : "false");
+    appendInvestorMedicalText(button, "span", "investor-medical-rank", String(index + 1));
+    appendInvestorMedicalText(button, "strong", "", investorMedicalText(clinic[0], clinic[1], clinic[2]));
+    appendInvestorMedicalText(button, "p", "", investorMedicalText(clinic[3], clinic[4], clinic[5]));
+    button.addEventListener("click", () => {
+      clinicGrid.querySelectorAll(".investor-medical-clinic").forEach((item) => {
+        item.classList.remove("is-selected");
+        item.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-selected");
+      button.setAttribute("aria-pressed", "true");
+    });
+    clinicGrid.appendChild(button);
+  });
+  clinicCard.appendChild(clinicGrid);
+  missionGrid.appendChild(clinicCard);
+
+  const flowCard = createInvestorMedicalCard({ className: "", kicker: investorMedicalText("Visit flow", "\ubc29\ubb38 \ud750\ub984", "Flujo"), title: investorMedicalText("Clear next steps for today", "\uc624\ub298 \ubc14\ub85c \uc774\ud574\ub418\ub294 \uc21c\uc11c", "Pasos claros") });
+  const flow = document.createElement("ol");
+  flow.className = "investor-medical-flow";
+  [
+    ["Now", "\uc9c0\uae08", "Ahora", "Summarize pain location, start time, swelling, medication and allergies.", "\ud1b5\uc99d \uc704\uce58, \uc2dc\uc791 \uc2dc\uac04, \ubd93\uae30, \ubcf5\uc6a9 \uc57d, \uc54c\ub808\ub974\uae30\ub97c \uc815\ub9ac\ud569\ub2c8\ub2e4.", "Resumir dolor, inicio, hinchazon, medicina y alergias."],
+    ["After approval", "\uc2b9\uc778 \ud6c4", "Tras aprobar", "Check available appointment windows or prepare a safe clinic contact request.", "\uc608\uc57d \uac00\ub2a5 \uc2dc\uac04\uc744 \ud655\uc778\ud558\uac70\ub098 \uc548\uc804\ud55c \uc5f0\ub77d \uc694\uccad\uc744 \uc900\ube44\ud569\ub2c8\ub2e4.", "Verificar horarios o preparar contacto seguro."],
+    ["Visit", "\ubc29\ubb38", "Visita", "Bring ID/insurance info and plan pharmacy follow-up after the visit.", "\uc2e0\ubd84\uc99d/\ubcf4\ud5d8 \uc815\ubcf4\ub97c \uc9c0\ucc38\ud558\uace0 \uc9c4\ub8cc \ud6c4 \uc57d\uad6d \uacbd\ub85c\ub97c \ud655\uc778\ud569\ub2c8\ub2e4.", "Llevar documento/seguro y revisar farmacia."]
+  ].forEach((item) => {
+    const li = document.createElement("li");
+    appendInvestorMedicalText(li, "span", "", investorMedicalText(item[0], item[1], item[2]));
+    appendInvestorMedicalText(li, "p", "", investorMedicalText(item[3], item[4], item[5]));
+    flow.appendChild(li);
+  });
+  flowCard.appendChild(flow);
+  missionGrid.appendChild(flowCard);
+
+  const mapCard = createInvestorMedicalCard({ className: "investor-medical-map-card", kicker: investorMedicalText("Care area", "\uc774\ub3d9 \uad6c\uc5ed", "Zona"), title: "Gangnam care cluster", body: investorMedicalText("Exact routing requires a connected map provider; this preview shows the decision area only.", "\uc815\ud655\ud55c \uae38\ucc3e\uae30\ub294 \uc9c0\ub3c4 \uc81c\uacf5\uc5c5\uccb4 \uc5f0\uacb0 \ud6c4 \ud655\uc778\ud569\ub2c8\ub2e4.", "La ruta exacta requiere proveedor de mapas.") });
+  const map = document.createElement("div");
+  map.className = "investor-medical-map";
+  map.setAttribute("aria-label", "Gangnam care area preview");
+  ["clinic-a", "clinic-b", "pharmacy", "transit"].forEach((name) => {
+    const pin = document.createElement("span");
+    pin.className = `pin ${name}`;
+    map.appendChild(pin);
+  });
+  mapCard.insertBefore(map, mapCard.querySelector("p"));
+  missionGrid.appendChild(mapCard);
+
+  const prepCard = createInvestorMedicalCard({ className: "", kicker: investorMedicalText("Bring with you", "\uac00\uc838\uac08 \uac83", "Llevar"), title: investorMedicalText("Prepared without sharing personal data", "\uac1c\uc778\uc815\ubcf4 \uacf5\uc720 \uc804 \uc900\ube44", "Preparado sin compartir datos") });
+  const checks = document.createElement("div");
+  checks.className = "investor-medical-checks";
+  [
+    ["ID", "\uc2e0\ubd84\uc99d", "Documento"],
+    ["Insurance info", "\ubcf4\ud5d8 \uc815\ubcf4", "Seguro"],
+    ["Medication list", "\ubcf5\uc6a9 \uc57d", "Medicacion"],
+    ["Allergies", "\uc54c\ub808\ub974\uae30", "Alergias"]
+  ].forEach((item) => appendInvestorMedicalText(checks, "span", "", investorMedicalText(item[0], item[1], item[2])));
+  prepCard.appendChild(checks);
+  missionGrid.appendChild(prepCard);
+
+  const actionCard = createInvestorMedicalCard({ className: "investor-medical-action is-wide", kicker: investorMedicalText("Next step", "\ub2e4\uc74c \ub2e8\uacc4", "Siguiente"), title: investorMedicalText("Approve availability check", "\uc9c4\ub8cc \uac00\ub2a5 \uc5ec\ubd80 \ud655\uc778 \uc2b9\uc778", "Aprobar verificacion"), body: investorMedicalText("Live healthcare provider APIs are not connected yet. This demo shows a safe approval path only.", "\uc2e4\uc2dc\uac04 \ubcd1\uc6d0 API\ub294 \uc544\uc9c1 \uc5f0\uacb0\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4. \uc774 \ub370\ubaa8\ub294 \uc548\uc804\ud55c \uc2b9\uc778 \ud750\ub984\ub9cc \ubcf4\uc5ec\uc90d\ub2c8\ub2e4.", "La API medica en vivo aun no esta conectada.") });
+  const approveButton = document.createElement("button");
+  approveButton.type = "button";
+  approveButton.className = "investor-medical-primary";
+  approveButton.setAttribute("data-open-approval-review", "true");
+  approveButton.textContent = investorMedicalText("Approve", "\uc2b9\uc778\ud558\uae30", "Aprobar");
+  approveButton.addEventListener("click", () => makeRealityButton?.click());
+  actionCard.appendChild(approveButton);
+  missionGrid.appendChild(actionCard);
+};
+
 const getTravelDestinationLabel = (result) => {
   const city = activeLanguage === "ko" ? result.destination?.cityKo || result.destination?.city : result.destination?.city;
   const country = activeLanguage === "ko" ? result.destination?.countryKo || result.destination?.country : result.destination?.country;
@@ -5106,6 +5252,8 @@ const renderMission = () => {
         card.addEventListener("click", () => updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), currentResult));
       });
     }
+  } else if (isInvestorMedicalAppointmentDemo(currentResult)) {
+    renderInvestorMedicalAppointmentMission(currentResult);
   } else if (isExperienceMission(currentResult, currentResult.missionContext)) {
     renderGeneratedExperienceMission(currentResult);
   } else if (currentResult.resolutionPlan) {

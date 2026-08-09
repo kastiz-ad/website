@@ -4834,3 +4834,287 @@ body:has(.alpha03-premium-card) {
 
 /* Release preview map preview mode: prevent iframe zoom from desyncing overlay pins. */
 .alpha03-map-canvas.is-osm-preview iframe { pointer-events: none; }
+
+
+/* Investor medical demo: clean healthcare appointment preview */
+.mission-grid.is-investor-medical-layout {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+}
+
+.investor-medical-hero,
+.investor-medical-action {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, .8fr);
+  align-items: stretch;
+  gap: clamp(16px, 2vw, 26px);
+  background:
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 36%),
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 94%, var(--accent)), var(--surface));
+}
+
+.investor-medical-hero-copy,
+.investor-medical-safety,
+.investor-medical-action > div {
+  display: grid;
+  gap: 14px;
+  align-content: center;
+}
+
+.investor-medical-hero h2,
+.investor-medical-action h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(34px, 5vw, 64px);
+  line-height: .95;
+  letter-spacing: -.075em;
+}
+
+.investor-medical-hero p,
+.investor-medical-action p,
+.investor-medical-map-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.investor-medical-pills,
+.investor-medical-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.investor-medical-pills span,
+.investor-medical-checks span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-strong) 72%, transparent);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.investor-medical-safety {
+  padding: 22px;
+  border: 1px solid color-mix(in srgb, var(--danger, #ff5b69) 36%, var(--border));
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--danger, #ff5b69) 10%, var(--surface));
+}
+
+.investor-medical-safety > span {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--danger, #ff5b69) 18%, var(--surface-strong));
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.investor-medical-card {
+  min-height: 0;
+  gap: 18px;
+}
+
+.investor-medical-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.investor-medical-section-head span {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.investor-medical-section-head strong {
+  max-width: 62%;
+  color: var(--text);
+  text-align: right;
+  font-size: clamp(18px, 2vw, 25px);
+  line-height: 1.05;
+  letter-spacing: -.04em;
+}
+
+.investor-medical-clinic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.investor-medical-clinic {
+  min-height: 210px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-strong) 76%, transparent);
+  color: var(--text);
+  text-align: left;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  cursor: pointer;
+}
+
+.investor-medical-clinic.is-selected {
+  border-color: color-mix(in srgb, var(--accent) 68%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent), var(--shadow-card);
+}
+
+.investor-medical-rank {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--surface);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.investor-medical-clinic strong {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.investor-medical-clinic small,
+.investor-medical-clinic p,
+.investor-medical-flow p {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.investor-medical-flow {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.investor-medical-flow li {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface-strong) 70%, transparent);
+  border: 1px solid var(--border);
+}
+
+.investor-medical-flow span {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.investor-medical-map {
+  min-height: 220px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--text) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(0deg, color-mix(in srgb, var(--text) 8%, transparent) 1px, transparent 1px),
+    radial-gradient(circle at 30% 40%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 22%),
+    color-mix(in srgb, var(--surface-strong) 82%, transparent);
+  background-size: 42px 42px, 42px 42px, auto, auto;
+}
+
+.investor-medical-map::before,
+.investor-medical-map::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 44%, transparent);
+}
+
+.investor-medical-map::before { width: 72%; height: 8px; left: 12%; top: 46%; transform: rotate(-12deg); }
+.investor-medical-map::after { width: 54%; height: 7px; left: 24%; top: 62%; transform: rotate(18deg); }
+
+.investor-medical-map .pin {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid var(--surface);
+  box-shadow: 0 10px 24px rgba(0,0,0,.28);
+}
+
+.investor-medical-map .pin::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  left: 4px;
+  top: 4px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.investor-medical-map .clinic-a { left: 34%; top: 34%; background: #4f8cff; }
+.investor-medical-map .clinic-b { left: 58%; top: 48%; background: #ff5b69; }
+.investor-medical-map .pharmacy { left: 70%; top: 30%; background: #27c27a; }
+.investor-medical-map .transit { left: 25%; top: 66%; background: #f7b955; }
+
+.investor-medical-approval-note {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-strong));
+  color: var(--text);
+  font-weight: 800;
+}
+
+.investor-medical-primary {
+  align-self: center;
+  justify-self: end;
+  min-height: 56px;
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--surface);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .investor-medical-hero,
+  .investor-medical-action,
+  .investor-medical-clinic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .investor-medical-section-head {
+    display: grid;
+  }
+
+  .investor-medical-section-head strong {
+    max-width: none;
+    text-align: left;
+  }
+
+  .investor-medical-primary {
+    width: 100%;
+    justify-self: stretch;
+  }
+}

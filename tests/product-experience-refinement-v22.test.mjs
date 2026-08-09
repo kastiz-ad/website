@@ -64,3 +64,10 @@ test("V23 travel-first cache key is active in results entry files", () => {
   assert.match(resultsEntry, /20260730-universal-execution/);
   assert.match(resultsHtml, /20260730-universal-execution/);
 });
+
+
+test("medical investor demo styling avoids generic clutter", () => {
+  assert.match(resultsCss, /is-investor-medical-layout/);
+  assert.match(resultsCss, /investor-medical-map/);
+  assert.match(resultsCss, /investor-medical-clinic/);
+});
