@@ -3019,6 +3019,8 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const workspace = result.alpha04Workspace || null;
   const { tripDays } = calculateTripDayCounts(result);
   const { travelerCount } = getTravelPartyDetails(result);
+  const journeyDetails = journey.details || {};
+  const journeySourceStates = { insurance: "estimated", entry: "estimated", transport: "estimated", ...(journey.sourceStates || {}) };
   let restaurants = selectAlpha03Items(profile.restaurants, journey.tone, Math.min(12, Math.max(6, tripDays + 3)));
   let places = selectAlpha03Items(profile.places, journey.tone, Math.min(12, Math.max(8, tripDays + 2)));
   restaurants = refineAlpha03ItemsForCommand(restaurants, result, "restaurants");
