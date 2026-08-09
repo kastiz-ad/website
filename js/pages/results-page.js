@@ -5071,11 +5071,31 @@ const renderMission = () => {
     budget: currentResult.budget?.total
   });
   if (isTravelResult(currentResult)) {
-    currentResult.providerOrchestration = createProviderOrchestrationFromMissionData(currentResult);
+    try {
+      currentResult.providerOrchestration = createProviderOrchestrationFromMissionData(currentResult);
+    } catch (error) {
+      currentResult.providerOrchestration = { status: "provider_orchestration_unavailable", error: String(error?.message || error).slice(0, 120) };
+      trackEvent("provider_orchestration_failed", { mission_type: currentResult?.type, message: currentResult.providerOrchestration.error });
+    }
   }
 
   if (isTravelResult(currentResult)) {
-    renderTravelMission(currentResult, currentResult.missionContext);
+    try {
+      renderTravelMission(currentResult, currentResult.missionContext);
+    } catch (error) {
+      trackEvent("travel_renderer_recovered", { message: String(error?.message || error).slice(0, 120) });
+      missionTitle.textContent = getTravelDestinationLabel(currentResult);
+      missionGrid.innerHTML = "";
+      missionGrid.classList.add("is-v23-travel-layout");
+      const disclosure = document.querySelector(".prototype-disclosure");
+      if (disclosure) disclosure.hidden = true;
+      const travelExperience = createTravelPackagesCard(currentResult, currentResult.missionContext);
+      missionGrid.appendChild(travelExperience);
+      updateV23JourneySelection(travelExperience, Math.max(0, travelExperience._v23Journeys.findIndex((journey) => journey.selected)), currentResult);
+      travelExperience.querySelectorAll(".v23-journey-card").forEach((card) => {
+        card.addEventListener("click", () => updateV23JourneySelection(travelExperience, Number(card.dataset.journeyIndex || 0), currentResult));
+      });
+    }
   } else if (isExperienceMission(currentResult, currentResult.missionContext)) {
     renderGeneratedExperienceMission(currentResult);
   } else if (currentResult.resolutionPlan) {
