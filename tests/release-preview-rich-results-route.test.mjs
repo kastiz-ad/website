@@ -69,11 +69,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260810-investor-medical-ui-fix/);
-  assert.match(resultsHtml, /results\.js\?v=20260810-investor-medical-ui-fix/);
-  assert.match(resultsJs, /results-page\.js\?v=20260810-investor-medical-ui-fix/);
-  assert.match(homepageHtml, /style\.css\?v=20260810-investor-medical-ui-fix/);
-  assert.match(homepageHtml, /script\.js\?v=20260810-investor-medical-ui-fix/);
+  assert.match(resultsHtml, /results\.css\?v=20260810-investor-demo-polish/);
+  assert.match(resultsHtml, /results\.js\?v=20260810-investor-demo-polish/);
+  assert.match(resultsJs, /results-page\.js\?v=20260810-investor-demo-polish/);
+  assert.match(homepageHtml, /style\.css\?v=20260810-investor-demo-polish/);
+  assert.match(homepageHtml, /script\.js\?v=20260810-investor-demo-polish/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {
@@ -97,7 +97,8 @@ test('airport selector uses a clean separator instead of a question-mark glyph',
 
 
 test("investor demo non-travel samples are not forced through travel fallback", () => {
-  assert.match(resultsPage, /INVESTOR_TRAVEL_FALLBACK_SCENARIOS = new Set\(\["travel", "business_trip", "family_vacation", "restaurant_reservation"\]\)/);
+  assert.match(resultsPage, /INVESTOR_TRAVEL_FALLBACK_SCENARIOS = new Set\(\["travel", "business_trip", "family_vacation"\]\)/);
+  assert.doesNotMatch(resultsPage, /INVESTOR_TRAVEL_FALLBACK_SCENARIOS = new Set\(\[[^\]]*restaurant_reservation/);
   assert.match(resultsPage, /if \(scenario && !INVESTOR_TRAVEL_FALLBACK_SCENARIOS\.has\(scenario\)\) return false;/);
   assert.match(resultsPage, /params\.get\("scenario"\) \|\| params\.get\("demoScenario"\)/);
 });
@@ -113,6 +114,26 @@ test("investor medical appointment demo has a dedicated clean healthcare rendere
 
 
 test("investor medical appointment demo hides the shared mission summary panel", () => {
-  assert.match(resultsPage, /shouldHideMissionUnderstanding = (isTravelResult(currentResult) || isInvestorMedicalAppointmentDemo(currentResult))/);
+  assert.match(resultsPage, /shouldHideMissionUnderstanding = \(isTravelResult\(currentResult\) \|\| isInvestorMedicalAppointmentDemo\(currentResult\) \|\| isInvestorRestaurantReservationDemo\(currentResult\)\)/);
   assert.equal(resultsPage.includes("if (!shouldHideMissionUnderstanding) renderMissionUnderstanding();"), true);
+});
+
+
+test("investor restaurant reservation demo renders a one-meal focused flow", () => {
+  assert.match(resultsPage, /isInvestorRestaurantReservationDemo/);
+  assert.match(resultsPage, /renderInvestorRestaurantReservationMission/);
+  assert.match(resultsPage, /Not a 7-day trip/);
+  assert.match(resultsPage, /investor-restaurant-option-grid/);
+  assert.match(resultsPage, /Approve one availability check/);
+  assert.match(resultsPage, /isFocusedInvestorDemo/);
+});
+
+
+test("city-aware concierge and decision headings replace generic filler", () => {
+  assert.match(resultsPage, /localDestinationConciergeTitle/);
+  assert.match(resultsPage, /localDestinationConciergeLead/);
+  assert.match(resultsPage, /NYC-specific upgrades only/);
+  assert.match(resultsPage, /LA-specific upgrades only/);
+  assert.match(resultsPage, /Japan-specific upgrades only/);
+  assert.equal(resultsPage.includes("title: localDestinationDecisionTitle(result)"), true);
 });

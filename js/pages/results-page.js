@@ -442,7 +442,7 @@ const getPortableSharedResult = () => {
   }
 };
 
-const INVESTOR_TRAVEL_FALLBACK_SCENARIOS = new Set(["travel", "business_trip", "family_vacation", "restaurant_reservation"]);
+const INVESTOR_TRAVEL_FALLBACK_SCENARIOS = new Set(["travel", "business_trip", "family_vacation"]);
 
 const shouldUseReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
   const version = params.get("v") || "";
@@ -2381,6 +2381,17 @@ const isInvestorMedicalAppointmentDemo = (result = currentResult) => {
   }
 };
 
+const isInvestorRestaurantReservationDemo = (result = currentResult) => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const text = [result?.mission, result?.rawInput, result?.type, result?.domain].filter(Boolean).join(" ");
+    return params.get("demoScenario") === "restaurant_reservation"
+      || /restaurant reservation|dinner reservation|lunch reservation|han river restaurant|restaurant/i.test(text);
+  } catch {
+    return false;
+  }
+};
+
 const investorMedicalText = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
 
 const appendInvestorMedicalText = (parent, tagName, className, text) => {
@@ -2514,6 +2525,108 @@ const renderInvestorMedicalAppointmentMission = (result = currentResult) => {
   approveButton.addEventListener("click", () => makeRealityButton?.click());
   actionCard.appendChild(approveButton);
   missionGrid.appendChild(actionCard);
+};
+
+
+const renderInvestorRestaurantReservationMission = (result = currentResult) => {
+  const local = investorMedicalText;
+  const title = local("One perfect Seoul dinner", "One perfect Seoul dinner", "Una cena especial en Seul");
+  missionTitle.textContent = title;
+  missionGrid.innerHTML = "";
+  missionGrid.classList.add("is-domain-layout", "is-investor-restaurant-layout", "is-investor-focused-layout");
+  missionGrid.dataset.domain = "restaurant";
+  currentResult.v22DomainLayout = true;
+  const disclosure = document.querySelector(".prototype-disclosure");
+  if (disclosure) disclosure.textContent = local("Investor demo - restaurant reservation", "Investor demo - restaurant reservation", "Demo inversor - reserva de restaurante");
+
+  const hero = createInvestorMedicalCard({
+    className: "investor-restaurant-hero is-wide",
+    kicker: local("One meal - approval first", "One meal - approval first", "Una comida - aprobacion primero"),
+    title,
+    body: local(
+      "Not a 7-day trip. ONE prepares one dinner decision: mood, table style, route, budget, and the exact approval boundary before any contact.",
+      "Not a 7-day trip. ONE prepares one dinner decision: mood, table style, route, budget, and the exact approval boundary before any contact.",
+      "No es un viaje de 7 dias. ONE prepara una decision de cena: ambiente, mesa, ruta, presupuesto y aprobacion."
+    )
+  });
+  const visual = document.createElement("div");
+  visual.className = "investor-restaurant-visual";
+  visual.setAttribute("aria-label", local("Han River dinner preview", "Han River dinner preview", "Vista de cena junto al rio"));
+  appendInvestorMedicalText(visual, "span", "restaurant-skyline", "").setAttribute("aria-hidden", "true");
+  appendInvestorMedicalText(visual, "span", "restaurant-table", "").setAttribute("aria-hidden", "true");
+  appendInvestorMedicalText(visual, "strong", "", local("Han River night table", "Han River night table", "Mesa nocturna junto al rio"));
+  appendInvestorMedicalText(visual, "small", "", local("DEMO preview - live availability not connected", "DEMO preview - live availability not connected", "DEMO - disponibilidad no conectada"));
+  hero.appendChild(visual);
+  missionGrid.appendChild(hero);
+
+  const optionsCard = createInvestorMedicalCard({
+    className: "is-wide investor-restaurant-options-card",
+    kicker: local("Choose the mood", "Choose the mood", "Elige el estilo"),
+    title: local("Three investor-demo dinner paths", "Three investor-demo dinner paths", "Tres opciones de cena demo")
+  });
+  const optionGrid = document.createElement("div");
+  optionGrid.className = "investor-restaurant-option-grid";
+  const options = [
+    { icon: "river", title: local("River-view Korean table", "River-view Korean table", "Mesa coreana con vista al rio"), note: local("For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "Momento pulido: galbi, banchan de temporada, ventana y ruta en taxi."), tags: [local("Scenic", "Scenic", "Vista"), local("Korean", "Korean", "Coreano"), local("Dinner", "Dinner", "Cena")] },
+    { icon: "bbq", title: local("Private-room K-BBQ", "Private-room K-BBQ", "K-BBQ privado"), note: local("Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Animado pero controlado: hanwoo, privacidad y postre cerca."), tags: [local("Premium", "Premium", "Premium"), local("Private", "Private", "Privado"), local("BBQ", "BBQ", "BBQ")] },
+    { icon: "dessert", title: local("Modern dessert finish", "Modern dessert finish", "Final con postre moderno"), note: local("For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "Cena ligera: menu de temporada, postre de matcha o fruta y paseo corto."), tags: [local("Date", "Date", "Cita"), local("Dessert", "Dessert", "Postre"), local("Walk", "Walk", "Paseo")] }
+  ];
+  options.forEach((item, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "investor-restaurant-option" + (index === 0 ? " is-selected" : "");
+    button.setAttribute("aria-pressed", index === 0 ? "true" : "false");
+    appendInvestorMedicalText(button, "span", "investor-restaurant-icon is-" + item.icon, "").setAttribute("aria-hidden", "true");
+    appendInvestorMedicalText(button, "strong", "", item.title);
+    appendInvestorMedicalText(button, "p", "", item.note);
+    const tags = document.createElement("span");
+    tags.className = "investor-restaurant-tags";
+    item.tags.forEach((tag) => appendInvestorMedicalText(tags, "em", "", tag));
+    button.appendChild(tags);
+    button.addEventListener("click", () => {
+      optionGrid.querySelectorAll(".investor-restaurant-option").forEach((node) => {
+        node.classList.remove("is-selected");
+        node.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("is-selected");
+      button.setAttribute("aria-pressed", "true");
+    });
+    optionGrid.appendChild(button);
+  });
+  optionsCard.appendChild(optionGrid);
+  missionGrid.appendChild(optionsCard);
+
+  const planCard = createInvestorMedicalCard({ className: "investor-restaurant-plan", kicker: local("Tonight", "Tonight", "Esta noche"), title: local("Simple reservation flow", "Simple reservation flow", "Flujo simple") });
+  const steps = document.createElement("ol");
+  steps.className = "investor-restaurant-steps";
+  [
+    ["18:30", local("Pick mood and budget", "Pick mood and budget", "Elegir estilo y presupuesto")],
+    ["19:00", local("Availability check after approval", "Availability check after approval", "Disponibilidad tras aprobar")],
+    ["19:30", local("Route to table", "Route to table", "Ruta al restaurante")],
+    ["21:00", local("Dessert or riverside walk", "Dessert or riverside walk", "Postre o paseo")]
+  ].forEach((item) => {
+    const li = document.createElement("li");
+    appendInvestorMedicalText(li, "span", "", item[0]);
+    appendInvestorMedicalText(li, "strong", "", item[1]);
+    steps.appendChild(li);
+  });
+  planCard.appendChild(steps);
+  missionGrid.appendChild(planCard);
+
+  const approvalCard = createInvestorMedicalCard({
+    className: "investor-restaurant-approval",
+    kicker: local("Before contact", "Before contact", "Antes de contactar"),
+    title: local("Approve one availability check", "Approve one availability check", "Aprobar solo consulta"),
+    body: local("No restaurant is contacted and no deposit is paid in this preview. A real provider connection is required for live availability.", "No restaurant is contacted and no deposit is paid in this preview. A real provider connection is required for live availability.", "No se contacta ni se paga deposito. Hace falta proveedor real.")
+  });
+  const approveButton = document.createElement("button");
+  approveButton.type = "button";
+  approveButton.className = "investor-restaurant-primary";
+  approveButton.setAttribute("data-open-approval-review", "true");
+  approveButton.textContent = local("Approve", "Approve", "Aprobar");
+  approveButton.addEventListener("click", () => makeRealityButton?.click());
+  approvalCard.appendChild(approveButton);
+  missionGrid.appendChild(approvalCard);
 };
 
 const getTravelDestinationLabel = (result) => {
@@ -3477,6 +3590,32 @@ const markConciergePatchAccepted = (recommendation) => {
   });
 };
 
+const destinationKeyForCopy = (result) => [getTravelDestinationLabel(result), result?.destination?.country, result?.rawInput, result?.mission].filter(Boolean).join(" ").toLowerCase();
+
+const localDestinationConciergeTitle = (result) => {
+  const destination = getTravelDestinationLabel(result);
+  return v22Local(destination + " concierge", destination + " concierge", "Concierge para " + destination);
+};
+
+const localDestinationConciergeLead = (result) => {
+  const key = destinationKeyForCopy(result);
+  if (/new york|nyc|\uB274\uC695/.test(key)) {
+    return v22Local("NYC-specific upgrades only: Broadway timing, skyline backup, subway-friendly grouping, and neighborhood fit.", "NYC-specific upgrades only: Broadway timing, skyline backup, subway-friendly grouping, and neighborhood fit.", "Solo mejoras para NYC: Broadway, skyline, metro y barrios reales.");
+  }
+  if (/los angeles|\bla\b|\uC5D8\uC5D0\uC774/.test(key)) {
+    return v22Local("LA-specific upgrades only: traffic-aware ordering, beach timing, studio slots, Koreatown food, and sunset routing.", "LA-specific upgrades only: traffic-aware ordering, beach timing, studio slots, Koreatown food, and sunset routing.", "Solo mejoras para LA: trafico, playa, estudios, Koreatown y atardecer.");
+  }
+  if (/tokyo|japan|\uB3C4\uCFC4|\uC77C\uBCF8/.test(key)) {
+    return v22Local("Japan-specific upgrades only: neighborhood grouping, food timing, rail buffers, and rainy-day indoor swaps.", "Japan-specific upgrades only: neighborhood grouping, food timing, rail buffers, and rainy-day indoor swaps.", "Solo mejoras para Japon: barrios, comida, trenes y lluvia.");
+  }
+  return v22Local("Useful local improvements only. Nothing changes unless you choose it.", "Useful local improvements only. Nothing changes unless you choose it.", "Solo mejoras locales utiles. Nada cambia hasta que lo eliges.");
+};
+
+const localDestinationDecisionTitle = (result) => {
+  const destination = getTravelDestinationLabel(result);
+  return v22Local(destination + " option update", destination + " option update", "Mejora para " + destination);
+};
+
 const createAIConciergeCard = (result) => {
   if (!isExperienceMission(result, result?.missionContext) && result?.type !== "travel") return null;
   const params = new URLSearchParams(window.location.search);
@@ -3532,12 +3671,8 @@ const createAIConciergeCard = (result) => {
   article.innerHTML = `
     <div class="ai-concierge-heading">
       <span class="v23-eyebrow">${escapeSummaryText(AI_TRAVEL_CONCIERGE_VERSION)}</span>
-      <h2>${escapeSummaryText(v22Local("ONE Concierge", "ONE 컨시어지", "Concierge ONE"))}</h2>
-      <p>${escapeSummaryText(v22Local(
-        "Helpful improvements only. Nothing changes unless you choose it.",
-        "도움 되는 개선만 보여드립니다. 선택하기 전에는 아무것도 바꾸지 않습니다.",
-        "Solo mejoras útiles. Nada cambia hasta que tú lo eliges."
-      ))}</p>
+      <h2>${escapeSummaryText(localDestinationConciergeTitle(result))}</h2>
+      <p>${escapeSummaryText(localDestinationConciergeLead(result))}</p>
       <div class="ai-concierge-score">
         <span>${escapeSummaryText(v22Local("Mission score", "미션 점수", "Puntuación"))}</span>
         <strong>${Math.round(concierge.missionScore)}</strong>
@@ -5169,7 +5304,7 @@ const createAIDecisionPanel = (result) => {
   panel.className = "mission-card is-full ai-decision-panel";
   panel.dataset.cardId = "ai-decision-engine";
   const copy = {
-    title: v22Local("ONE noticed something better", "ONE이 더 나은 선택을 찾았어요", "ONE encontró una mejor opción"),
+    title: localDestinationDecisionTitle(result),
     lead: v22Local("These are suggestions only. ONE will not change confirmed choices unless you accept.", "제안일 뿐입니다. 승인한 선택은 사용자가 수락하기 전에는 바꾸지 않습니다.", "Son sugerencias. ONE no cambia decisiones confirmadas sin tu aceptación."),
     health: v22Local("Mission condition", "미션 상태", "Estado de la misión"),
     accept: v22Local("Accept", "적용", "Aceptar"),
@@ -5205,7 +5340,7 @@ const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
   document.body.classList.toggle("travel-premium-result-view", isTravelResult(currentResult));
-  missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout", "is-v23-travel-layout");
+  missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout", "is-v23-travel-layout", "is-investor-focused-layout", "is-investor-medical-layout", "is-investor-restaurant-layout");
   delete missionGrid.dataset.domain;
   const disclosure = document.querySelector(".prototype-disclosure");
   if (disclosure) disclosure.hidden = false;
@@ -5254,6 +5389,8 @@ const renderMission = () => {
     }
   } else if (isInvestorMedicalAppointmentDemo(currentResult)) {
     renderInvestorMedicalAppointmentMission(currentResult);
+  } else if (isInvestorRestaurantReservationDemo(currentResult)) {
+    renderInvestorRestaurantReservationMission(currentResult);
   } else if (isExperienceMission(currentResult, currentResult.missionContext)) {
     renderGeneratedExperienceMission(currentResult);
   } else if (currentResult.resolutionPlan) {
@@ -5262,19 +5399,25 @@ const renderMission = () => {
     renderGeneralMission(currentResult);
   }
 
+  const isFocusedInvestorDemo = (isInvestorMedicalAppointmentDemo(currentResult) || isInvestorRestaurantReservationDemo(currentResult)) && !isFounderDiagnosticsMode();
   renderPathwayOpportunities();
-  if (!isTravelResult(currentResult) || isFounderDiagnosticsMode()) {
+  if ((!isTravelResult(currentResult) && !isFocusedInvestorDemo) || isFounderDiagnosticsMode()) {
     missionGrid.insertBefore(pathwayOpportunityPanel, missionGrid.firstChild);
   } else {
     pathwayOpportunityPanel.hidden = true;
   }
-  const decisionPanel = createAIDecisionPanel(currentResult);
-  if (decisionPanel) missionGrid.appendChild(decisionPanel);
-  missionGrid.appendChild(additionalServicesForm);
-  renderRevisionAdditionNote();
-  renderCompleteMissionRevisionState();
-  missionGrid.appendChild(createMissionConfidenceCard(currentResult));
-  missionGrid.appendChild(createApprovalCard(currentResult));
+  if (isFocusedInvestorDemo) {
+    additionalServicesForm?.remove();
+    if (additionalServiceList) additionalServiceList.innerHTML = "";
+  } else {
+    const decisionPanel = createAIDecisionPanel(currentResult);
+    if (decisionPanel) missionGrid.appendChild(decisionPanel);
+    missionGrid.appendChild(additionalServicesForm);
+    renderRevisionAdditionNote();
+    renderCompleteMissionRevisionState();
+    missionGrid.appendChild(createMissionConfidenceCard(currentResult));
+    missionGrid.appendChild(createApprovalCard(currentResult));
+  }
   if (!isTravelResult(currentResult) || isFounderDiagnosticsMode()) {
     attachMissionDirectorBrief(currentResult);
     attachProviderTrustBrief(currentResult);
@@ -5283,7 +5426,7 @@ const renderMission = () => {
     attachExplainableIntelligenceLayer(currentResult);
   }
   const missionUnderstood = document.getElementById("missionUnderstood");
-  const shouldHideMissionUnderstanding = (isTravelResult(currentResult) || isInvestorMedicalAppointmentDemo(currentResult)) && !isFounderDiagnosticsMode();
+  const shouldHideMissionUnderstanding = (isTravelResult(currentResult) || isInvestorMedicalAppointmentDemo(currentResult) || isInvestorRestaurantReservationDemo(currentResult)) && !isFounderDiagnosticsMode();
   if (missionUnderstood) missionUnderstood.hidden = shouldHideMissionUnderstanding;
   if (!shouldHideMissionUnderstanding) renderMissionUnderstanding();
   renderMissionLifecycle(currentResult);

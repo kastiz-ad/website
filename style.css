@@ -267,6 +267,34 @@ body.modal-open { overflow: hidden !important; overscroll-behavior: none !import
   .header-brand-mark > .header-mini-ne { margin-left: 0; font-size: 19px; }
 }
 
+/* Internal language menu scroll: keep the homepage fixed while long menus scroll. */
+.search-language .nav-dropdown-menu,
+.nav-dropdown[data-dropdown="language"] .nav-dropdown-menu {
+  max-height: min(320px, 44dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 46%, transparent) transparent;
+}
+
+.search-language .nav-dropdown-menu::-webkit-scrollbar,
+.nav-dropdown[data-dropdown="language"] .nav-dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-language .nav-dropdown-menu::-webkit-scrollbar-thumb,
+.nav-dropdown[data-dropdown="language"] .nav-dropdown-menu::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 48%, transparent);
+}
+
+@media (max-width: 640px) {
+  .search-language .nav-dropdown-menu,
+  .nav-dropdown[data-dropdown="language"] .nav-dropdown-menu {
+    max-height: min(260px, 38dvh);
+  }
+}
+
 .header-brand-mark {
   width: auto;
   height: 50px;

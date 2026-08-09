@@ -5118,3 +5118,203 @@ body:has(.alpha03-premium-card) {
     justify-self: stretch;
   }
 }
+
+
+/* Investor restaurant reservation demo: one-meal preview */
+.mission-grid.is-investor-focused-layout {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+}
+
+.investor-restaurant-hero {
+  min-height: 360px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, .9fr);
+  align-items: stretch;
+  gap: clamp(18px, 3vw, 34px);
+  background:
+    radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 92%, var(--accent)), var(--surface));
+}
+
+.investor-restaurant-visual {
+  position: relative;
+  min-height: 300px;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 70% 20%, rgba(255, 214, 102, .42), transparent 16%),
+    linear-gradient(180deg, rgba(25, 32, 50, .18), rgba(0, 0, 0, .22)),
+    url("https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&w=1000&q=80") center/cover;
+  box-shadow: var(--shadow-card);
+  display: grid;
+  align-content: end;
+  padding: 24px;
+  color: #fff;
+}
+
+.investor-restaurant-visual::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 52%;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.72));
+}
+
+.investor-restaurant-visual strong,
+.investor-restaurant-visual small,
+.investor-restaurant-visual .restaurant-table {
+  position: relative;
+  z-index: 1;
+}
+
+.investor-restaurant-visual strong {
+  font-size: clamp(24px, 3vw, 42px);
+  letter-spacing: -.055em;
+  line-height: .95;
+}
+
+.investor-restaurant-visual small {
+  margin-top: 8px;
+  color: rgba(255,255,255,.76);
+  font-weight: 800;
+}
+
+.investor-restaurant-visual .restaurant-table::before {
+  content: "";
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.22);
+}
+
+.investor-restaurant-option-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.investor-restaurant-option {
+  min-height: 230px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--surface-strong) 76%, transparent);
+  color: var(--text);
+  text-align: left;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  cursor: pointer;
+}
+
+.investor-restaurant-option.is-selected {
+  border-color: color-mix(in srgb, var(--accent) 68%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent), var(--shadow-card);
+}
+
+.investor-restaurant-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+
+.investor-restaurant-icon::before {
+  font-size: 23px;
+}
+.investor-restaurant-icon.is-river::before { content: "??"; }
+.investor-restaurant-icon.is-bbq::before { content: "??"; }
+.investor-restaurant-icon.is-dessert::before { content: "??"; }
+
+.investor-restaurant-option strong {
+  font-size: clamp(18px, 2vw, 25px);
+  line-height: 1.05;
+  letter-spacing: -.04em;
+}
+
+.investor-restaurant-option p {
+  margin: 0;
+  color: var(--text-muted);
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.investor-restaurant-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.investor-restaurant-tags em {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.investor-restaurant-plan,
+.investor-restaurant-approval {
+  min-height: 0;
+}
+
+.investor-restaurant-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.investor-restaurant-steps li {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface-strong) 72%, transparent);
+  border: 1px solid var(--border);
+}
+
+.investor-restaurant-steps span {
+  color: var(--text-muted);
+  font-weight: 900;
+}
+
+.investor-restaurant-steps strong {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.investor-restaurant-primary {
+  width: fit-content;
+  min-height: 54px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--surface);
+  font-weight: 950;
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .investor-restaurant-hero,
+  .investor-restaurant-option-grid {
+    grid-template-columns: 1fr;
+  }
+}

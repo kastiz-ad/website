@@ -315,10 +315,10 @@ export const PREVIEW_DESTINATION_PROFILES = {
       "url": "https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80",
       "alt": "New York City preview",
       "line": {
-        "en": "New York City highlights, local food, and a practical route.",
-        "ko": "New York City highlights, local food, and a practical route.",
-        "es": "New York City: lugares clave, comida local y ruta practica.",
-        "fr": "New York City: lieux cles, cuisine locale et route pratique."
+        "en": "Manhattan icons, Brooklyn neighborhoods, food stops, shopping, and skyline nights.",
+        "ko": "Manhattan icons, Brooklyn neighborhoods, food stops, shopping, and skyline nights.",
+        "es": "Iconos de Manhattan, barrios de Brooklyn, comida, compras y vistas nocturnas.",
+        "fr": "Icones de Manhattan, Brooklyn, cuisine locale, shopping et vues de nuit."
       }
     },
     "restaurants": [
@@ -360,25 +360,25 @@ export const PREVIEW_DESTINATION_PROFILES = {
     "journeys": [
       {
         "name": {
-          "en": "New York City local highlights",
-          "ko": "New York City local highlights",
-          "es": "New York City: ruta local",
-          "fr": "New York City: route locale"
+          "en": "NYC icons, Broadway, food, and skyline",
+          "ko": "NYC icons, Broadway, food, and skyline",
+          "es": "NYC: iconos, Broadway, comida y skyline",
+          "fr": "NYC: icones, Broadway, cuisine et skyline"
         },
         "purpose": {
-          "en": "A specific New York City preview that avoids blank results.",
-          "ko": "A specific New York City preview that avoids blank results.",
-          "es": "Vista previa concreta para New York City.",
-          "fr": "Apercu concret pour New York City."
+          "en": "A real-feeling New York flow: Central Park, Fifth Avenue, Lower Manhattan, Brooklyn, museums, and one show night.",
+          "ko": "Central Park, Fifth Avenue, Lower Manhattan, Brooklyn, museums, and one show night.",
+          "es": "Un flujo real de Nueva York: Central Park, Quinta Avenida, Lower Manhattan, Brooklyn, museos y una noche de show.",
+          "fr": "Un vrai rythme new-yorkais: Central Park, Fifth Avenue, Lower Manhattan, Brooklyn, musees et une soiree spectacle."
         },
         "timeline": [
-          "Arrival",
-          "Local lunch",
-          "Main landmark",
-          "Cafe break",
-          "Neighborhood walk",
-          "Dinner",
-          "Return"
+          "Arrival + Bryant Park or Times Square",
+          "Central Park, Fifth Avenue, and MoMA",
+          "Statue/Ferry view, Wall Street, SoHo",
+          "Brooklyn Bridge, DUMBO, pizza or steak",
+          "Broadway night or jazz bar",
+          "Chelsea Market, High Line, Hudson Yards",
+          "Easy brunch, Macy's or outlet backup"
         ]
       }
     ]
@@ -402,10 +402,10 @@ export const PREVIEW_DESTINATION_PROFILES = {
       "url": "https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?auto=format&fit=crop&w=900&q=80",
       "alt": "Los Angeles preview",
       "line": {
-        "en": "Los Angeles highlights, local food, and a practical route.",
-        "ko": "Los Angeles highlights, local food, and a practical route.",
-        "es": "Los Angeles: lugares clave, comida local y ruta practica.",
-        "fr": "Los Angeles: lieux cles, cuisine locale et route pratique."
+        "en": "Beaches, studios, Koreatown, tacos, views, and drive-aware LA routing.",
+        "ko": "Beaches, studios, Koreatown, tacos, views, and drive-aware LA routing.",
+        "es": "Playas, estudios, Koreatown, tacos, vistas y ruta pensada para manejar.",
+        "fr": "Plages, studios, Koreatown, tacos, vues et trajets adaptes a LA."
       }
     },
     "restaurants": [
@@ -447,25 +447,25 @@ export const PREVIEW_DESTINATION_PROFILES = {
     "journeys": [
       {
         "name": {
-          "en": "Los Angeles local highlights",
-          "ko": "Los Angeles local highlights",
-          "es": "Los Angeles: ruta local",
-          "fr": "Los Angeles: route locale"
+          "en": "LA beach, studios, food, and sunset",
+          "ko": "LA beach, studios, food, and sunset",
+          "es": "LA: playa, estudios, comida y atardecer",
+          "fr": "LA: plage, studios, cuisine et coucher de soleil"
         },
         "purpose": {
-          "en": "A specific Los Angeles preview that avoids blank results.",
-          "ko": "A specific Los Angeles preview that avoids blank results.",
-          "es": "Vista previa concreta para Los Angeles.",
-          "fr": "Apercu concret pour Los Angeles."
+          "en": "A drive-aware LA plan with Santa Monica, Griffith, studios, Koreatown, tacos, museums, and beach time.",
+          "ko": "Santa Monica, Griffith, studios, Koreatown, tacos, museums, and beach time.",
+          "es": "Un plan de LA con Santa Monica, Griffith, estudios, Koreatown, tacos, museos y playa.",
+          "fr": "Un plan LA avec Santa Monica, Griffith, studios, Koreatown, tacos, musees et plage."
         },
         "timeline": [
-          "Arrival",
-          "Local lunch",
-          "Main landmark",
-          "Cafe break",
-          "Neighborhood walk",
-          "Dinner",
-          "Return"
+          "Arrival + Koreatown dinner",
+          "Santa Monica Pier, Venice, coastal brunch",
+          "Hollywood, studio tour, Griffith sunset",
+          "Getty Center or LACMA, Beverly Hills, Melrose",
+          "Taco route, Silver Lake, Echo Park",
+          "Malibu or Manhattan Beach slow day",
+          "Easy brunch and airport buffer"
         ]
       }
     ]

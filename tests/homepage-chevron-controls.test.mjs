@@ -34,7 +34,14 @@ test("desktop and responsive/mobile navigation share the same controls", () => {
 });
 
 test("public homepage references updated cache-busted assets", () => {
-  assert.match(html, /style\.css\?v=20260810-investor-medical-ui-fix/);
-  assert.match(html, /script\.js\?v=20260810-investor-medical-ui-fix/);
-  assert.match(script, /home-page\.js\?v=20260810-investor-medical-ui-fix/);
+  assert.match(html, /style\.css\?v=20260810-investor-demo-polish/);
+  assert.match(html, /script\.js\?v=20260810-investor-demo-polish/);
+  assert.match(script, /home-page\.js\?v=20260810-investor-demo-polish/);
+});
+
+
+test("language menu scrolls inside the dropdown instead of the fixed homepage", () => {
+  assert.match(css, /search-language \.nav-dropdown-menu[\s\S]*max-height: min\(320px, 44dvh\)/);
+  assert.match(css, /search-language \.nav-dropdown-menu[\s\S]*overflow-y: auto/);
+  assert.match(css, /overscroll-behavior: contain/);
 });
