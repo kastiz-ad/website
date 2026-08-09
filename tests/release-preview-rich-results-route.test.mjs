@@ -67,11 +67,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260810-journey-details-scope-fix/);
-  assert.match(resultsHtml, /results\.js\?v=20260810-journey-details-scope-fix/);
-  assert.match(resultsJs, /results-page\.js\?v=20260810-journey-details-scope-fix/);
-  assert.match(homepageHtml, /style\.css\?v=20260810-journey-details-scope-fix/);
-  assert.match(homepageHtml, /script\.js\?v=20260810-journey-details-scope-fix/);
+  assert.match(resultsHtml, /results\.css\?v=20260810-map-csp-pin-fix/);
+  assert.match(resultsHtml, /results\.js\?v=20260810-map-csp-pin-fix/);
+  assert.match(resultsJs, /results-page\.js\?v=20260810-map-csp-pin-fix/);
+  assert.match(homepageHtml, /style\.css\?v=20260810-map-csp-pin-fix/);
+  assert.match(homepageHtml, /script\.js\?v=20260810-map-csp-pin-fix/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {

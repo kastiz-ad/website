@@ -4817,3 +4817,17 @@ body:has(.alpha03-premium-card) {
     min-width: 0;
   }
 }
+
+/* Release preview map CSP repair: keep markers readable over the embedded map. */
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker-layer { pointer-events: none; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker { pointer-events: auto; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(1) { left: 18% !important; top: 38% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(2) { left: 33% !important; top: 24% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(3) { left: 49% !important; top: 34% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(4) { left: 66% !important; top: 25% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(5) { left: 81% !important; top: 44% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(6) { left: 27% !important; top: 66% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(7) { left: 45% !important; top: 57% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(8) { left: 64% !important; top: 70% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(9) { left: 82% !important; top: 63% !important; }
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(10) { left: 55% !important; top: 82% !important; }
