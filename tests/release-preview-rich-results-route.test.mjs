@@ -110,3 +110,9 @@ test("investor medical appointment demo has a dedicated clean healthcare rendere
   assert.match(resultsPage, /data-open-approval-review/);
   assert.match(resultsPage, /Live healthcare provider APIs are not connected yet/);
 });
+
+
+test("investor medical appointment demo hides the shared mission summary panel", () => {
+  assert.match(resultsPage, /shouldHideMissionUnderstanding = (isTravelResult(currentResult) || isInvestorMedicalAppointmentDemo(currentResult))/);
+  assert.equal(resultsPage.includes("if (!shouldHideMissionUnderstanding) renderMissionUnderstanding();"), true);
+});

@@ -5283,8 +5283,9 @@ const renderMission = () => {
     attachExplainableIntelligenceLayer(currentResult);
   }
   const missionUnderstood = document.getElementById("missionUnderstood");
-  if (missionUnderstood) missionUnderstood.hidden = isTravelResult(currentResult) && !isFounderDiagnosticsMode();
-  renderMissionUnderstanding();
+  const shouldHideMissionUnderstanding = (isTravelResult(currentResult) || isInvestorMedicalAppointmentDemo(currentResult)) && !isFounderDiagnosticsMode();
+  if (missionUnderstood) missionUnderstood.hidden = shouldHideMissionUnderstanding;
+  if (!shouldHideMissionUnderstanding) renderMissionUnderstanding();
   renderMissionLifecycle(currentResult);
   enhanceEmptyStates();
   organizeProgressiveResults();
