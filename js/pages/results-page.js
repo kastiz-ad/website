@@ -5124,6 +5124,18 @@ const renderGuaranteedInvestorTravelDemo = (result = currentResult) => {
   return true;
 };
 
+const initializeResultsPage = () => {
+  currentResult = normalizeStoredResult(getStoredResult());
+  currentExperienceReview = null;
+  if (renderGuaranteedInvestorTravelDemo(currentResult)) return;
+  try {
+    renderMission();
+  } catch (error) {
+    if (renderGuaranteedInvestorTravelDemo(currentResult)) return;
+    throw error;
+  }
+};
+
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
   currentExperienceReview = null;
@@ -6769,8 +6781,7 @@ document.title = activeLanguage === "ko" ? "Kastiz ONE — 미션 준비 완료"
 setTheme();
 updateTextContent();
 updateLocation();
-renderMission();
-renderGuaranteedInvestorTravelDemo(currentResult);
+initializeResultsPage();
 initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
