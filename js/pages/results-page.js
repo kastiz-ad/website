@@ -1732,6 +1732,8 @@ const calculateTripDayCounts = (result) => {
     if (!Number.isNaN(start.valueOf()) && !Number.isNaN(end.valueOf())) {
       const tripDays = Math.max(1, Math.round((end - start) / 86400000) + 1);
       return { tripDays, tripNights: Math.max(1, tripDays - 1) };
+
+const getTravelDurationDays = (result) => calculateTripDayCounts(result).tripDays;
     }
   }
   const tripDays = Math.max(1, Number(result?.durationDays || 3));

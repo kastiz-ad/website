@@ -34,7 +34,7 @@ test("desktop and responsive/mobile navigation share the same controls", () => {
 });
 
 test("public homepage references updated cache-busted assets", () => {
-  assert.match(html, /style\.css\?v=20260810-travel-safe-core-render/);
-  assert.match(html, /script\.js\?v=20260810-travel-safe-core-render/);
-  assert.match(script, /home-page\.js\?v=20260810-travel-safe-core-render/);
+  assert.match(html, /style\.css\?v=20260810-duration-helper-render/);
+  assert.match(html, /script\.js\?v=20260810-duration-helper-render/);
+  assert.match(script, /home-page\.js\?v=20260810-duration-helper-render/);
 });
