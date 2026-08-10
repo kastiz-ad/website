@@ -4832,6 +4832,43 @@ body:has(.alpha03-premium-card) {
 .alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(9) { left: 82% !important; top: 63% !important; }
 .alpha03-map-canvas.is-osm-preview .alpha03-map-marker:nth-child(10) { left: 55% !important; top: 82% !important; }
 
+/* Realistic itinerary: final selections own the map and each day has a visible geographic theme. */
+.alpha03-map-canvas.is-osm-preview .alpha03-map-marker {
+  left: var(--x) !important;
+  top: var(--y) !important;
+  transition: opacity .18s ease, filter .18s ease, transform .18s ease;
+}
+.alpha03-map-marker.is-muted { opacity: .18; filter: grayscale(1); }
+.alpha03-map-marker.is-current { z-index: 3; transform: translate(-50%, -100%) rotate(-45deg) scale(1.22); }
+.alpha03-timeline-card:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.realistic-day-theme {
+  display: inline-flex;
+  width: fit-content;
+  margin: 8px 0 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+.realistic-weather-alternative {
+  margin-top: 12px !important;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted) !important;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+}
+@media (max-width: 600px) {
+  .alpha03-timeline-card { min-width: min(88vw, 340px); }
+  .alpha03-day-slot p { overflow-wrap: anywhere; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .alpha03-map-canvas.is-osm-preview .alpha03-map-marker { transition: none; }
+}
+
 /* Release preview map preview mode: prevent iframe zoom from desyncing overlay pins. */
 .alpha03-map-canvas.is-osm-preview iframe { pointer-events: none; }
 

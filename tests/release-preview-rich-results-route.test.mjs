@@ -69,9 +69,9 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260810-investor-demo-polish-2/);
-  assert.match(resultsHtml, /results\.js\?v=20260810-investor-demo-polish-2/);
-  assert.match(resultsJs, /results-page\.js\?v=20260810-investor-demo-polish-2/);
+  assert.match(resultsHtml, /results\.css\?v=20260811-realistic-itinerary-v1/);
+  assert.match(resultsHtml, /results\.js\?v=20260811-realistic-itinerary-v1/);
+  assert.match(resultsJs, /results-page\.js\?v=20260811-realistic-itinerary-v1/);
   assert.match(homepageHtml, /style\.css\?v=20260810-investor-demo-polish-2/);
   assert.match(homepageHtml, /script\.js\?v=20260810-investor-demo-polish-2/);
 });

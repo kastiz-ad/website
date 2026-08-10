@@ -9,6 +9,7 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260811-realistic-itinerary-v1";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-repair";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3036,6 +3037,27 @@ const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
   const places = Array.isArray(selectedProfile.places) ? selectedProfile.places : [];
   const restaurants = Array.isArray(selectedProfile.restaurants) ? selectedProfile.restaurants : [];
   const local = alpha03Copy;
+  const realistic = buildRealisticItinerary({
+    destinationId: selectedProfile?.id,
+    durationDays: tripDays,
+    mission: [result.rawInput, result.mission, ...(result.revisionHistory || []).map(item => item.command)].filter(Boolean).join(" "),
+    travelers: getTravelPartyDetails(result).travelerCount,
+    schedule: result.schedule || {},
+    language: activeLanguage
+  });
+  if (realistic.curated && realistic.days.length) {
+    result.realisticItinerary = realistic;
+    const iconFor = (kind) => kind === "meal-category" ? "FOOD" : kind === "work" ? "WORK" : kind === "transfer" ? "MOVE" : kind === "buffer" ? "REST" : "PLACE";
+    return realistic.days.map((day) => ({
+      day: `DAY ${day.day}`,
+      title: day.title,
+      theme: day.theme,
+      items: day.slots.map(slot => slot.label),
+      markers: day.markers,
+      weatherAlternative: day.weatherAlternative,
+      slots: day.slots.map(slot => [iconFor(slot.kind), slot.time, slot.label])
+    }));
+  }
   const dayTitle = (index) => {
     if (index === 0) return local("Arrival and first taste", "도착과 첫 분위기", "Llegada y primer ambiente");
     if (index === tripDays - 1) return local("Checkout and departure", "체크아웃과 출발", "Checkout y salida");
@@ -3187,15 +3209,16 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   if (!selectedProfile) {
     return `<div class="alpha03-map-unavailable">${escapeSummaryText(alpha03Copy("Map unavailable", "Map unavailable", "Mapa no disponible"))}</div>`;
   }
-  const markers = buildPreviewMapMarkers(selectedProfile, restaurants, places);
+  const itinerary = currentResult?.realisticItinerary;
+  const markers = itinerary?.curated ? mapMarkersForItinerary(itinerary, [selectedProfile.latitude, selectedProfile.longitude]) : buildPreviewMapMarkers(selectedProfile, restaurants, places);
   const mapUrl = osmEmbedUrlForProfile(selectedProfile, markers);
   return `
     <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" aria-label="${escapeSummaryText(alpha03Copy("Interactive OpenStreetMap preview", "Interactive OpenStreetMap preview", "Vista interactiva de OpenStreetMap"))}">
       <iframe src="${escapeSummaryText(mapUrl)}" title="${escapeSummaryText(`${selectedProfile.city} itinerary map`)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(alpha03Copy("Itinerary markers", "Itinerary markers", "Marcadores del itinerario"))}">
-        ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
+        ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-itinerary-day="${escapeSummaryText(marker.day || "all")}" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
       </div>
-      <p class='alpha03-map-note'>Preview map - pins show the suggested flow</p>
+      <p class='alpha03-map-note'>Demo recommendation - pins come only from the final itinerary. Verify availability before approval.</p>
     </div>
   `;
 };
@@ -3267,10 +3290,12 @@ const createAlpha03TimelineHtml = (days) => `
       ${days.map((day) => {
         const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
         return `
-          <article class="alpha03-timeline-card">
+          <article class="alpha03-timeline-card" tabindex="0" data-itinerary-day="${escapeSummaryText(day.day.replace(/\D/g, ""))}">
             <span>${escapeSummaryText(day.day)}</span>
             <strong>${escapeSummaryText(day.title)}</strong>
+            ${day.theme ? `<em class="realistic-day-theme">${escapeSummaryText(day.theme)}</em>` : ""}
             ${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i>${escapeSummaryText(icon)}</i>${escapeSummaryText(label)}</b><p>${escapeSummaryText(value)}</p></div>`).join("")}
+            ${day.weatherAlternative ? `<p class="realistic-weather-alternative">${escapeSummaryText(day.weatherAlternative)}</p>` : ""}
           </article>
         `;
       }).join("")}
@@ -3278,6 +3303,21 @@ const createAlpha03TimelineHtml = (days) => `
   </section>
 `;
 
+const emphasizeItineraryDay = (day = "") => {
+  document.querySelectorAll(".alpha03-map-marker[data-itinerary-day]").forEach((marker) => {
+    const matches = !day || marker.dataset.itineraryDay === day;
+    marker.classList.toggle("is-current", Boolean(day) && matches);
+    marker.classList.toggle("is-muted", Boolean(day) && !matches);
+  });
+};
+document.addEventListener("pointerover", (event) => {
+  const card = event.target.closest?.(".alpha03-timeline-card[data-itinerary-day]");
+  if (card) emphasizeItineraryDay(card.dataset.itineraryDay);
+});
+document.addEventListener("focusin", (event) => {
+  const card = event.target.closest?.(".alpha03-timeline-card[data-itinerary-day]");
+  emphasizeItineraryDay(card?.dataset.itineraryDay || "");
+});
 const createAlpha03ExperienceHtml = (journey, result) => {
   const destination = getTravelDestinationLabel(result);
   const profile = getAlpha03DestinationProfile(destination);
