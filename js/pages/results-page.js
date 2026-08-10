@@ -1,3 +1,4 @@
+import { renderSafeMedicalAppointmentDemo } from "./medical-appointment-demo.js?v=20260811-medical-foundation-v1";
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
@@ -2426,6 +2427,7 @@ const createInvestorMedicalCard = ({ className = "", kicker, title, body }) => {
 };
 
 const renderInvestorMedicalAppointmentMission = (result = currentResult) => {
+  return renderSafeMedicalAppointmentDemo({ container: missionGrid, titleElement: missionTitle, disclosureElement: document.querySelector(".prototype-disclosure"), language: activeLanguage, missionText: result?.mission || result?.rawInput || "" });
   const title = investorMedicalText("Same-day dental appointment", "\uc624\ub298 \uac00\ub2a5\ud55c \uce58\uacfc \uc9c4\ub8cc", "Cita dental para hoy");
   missionTitle.textContent = title;
   missionGrid.innerHTML = "";

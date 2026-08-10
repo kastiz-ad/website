@@ -5368,3 +5368,31 @@ body:has(.alpha03-premium-card) {
     grid-template-columns: 1fr;
   }
 }
+
+.medical-foundation{grid-template-columns:repeat(12,minmax(0,1fr))}
+.medical-demo-card{grid-column:span 6;border:1px solid rgba(20,26,34,.1);border-radius:24px;background:linear-gradient(145deg,#fff,#f7faf9);box-shadow:0 18px 50px rgba(24,47,41,.07)}
+.medical-demo-card.is-wide,.medical-emergency-gate{grid-column:1/-1}
+.medical-demo-hero{background:linear-gradient(135deg,#f2fbf6,#eef7fb)}
+.medical-specialty-chips,.medical-option-grid,.medical-slot-grid{display:grid;gap:12px;margin-top:18px}
+.medical-specialty-chips{display:flex;flex-wrap:wrap}
+.medical-specialty-chips button{border:1px solid #b9d8c8;border-radius:999px;background:#fff;padding:9px 14px;color:#1f5f46}
+.medical-option-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.medical-option,.medical-slot{display:grid;gap:7px;text-align:left;border:1px solid #d8e0dc;border-radius:18px;background:#fff;padding:17px;color:inherit}
+.medical-option:hover,.medical-option:focus-visible,.medical-slot:hover,.medical-slot:focus-visible{border-color:#56a47f;outline:3px solid rgba(67,143,108,.16)}
+.medical-option.is-selected,.medical-slot.is-selected{border-color:#21845c;background:#eefaf4;box-shadow:inset 0 0 0 1px #21845c}
+.medical-option span,.medical-option small,.medical-slot span,.medical-slot small{color:#66706b;line-height:1.4}
+.medical-slot-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.medical-demo-card label{display:grid;gap:8px;margin:14px 0;color:#39433e}
+.medical-demo-card select{min-height:44px;border:1px solid #cfd8d3;border-radius:12px;background:#fff;padding:0 12px}
+.medical-demo-card .medical-check,.medical-demo-card fieldset label{display:flex;align-items:flex-start;gap:10px}
+.medical-privacy,.medical-truth-note{font-size:.88rem;color:#53625b;background:#f1f5f3;border-radius:12px;padding:12px}
+.medical-review-summary dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.medical-review-summary dl div{background:#f5f7f6;border-radius:12px;padding:12px}
+.medical-review-summary dt{font-size:.75rem;color:#66706b;text-transform:uppercase;letter-spacing:.05em}
+.medical-review-summary dd{margin:5px 0 0;font-weight:650}
+.medical-review fieldset{display:grid;gap:4px;border:1px solid #d8e0dc;border-radius:16px;margin:18px 0;padding:16px}
+.medical-confirmation{font-weight:700;color:#176b4b}
+.medical-emergency-gate{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;border:2px solid #cf4545;border-radius:20px;background:#fff3f3;color:#7f1f1f;padding:24px}
+.medical-emergency-gate a{font-size:1.2rem;font-weight:800;color:inherit}
+@media(max-width:800px){.medical-demo-card{grid-column:1/-1}.medical-option-grid,.medical-slot-grid,.medical-review-summary dl{grid-template-columns:1fr}.medical-option,.medical-slot{min-height:48px}.medical-foundation{overflow-x:hidden}}
+@media(prefers-reduced-motion:reduce){.medical-option,.medical-slot{transition:none!important}}
