@@ -5396,3 +5396,39 @@ body:has(.alpha03-premium-card) {
 .medical-emergency-gate a{font-size:1.2rem;font-weight:800;color:inherit}
 @media(max-width:800px){.medical-demo-card{grid-column:1/-1}.medical-option-grid,.medical-slot-grid,.medical-review-summary dl{grid-template-columns:1fr}.medical-option,.medical-slot{min-height:48px}.medical-foundation{overflow-x:hidden}}
 @media(prefers-reduced-motion:reduce){.medical-option,.medical-slot{transition:none!important}}
+
+/* Medical appointment visual refinement */
+.medical-foundation{gap:22px;max-width:1180px;margin-inline:auto;align-items:start}
+.medical-demo-card{padding:clamp(20px,3vw,32px);overflow:hidden}
+.medical-demo-card>h2{max-width:720px;margin:6px 0 0;font-size:clamp(1.25rem,2vw,1.8rem);letter-spacing:-.025em}
+.medical-demo-hero{position:relative;min-height:250px;padding:clamp(26px,4vw,46px);background:radial-gradient(circle at 88% 12%,rgba(72,176,130,.17),transparent 30%),linear-gradient(135deg,#f3fbf6,#edf7f9)}
+.medical-demo-hero>h2{font-size:clamp(1.8rem,4vw,3.15rem);max-width:780px}
+.medical-lead{max-width:760px;font-size:1.02rem;line-height:1.7;color:#45534c}
+.medical-journey-steps{display:flex;align-items:center;width:min(420px,100%);margin:24px 0 28px}
+.medical-journey-steps span{display:grid;place-items:center;flex:0 0 30px;height:30px;border:1px solid #b7c9c0;border-radius:50%;background:#fff;color:#637169;font-size:.78rem;font-weight:800}
+.medical-journey-steps span.is-current{border-color:#187451;background:#187451;color:#fff;box-shadow:0 0 0 5px rgba(24,116,81,.1)}
+.medical-journey-steps i{height:1px;flex:1;background:#cbd8d1}
+.medical-specialty-chips button{cursor:default;text-transform:capitalize}
+.medical-specialty-chips button.is-primary{border-color:#187451;background:#187451;color:#fff;box-shadow:0 8px 18px rgba(24,116,81,.18)}
+.medical-option-grid{gap:14px}
+.medical-option{position:relative;min-height:160px;align-content:start;padding:20px}
+.medical-option:after{content:"";position:absolute;right:15px;top:15px;width:18px;height:18px;border:1px solid #bdcac3;border-radius:50%;background:#fff}
+.medical-option.is-selected:after{border:5px solid #21845c}
+.medical-option strong{padding-right:26px;font-size:1.04rem}
+.medical-slot{min-height:112px}
+.medical-slot-grid{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.medical-review{background:linear-gradient(145deg,#fbfdfc,#f2f8f5);border-color:#bfd5c9}
+.medical-review-summary dl{grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;overflow:hidden;border:1px solid #dbe5df;border-radius:16px;background:#dbe5df}
+.medical-review-summary dl div{min-width:0;border-radius:0;background:#fff}
+.medical-review-summary dd{overflow-wrap:anywhere}
+.medical-review fieldset{grid-template-columns:repeat(3,minmax(0,1fr));background:#fff}
+.medical-review fieldset legend{padding:0 8px;font-weight:750}
+.medical-review fieldset label{min-height:54px;margin:0;padding:11px;border-radius:11px;background:#f5f8f6}
+.medical-review fieldset label.is-required{background:#edf8f2;color:#145c42;font-weight:700}
+.medical-review-action{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:18px}
+.medical-review-action small{max-width:420px;color:#66736c;line-height:1.5}
+.medical-review-action .investor-medical-primary{min-width:220px;min-height:52px}
+.medical-review-action .investor-medical-primary:disabled{cursor:not-allowed;filter:grayscale(.7);opacity:.45;box-shadow:none}
+.medical-confirmation:not(:empty){margin-top:18px;border-radius:14px;background:#eaf7f0;padding:16px}
+@media(max-width:900px){.medical-review-summary dl{grid-template-columns:repeat(2,minmax(0,1fr))}.medical-review fieldset{grid-template-columns:1fr}}
+@media(max-width:600px){.medical-foundation{gap:14px}.medical-demo-card{border-radius:18px;padding:19px}.medical-demo-hero{min-height:0}.medical-option-grid{grid-template-columns:1fr}.medical-review-summary dl{grid-template-columns:1fr}.medical-review-action{align-items:stretch;flex-direction:column}.medical-review-action .investor-medical-primary{width:100%}.medical-journey-steps{margin-block:18px 22px}}
