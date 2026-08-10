@@ -1883,7 +1883,7 @@ html[data-theme="light"] .one-symbol {
 .investor-demo-launcher {
   position: fixed;
   right: clamp(14px, 2vw, 24px);
-  bottom: clamp(14px, 2vw, 24px);
+  bottom: calc(88px + env(safe-area-inset-bottom));
   z-index: 80;
   width: min(420px, calc(100vw - 28px));
   padding: 14px;

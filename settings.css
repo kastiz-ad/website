@@ -97,7 +97,10 @@ html[data-theme="light"] .settings-header .brand img { filter: invert(1); }
   left: 50%;
   width: max-content;
   min-width: 132px;
+  max-height: min(420px, calc(100vh - 120px));
   padding: 7px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: none;
   transform: translateX(-50%);
   border: 1px solid var(--border);

@@ -4471,7 +4471,7 @@ textarea:focus-visible,
 .investor-demo-controls {
   position: fixed;
   right: clamp(14px, 2vw, 24px);
-  bottom: clamp(14px, 2vw, 24px);
+  bottom: calc(88px + env(safe-area-inset-bottom));
   z-index: 95;
   width: min(430px, calc(100vw - 28px));
   max-height: min(78vh, 720px);
