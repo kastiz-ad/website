@@ -84,7 +84,22 @@ const results = {
   es: { missionReady: "Misión lista", preparedByOne: "Preparado por ONE", customize: "Personalizar", makeItReality: "Aprobar y continuar", withOne: "con ONE", withOnePrefix: "con", withOneSuffix: "", revisionTitle: "¿Quieres que ONE cambie o añada algo?", revisionLabel: "Comando de revisión de la misión", revisionPlaceholder: "Añade un musical, reduce el presupuesto, cambia la zona del hotel…", revisionSend: "Enviar", revisionLoading: "ONE está actualizando la misión…", revisionComplete: "Misión actualizada.", revisionError: "ONE no pudo aplicar ese cambio. Prueba una instrucción más específica.", missionApproved: "Misión aprobada", oneIsWorking: "ONE está preparando el resultado aprobado.", finalMessage: "ONE'D", returnHomeNow: "INICIO", recommended: "⭐ ONE Pick", reason: "Motivo:", otherOptions: "Otras opciones:", modify: "Modificar", weather: "Clima", exchangeRate: "Tipo de cambio", visa: "Visado", approvalProtectionTitle: "Protección de aprobación", approvalProtection: common.es.noExternalExecution, executionSteps: ["Preparando opciones de vuelo...", "Preparando alojamiento...", "Preparando la lista...", "Preparando opciones locales...", "Preparando transporte...", "Finalizando tu misión..."] }
 };
 
-for (const locale of ["fr", "de", "it", "pt", "zh-Hans", "zh-Hant"]) {
+results.fr = {
+  ...results.en,
+  missionReady: "Mission prête", preparedByOne: "Préparée par ONE", customize: "Personnaliser", makeItReality: "Approuver et continuer",
+  withOne: "avec ONE", withOnePrefix: "avec", withOneSuffix: "",
+  revisionTitle: "Souhaitez-vous que ONE modifie ou ajoute quelque chose ?", revisionLabel: "Instruction de modification de la mission",
+  revisionPlaceholder: "Ajoutez un spectacle, réduisez le budget, changez le quartier de l’hôtel…", revisionSend: "Envoyer",
+  revisionLoading: "ONE met à jour la mission…", revisionComplete: "Mission mise à jour.",
+  revisionError: "ONE n’a pas pu appliquer cette modification. Essayez une instruction plus précise.",
+  missionApproved: "Mission approuvée", oneIsWorking: "ONE prépare le résultat approuvé.", returnHomeNow: "ACCUEIL",
+  reason: "Pourquoi :", otherOptions: "Autres options :", modify: "Modifier", weather: "Météo", exchangeRate: "Taux de change", visa: "Visa",
+  approvalProtectionTitle: "Protection de l’approbation",
+  approvalProtection: "Aucune réservation, aucun achat, paiement, envoi, signature ni partage avec un fournisseur n’est effectué sans votre approbation explicite.",
+  executionSteps: ["Préparation des vols…", "Préparation de l’hébergement…", "Préparation de la liste de contrôle…", "Préparation des options locales…", "Préparation du transport…", "Finalisation de votre mission…"]
+};
+
+for (const locale of ["de", "it", "pt", "zh-Hans", "zh-Hant"]) {
   results[locale] = { ...results.en, approvalProtection: common[locale].noExternalExecution, weather: common[locale].language === "Langue" ? "Météo" : results.en.weather };
 }
 

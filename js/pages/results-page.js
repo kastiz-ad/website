@@ -1,6 +1,7 @@
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
+import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260730-mission-orchestration";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -274,6 +275,7 @@ const translations = {
 };
 
 translations.es = localeSection("es", "results");
+translations.fr = localeSection("fr", "results");
 
 const countryNamesByRegion = {
   KR: "South Korea",
@@ -304,8 +306,19 @@ let currentResult = null;
 let currentExperienceReview = null;
 
 const getLanguage = () => {
-  const saved = localStorage.getItem(STORAGE_KEYS.language);
-  return supportedLanguages.includes(saved) ? saved : "en";
+  const params = new URLSearchParams(window.location.search);
+  let missionLanguage = "";
+  try {
+    const storedMission = JSON.parse(localStorage.getItem(STORAGE_KEYS.results) || localStorage.getItem(STORAGE_KEYS.travelMission) || localStorage.getItem(STORAGE_KEYS.mission) || "null");
+    missionLanguage = storedMission?.language || storedMission?.locale || storedMission?.uiLanguage || "";
+  } catch {}
+  const selected = sessionStorage.getItem("kastiz-one-current-language-selection") || "";
+  sessionStorage.removeItem("kastiz-one-current-language-selection");
+  const resolved = resolveResultLocale({ selected, url: params.get("lang"), mission: missionLanguage, stored: localStorage.getItem(STORAGE_KEYS.language), browser: navigator.language });
+  localStorage.setItem(STORAGE_KEYS.language, resolved);
+  params.set("lang", resolved);
+  if (params.toString() !== window.location.search.slice(1)) history.replaceState(history.state, "", `${location.pathname}?${params}${location.hash}`);
+  return resolved;
 };
 
 const getTheme = () => {
@@ -314,7 +327,7 @@ const getTheme = () => {
 };
 
 const t = (key) => {
-  return localeSection(activeLanguage, "results")[key] ?? translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
+  return localeSection(activeLanguage, "results")[key] ?? translations[activeLanguage]?.[key] ?? resultText(activeLanguage, key) ?? translations.en[key] ?? "";
 };
 
 const localize = (value) => {
@@ -324,10 +337,7 @@ const localize = (value) => {
 
 const formatKRW = (value) => {
   if (typeof value !== "number") return value;
-
-  return activeLanguage === "ko"
-    ? `${Math.round(value / 10000).toLocaleString("ko-KR")}만 원`
-    : activeLanguage === "es" ? `${value.toLocaleString("es-ES")} KRW` : `₩${value.toLocaleString("en-US")}`;
+  return formatResultCurrency(value, "KRW", activeLanguage);
 };
 
 const formatRange = (range) => {
@@ -360,6 +370,9 @@ const updateTextContent = () => {
     const key = element.getAttribute("data-i18n");
     element.textContent = t(key);
   });
+  document.querySelectorAll("[data-i18n-aria]").forEach((element) => element.setAttribute("aria-label", t(element.getAttribute("data-i18n-aria"))));
+  const languageLabel = document.getElementById("resultLanguageLabel");
+  if (languageLabel) languageLabel.textContent = resultText(activeLanguage, "languageLabel");
 };
 
 const updateLocation = () => {
@@ -2120,7 +2133,7 @@ const createScheduleCard = (result) => {
   return article;
 };
 
-const v22Local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+const v22Local = (en, ko, es, fr = en) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : activeLanguage === "fr" ? fr : en;
 
 const DOMAIN_PRESENTATION = Object.freeze({
   education: {
@@ -2871,13 +2884,15 @@ const buildV23TravelJourneys = (result, missionContext) => {
 
 const createV23SourcePill = (state) => `<span class="v23-source-pill is-${state}">${escapeSummaryText(sourceStateLabel(state))}</span>`;
 
-const alpha03Copy = (en, ko, es) => v22Local(en, ko, es);
+const alpha03FrenchCopy = Object.freeze({"ONE Pick":"Choix ONE","days":"jours","estimated":"estimé","dates":"dates","Dates flexible":"Dates flexibles","Live search ready":"Recherche en direct prête","Map preview":"Aperçu de la carte","Budget":"Budget","Food":"Gastronomie","Food worth planning around":"Des adresses qui méritent d’organiser le voyage","Places":"Lieux","Places that make the trip feel real":"Des lieux qui donnent vie au voyage","Preparation details":"Détails de préparation","Insurance and risk":"Assurance et risques","Travel protection can be compared before approval.":"Les protections de voyage peuvent être comparées avant approbation.","Entry requirements":"Conditions d’entrée","Official entry requirements must be checked before execution.":"Les conditions officielles d’entrée doivent être vérifiées avant toute action.","Transport details":"Détails du transport","Before live search":"Avant la recherche en direct","Live price, availability, rules, and material changes are checked before any external action.":"Les prix, disponibilités, règles et changements importants sont vérifiés avant toute action externe.","Live Search Ready":"Recherche en direct prête","Flights":"Vols","Hotels":"Hôtels","Transport":"Transport","Route-based":"Selon l’itinéraire","Selectable travel options":"Options de voyage sélectionnables","Prepared":"Préparé","Price check":"Vérifier le prix","Luxury hotel":"Hôtel haut de gamme","service-first option":"option axée sur le service","Hostel / budget stay":"Auberge / séjour économique","lower cost search":"recherche à prix réduit","Private transfer":"Transfert privé","higher cost":"coût supérieur","Taxi + walk":"Taxi + marche","comfort route":"trajet confortable","Airport bus + short walk":"Bus aéroport + courte marche","simple luggage route":"trajet simple avec bagages","Walkable core route with official transit or licensed transfer checks.":"Itinéraire central praticable à pied, avec transports officiels ou transferts agréés.","Transit-first route with licensed taxi only when it saves energy.":"Transports en commun en priorité, avec un taxi agréé uniquement lorsqu’il permet d’économiser de l’énergie.","Short moves, fewer transfers, and more time inside the destination.":"Déplacements courts, moins de correspondances et davantage de temps sur place.","Skyline, food, Broadway, neighborhoods.":"Panorama, gastronomie, Broadway et quartiers.","City lights, food alleys, quiet rituals.":"Lumières de la ville, ruelles gourmandes et rituels paisibles.","A clear route, chosen moments, less work.":"Un itinéraire clair, des moments choisis et moins d’organisation.","Compare alternatives":"Comparer les alternatives","ONE recommended trip":"Voyage recommandé par ONE","Timeline":"Itinéraire","A full day you can picture":"Une journée facile à imaginer"});
+
+const alpha03Copy = (en, ko, es, fr = alpha03FrenchCopy[en] || en) => v22Local(en, ko, es, fr);
 
 const formatAlpha03Date = (value) => {
   if (!value) return "";
   const date = new Date(`${value}T00:00:00`);
   if (Number.isNaN(date.valueOf())) return String(value);
-  const locale = activeLanguage === "ko" ? "ko-KR" : activeLanguage === "es" ? "es-ES" : "en-US";
+  const locale = { en: "en-US", ko: "ko-KR", es: "es-ES", fr: "fr-FR" }[activeLanguage] || "en-US";
   return new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(date);
 };
 
@@ -3057,7 +3072,7 @@ const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
       return "\uD83D\uDCCD";
     };
     return realistic.days.map((day) => ({
-      day: `DAY ${day.day}`,
+      day: day.dayLabel || resultText(activeLanguage, "day", { count: day.day }),
       title: day.title,
       theme: day.theme,
       items: day.slots.map(slot => slot.label),
@@ -3215,18 +3230,18 @@ const createAlpha03VisualCard = (item, type, index) => {
 const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   const selectedProfile = profile || profileForResult(currentResult || {}, getTravelDestinationLabel(currentResult || {}));
   if (!selectedProfile) {
-    return `<div class="alpha03-map-unavailable">${escapeSummaryText(alpha03Copy("Map unavailable", "Map unavailable", "Mapa no disponible"))}</div>`;
+    return `<div class="alpha03-map-unavailable">${escapeSummaryText(resultText(activeLanguage, "mapUnavailable"))}</div>`;
   }
   const itinerary = currentResult?.realisticItinerary;
   const markers = itinerary?.curated ? mapMarkersForItinerary(itinerary, [selectedProfile.latitude, selectedProfile.longitude]) : buildPreviewMapMarkers(selectedProfile, restaurants, places);
   const mapUrl = osmEmbedUrlForProfile(selectedProfile, markers);
   return `
-    <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" aria-label="${escapeSummaryText(alpha03Copy("Interactive OpenStreetMap preview", "Interactive OpenStreetMap preview", "Vista interactiva de OpenStreetMap"))}">
+    <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" aria-label="${escapeSummaryText(resultText(activeLanguage, "mapPreview"))}">
       <iframe src="${escapeSummaryText(mapUrl)}" title="${escapeSummaryText(`${selectedProfile.city} itinerary map`)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-      <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(alpha03Copy("Itinerary markers", "Itinerary markers", "Marcadores del itinerario"))}">
+      <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(resultText(activeLanguage, "itineraryMarkers"))}">
         ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-itinerary-day="${escapeSummaryText(marker.day || "all")}" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
       </div>
-      <p class='alpha03-map-note'>Demo recommendation - pins come only from the final itinerary. Verify availability before approval.</p>
+      <p class='alpha03-map-note'>${escapeSummaryText(resultText(activeLanguage, "mapNote"))}</p>
     </div>
   `;
 };
@@ -3291,8 +3306,8 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
 const createAlpha03TimelineHtml = (days) => `
   <section class="alpha03-section alpha03-timeline-redesign">
     <div class="alpha03-section-heading">
-      <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Timeline", "일정", "Itinerario"))}</span>
-      <h3>${escapeSummaryText(alpha03Copy("A full day you can picture", "하루가 바로 그려지는 일정", "Un día fácil de imaginar"))}</h3>
+      <span class="v23-eyebrow">${escapeSummaryText(resultText(activeLanguage, "timeline"))}</span>
+      <h3>${escapeSummaryText(resultText(activeLanguage, "timelineTitle"))}</h3>
     </div>
     <div class="alpha03-timeline-strip">
       ${days.map((day) => {
@@ -7053,6 +7068,18 @@ makeRealityButton.addEventListener("click", () => {
 });
 
 activeLanguage = getLanguage();
+const resultLanguageSelect = document.getElementById("resultLanguageSelect");
+if (resultLanguageSelect) {
+  resultLanguageSelect.value = activeLanguage;
+  resultLanguageSelect.addEventListener("change", () => {
+    activeLanguage = normalizeResultLocale(resultLanguageSelect.value);
+    localStorage.setItem(STORAGE_KEYS.language, activeLanguage);
+    const url = new URL(location.href); url.searchParams.set("lang", activeLanguage); history.replaceState(history.state, "", url);
+    if (currentResult) currentResult.language = activeLanguage;
+    document.documentElement.lang = activeLanguage;
+    updateTextContent(); updateLocation(); renderMission(); initializeOptionSelections(); renderApprovalList();
+  });
+}
 
 document.documentElement.lang = activeLanguage;
 document.title = activeLanguage === "ko" ? "Kastiz ONE — 미션 준비 완료" : "Kastiz ONE — Mission Ready";

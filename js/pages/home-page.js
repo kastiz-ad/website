@@ -70,7 +70,7 @@ const reopenPrototypeMission = (reference) => {
     sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(record.result));
     sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(record.result));
     if (record.result.type === "travel") sessionStorage.setItem(STORAGE_KEYS.travelMission, JSON.stringify(record.result));
-    location.href = `results.html?reference=${encodeURIComponent(reference)}`;
+    location.href = `results.html?reference=${encodeURIComponent(reference)}&lang=${encodeURIComponent(activeLanguage)}`;
     return true;
   } catch {
     return false;
@@ -674,6 +674,7 @@ const setLanguage = (language) => {
   updateLanguageControls();
   updateLocation();
   resetMissionRotator();
+  sessionStorage.setItem("kastiz-one-current-language-selection", activeLanguage);
   document.dispatchEvent(new CustomEvent("kastiz:language-changed", { detail: { language: activeLanguage } }));
 };
 
@@ -1655,7 +1656,7 @@ const startMission = (mission, schedule = null) => {
   body.classList.add("is-transitioning");
 
   window.setTimeout(() => {
-    window.location.href = "loading.html";
+    window.location.href = `loading.html?lang=${encodeURIComponent(activeLanguage)}`;
   }, 360);
 };
 

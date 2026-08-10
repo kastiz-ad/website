@@ -1,6 +1,7 @@
 import { fetchJson } from "../engine/providers.js?v=20260711-1";
 import { trackEvent } from "../analytics.js";
 import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
+import { normalizeResultLocale, resolveResultLocale } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 
@@ -22,7 +23,11 @@ const loadingMessage = document.getElementById("loadingMessage");
 const progressBar = document.getElementById("progressBar");
 const loadingSteps = Array.from(document.querySelectorAll(".loading-step"));
 
-const fallbackLanguage = normalizeInterfaceLocale(localStorage.getItem(STORAGE_KEYS.language) || navigator.language);
+const loadingParams = new URLSearchParams(location.search);
+let loadingMissionLanguage = "";
+try { loadingMissionLanguage = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.mission) || "null")?.language || ""; } catch {}
+const fallbackLanguage = resolveResultLocale({ url: loadingParams.get("lang"), mission: loadingMissionLanguage, stored: localStorage.getItem(STORAGE_KEYS.language), browser: navigator.language });
+localStorage.setItem(STORAGE_KEYS.language, fallbackLanguage);
 const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || "light";
 
 root.setAttribute("data-theme", savedTheme);
@@ -31,7 +36,8 @@ root.setAttribute("lang", fallbackLanguage);
 const approvalMessages = {
   en: "Nothing will be booked, purchased, reserved, signed, submitted, paid for, or legally committed until you approve.",
   ko: "사용자가 승인하기 전에는 예약, 결제, 구매, 서명, 제출 또는 법적 약속이 진행되지 않습니다.",
-  es: "Nada se reserva, compra, paga, envía, firma ni comparte con un proveedor sin tu aprobación explícita."
+  es: "Nada se reserva, compra, paga, envía, firma ni comparte con un proveedor sin tu aprobación explícita.",
+  fr: "Aucune réservation, aucun achat, paiement, envoi, signature ni partage avec un fournisseur n’est effectué sans votre approbation explicite."
 };
 
 const loadingMessages = {
@@ -69,7 +75,8 @@ const loadingMessages = {
   }
 };
 
-loadingMessages.es = Object.fromEntries(Object.keys(loadingMessages.en).map(key => [key, ["Entendiendo tu misión...", "Revisando información disponible...", "Comparando opciones...", "Preparando ONE Pick...", "Organizando tu misión..."]]));
+loadingMessages.es = Object.fromEntries(Object.keys(loadingMessages.en).map(key => [key, ["Comprendiendo tu misión…", "Revisando la información disponible…", "Comparando opciones…", "Preparando tu ONE Pick…", "Organizando tu misión…"]]));
+loadingMessages.fr = Object.fromEntries(Object.keys(loadingMessages.en).map(key => [key, ["Compréhension de votre mission…", "Vérification des informations disponibles…", "Comparaison des options…", "Préparation de votre ONE Pick…", "Organisation de votre mission…"]]));
 
 const fallbackProvider = (provider, category, message, error = null) => ({
   provider,
@@ -124,7 +131,8 @@ const loadingUi = {
     title: "ONE이 미션을 준비하고 있어요...",
     steps: ["목표 이해하기", "실시간 정보 수집하기", "선택지 비교하기", "미션 정리하기", "거의 준비 완료"]
   },
-  es: { title: "ONE está preparando tu misión...", steps: ["Entendiendo tu objetivo", "Recopilando información", "Comparando opciones", "Organizando tu misión", "Casi listo"] }
+  es: { title: "ONE está preparando tu misión…", steps: ["Comprender tu objetivo", "Recopilar información", "Comparar opciones", "Organizar tu misión", "Casi listo"] },
+  fr: { title: "ONE prépare votre mission…", steps: ["Comprendre votre objectif", "Rassembler les informations", "Comparer les options", "Organiser votre mission", "Presque prêt"] }
 };
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -625,7 +633,7 @@ const runLoadingSequence = async () => {
   body.classList.add("is-transitioning");
 
   window.setTimeout(() => {
-    window.location.href = "results.html?v=20260713-38";
+    window.location.href = `results.html?v=20260713-38&lang=${encodeURIComponent(fallbackLanguage)}`;
   }, 360);
 };
 

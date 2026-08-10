@@ -1,1 +1,1 @@
-import "./js/pages/home-page.js?v=20260810-investor-demo-polish-2";
+import "./js/pages/home-page.js?v=20260811-results-localization-v1";

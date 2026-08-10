@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;650;700;750;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="results.css?v=20260811-realistic-itinerary-v3" />
+  <link rel="stylesheet" href="results.css?v=20260811-results-localization-v1" />
   <!-- compatibility lineage: results.css?v=20260730-universal-execution results.js?v=20260730-universal-execution -->
 </head>
 
@@ -26,6 +26,7 @@
       </a>
 
       <div class="header-actions">
+        <label class="result-language-control"><span class="visually-hidden" id="resultLanguageLabel">Results language</span><select id="resultLanguageSelect" aria-labelledby="resultLanguageLabel"><option value="en">English</option><option value="ko">한국어</option><option value="es">Español</option><option value="fr">Français</option></select></label>
         <a href="upgrade.html" class="header-link" data-i18n="upgrade">Upgrade</a>
         <a href="login.html" class="header-link" data-i18n="login">Login</a>
       </div>
@@ -45,13 +46,13 @@
         </div>
       </section>
 
-      <nav class="mission-timeline" aria-label="Mission progress">
-        <span class="is-complete" data-stage="mission">Mission</span><i aria-hidden="true">→</i>
-        <span class="is-complete" data-stage="planning">Planning</span><i aria-hidden="true">→</i>
-        <span class="is-current" data-stage="review" aria-current="step">Review</span><i aria-hidden="true">→</i>
-        <span data-stage="approval">Approval</span><i aria-hidden="true">→</i>
-        <span data-stage="execution">Execution</span><i aria-hidden="true">→</i>
-        <span data-stage="complete">Complete</span>
+      <nav class="mission-timeline" data-i18n-aria="missionProgress" aria-label="Mission progress">
+        <span class="is-complete" data-stage="mission" data-i18n="stageMission">Mission</span><i aria-hidden="true">→</i>
+        <span class="is-complete" data-stage="planning" data-i18n="stagePlanning">Planning</span><i aria-hidden="true">→</i>
+        <span class="is-current" data-stage="review" data-i18n="stageReview" aria-current="step">Review</span><i aria-hidden="true">→</i>
+        <span data-stage="approval" data-i18n="stageApproval">Approval</span><i aria-hidden="true">→</i>
+        <span data-stage="execution" data-i18n="stageExecution">Execution</span><i aria-hidden="true">→</i>
+        <span data-stage="complete" data-i18n="stageComplete">Complete</span>
       </nav>
 
       <section class="mission-lifecycle-panel" id="missionLifecyclePanel" aria-labelledby="missionLifecycleTitle">
@@ -153,6 +154,6 @@
     </footer>
   </div>
 
-  <script type="module" src="results.js?v=20260811-realistic-itinerary-v3"></script>
+  <script type="module" src="results.js?v=20260811-results-localization-v1"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+import { localizeItineraryPresentation, normalizeResultLocale } from "../../i18n/result-localization.js";
+
 export const REALISTIC_ITINERARY_VERSION = "20260811-realistic-itinerary-v1";
 
 const makeCluster = ([id,name,lat,lng,first,second,traits="culture"]) => ({ id,name,lat,lng,traits:traits.split(" "), activities:[first,second].map((label,index)=>({ id:`${id}-${index+1}`,label,lat:lat+(index?.003:-.003),lng:lng+(index?-.003:.003),kind:/museum|gallery|palace|temple|cathedral|aquarium|teamlab|market/i.test(label)?"cultural":/park|garden|beach|walk|forest|waterfront|harbour/i.test(label)?"outdoor":"attraction",indoor:/museum|gallery|aquarium|teamlab|market/i.test(label),durationMinutes:index?90:120,weatherSensitive:/park|garden|beach|walk|forest|waterfront|harbour/i.test(label),reservationRecommended:/museum|teamlab|observatory/i.test(label)})) });
@@ -72,7 +74,7 @@ export function buildRealisticItinerary({destinationId,durationDays=3,mission=""
     const markers=slots.filter(item=>Number.isFinite(item.lat)&&Number.isFinite(item.lng)).map(item=>({id:item.id,label:item.label,latitude:item.lat,longitude:item.lng,type:item.kind==="meal-category"?"food":"place",day:dayIndex+1}));
     return{day:dayIndex+1,id:`${destinationId}-day-${dayIndex+1}`,title:isArrival?`Arrival and ${area.name}`:isDeparture?`${area.name} and departure`:`${area.name}: ${purpose} day`,theme:area.name,district:area.name,isArrival,isDeparture,slots,activities,meals,markers,weatherAlternative:`If weather changes, use a curated indoor venue in or near ${area.name}.`,transport:city.transport,source:"curated_destination"};
   });
-  const markers=days.flatMap(day=>day.markers);const itinerary={curated:true,destinationId,destination:city.city,currency:city.currency,airports:city.airports,purpose,pace:limit===1?"relaxed":limit===3?"intensive":"balanced",deterministicKey:`${destinationId}:${total}:${purpose}:${vegetarian}:${noNightlife}`,days,markers,notice:"Demo recommendation from curated destination knowledge. Verify hours, prices and availability before approval. No booking has been made.",language,schedule};itinerary.quality=validateItineraryQuality(itinerary);return itinerary;
+  const markers=days.flatMap(day=>day.markers);const itinerary={curated:true,destinationId,destination:city.city,currency:city.currency,airports:city.airports,purpose,pace:limit===1?"relaxed":limit===3?"intensive":"balanced",deterministicKey:`${destinationId}:${total}:${purpose}:${vegetarian}:${noNightlife}`,days,markers,notice:"Demo recommendation from curated destination knowledge. Verify hours, prices and availability before approval. No booking has been made.",language,schedule};const presented=localizeItineraryPresentation(itinerary,normalizeResultLocale(language));presented.quality=validateItineraryQuality(presented);return presented;
 }
 
 export function validateItineraryQuality(itinerary={}){
