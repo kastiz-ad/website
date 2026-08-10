@@ -3047,7 +3047,15 @@ const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
   });
   if (realistic.curated && realistic.days.length) {
     result.realisticItinerary = realistic;
-    const iconFor = (kind) => kind === "meal-category" ? "FOOD" : kind === "work" ? "WORK" : kind === "transfer" ? "MOVE" : kind === "buffer" ? "REST" : "PLACE";
+    const iconFor = (slot) => {
+      if (slot.kind === "meal-category") return slot.mealType === "breakfast" ? "\u2615\uFE0F" : slot.mealType === "lunch" ? "\uD83C\uDF5C" : "\uD83C\uDF7D\uFE0F";
+      if (slot.kind === "work") return "\uD83D\uDCBC";
+      if (slot.kind === "transfer") return slot.isArrival || slot.isDeparture || /arrival|depart/i.test(slot.time) ? "\u2708\uFE0F" : "\uD83D\uDE95";
+      if (slot.kind === "buffer") return /checkout/i.test(slot.label) ? "\uD83C\uDFE8" : "\uD83C\uDF3F";
+      if (slot.kind === "cultural") return "\uD83C\uDFDB\uFE0F";
+      if (slot.kind === "outdoor") return "\uD83C\uDF3F";
+      return "\uD83D\uDCCD";
+    };
     return realistic.days.map((day) => ({
       day: `DAY ${day.day}`,
       title: day.title,
@@ -3055,7 +3063,7 @@ const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
       items: day.slots.map(slot => slot.label),
       markers: day.markers,
       weatherAlternative: day.weatherAlternative,
-      slots: day.slots.map(slot => [iconFor(slot.kind), slot.time, slot.label])
+      slots: day.slots.map(slot => [iconFor(slot), slot.time, slot.label])
     }));
   }
   const dayTitle = (index) => {
@@ -3280,17 +3288,6 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
   `;
 };
 
-const alpha03SlotIconSvg = (icon) => {
-  const paths = {
-    FOOD: `<path d="M7 3v7M4.5 3v4.5A2.5 2.5 0 0 0 7 10M9.5 3v4.5A2.5 2.5 0 0 1 7 10v11M16 3v18M16 3c3 2 4 6 0 10"/>`,
-    PLACE: `<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>`,
-    WORK: `<path d="M9 6V4h6v2M4 8h16v11H4zM4 12h16M10 12v2h4v-2"/>`,
-    MOVE: `<path d="M5 12h14M14 7l5 5-5 5M10 5H5v14h5"/>`,
-    REST: `<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>`
-  };
-  return `<svg viewBox="0 0 24 24" focusable="false">${paths[icon] || paths.PLACE}</svg>`;
-};
-
 const createAlpha03TimelineHtml = (days) => `
   <section class="alpha03-section alpha03-timeline-redesign">
     <div class="alpha03-section-heading">
@@ -3305,7 +3302,7 @@ const createAlpha03TimelineHtml = (days) => `
             <span>${escapeSummaryText(day.day)}</span>
             <strong>${escapeSummaryText(day.title)}</strong>
             ${day.theme ? `<em class="realistic-day-theme">${escapeSummaryText(day.theme)}</em>` : ""}
-            ${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i class="alpha03-slot-icon" aria-hidden="true">${alpha03SlotIconSvg(icon)}</i>${escapeSummaryText(label)}</b><p>${escapeSummaryText(value)}</p></div>`).join("")}
+            ${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(label)}</b><p>${escapeSummaryText(value)}</p></div>`).join("")}
             ${day.weatherAlternative ? `<p class="realistic-weather-alternative">${escapeSummaryText(day.weatherAlternative)}</p>` : ""}
           </article>
         `;
