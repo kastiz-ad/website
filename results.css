@@ -5432,3 +5432,52 @@ body:has(.alpha03-premium-card) {
 .medical-confirmation:not(:empty){margin-top:18px;border-radius:14px;background:#eaf7f0;padding:16px}
 @media(max-width:900px){.medical-review-summary dl{grid-template-columns:repeat(2,minmax(0,1fr))}.medical-review fieldset{grid-template-columns:1fr}}
 @media(max-width:600px){.medical-foundation{gap:14px}.medical-demo-card{border-radius:18px;padding:19px}.medical-demo-hero{min-height:0}.medical-option-grid{grid-template-columns:1fr}.medical-review-summary dl{grid-template-columns:1fr}.medical-review-action{align-items:stretch;flex-direction:column}.medical-review-action .investor-medical-primary{width:100%}.medical-journey-steps{margin-block:18px 22px}}
+
+/* Medical readability and two-column option layout */
+.medical-foundation .medical-demo-card,
+.medical-foundation .medical-demo-card button,
+.medical-foundation .medical-demo-card select{color:#17231d!important}
+.medical-foundation .medical-demo-card h2,
+.medical-foundation .medical-demo-card strong,
+.medical-foundation .medical-demo-card label,
+.medical-foundation .medical-demo-card legend,
+.medical-foundation .medical-demo-card dd{color:#17231d!important}
+.medical-foundation .medical-demo-card p,
+.medical-foundation .medical-demo-card span:not(.v22-kicker),
+.medical-foundation .medical-demo-card small,
+.medical-foundation .medical-demo-card dt{color:#56645d!important}
+.medical-foundation .medical-demo-card .v22-kicker{color:#176b4b!important}
+.medical-foundation .medical-demo-card .medical-specialty-chips .is-primary,
+.medical-foundation .medical-demo-card .investor-medical-primary{color:#fff!important}
+.medical-foundation .medical-option,
+.medical-foundation .medical-slot,
+.medical-foundation .medical-review-summary dl div,
+.medical-foundation .medical-demo-card fieldset label{background:#fff!important}
+.medical-foundation .medical-option.is-selected,
+.medical-foundation .medical-slot.is-selected{background:#eaf8f1!important}
+.medical-foundation .medical-option-grid,
+.medical-foundation .medical-slot-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.medical-foundation .medical-option,
+.medical-foundation .medical-slot{min-width:0;min-height:128px;padding:16px}
+.medical-foundation .medical-option strong,
+.medical-foundation .medical-slot strong{font-size:clamp(.92rem,1.4vw,1.04rem);line-height:1.28;overflow-wrap:anywhere}
+.medical-foundation .medical-option span,
+.medical-foundation .medical-option small,
+.medical-foundation .medical-slot span,
+.medical-foundation .medical-slot small{font-size:clamp(.76rem,1.15vw,.88rem);line-height:1.45;overflow-wrap:anywhere}
+.medical-foundation .medical-demo-card>h2{font-size:clamp(1.18rem,2.2vw,1.65rem);line-height:1.18;overflow-wrap:anywhere}
+.medical-foundation .medical-demo-hero>h2{font-size:clamp(1.75rem,4vw,2.8rem)}
+.medical-foundation .medical-review-summary dt{font-size:.7rem}
+.medical-foundation .medical-review-summary dd{font-size:clamp(.8rem,1.2vw,.94rem);line-height:1.35}
+@media(max-width:720px) and (min-width:481px){
+  .medical-foundation .medical-option-grid,
+  .medical-foundation .medical-slot-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .medical-foundation .medical-option,
+  .medical-foundation .medical-slot{min-height:118px;padding:14px}
+}
+@media(max-width:480px){
+  .medical-foundation .medical-option-grid,
+  .medical-foundation .medical-slot-grid{grid-template-columns:1fr!important}
+  .medical-foundation .medical-option,
+  .medical-foundation .medical-slot{min-height:0}
+}
