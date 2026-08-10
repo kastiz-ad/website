@@ -9,6 +9,7 @@ import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i1
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260730-investor-demo-mode";
+import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260811-private-investor-entry-v1";
 
 const root = document.documentElement;
 const body = document.body;
@@ -2161,4 +2162,4 @@ trackEvent("page_visit", { page: "home", language: getInitialLanguage() });
 trackEvent("homepage_loaded", { page: "home", language: getInitialLanguage() });
 setLanguage(getInitialLanguage());
 syncInputState();
-mountInvestorDemoHome({ language: getInitialLanguage() });
+if (shouldShowInvestorPanel(window.location)) mountInvestorDemoHome({ language: getInitialLanguage() });

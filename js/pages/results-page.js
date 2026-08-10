@@ -1,4 +1,5 @@
 import { renderSafeMedicalAppointmentDemo } from "./medical-appointment-demo.js?v=20260811-medical-ui-v3";
+import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMissionType } from "../engine/approval/mission-specific-approval.js?v=20260811-mission-specific-approval-v1";
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
@@ -101,6 +102,7 @@ const makeRealityButton = document.getElementById("makeRealityButton");
 const approvalPanel = document.getElementById("approvalPanel");
 const executionSummary = document.getElementById("executionSummary");
 const approvalList = document.getElementById("approvalList");
+const approvalTitle = document.getElementById("approvalTitle");
 const completionMessage = document.getElementById("completionMessage");
 const returnHomeButton = document.getElementById("returnHomeButton");
 const locationText = document.getElementById("locationText");
@@ -5627,28 +5629,30 @@ const initializeOptionSelections = () => {
   });
 };
 
-const renderApprovalList = () => {
-  const experienceSteps = activeLanguage === "ko"
-    ? ["선택한 경험 정리 중...", "시간별 일정 준비 중...", "음식과 이동 선택 반영 중...", "날씨 대안 확인 중...", "미션을 최종 준비 중..."]
-    : activeLanguage === "es"
-      ? ["Organizando la experiencia elegida...", "Preparando el horario...", "Aplicando comida y transporte...", "Comprobando el plan climático...", "Finalizando la misión..."]
-      : ["Organizing your selected experience...", "Preparing the timeline...", "Applying food and transportation choices...", "Checking the weather backup...", "Finalizing your mission..."];
-  const steps = isExperienceMission(currentResult, currentResult?.missionContext)
-    ? experienceSteps
-    : currentResult?.executionSequence?.[activeLanguage] || t("executionSteps");
-
-  approvalList.innerHTML = steps
-    .map((step) => {
-      return `
-        <div class="approval-item">
-          <span class="approval-check">•</span>
-          <span>${step}</span>
-        </div>
-      `;
-    })
-    .join("");
+const approvalPanelTitles = {
+  medical_appointment: { en: "ONE is preparing your approved medical request.", ko: "ONE이 승인된 의료 요청을 준비하고 있습니다.", es: "ONE está preparando tu solicitud médica aprobada.", fr: "ONE prépare votre demande médicale approuvée." },
+  restaurant_reservation: { en: "ONE is preparing your approved restaurant request.", ko: "ONE이 승인된 레스토랑 요청을 준비하고 있습니다.", es: "ONE está preparando tu solicitud de restaurante aprobada.", fr: "ONE prépare votre demande de restaurant approuvée." },
+  travel: { en: "ONE is preparing your approved travel plan.", ko: "ONE이 승인된 여행 계획을 준비하고 있습니다.", es: "ONE está preparando tu plan de viaje aprobado.", fr: "ONE prépare votre voyage approuvé." },
+  generic: { en: "ONE is preparing your approved mission.", ko: "ONE이 승인된 미션을 준비하고 있습니다.", es: "ONE está preparando tu misión aprobada.", fr: "ONE prépare votre mission approuvée." }
 };
-
+const collectApprovalSelections = () => ({
+  selectedHospital: missionGrid.querySelector(".medical-demo-card:nth-of-type(1) .medical-option.is-selected strong")?.textContent || null,
+  selectedDoctor: missionGrid.querySelector(".medical-demo-card:nth-of-type(2) .medical-option.is-selected strong")?.textContent || null,
+  selectedSlot: missionGrid.querySelector(".medical-slot.is-selected strong")?.textContent || null,
+  selectedRestaurant: missionGrid.querySelector(".investor-restaurant-option.is-selected strong")?.textContent || null,
+  selectedFlight: currentResult?.flights?.find?.((item) => item.selected || item.recommended) || null,
+  selectedHotel: currentResult?.hotels?.find?.((item) => item.selected || item.recommended) || null
+});
+const renderApprovalList = () => {
+  const contract = buildApprovalContract({ result: currentResult || {}, language: activeLanguage, selectedOptions: collectApprovalSelections() });
+  if (currentResult) currentResult.approvalContract = contract;
+  const titleSet = approvalPanelTitles[contract.missionType] || approvalPanelTitles.generic;
+  if (approvalTitle) approvalTitle.textContent = titleSet[activeLanguage] || titleSet.en;
+  approvalList.innerHTML = contract.preparationSteps.map((step) => `
+    <div class="approval-item" data-preparation-step-id="${escapeSummaryText(step.id)}">
+      <span class="approval-check" aria-hidden="true">•</span><span>${escapeSummaryText(step.text)}</span>
+    </div>`).join("");
+};
 const returnHome = () => {
   trackEvent("return_home", { mission_type: currentResult?.type, language: activeLanguage, page: "results" });
   document.body.classList.add("is-leaving");
@@ -6458,7 +6462,9 @@ const runApprovalSequence = () => {
           const finalTitle = completionMessage.querySelector("h3");
 
           if (finalTitle) {
-            finalTitle.textContent = localize(currentResult?.finalMessage) || t("finalMessage");
+            const missionType = resolveApprovalMissionType(currentResult || {});
+            const truthfulConfirmation = APPROVAL_DEMO_CONFIRMATIONS[missionType]?.[activeLanguage] || APPROVAL_DEMO_CONFIRMATIONS[missionType]?.en;
+            finalTitle.textContent = truthfulConfirmation || localize(currentResult?.finalMessage) || t("finalMessage");
           }
 
           buildExecutionSummary();
@@ -7039,7 +7045,24 @@ makeRealityButton.addEventListener("click", () => {
   const experience = currentExperienceReview?.generatedExperience?.onePick;
   const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
   const journey = isV231TravelPreparationFlow() ? getV231SelectedJourney() : null;
-  const reviewItems = journey
+  const medicalMission = isInvestorMedicalAppointmentDemo(currentResult);
+  const restaurantMission = isInvestorRestaurantReservationDemo(currentResult);
+  const selectedMedicalOptions = [...missionGrid.querySelectorAll(".medical-option.is-selected strong")].map((node) => node.textContent).filter(Boolean);
+  const reviewItems = medicalMission
+    ? [
+        { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
+        { label: local("Hospital", "병원", "Hospital"), value: selectedMedicalOptions[0] || local("Selected clinic", "선택한 병원", "Clínica seleccionada") },
+        { label: local("Doctor", "의료진", "Profesional"), value: selectedMedicalOptions[1] || local("Selected practitioner", "선택한 의료진", "Profesional seleccionado") },
+        { label: local("Appointment time", "예약 시간", "Hora de la cita"), value: missionGrid.querySelector(".medical-slot.is-selected strong")?.textContent || "" },
+        { label: local("Approved scope", "승인 범위", "Alcance aprobado"), value: local("Prepare this demo request only; do not contact a provider", "이 데모 요청 준비만 승인; 의료기관 연락 금지", "Solo preparar esta solicitud demo; no contactar al proveedor") }
+      ]
+    : restaurantMission
+      ? [
+          { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
+          { label: local("Restaurant choice", "레스토랑 선택", "Restaurante elegido"), value: missionGrid.querySelector(".investor-restaurant-option.is-selected strong")?.textContent || "" },
+          { label: local("Approved scope", "승인 범위", "Alcance aprobado"), value: local("Prepare this demo request only; do not contact or book", "이 데모 요청 준비만 승인; 연락 및 예약 금지", "Solo preparar esta solicitud demo; no contactar ni reservar") }
+        ]
+    : journey
     ? [
         { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
         { label: local("Selected journey", "선택한 여행", "Viaje elegido"), value: journey.name },
@@ -7111,7 +7134,11 @@ if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
   document.body.classList.add("portable-summary-view");
   buildExecutionSummary();
   const finalTitle = completionMessage.querySelector("h3");
-  if (finalTitle) finalTitle.textContent = localize(currentResult?.finalMessage) || t("finalMessage");
+  if (finalTitle) {
+    const missionType = resolveApprovalMissionType(currentResult || {});
+    const truthfulConfirmation = APPROVAL_DEMO_CONFIRMATIONS[missionType]?.[activeLanguage] || APPROVAL_DEMO_CONFIRMATIONS[missionType]?.en;
+    finalTitle.textContent = truthfulConfirmation || localize(currentResult?.finalMessage) || t("finalMessage");
+  }
   completionMessage.hidden = false;
   bottomActions.hidden = true;
   approvalPanel.hidden = false;

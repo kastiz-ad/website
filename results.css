@@ -5481,3 +5481,20 @@ body:has(.alpha03-premium-card) {
   .medical-foundation .medical-option,
   .medical-foundation .medical-slot{min-height:0}
 }
+
+/* Compact medical result cards v4 */
+.medical-optional-details{margin-top:16px;border:1px solid #d8e0dc;border-radius:16px;background:#fff;padding:0 16px}
+.medical-optional-details summary{cursor:pointer;padding:15px 0;color:#176b4b!important;font-weight:800}
+.medical-optional-details[open]{padding-bottom:14px}
+@media(min-width:680px) and (max-width:800px){
+  .medical-foundation>.medical-demo-card:not(.is-wide){grid-column:span 6}
+}
+@media(min-width:680px){
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-option-grid,
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-slot-grid{grid-template-columns:1fr!important}
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-option,
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-slot{min-height:0}
+}
+@media(max-width:679px){
+  .medical-foundation>.medical-demo-card:not(.is-wide){grid-column:1/-1}
+}
