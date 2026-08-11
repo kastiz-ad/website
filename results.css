@@ -2709,7 +2709,10 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .mission-card[data-card-id="approval-protection"] .recommendation-label { text-align: center; }
 .bottom-actions { position: relative; bottom: auto; }
 .primary-action small { width: 100%; display: grid; place-items: center; transform: none; text-align: center; }
-.with-one-lockup { display: inline-flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
+.with-one-lockup { display: inline-flex; align-items: flex-end; justify-content: center; gap: 3px; white-space: nowrap; }
+.with-one-prefix,
+.with-one-ne,
+.with-one-suffix { line-height: 1; }
 .with-one-prefix:empty,
 .with-one-suffix:empty { display: none; }
 .with-one-symbol {
@@ -2723,11 +2726,9 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 html[data-theme="gray"] .with-one-symbol,
 html[data-theme="midnight"] .with-one-symbol { filter: invert(1); }
 .with-one-ne {
-  align-self: flex-end;
-  margin: 0 0 1px -2px;
-  font-size: 10px;
+  margin-left: -2px;
+  font-size: inherit;
   font-weight: 900;
-  line-height: 1;
   letter-spacing: -0.08em;
 }
 
