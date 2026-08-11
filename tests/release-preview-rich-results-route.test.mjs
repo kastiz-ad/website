@@ -8,6 +8,7 @@ const resultsHtml = readFileSync(new URL("../results.html", import.meta.url), "u
 const resultsJs = readFileSync(new URL("../results.js", import.meta.url), "utf8");
 const homepageHtml = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const homepageCss = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+const resultsCss = readFileSync(new URL("../results.css", import.meta.url), "utf8");
 
 const routes = [
   ["/results?investorDemo=1&demo=1&demoScenario=travel&mission=trip%20to%20Tokyo&lang=ko", "Tokyo", "JP"],
@@ -69,9 +70,9 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260812-medical-always-two-v8/);
-  assert.match(resultsHtml, /results\.js\?v=20260812-medical-always-two-v8/);
-  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-always-two-v8/);
+  assert.match(resultsHtml, /results\.css\?v=20260812-medical-options-two-v9/);
+  assert.match(resultsHtml, /results\.js\?v=20260812-medical-options-two-v9/);
+  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-options-two-v9/);
   assert.match(homepageHtml, /style\.css\?v=20260810-investor-demo-polish-2/);
   assert.match(homepageHtml, /script\.js\?v=20260811-private-investor-entry-v1/);
 });
@@ -136,4 +137,9 @@ test("city-aware concierge and decision headings replace generic filler", () => 
   assert.match(resultsPage, /LA-specific upgrades only/);
   assert.match(resultsPage, /Japan-specific upgrades only/);
   assert.equal(resultsPage.includes("title: localDestinationDecisionTitle(result)"), true);
+});
+
+test("medical option boxes remain two across at every viewport width", () => {
+  assert.match(resultsCss, /Medical option grids always two-up v9/);
+  assert.match(resultsCss, /\.medical-foundation \.medical-option-grid,\s*\.medical-foundation \.medical-slot-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important\}/);
 });
