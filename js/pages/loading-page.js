@@ -637,7 +637,7 @@ const runLoadingSequence = async () => {
     const resultsMission = enrichedMission.rawInput || enrichedMission.mission || enrichedMission.originalMission || mission.rawInput || mission.mission || "";
     const resultsDestination = enrichedMission.destination?.city || enrichedMission.detectedDestination?.city || mission.destination?.city || "";
     const resultsParams = new URLSearchParams({
-      v: "20260812-airline-images-v55",
+      v: "20260812-airline-logos-v56",
       lang: fallbackLanguage
     });
     if (resultsMission) resultsParams.set("mission", resultsMission);

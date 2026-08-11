@@ -5860,6 +5860,8 @@ body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-gri
 .alpha03-picture-option { position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:170px auto auto; min-height:270px; padding:0 0 14px; overflow:hidden; scroll-snap-align:start; border-radius:22px; }
 .alpha03-picture-option .alpha03-option-photo { grid-column:1/-1; grid-row:1; display:block; width:100%; height:170px; border:0; border-radius:0; overflow:hidden; }
 .alpha03-picture-option .alpha03-option-photo img { width:100%; height:100%; object-fit:cover; }
+.alpha03-picture-option.is-airline-brand .alpha03-option-photo { background:#fff; padding:24px; box-sizing:border-box; }
+.alpha03-picture-option.is-airline-brand .alpha03-option-photo img { object-fit:contain; }
 .alpha03-picture-option .alpha03-preview-check { grid-column:2; grid-row:2/span 2; align-self:center; margin-right:14px; }
 .alpha03-picture-option strong,.alpha03-picture-option em { grid-column:1; margin-left:14px; margin-right:8px; white-space:normal; overflow:visible; text-overflow:initial; }
 .alpha03-picture-option strong { margin-top:12px; font-size:15px; line-height:1.25; }
