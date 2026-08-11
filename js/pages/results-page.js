@@ -13,8 +13,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-world-profile-v52";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-world-profile-v52";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-airline-images-v55";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-airline-images-v55";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -3494,8 +3494,9 @@ const alpha03TravelOptionImages = Object.freeze({
   business: ["https://images.unsplash.com/photo-1540339832862-474599807836?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1587019158091-1a103c5dd17f?auto=format&fit=crop&w=900&q=82"],
   first: ["https://static.wixstatic.com/media/021768_a72a9b42cc104b67b205f4a8097c8061~mv2.png/v1/fill/w_568%2Ch_426%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01%2Cenc_avif%2Cquality_auto/021768_a72a9b42cc104b67b205f4a8097c8061~mv2.png"],
   airlines: {
-    korean:"https://images.unsplash.com/photo-1709829633134-5031140a0e72?auto=format&fit=crop&w=1200&q=82",
-    asiana:"https://biz.chosun.com/resizer/v2/GM3GIMBWGNRDENZUMUYWIYRZGU.jpg?auth=030cb6e1a685ee3504ab2c375911fe59b70547614c3030b939bec725e7a6db10&height=900&smart=true&width=1400",
+    korean:"https://commons.wikimedia.org/wiki/Special:FilePath/Korean%20Air%20take%20off.jpg?width=1200",
+    asiana:"https://commons.wikimedia.org/wiki/Special:FilePath/Asiana%20Airlines%20Boeing%20777-200ER%3B%20HL7742%40HKG%3B31.07.2011%20614fz%20%286052589349%29.jpg?width=1200",
+    vietnam:"https://commons.wikimedia.org/wiki/Special:FilePath/Aircraft%20of%20Vietnam%20Airlines.jpg?width=1200",
     jal:"https://www.jal.com/assets/img/outline/aircraft/pic_aircraft_002.jpg",
     american:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23f4f6f8%22/%3E%3Cpath d=%22M90 80h370L650 620H280z%22 fill=%22%230071c5%22/%3E%3Cpath d=%22M1110 80H740L550 620h370z%22 fill=%22%23d71920%22/%3E%3Ctext x=%22600%22 y=%22390%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%2290%22 font-weight=%22700%22 fill=%22%231d2630%22%3EAmerican Airlines%3C/text%3E%3C/svg%3E",
     united:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23002744%22/%3E%3Ccircle cx=%22600%22 cy=%22275%22 r=%22145%22 fill=%22none%22 stroke=%22%2300a7e1%22 stroke-width=%2240%22/%3E%3Ctext x=%22600%22 y=%22570%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%22105%22 font-weight=%22700%22 fill=%22white%22%3EUNITED%3C/text%3E%3C/svg%3E",
@@ -3511,7 +3512,7 @@ const alpha03OptionImage = (group, option, index) => {
     if (/first/.test(name)) return alpha03TravelOptionImages.first[0];
     if (/business/.test(name)) return alpha03TravelOptionImages.business[index % alpha03TravelOptionImages.business.length];
     if (/economy/.test(name)) return alpha03TravelOptionImages.economy[0];
-    const airlineKey = /korean/.test(name) ? "korean" : /asiana/.test(name) ? "asiana" : /japan airlines|\bjal\b/.test(name) ? "jal" : /american/.test(name) ? "american" : /united/.test(name) ? "united" : /delta/.test(name) ? "delta" : /jeju/.test(name) ? "jeju" : "";
+    const airlineKey = /korean(?:\s+air(?:lines)?)?|대한항공/.test(name) ? "korean" : /asiana|아시아나항공/.test(name) ? "asiana" : /vietnam(?:\s+airlines?)?|베트남항공/.test(name) ? "vietnam" : /japan airlines|일본항공|\bjal\b/.test(name) ? "jal" : /american|아메리칸항공/.test(name) ? "american" : /united|유나이티드항공/.test(name) ? "united" : /delta|델타항공/.test(name) ? "delta" : /jeju|제주항공/.test(name) ? "jeju" : "";
     if (airlineKey) return alpha03TravelOptionImages.airlines[airlineKey];
   }
   if (group === "hotels" && /airbnb|serviced apartment|apartment/i.test(name)) return "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=82";

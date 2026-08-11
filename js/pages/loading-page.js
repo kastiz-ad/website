@@ -634,7 +634,15 @@ const runLoadingSequence = async () => {
   body.classList.add("is-transitioning");
 
   window.setTimeout(() => {
-    window.location.href = `results.html?v=20260713-38&lang=${encodeURIComponent(fallbackLanguage)}`;
+    const resultsMission = enrichedMission.rawInput || enrichedMission.mission || enrichedMission.originalMission || mission.rawInput || mission.mission || "";
+    const resultsDestination = enrichedMission.destination?.city || enrichedMission.detectedDestination?.city || mission.destination?.city || "";
+    const resultsParams = new URLSearchParams({
+      v: "20260812-airline-images-v55",
+      lang: fallbackLanguage
+    });
+    if (resultsMission) resultsParams.set("mission", resultsMission);
+    if (resultsDestination) resultsParams.set("destination", resultsDestination);
+    window.location.href = `results.html?${resultsParams.toString()}`;
   }, 360);
 };
 
