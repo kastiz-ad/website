@@ -5507,3 +5507,32 @@ body:has(.alpha03-premium-card) {
 .medical-foundation>.medical-review fieldset{grid-template-columns:1fr}
 .medical-foundation>.medical-review .medical-review-action{align-items:stretch;flex-direction:column}
 .medical-foundation>.medical-review .medical-review-action .investor-medical-primary{width:100%}
+
+/* Medical cards follow active theme v11 */
+.medical-foundation>.medical-demo-card{background:linear-gradient(145deg,var(--surface-strong),color-mix(in srgb,var(--surface) 88%,var(--accent)))!important;border-color:var(--border)!important;color:var(--text)!important}
+.medical-foundation>.medical-demo-hero{background:radial-gradient(circle at 88% 12%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 30%),linear-gradient(135deg,var(--surface-strong),var(--surface))!important}
+.medical-foundation>.medical-review{background:linear-gradient(145deg,var(--surface-strong),var(--surface))!important;border-color:var(--border)!important}
+.medical-foundation .medical-demo-card h2,
+.medical-foundation .medical-demo-card strong,
+.medical-foundation .medical-demo-card label,
+.medical-foundation .medical-demo-card legend,
+.medical-foundation .medical-demo-card dd{color:var(--text)!important}
+.medical-foundation .medical-demo-card p,
+.medical-foundation .medical-demo-card span:not(.v22-kicker),
+.medical-foundation .medical-demo-card small,
+.medical-foundation .medical-demo-card dt{color:var(--text-muted)!important}
+.medical-foundation .medical-option,
+.medical-foundation .medical-slot,
+.medical-foundation .medical-review-summary dl div,
+.medical-foundation .medical-demo-card fieldset label,
+.medical-foundation .medical-demo-card select,
+.medical-foundation .medical-optional-details,
+.medical-foundation .medical-specialty-chips button{background:var(--surface-strong)!important;border-color:var(--border)!important;color:var(--text)!important}
+.medical-foundation .medical-option.is-selected,
+.medical-foundation .medical-slot.is-selected{background:color-mix(in srgb,var(--accent) 14%,var(--surface-strong))!important;border-color:var(--accent)!important}
+.medical-foundation .medical-review-summary dl{background:var(--border)!important;border-color:var(--border)!important}
+.medical-foundation .medical-privacy,
+.medical-foundation .medical-truth-note,
+.medical-foundation .medical-demo-card fieldset label{background:var(--chip)!important}
+.medical-foundation .medical-demo-card .medical-specialty-chips .is-primary,
+.medical-foundation .medical-demo-card .investor-medical-primary{background:var(--accent)!important;color:var(--accent-contrast,#fff)!important}
