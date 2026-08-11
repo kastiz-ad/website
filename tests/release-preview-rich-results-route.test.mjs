@@ -71,9 +71,9 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260812-medical-themed-v11/);
-  assert.match(resultsHtml, /results\.js\?v=20260812-medical-themed-v11/);
-  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-themed-v11/);
+  assert.match(resultsHtml, /results\.css\?v=20260812-medical-contrast-v12/);
+  assert.match(resultsHtml, /results\.js\?v=20260812-medical-contrast-v12/);
+  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-contrast-v12/);
   assert.match(homepageHtml, /style\.css\?v=20260810-investor-demo-polish-2/);
   assert.match(homepageHtml, /script\.js\?v=20260811-private-investor-entry-v1/);
 });
@@ -158,4 +158,11 @@ test("medical cards use shared theme colors instead of a white-only palette", ()
   assert.match(resultsCss, /medical-demo-card\{background:[^}]*var\(--surface-strong\)[^}]*var\(--surface\)/);
   assert.match(resultsCss, /medical-demo-card h2,[\s\S]*color:var\(--text\)!important/);
   assert.match(resultsCss, /medical-option,[\s\S]*background:var\(--surface-strong\)!important/);
+});
+
+test("medical review controls retain readable contrast in gray and midnight themes", () => {
+  assert.match(resultsCss, /Medical review contrast fix v12/);
+  assert.match(resultsCss, /investor-medical-primary\{background:var\(--accent\)!important;color:var\(--accent-text\)!important\}/);
+  assert.doesNotMatch(resultsCss, /accent-contrast/);
+  assert.match(resultsCss, /medical-confirmation:not\(:empty\)\{background:[^}]*color:var\(--text\)!important/);
 });

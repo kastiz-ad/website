@@ -5535,4 +5535,9 @@ body:has(.alpha03-premium-card) {
 .medical-foundation .medical-truth-note,
 .medical-foundation .medical-demo-card fieldset label{background:var(--chip)!important}
 .medical-foundation .medical-demo-card .medical-specialty-chips .is-primary,
-.medical-foundation .medical-demo-card .investor-medical-primary{background:var(--accent)!important;color:var(--accent-contrast,#fff)!important}
+.medical-foundation .medical-demo-card .investor-medical-primary{background:var(--accent)!important;color:var(--accent-text)!important}
+
+/* Medical review contrast fix v12 */
+.medical-foundation .medical-confirmation:not(:empty){background:color-mix(in srgb,var(--accent) 12%,var(--surface-strong))!important;color:var(--text)!important;border:1px solid var(--border)}
+.medical-foundation .medical-review-action small{color:var(--text-muted)!important}
+.medical-foundation .medical-review input{accent-color:var(--accent)}
