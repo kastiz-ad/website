@@ -5500,3 +5500,10 @@ body:has(.alpha03-premium-card) {
 /* Medical option grids always two-up v9 */
 .medical-foundation .medical-option-grid,
 .medical-foundation .medical-slot-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+/* Medical paired large-card layout v10 */
+.medical-foundation>.medical-demo-card{grid-column:span 6!important;min-width:0}
+.medical-foundation>.medical-review .medical-review-summary dl{grid-template-columns:repeat(2,minmax(0,1fr))}
+.medical-foundation>.medical-review fieldset{grid-template-columns:1fr}
+.medical-foundation>.medical-review .medical-review-action{align-items:stretch;flex-direction:column}
+.medical-foundation>.medical-review .medical-review-action .investor-medical-primary{width:100%}

@@ -2429,6 +2429,7 @@ const createInvestorMedicalCard = ({ className = "", kicker, title, body }) => {
 };
 
 const renderInvestorMedicalAppointmentMission = (result = currentResult) => {
+  if (result) result.v22DomainLayout = true;
   return renderSafeMedicalAppointmentDemo({ container: missionGrid, titleElement: missionTitle, disclosureElement: document.querySelector(".prototype-disclosure"), language: activeLanguage, missionText: result?.mission || result?.rawInput || "" });
   const title = investorMedicalText("Same-day dental appointment", "\uc624\ub298 \uac00\ub2a5\ud55c \uce58\uacfc \uc9c4\ub8cc", "Cita dental para hoy");
   missionTitle.textContent = title;

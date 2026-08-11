@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { previewTravelIntent, resolvePreviewDestination } from "../js/engine/world/preview-destination-intelligence.js";
 
 const resultsPage = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+const medicalDemoPage = readFileSync(new URL("../js/pages/medical-appointment-demo.js", import.meta.url), "utf8");
 const resultsHtml = readFileSync(new URL("../results.html", import.meta.url), "utf8");
 const resultsJs = readFileSync(new URL("../results.js", import.meta.url), "utf8");
 const homepageHtml = readFileSync(new URL("../index.html", import.meta.url), "utf8");
@@ -70,9 +71,9 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260812-medical-options-two-v9/);
-  assert.match(resultsHtml, /results\.js\?v=20260812-medical-options-two-v9/);
-  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-options-two-v9/);
+  assert.match(resultsHtml, /results\.css\?v=20260812-medical-paired-cards-v10/);
+  assert.match(resultsHtml, /results\.js\?v=20260812-medical-paired-cards-v10/);
+  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-paired-cards-v10/);
   assert.match(homepageHtml, /style\.css\?v=20260810-investor-demo-polish-2/);
   assert.match(homepageHtml, /script\.js\?v=20260811-private-investor-entry-v1/);
 });
@@ -142,4 +143,12 @@ test("city-aware concierge and decision headings replace generic filler", () => 
 test("medical option boxes remain two across at every viewport width", () => {
   assert.match(resultsCss, /Medical option grids always two-up v9/);
   assert.match(resultsCss, /\.medical-foundation \.medical-option-grid,\s*\.medical-foundation \.medical-slot-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important\}/);
+});
+
+test("medical large result cards pair directly without the generic ONE Pick wrapper", () => {
+  assert.match(resultsPage, /if \(result\) result\.v22DomainLayout = true;/);
+  assert.doesNotMatch(medicalDemoPage, /medical-demo-hero is-wide/);
+  assert.doesNotMatch(medicalDemoPage, /medical-review is-wide/);
+  assert.match(resultsCss, /Medical paired large-card layout v10/);
+  assert.match(resultsCss, /\.medical-foundation>\.medical-demo-card\{grid-column:span 6!important;min-width:0\}/);
 });
