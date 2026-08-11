@@ -1,5 +1,6 @@
 import { renderSafeMedicalAppointmentDemo } from "./medical-appointment-demo.js?v=20260811-medical-ui-v3";
 import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMissionType } from "../engine/approval/mission-specific-approval.js?v=20260811-mission-specific-approval-v1";
+import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-investor-route-only-v1";
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
@@ -7118,7 +7119,7 @@ initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
 enableTimelineDragScroll();
-if (isInvestorDemoMode(window.location)) {
+if (shouldShowInvestorPanel(window.location) && isInvestorDemoMode(window.location)) {
   mountInvestorDemoResults({ result: currentResult, language: activeLanguage });
 }
 applyV231ManualApprovalScenario();

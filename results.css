@@ -5541,3 +5541,8 @@ body:has(.alpha03-premium-card) {
 .medical-foundation .medical-confirmation:not(:empty){background:color-mix(in srgb,var(--accent) 12%,var(--surface-strong))!important;color:var(--text)!important;border:1px solid var(--border)}
 .medical-foundation .medical-review-action small{color:var(--text-muted)!important}
 .medical-foundation .medical-review input{accent-color:var(--accent)}
+
+/* Medical review fieldset theme fix v13 */
+.medical-foundation .medical-review fieldset{background:var(--surface-strong)!important;border-color:var(--border)!important;color:var(--text)!important}
+.medical-foundation .medical-review fieldset legend{background:var(--surface-strong);color:var(--text)!important;border-radius:8px}
+.medical-foundation .medical-review fieldset input{color-scheme:inherit}

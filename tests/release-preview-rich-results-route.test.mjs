@@ -71,9 +71,9 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260812-medical-contrast-v12/);
-  assert.match(resultsHtml, /results\.js\?v=20260812-medical-contrast-v12/);
-  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-contrast-v12/);
+  assert.match(resultsHtml, /results\.css\?v=20260812-medical-fieldset-v13/);
+  assert.match(resultsHtml, /results\.js\?v=20260812-medical-fieldset-v13/);
+  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-fieldset-v13/);
   assert.match(homepageHtml, /style\.css\?v=20260810-investor-demo-polish-2/);
   assert.match(homepageHtml, /script\.js\?v=20260811-private-investor-entry-v1/);
 });
@@ -165,4 +165,11 @@ test("medical review controls retain readable contrast in gray and midnight them
   assert.match(resultsCss, /investor-medical-primary\{background:var\(--accent\)!important;color:var\(--accent-text\)!important\}/);
   assert.doesNotMatch(resultsCss, /accent-contrast/);
   assert.match(resultsCss, /medical-confirmation:not\(:empty\)\{background:[^}]*color:var\(--text\)!important/);
+});
+
+test("medical review fieldset and investor controls respect page context", () => {
+  assert.match(resultsCss, /Medical review fieldset theme fix v13/);
+  assert.match(resultsCss, /medical-review fieldset\{background:var\(--surface-strong\)!important;border-color:var\(--border\)!important;color:var\(--text\)!important\}/);
+  assert.match(resultsPage, /if \(shouldShowInvestorPanel\(window\.location\) && isInvestorDemoMode\(window\.location\)\)/);
+  assert.match(resultsPage, /from "\.\.\/config\/investor-visibility\.js\?v=20260812-investor-route-only-v1"/);
 });
