@@ -13,8 +13,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-europe-airlines-paris-v60";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-europe-airlines-paris-v60";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-realistic-budget-v61";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-realistic-budget-v61";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -641,6 +641,40 @@ const shouldHydrateManualTravelResult = (prompt = "", params = new URLSearchPara
   return previewTravelIntent(prompt) || Boolean(resolvePreviewDestination(prompt));
 };
 
+const roundPreviewBudget = (value) => Math.round(value / 10000) * 10000;
+
+const createPreviewTravelBudget = (profile, durationDays = 7, travelerCount = 1, roomCount = 1) => {
+  const countryCode = String(profile?.countryCode || "").toUpperCase();
+  const nights = Math.max(1, Number(durationDays || 7) - 1);
+  const travelers = Math.max(1, Number(travelerCount || 1));
+  const rooms = Math.max(1, Number(roomCount || 1));
+  const region = ["PE", "CL", "AR"].includes(countryCode) ? "south-america"
+    : ["US", "CA"].includes(countryCode) ? "north-america"
+      : ["ES", "FR", "DE", "IT", "GB", "NL", "PT"].includes(countryCode) ? "europe"
+        : countryCode === "JP" ? "japan"
+          : ["VN", "TH", "SG", "MY", "ID", "PH"].includes(countryCode) ? "southeast-asia"
+            : "global";
+  const rates = {
+    "south-america": { flight: [1700000, 3000000], room: [90000, 260000], food: [45000, 95000], transport: [15000, 40000], activities: [20000, 70000] },
+    "north-america": { flight: [1200000, 2400000], room: [180000, 450000], food: [70000, 150000], transport: [25000, 70000], activities: [35000, 110000] },
+    europe: { flight: [1000000, 2100000], room: [150000, 400000], food: [70000, 140000], transport: [20000, 60000], activities: [30000, 100000] },
+    japan: { flight: [180000, 650000], room: [90000, 280000], food: [45000, 110000], transport: [18000, 50000], activities: [20000, 70000] },
+    "southeast-asia": { flight: [350000, 1000000], room: [70000, 230000], food: [35000, 85000], transport: [12000, 35000], activities: [18000, 60000] },
+    global: { flight: [450000, 1200000], room: [90000, 280000], food: [45000, 100000], transport: [15000, 45000], activities: [20000, 75000] }
+  }[region];
+  const range = (low, high) => ({ currency: "KRW", min: roundPreviewBudget(low), max: roundPreviewBudget(high) });
+  const flights = range(rates.flight[0] * travelers, rates.flight[1] * travelers);
+  const hotel = range(rates.room[0] * nights * rooms, rates.room[1] * nights * rooms);
+  const food = range(rates.food[0] * durationDays * travelers, rates.food[1] * durationDays * travelers);
+  const transport = range(rates.transport[0] * durationDays * travelers, rates.transport[1] * durationDays * travelers);
+  const activities = range(rates.activities[0] * durationDays * travelers, rates.activities[1] * durationDays * travelers);
+  const components = [flights, hotel, food, transport, activities];
+  const estimatedTotal = range(
+    components.reduce((sum, item) => sum + item.min, 0),
+    components.reduce((sum, item) => sum + item.max, 0)
+  );
+  return { currency: "KRW", flights, hotel, food, transport, activities, estimatedTotal, editable: true };
+};
 const hydrateManualTravelResultForPreview = (result, prompt = "", language = activeLanguage, params = new URLSearchParams(), scenario = "") => {
   if (!shouldHydrateManualTravelResult(prompt, params, scenario)) return result;
   const destinationMatch = resolvePreviewDestination([
@@ -653,6 +687,7 @@ const hydrateManualTravelResultForPreview = (result, prompt = "", language = act
   const profile = destinationMatch.profile;
   const durationDays = inferManualTravelDurationDays(prompt, params);
   const travelerCount = inferManualTravelerCount(prompt, params);
+  const rooms = Math.max(1, Number(params.get("rooms") || result.rooms || 1));
   const startDate = params.get("startDate") || params.get("from") || result.schedule?.startDate || new Date().toISOString().slice(0, 10);
   const endDate = params.get("endDate") || params.get("to") || result.schedule?.endDate || addDaysToIsoDate(startDate, durationDays - 1);
   const destination = {
@@ -710,7 +745,8 @@ const hydrateManualTravelResultForPreview = (result, prompt = "", language = act
     },
     travelerCount,
     travelers: travelerCount,
-    rooms: Number(params.get("rooms") || result.rooms || 1),
+    rooms,
+    budget: createPreviewTravelBudget(profile, durationDays, travelerCount, rooms),
     v23TravelExperience: true,
     v23TravelScenario: scenario || result.v23TravelScenario || params.get("demoScenario") || "manual-travel-preview",
     display: {

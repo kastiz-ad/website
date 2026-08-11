@@ -1,1 +1,1 @@
-import "./js/pages/loading-page.js?v=20260812-europe-airlines-paris-v60";
+import "./js/pages/loading-page.js?v=20260812-realistic-budget-v61";
