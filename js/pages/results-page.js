@@ -13,8 +13,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-realistic-budget-v61";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-realistic-budget-v61";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-one-button-alignment-v65";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-one-button-alignment-v65";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -3390,10 +3390,11 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
     ["Macarons and pâtisserie","https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&w=900&q=82"],
     ["Duck confit dinner","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=82"]
   ], places:[
-    ["Eiffel Tower and Champ de Mars","https://commons.wikimedia.org/wiki/Special:FilePath/Paris%20-%20The%20Eiffel%20Tower%20in%20spring%20-%202307.jpg?width=1200"],
-    ["Louvre and Palais Royal","https://commons.wikimedia.org/wiki/Special:FilePath/Cour%20Napol%C3%A9on%20at%20night%20-%20Louvre.jpg?width=1200"],
-    ["Montmartre and Sacré-Cœur","https://commons.wikimedia.org/wiki/Special:FilePath/Basilique%20du%20Sacr%C3%A9-C%C5%93ur%20de%20Montmartre%20-%20Paris%20-%20GT-01%20-%202024.jpg?width=1200"],
-    ["Seine and Île de la Cité","https://commons.wikimedia.org/wiki/Special:FilePath/Notre-Dame%20de%20Paris%20and%20%C3%8Ele%20de%20la%20Cit%C3%A9%20at%20dusk%20140516%201.jpg?width=1200"]
+    [alpha03Copy("Eiffel Tower and Champ de Mars","에펠탑과 샹드마르스","Torre Eiffel y Campo de Marte"),"https://commons.wikimedia.org/wiki/Special:FilePath/Paris%20-%20The%20Eiffel%20Tower%20in%20spring%20-%202307.jpg?width=1200"],
+    [alpha03Copy("Louvre and Palais Royal","루브르 박물관과 팔레 루아얄","Louvre y Palais Royal"),"https://commons.wikimedia.org/wiki/Special:FilePath/Cour%20Napol%C3%A9on%20at%20night%20-%20Louvre.jpg?width=1200"],
+    [alpha03Copy("Sacré-Cœur Basilica","사크레쾨르 대성당","Basílica del Sagrado Corazón"),"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_-_Paris_-_GT-01_-_2024.jpg/1280px-Basilique_du_Sacr%C3%A9-C%C5%93ur_de_Montmartre_-_Paris_-_GT-01_-_2024.jpg"],
+    [alpha03Copy("Montmartre · Rue de l’Abreuvoir","몽마르트르 · 아브뢰부아르 거리","Montmartre · Rue de l’Abreuvoir"),"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Rue_de_l%27Abreuvoir.jpg/1280px-Rue_de_l%27Abreuvoir.jpg"],
+    [alpha03Copy("Seine and Île de la Cité","센느강과 시테섬","Sena e Île de la Cité"),"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Notre-Dame_de_Paris_and_%C3%8Ele_de_la_Cit%C3%A9_at_dusk_140516_1.jpg/1280px-Notre-Dame_de_Paris_and_%C3%8Ele_de_la_Cit%C3%A9_at_dusk_140516_1.jpg"]
   ]},
   { match:/\bsapa\b|sa pa|사파/i, foods:[
     ["Sapa salmon hotpot","https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=82"],

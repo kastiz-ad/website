@@ -187,7 +187,7 @@ export const PREVIEW_DESTINATION_PROFILES = {
       "alt": "Eiffel Tower in Paris",
       "line": {
         "en": "Museums, river walks, patisserie, and a graceful evening.",
-        "ko": "\ubc15\ubb3c\uad00, \uc13c\uac15 \uc0b0\ucc45, \ub514\uc800\ud2b8, \uc800\ub141 \ubd84\uc704\uae30\ub97c \uade0\ud615 \uc788\uac8c \uc900\ube44\ud588\uc5b4\uc694.",
+        "ko": "\ubc15\ubb3c\uad00, \uc13c\ub290\uac15 \uc0b0\ucc45, \ub514\uc800\ud2b8, \uc800\ub141 \ubd84\uc704\uae30\ub97c \uade0\ud615 \uc788\uac8c \uc900\ube44\ud588\uc5b4\uc694.",
         "es": "Museos, paseo por el Sena, pasteleria y una noche elegante.",
         "fr": "Musees, Seine, patisserie et soiree elegante."
       }
@@ -238,7 +238,7 @@ export const PREVIEW_DESTINATION_PROFILES = {
         },
         "advice": {
           "en": "Best near golden hour, then continue to the Seine.",
-          "ko": "\ub178\uc744 \uc2dc\uac04\uc5d0 \ubcf4\uace0 \uc13c\uac15\uc73c\ub85c \uc774\uc5b4\uac00\uc138\uc694.",
+          "ko": "\ub178\uc744 \uc2dc\uac04\uc5d0 \ubcf4\uace0 \uc13c\ub290\uac15\uc73c\ub85c \uc774\uc5b4\uac00\uc138\uc694.",
           "es": "Mejor al atardecer y luego al Sena.",
           "fr": "Ideal a l heure doree puis vers la Seine."
         }
@@ -280,7 +280,7 @@ export const PREVIEW_DESTINATION_PROFILES = {
       {
         "name": {
           "en": "Paris food, Seine and museum rhythm",
-          "ko": "\ud30c\ub9ac \ubbf8\uc2dd\uacfc \uc13c\uac15 \ucf54\uc2a4",
+          "ko": "\ud30c\ub9ac \ubbf8\uc2dd\uacfc \uc13c\ub290\uac15 \ucf54\uc2a4",
           "es": "Paris: comida, Sena y museo",
           "fr": "Paris: cuisine, Seine et musee"
         },

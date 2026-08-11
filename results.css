@@ -2709,19 +2709,27 @@ button.option-row.is-excluded .option-value { text-decoration: line-through; }
 .mission-card[data-card-id="approval-protection"] .recommendation-label { text-align: center; }
 .bottom-actions { position: relative; bottom: auto; }
 .primary-action small { width: 100%; display: grid; place-items: center; transform: none; text-align: center; }
-.with-one-lockup { display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+.with-one-lockup { display: inline-flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
 .with-one-prefix:empty,
 .with-one-suffix:empty { display: none; }
-.with-one-mark {
-  width: 17px;
-  height: 17px;
-  border: 3px solid currentColor;
-  border-radius: 999px;
-  flex: 0 0 auto;
-  background: transparent;
-  box-shadow: none;
+.with-one-symbol {
+  display: block;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  object-fit: contain;
+  filter: none;
 }
-.with-one-ne { font-weight: 900; letter-spacing: -0.08em; margin-left: -1px; }
+html[data-theme="gray"] .with-one-symbol,
+html[data-theme="midnight"] .with-one-symbol { filter: invert(1); }
+.with-one-ne {
+  align-self: flex-end;
+  margin: 0 0 1px -2px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.08em;
+}
 
 .primary-action:hover,
 .secondary-action:hover {
