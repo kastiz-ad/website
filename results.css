@@ -5865,3 +5865,7 @@ body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-gri
 .alpha03-picture-option strong { margin-top:12px; font-size:15px; line-height:1.25; }
 .alpha03-picture-option em { font-size:12px; line-height:1.35; }
 @media(max-width:680px){body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid,body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid.is-restaurants,.alpha03-preview-group > .alpha03-visual-rail { grid-auto-columns:82vw; }}
+.alpha03-visual-card.is-restaurant { position:relative; appearance:none; width:auto; color:inherit; text-align:left; cursor:pointer; font:inherit; }
+.alpha03-visual-card.is-restaurant.is-selected { border-color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent),var(--shadow-card); }
+.alpha03-food-select-mark { position:absolute; top:12px; right:12px; display:grid; place-items:center; width:30px; height:30px; border-radius:999px; background:var(--surface-strong); border:1px solid var(--border-strong); color:var(--text); font-weight:900; z-index:2; }
+.alpha03-visual-card.is-restaurant.is-selected .alpha03-food-select-mark { background:var(--accent); color:var(--accent-text); }

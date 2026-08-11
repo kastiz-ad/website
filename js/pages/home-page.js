@@ -545,7 +545,10 @@ const getInitialLanguage = () => {
 };
 
 const getTranslation = (key) => {
-  return localeSection(activeLanguage, "home")[key] ?? translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
+  const localeValue = localeSection(activeLanguage, "home")[key];
+  const fallbackValue = translations[activeLanguage]?.[key] ?? translations.en[key] ?? "";
+  if (key === "missions" && Array.isArray(localeValue) && Array.isArray(fallbackValue)) return [...new Set([...localeValue, ...fallbackValue])];
+  return localeValue ?? fallbackValue;
 };
 
 const setMetaThemeColor = (theme) => {

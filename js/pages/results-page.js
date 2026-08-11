@@ -14,7 +14,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-la-wow-v2";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-nyc-food-logo-v44";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-smart-food-multiselect-v46";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -3286,17 +3286,17 @@ const createAlpha03VisualCard = (item, type, index) => {
   const imageMarkup = image?.url
     ? `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>${type === "restaurant" ? "🍽️" : "📍"}</b></span><img src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
     : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
+  const isFood = type === "restaurant";
+  const selected = isFood && (currentResult?.alpha03FoodSelections || []).includes(item.name);
+  const tag = isFood ? "button" : "article";
   return `
-  <article class="alpha03-visual-card alpha03-premium-card is-${type}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}">
+  <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}">${imageMarkup}</div>
-    <div>
-      <strong>${escapeSummaryText(item.name)}</strong>
-      <p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>
-    </div>
-  </article>
+    <div><strong>${escapeSummaryText(item.name)}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p></div>
+    ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true">${selected ? "✓" : "+"}</span>` : ""}
+  </${tag}>
 `;
 };
-
 const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   const selectedProfile = profile || profileForResult(currentResult || {}, getTravelDestinationLabel(currentResult || {}));
   if (!selectedProfile) {
@@ -3326,6 +3326,16 @@ const NEW_YORK_FOOD_VISUALS = Object.freeze([
   { name:"Chelsea Market food hall", image:{url:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=82",alt:"New York food hall"}, advice:{en:"Browse several small dishes before walking the High Line.",ko:"하이라인 산책 전 여러 음식을 조금씩 맛보세요"} },
   { name:"Halal cart chicken and rice", image:{url:"https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=82",alt:"Chicken and rice street food"}, advice:{en:"A fast street-food stop that fits Midtown sightseeing.",ko:"미드타운 관광 동선에 넣기 좋은 빠른 길거리 음식"} }
 ]);
+const TOKYO_FOOD_VISUALS = Object.freeze([
+  { name:"Edomae sushi omakase", image:{url:"https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=82",alt:"Tokyo nigiri sushi"}, advice:{en:"Choose lunch for better value or reserve one special counter dinner.",ko:"가성비 좋은 점심 또는 특별한 카운터 저녁으로 선택하세요"} },
+  { name:"Tonkatsu with cabbage and miso soup", image:{url:"https://asiasociety.org/sites/default/files/styles/1200w/public/T/tonkatsu.jpg",alt:"Japanese tonkatsu set"}, advice:{en:"A crisp pork-cutlet set that works well after a long walking morning.",ko:"오전 도보 일정 뒤에 잘 맞는 바삭한 돈까스 정식"} },
+  { name:"Cold soba and seasonal tempura", image:{url:"https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=82",alt:"Japanese soba and tempura"}, advice:{en:"Keep this lighter meal near a garden, shrine, or museum route.",ko:"정원·신사·박물관 동선 가까이에서 가볍게 즐기세요"} },
+  { name:"Tokyo shoyu ramen", image:{url:"https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=82",alt:"Tokyo ramen bowl"}, advice:{en:"Use a respected neighborhood shop and avoid crossing the city for a queue.",ko:"줄만 위해 도시를 가로지르지 말고 동네의 좋은 라멘집을 선택하세요"} },
+  { name:"Grilled lobster and Japanese seafood", image:{url:"https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82",alt:"Grilled lobster and seafood"}, advice:{en:"A celebratory seafood dinner; verify market price before approving.",ko:"특별한 해산물 저녁 · 승인 전 시가를 확인하세요"} },
+  { name:"Yakitori alley dinner", image:{url:"https://images.unsplash.com/photo-1521473717695-e8f5635b7f6a?auto=format&fit=crop&w=900&q=82",alt:"Japanese yakitori skewers"}, advice:{en:"Order a few skewers at a time and pair with an evening neighborhood walk.",ko:"꼬치를 조금씩 주문하고 저녁 골목 산책과 함께 즐기세요"} },
+  { name:"Wagyu teppanyaki night", image:{url:"https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82",alt:"Japanese wagyu steak"}, advice:{en:"Keep one premium dinner and balance it with casual meals on other days.",ko:"고급 저녁은 한 번으로 두고 다른 날은 편안한 식사로 균형을 맞추세요"} },
+  { name:"Tsukiji tamagoyaki and seafood breakfast", image:{url:"https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=900&q=82",alt:"Japanese seafood breakfast"}, advice:{en:"Go early, taste small portions, and continue toward Ginza or Hamarikyu.",ko:"일찍 방문해 조금씩 맛보고 긴자나 하마리큐로 이어가세요"} }
+]);
 const LOS_ANGELES_PLACE_VISUALS = Object.freeze([
   { name:"Hollywood Sign + Griffith Observatory", image:{url:"https://travelarii.com/blog/wp-content/uploads/2025/12/Historical-Landmarks-in-Los-Angeles.jpg",alt:"Hollywood Sign and Griffith Observatory"}, advice:{en:"Use a clear front-facing Hollywood Sign view and stay for sunset.",ko:"할리우드 사인이 잘 보이는 정면 전망과 노을"} },
   { name:"Downtown LA skyline", image:{url:"https://images.unsplash.com/photo-1587358831423-132afcab0008?auto=format&fit=crop&w=1200&q=82",alt:"Downtown Los Angeles skyline"}, advice:{en:"Pair downtown views with The Broad, Grand Central Market, or Arts District.",ko:"더 브로드·그랜드 센트럴 마켓·아츠 디스트릭트와 묶는 다운타운"} },
@@ -3346,6 +3356,25 @@ const LOS_ANGELES_FOOD_VISUALS = Object.freeze([
   { name:"Deli or Subway sandwich stop", image:{url:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82",alt:"Fresh deli sandwich"}, advice:{en:"A practical sandwich lunch on the busiest day.",ko:"가장 바쁜 관광일의 실용적인 샌드위치 점심"} },
   { name:"Red Lobster-style seafood dinner", image:{url:"https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=900&q=82",alt:"Lobster and seafood dinner"}, advice:{en:"A familiar seafood dinner when it fits the route.",ko:"동선에 맞을 때 선택하는 익숙한 해산물 저녁"} }
 ]);
+const alpha03FoodImageForName = (name = "", ownImage = "") => {
+  const text = String(name).toLowerCase();
+  const rules = [
+    [/pizza/, "https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=82"],
+    [/birria|taco|don chuy|mexican|taqueria/, "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=900&q=82"],
+    [/burger|in-?n-?out|hamburger/, "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82"],
+    [/tonkatsu|pork cutlet|돈까스|とんかつ/, "https://asiasociety.org/sites/default/files/styles/1200w/public/T/tonkatsu.jpg"],
+    [/sushi|sashimi|omakase|nigiri/, "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=82"],
+    [/soba|tempura|udon/, "https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=82"],
+    [/ramen/, "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=82"],
+    [/lobster|crab|shrimp|seafood/, "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82"],
+    [/steak|wagyu|beef/, "https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82"],
+    [/korean bbq|k-?bbq|galbi/, "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=900&q=82"],
+    [/bagel|smoked salmon/, "https://images.unsplash.com/photo-1585478259715-876acc5be8eb?auto=format&fit=crop&w=900&q=82"],
+    [/pastrami|deli|sandwich|subway/, "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82"],
+    [/cheesecake|dessert|cake/, "https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=900&q=82"]
+  ];
+  return rules.find(([pattern]) => pattern.test(text))?.[1] || ownImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=82";
+};
 const alpha03TravelOptionImages = Object.freeze({
   flights: ["https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1540339832862-474599807836?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=900&q=82"],
   economy: ["https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=900&q=82"],
@@ -3380,7 +3409,7 @@ const alpha03OptionImage = (group, option, index) => {
 const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => {
   const image = alpha03OptionImage(group, option, index);
   return `
-  <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" aria-pressed="${selected ? "true" : "false"}">
+  <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" data-preview-name="${escapeSummaryText(option.name)}" data-preview-meta="${escapeSummaryText(option.meta)}" aria-pressed="${selected ? "true" : "false"}">
     <span class="alpha03-option-photo"><img src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false"></span>
     <span class="alpha03-preview-check" aria-hidden="true">${selected ? "✓" : "+"}</span>
     <strong>${escapeSummaryText(option.name)}</strong>
@@ -3442,7 +3471,7 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
         <div class="alpha03-preview-group">
           <h4>${escapeSummaryText(title)}</h4>
           <div class="alpha03-visual-rail">
-            ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "실시간 검색 준비", "Búsqueda en vivo lista"), meta: alpha03Copy("Prepared", "준비됨", "Preparado") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, index === 0)).join("")}
+            ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "실시간 검색 준비", "Búsqueda en vivo lista"), meta: alpha03Copy("Prepared", "준비됨", "Preparado") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, (currentResult.alpha03PreviewSelections?.[key] ?? 0) === index)).join("")}
           </div>
         </div>
       `).join("")}
@@ -3510,7 +3539,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   if (profile.id === "los_angeles") {
     restaurants = [...LOS_ANGELES_FOOD_VISUALS];
     places = [...LOS_ANGELES_PLACE_VISUALS];
-  }  const isNewYorkGallery = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(destination || ""));
+  }
+  const isTokyoGallery = /\b(?:tokyo|japan)\b|東京|日本|도쿄|일본/i.test(String(destination || ""));
+  if (isTokyoGallery) restaurants = [...TOKYO_FOOD_VISUALS];
+  const isNewYorkGallery = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(destination || ""));
   if (isNewYorkGallery) {
     const statue = profile.places.find((item) => /statue of liberty/i.test(String(item?.name || "")));
     if (statue) places = uniqueItems([statue, ...places]);
@@ -3518,7 +3550,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const restaurantImageSeeds = restaurants.map((item) => previewItemImage(item)?.url).filter(Boolean);
   const resultRestaurantItems = (result.restaurants || []).map((item, index) => {
     const name = getRestaurantName(item);
-    const imageUrl = restaurantImageSeeds[index % Math.max(1, restaurantImageSeeds.length)];
+    const imageUrl = alpha03FoodImageForName(name);
     return name ? { name, category: "food", image: imageUrl ? { url: imageUrl, alt: name } : null } : null;
   }).filter(Boolean);
   restaurants = uniqueItems([...restaurants, ...resultRestaurantItems]).slice(0, 12);
@@ -6534,6 +6566,7 @@ const buildExecutionSummary = () => {
 
   const local = completeMissionLocal;
   const alpha03Selections = currentResult.alpha03PreviewSelections || {};
+  const alpha03SelectionLabels = currentResult.alpha03PreviewSelectionLabels || {};
   const flightIndex = typeof alpha03Selections.flights === "number" ? alpha03Selections.flights : selectedOptionIndex("flights");
   const flight = currentResult.flights?.[flightIndex] || currentResult.flights?.[0];
   const hotelIndex = typeof alpha03Selections.hotels === "number" ? alpha03Selections.hotels : selectedOptionIndex("hotel");
@@ -6555,15 +6588,15 @@ const buildExecutionSummary = () => {
   };
   const selectedTime = timeLabels[schedule.timePreference] || timeLabels.any;
   const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "American Airlines": "AA", "Avianca": "AV", "Aeromexico": "AM", "Copa Airlines": "CM", "Iberia": "IB", "LATAM Airlines": "LA", Lufthansa: "LH", "Air France": "AF", KLM: "KL", Emirates: "EK", "Qatar Airways": "QR", "Turkish Airlines": "TK" };
-  const airlineName = flight ? getFlightName(flight) : local("Flight search criteria ready", "항공편 검색 조건 준비됨", "Criterios de vuelo listos");
-  const flightCode = flight ? `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
-  const returnFlightCode = flight ? `${codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
+  const airlineName = alpha03SelectionLabels.flights?.name || (flight ? getFlightName(flight) : local("Flight search criteria ready", "항공편 검색 조건 준비됨", "Criterios de vuelo listos"));
+  const flightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
+  const returnFlightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
   const isRoundTrip = currentResult.tripType !== "one_way";
   const destinationName = activeLanguage === "ko"
     ? currentResult.destination?.cityKo || currentResult.destination?.countryKo || currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE"
     : currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE";
-  const hotelName = hotel ? getHotelName(hotel) : local("Stay search criteria ready", "숙소 검색 조건 준비됨", "Criterios de alojamiento listos");
-  const transferName = localize(transfer) || local("Local transfer criteria ready", "현지 이동 조건 준비됨", "Criterios de transporte listos");
+  const hotelName = alpha03SelectionLabels.hotels?.name || (hotel ? getHotelName(hotel) : local("Stay search criteria ready", "숙소 검색 조건 준비됨", "Criterios de alojamiento listos"));
+  const transferName = alpha03SelectionLabels.transport?.name || localize(transfer) || local("Local transfer criteria ready", "현지 이동 조건 준비됨", "Criterios de transporte listos");
   const totalRange = currentResult.budget?.estimatedTotal || {};
   const foodRange = currentResult.budget?.food || {};
   const transportRange = currentResult.budget?.transport || {};
@@ -6575,7 +6608,8 @@ const buildExecutionSummary = () => {
     const restaurant = currentResult.restaurants?.[Number(button.dataset.optionIndex)] || {};
     return (activeLanguage === "ko" ? restaurant.venueNameKo : restaurant.venueName) || restaurant.venueName || restaurant.type || button.querySelector(".restaurant-name")?.textContent?.trim() || "Restaurant";
   }).filter(Boolean).slice(0, 6);
-  const suggestedRestaurantNames = selectedRestaurantNames.length ? selectedRestaurantNames : (currentResult.restaurants || []).slice(0, 4).map((restaurant) => (activeLanguage === "ko" ? restaurant.venueNameKo : restaurant.venueName) || restaurant.venueName || restaurant.type).filter(Boolean);
+  const pictureFoodSelections = (currentResult.alpha03FoodSelections || []).filter(Boolean);
+  const suggestedRestaurantNames = pictureFoodSelections.length ? pictureFoodSelections : selectedRestaurantNames.length ? selectedRestaurantNames : (currentResult.restaurants || []).slice(0, 4).map((restaurant) => (activeLanguage === "ko" ? restaurant.venueNameKo : restaurant.venueName) || restaurant.venueName || restaurant.type).filter(Boolean);
   const portableCountry = activeLanguage === "ko"
     ? currentResult.destination?.countryKo || currentResult.destination?.country || ""
     : currentResult.destination?.country || "";
@@ -6812,6 +6846,21 @@ const enableCustomization = () => {
       return;
     }
 
+    const foodOption = event.target.closest(".alpha03-visual-card.is-restaurant[data-alpha03-food-index]");
+    if (foodOption) {
+      const name = foodOption.dataset.alpha03ItemName || "";
+      const selectedFoods = new Set(currentResult.alpha03FoodSelections || []);
+      if (selectedFoods.has(name)) selectedFoods.delete(name); else selectedFoods.add(name);
+      currentResult.alpha03FoodSelections = [...selectedFoods];
+      const selected = selectedFoods.has(name);
+      foodOption.classList.toggle("is-selected", selected);
+      foodOption.setAttribute("aria-pressed", selected ? "true" : "false");
+      const marker = foodOption.querySelector(".alpha03-food-select-mark");
+      if (marker) marker.textContent = selected ? "✓" : "+";
+      sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+      sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+      return;
+    }
     const previewOption = event.target.closest(".alpha03-preview-option");
     if (previewOption) {
       const group = previewOption.dataset.previewGroup;
@@ -6822,6 +6871,10 @@ const enableCustomization = () => {
         const marker = option.querySelector(".alpha03-preview-check");
         if (marker) marker.textContent = selected ? "✓" : "+";
       });
+      currentResult.alpha03PreviewSelectionLabels = {
+        ...(currentResult.alpha03PreviewSelectionLabels || {}),
+        [group]: { name: previewOption.dataset.previewName || "", meta: previewOption.dataset.previewMeta || "" }
+      };
       currentResult.alpha03PreviewSelections = {
         ...(currentResult.alpha03PreviewSelections || {}),
         [group]: Number(previewOption.dataset.previewIndex || 0)
