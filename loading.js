@@ -1,1 +1,1 @@
-import "./js/pages/loading-page.js?v=20260812-airline-logos-v56";
+import "./js/pages/loading-page.js?v=20260812-europe-airlines-paris-v60";

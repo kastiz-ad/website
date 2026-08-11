@@ -13,8 +13,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-airline-logos-v56";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-airline-logos-v56";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-europe-airlines-paris-v60";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-europe-airlines-paris-v60";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -3354,10 +3354,10 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
     ["Macarons and pâtisserie","https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&w=900&q=82"],
     ["Duck confit dinner","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=82"]
   ], places:[
-    ["Eiffel Tower and Champ de Mars","https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=1200&q=82"],
-    ["Louvre and Palais Royal","https://images.unsplash.com/photo-1565099824688-e93eb20fe622?auto=format&fit=crop&w=1200&q=82"],
-    ["Montmartre and Sacré-Cœur","https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=82"],
-    ["Seine and Île de la Cité","https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1200&q=82"]
+    ["Eiffel Tower and Champ de Mars","https://commons.wikimedia.org/wiki/Special:FilePath/Paris%20-%20The%20Eiffel%20Tower%20in%20spring%20-%202307.jpg?width=1200"],
+    ["Louvre and Palais Royal","https://commons.wikimedia.org/wiki/Special:FilePath/Cour%20Napol%C3%A9on%20at%20night%20-%20Louvre.jpg?width=1200"],
+    ["Montmartre and Sacré-Cœur","https://commons.wikimedia.org/wiki/Special:FilePath/Basilique%20du%20Sacr%C3%A9-C%C5%93ur%20de%20Montmartre%20-%20Paris%20-%20GT-01%20-%202024.jpg?width=1200"],
+    ["Seine and Île de la Cité","https://commons.wikimedia.org/wiki/Special:FilePath/Notre-Dame%20de%20Paris%20and%20%C3%8Ele%20de%20la%20Cit%C3%A9%20at%20dusk%20140516%201.jpg?width=1200"]
   ]},
   { match:/\bsapa\b|sa pa|사파/i, foods:[
     ["Sapa salmon hotpot","https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=82"],
@@ -3386,17 +3386,17 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
     ["Chợ Lớn and Bình Tây Market","https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=82"]
   ]},
   { match:/\bsantiago\b|산티아고/i, foods:[
-    ["Chilean empanadas","https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=82"],
-    ["Pastel de choclo","https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=82"],
-    ["Chilean seafood and ceviche","https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82"],
-    ["Completo chileno","https://images.unsplash.com/photo-1612392062631-94dd858cba88?auto=format&fit=crop&w=900&q=82"],
+    ["Chilean empanadas","https://commons.wikimedia.org/wiki/Special:FilePath/Empanadas%20de%20queso.jpg?width=1000"],
+    ["Pastel de choclo","https://commons.wikimedia.org/wiki/Special:FilePath/Pastel%20de%20choclo%20dish.jpg?width=1000"],
+    ["Chilean seafood and ceviche","https://commons.wikimedia.org/wiki/Special:FilePath/Fish%20and%20seafood%20for%20ceviche%2C%20Mercado%20Central%2C%20Santiago%20de%20Chile.jpg?width=1000"],
+    ["Completo chileno","https://commons.wikimedia.org/wiki/Special:FilePath/Completo%20italiano.jpg?width=1000"],
     ["Marraqueta breakfast","https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=82"],
     ["Carménère wine dinner","https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=82"]
   ], places:[
-    ["San Cristóbal Hill and Andes view","https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=1200&q=82"],
-    ["Plaza de Armas and historic center","https://images.unsplash.com/photo-1489447068241-b3490214e879?auto=format&fit=crop&w=1200&q=82"],
-    ["Lastarria cultural quarter","https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=82"],
-    ["Costanera Center skyline","https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=1200&q=82"]
+    ["San Cristóbal Hill and Andes view","https://commons.wikimedia.org/wiki/Special:FilePath/Cerro%20San%20Cristobal%20Santiago%2C%20Chile.jpg?width=1200"],
+    ["Plaza de Armas and historic center","https://commons.wikimedia.org/wiki/Special:FilePath/Plaza%20de%20Armas%203.JPG?width=1200"],
+    ["Lastarria cultural quarter","https://commons.wikimedia.org/wiki/Special:FilePath/Barrio%20Lastarria%20101.jpg?width=1200"],
+    ["Costanera Center skyline","https://commons.wikimedia.org/wiki/Special:FilePath/Costanera%20Center%20at%20evening%20%28cropped%29.jpg?width=1200"]
   ]},
   { match:/buenos aires|부에노스아이레스/i, foods:[
     ["Buenos Aires parrilla steak","https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82"],
@@ -3409,20 +3409,24 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
     ["Casa Rosada and Plaza de Mayo","https://images.unsplash.com/photo-1589909202802-8f4aadce1849?auto=format&fit=crop&w=1200&q=82"],
     ["La Boca and Caminito","https://images.unsplash.com/photo-1545063914-a1a6ec821c88?auto=format&fit=crop&w=1200&q=82"],
     ["Recoleta Cemetery and architecture","https://images.unsplash.com/photo-1612294037637-ec328d0e075e?auto=format&fit=crop&w=1200&q=82"],
-    ["Palermo parks and design streets","https://images.unsplash.com/photo-1589909202802-8f4aadce1849?auto=format&fit=crop&w=1200&q=82"]
+    ["Palermo parks and design streets","https://commons.wikimedia.org/wiki/Special:FilePath/Palermo%2C%20Buenos%20Aires%20%285462368061%29.jpg?width=1200"]
   ]},
   { match:/\blima\b|리마/i, foods:[
-    ["Lima ceviche","https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82"],
-    ["Lomo saltado","https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=82"],
-    ["Anticuchos","https://images.unsplash.com/photo-1521473717695-e8f5635b7f6a?auto=format&fit=crop&w=900&q=82"],
-    ["Nikkei tasting menu","https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=82"],
-    ["Pan con chicharrón","https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82"],
-    ["Picarones dessert","https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=82"]
+    ["Lima ceviche","https://commons.wikimedia.org/wiki/Special:FilePath/Ceviche%20Peruvian%20dish.jpg?width=1000"],
+    ["Lomo saltado","https://commons.wikimedia.org/wiki/Special:FilePath/Lomo-saltado-perudelights.jpg?width=1000"],
+    ["Anticuchos","https://commons.wikimedia.org/wiki/Special:FilePath/Anticuchos%20-%20Grilled%20Beef%20Heart%20skewers.jpg?width=1000"],
+    ["Nikkei tasting menu","https://commons.wikimedia.org/wiki/Special:FilePath/Plato%20nikkei.jpg?width=1000"],
+    ["Pan con chicharrón","https://commons.wikimedia.org/wiki/Special:FilePath/Pan%20con%20Chicharrones%20%28Peru%29%20-%20Sandwiches%20of%20History%E2%81%A3.png?width=1000"],
+    ["Picarones dessert","https://commons.wikimedia.org/wiki/Special:FilePath/Peru%20Picarones.jpg?width=1000"]
   ], places:[
-    ["Miraflores Malecón and Parque del Amor","https://images.unsplash.com/photo-1531968455001-5c5272a41129?auto=format&fit=crop&w=1200&q=82"],
-    ["Barranco and Bridge of Sighs","https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=82"],
-    ["Plaza Mayor historic center","https://images.unsplash.com/photo-1531968455001-5c5272a41129?auto=format&fit=crop&w=1200&q=82"],
-    ["Huaca Pucllana","https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=82"]
+    ["Miraflores Malecón and Parque del Amor","https://commons.wikimedia.org/wiki/Special:FilePath/Miraflores%20Lima%20Peru%20skyline.jpg?width=1200"],
+    ["Barranco and Bridge of Sighs","https://commons.wikimedia.org/wiki/Special:FilePath/Puente%20de%20los%20Suspiros%2C%20Barranco%201.jpg?width=1200"],
+    ["Plaza Mayor historic center","https://commons.wikimedia.org/wiki/Special:FilePath/Plaza%20de%20Armas%2C%20Lima%2C%20Peru.jpg?width=1200"],
+    ["Huaca Pucllana","https://commons.wikimedia.org/wiki/Special:FilePath/Huaca%20Pucllana%2C%20Lima%2C%20Per%C3%BA%2C%202015-07-28%2C%20DD%20128.JPG?width=1200"],
+    ["Museo Larco","https://commons.wikimedia.org/wiki/Special:FilePath/C%C3%A9ramique%20Wari%20du%20Museo%20Arqueol%C3%B3gico%20Rafael%20Larco%20Herrera%20%28Lima%29.jpg?width=1200"],
+    ["Magic Water Circuit","https://commons.wikimedia.org/wiki/Special:FilePath/Circuito%20m%C3%A1gico%20del%20agua%2C%20Parque%20Reserva%2C%20Lima%2C%20Per%C3%BA%2C%202015-07-28%2C%20DD%20121.JPG?width=1200"],
+    ["Pachacamac archaeological sanctuary","https://commons.wikimedia.org/wiki/Special:FilePath/Pachacamac%20ruins%20outside%20Lima%2C%20Peru%20%284869565659%29.jpg?width=1200"],
+    ["Surquillo Market","https://commons.wikimedia.org/wiki/Special:FilePath/Mercado%20Surquillo%201%20Lima%20PE.jpg?width=1200"]
   ]}
 ].map((pack) => Object.freeze({
   ...pack,
@@ -3501,7 +3505,13 @@ const alpha03TravelOptionImages = Object.freeze({
     american:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23f4f6f8%22/%3E%3Cpath d=%22M90 80h370L650 620H280z%22 fill=%22%230071c5%22/%3E%3Cpath d=%22M1110 80H740L550 620h370z%22 fill=%22%23d71920%22/%3E%3Ctext x=%22600%22 y=%22390%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%2290%22 font-weight=%22700%22 fill=%22%231d2630%22%3EAmerican Airlines%3C/text%3E%3C/svg%3E",
     united:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23002744%22/%3E%3Ccircle cx=%22600%22 cy=%22275%22 r=%22145%22 fill=%22none%22 stroke=%22%2300a7e1%22 stroke-width=%2240%22/%3E%3Ctext x=%22600%22 y=%22570%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%22105%22 font-weight=%22700%22 fill=%22white%22%3EUNITED%3C/text%3E%3C/svg%3E",
     delta:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23f7f7f7%22/%3E%3Cpath d=%22M600 90 770 410 600 330 430 410z%22 fill=%22%23c8102e%22/%3E%3Cpath d=%22M600 330 770 410 600 500 430 410z%22 fill=%22%238b1538%22/%3E%3Ctext x=%22600%22 y=%22610%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%22110%22 font-weight=%22700%22 fill=%22%2300366b%22%3EDELTA%3C/text%3E%3C/svg%3E",
-    jeju:"https://logo.clearbit.com/jejuair.net?size=512"
+    jeju:"https://logo.clearbit.com/jejuair.net?size=512",
+    latam:"https://upload.wikimedia.org/wikipedia/commons/e/ea/Grupo_Latam_Airlines.svg",
+    avianca:"https://upload.wikimedia.org/wikipedia/commons/1/1f/Avianca_2023_wordmark.svg",
+    iberia:"https://upload.wikimedia.org/wikipedia/commons/2/23/Logotipo_de_Iberia.svg",
+    lufthansa:"https://upload.wikimedia.org/wikipedia/commons/b/b8/Lufthansa_Logo_2018.svg",
+    airfrance:"https://upload.wikimedia.org/wikipedia/commons/4/44/Air_France_Logo.svg",
+    klm:"https://upload.wikimedia.org/wikipedia/commons/c/c7/KLM_logo.svg"
   },  hotels: ["https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=900&q=82"],
   ryokan: ["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1545048702-79362596cdc9?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1601918774946-25832a4be0d6?auto=format&fit=crop&w=900&q=82"],
   transport: ["https://images.unsplash.com/photo-1516939884455-1445c8652f83?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1515569067071-ec3b51335dd0?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&w=900&q=82"]
@@ -3512,7 +3522,7 @@ const alpha03OptionImage = (group, option, index) => {
     if (/first/.test(name)) return alpha03TravelOptionImages.first[0];
     if (/business/.test(name)) return alpha03TravelOptionImages.business[index % alpha03TravelOptionImages.business.length];
     if (/economy/.test(name)) return alpha03TravelOptionImages.economy[0];
-    const airlineKey = /korean(?:\s+air(?:lines)?)?|대한항공/.test(name) ? "korean" : /asiana|아시아나항공/.test(name) ? "asiana" : /vietnam(?:\s+airlines?)?|베트남항공/.test(name) ? "vietnam" : /japan airlines|일본항공|\bjal\b/.test(name) ? "jal" : /american|아메리칸항공/.test(name) ? "american" : /united|유나이티드항공/.test(name) ? "united" : /delta|델타항공/.test(name) ? "delta" : /jeju|제주항공/.test(name) ? "jeju" : "";
+    const airlineKey = /korean(?:\s+air(?:lines)?)?|대한항공/.test(name) ? "korean" : /asiana|아시아나항공/.test(name) ? "asiana" : /vietnam(?:\s+airlines?)?|베트남항공/.test(name) ? "vietnam" : /latam|라탐항공/.test(name) ? "latam" : /avianca|아비앙카항공/.test(name) ? "avianca" : /iberia|이베리아항공/.test(name) ? "iberia" : /lufthansa|루프트한자/.test(name) ? "lufthansa" : /air\s*france|에어프랑스/.test(name) ? "airfrance" : /\bklm\b|네덜란드항공/.test(name) ? "klm" : /japan airlines|일본항공|\bjal\b/.test(name) ? "jal" : /american|아메리칸항공/.test(name) ? "american" : /united|유나이티드항공/.test(name) ? "united" : /delta|델타항공/.test(name) ? "delta" : /jeju|제주항공/.test(name) ? "jeju" : "";
     if (airlineKey) return alpha03TravelOptionImages.airlines[airlineKey];
   }
   if (group === "hotels" && /airbnb|serviced apartment|apartment/i.test(name)) return "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=82";
@@ -3522,7 +3532,7 @@ const alpha03OptionImage = (group, option, index) => {
 };
 const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => {
   const image = alpha03OptionImage(group, option, index);
-  const isAirlineBrand = group === "flights" && !/economy|business|first/i.test(String(option?.name || "")) && /korean|대한항공|asiana|아시아나항공|vietnam|베트남항공/i.test(String(option?.name || ""));
+  const isAirlineBrand = group === "flights" && !/economy|business|first/i.test(String(option?.name || "")) && /korean|대한항공|asiana|아시아나항공|vietnam|베트남항공|latam|라탐항공|avianca|아비앙카항공|iberia|이베리아항공|lufthansa|루프트한자|air\s*france|에어프랑스|\bklm\b|네덜란드항공/i.test(String(option?.name || ""));
   return `
   <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}${isAirlineBrand ? " is-airline-brand" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" data-preview-name="${escapeSummaryText(option.name)}" data-preview-meta="${escapeSummaryText(option.meta)}" aria-pressed="${selected ? "true" : "false"}">
     <span class="alpha03-option-photo"><img src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false"></span>
@@ -3553,7 +3563,7 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
     || result.destination?.city
     || result.destination?.cityKo
     || "";
-  const requestedHotelKey = String(requestedHotelDestination).trim().toLowerCase();
+  const requestedHotelKey = String(resolvePreviewDestination(requestedHotelDestination)?.profile?.city || requestedHotelDestination).trim().toLowerCase();
   const isNewYorkHotelDestination = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(requestedHotelDestination));
   const destinationHotelNames = destinationHotelsByCity[requestedHotelKey]
     || (isNewYorkHotelDestination ? destinationPrototypeProfiles.US.hotels : []);
@@ -3680,7 +3690,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     const imageUrl = alpha03FoodImageForName(name);
     return name ? { name, category: "food", image: imageUrl ? { url: imageUrl, alt: name } : null } : null;
   }).filter(Boolean);
-  restaurants = uniqueItems([...restaurants, ...resultRestaurantItems]).slice(0, 12);
+  restaurants = uniqueItems(worldCityVisualPack ? restaurants : [...restaurants, ...resultRestaurantItems]).slice(0, 12);
   let days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
   const placeImageSeeds = [profile.hero?.url, ...places.map((item) => previewItemImage(item)?.url)].filter(Boolean);
   const itineraryPlaceItems = days.flatMap((day) => day.slots || []).map((slot, index) => {
@@ -3689,7 +3699,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     const imageUrl = placeImageSeeds[index % Math.max(1, placeImageSeeds.length)];
     return { name, category: "attraction", image: imageUrl ? { url: imageUrl, alt: name } : null };
   }).filter(Boolean);
-  places = uniqueItems([...places, ...itineraryPlaceItems]).slice(0, 12);
+  places = uniqueItems(worldCityVisualPack ? places : [...places, ...itineraryPlaceItems]).slice(0, 12);
   const picturePlaces = places.filter((item) => previewItemImage(item));
   if (isInvestorRestaurantReservationDemo(result)) {
     days = [
