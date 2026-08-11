@@ -5488,10 +5488,16 @@ body:has(.alpha03-premium-card) {
 .medical-optional-details[open]{padding-bottom:14px}
 @media(min-width:680px){
   .medical-foundation>.medical-demo-card:not(.is-wide){grid-column:span 6!important}
-  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-option-grid,
-  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-slot-grid{grid-template-columns:1fr!important}
   .medical-foundation>.medical-demo-card:not(.is-wide) .medical-option,
   .medical-foundation>.medical-demo-card:not(.is-wide) .medical-slot{min-height:0}
+}
+@media(min-width:1000px){
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-option-grid,
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-slot-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(min-width:680px) and (max-width:999px){
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-option-grid,
+  .medical-foundation>.medical-demo-card:not(.is-wide) .medical-slot-grid{grid-template-columns:1fr!important}
 }
 @media(max-width:679px){
   .medical-foundation>.medical-demo-card:not(.is-wide){grid-column:1/-1}
