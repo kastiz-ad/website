@@ -304,7 +304,8 @@ const fetchLocalPlaces = async (mission) => {
     const geographicScope = createGeographicScope(mission, coordinates);
     const placeQueries = [
       `[out:json][timeout:12];nwr(around:3500,${latitude},${longitude})[amenity~"restaurant|cafe|fast_food"][name];out center 30;`,
-      `[out:json][timeout:12];nwr(around:6000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"][name];out center 20;`
+      `[out:json][timeout:12];nwr(around:6000,${latitude},${longitude})[tourism~"hotel|hostel|guest_house|motel|apartment"][name];out center 20;`,
+      `[out:json][timeout:12];(nwr(around:9000,${latitude},${longitude})[tourism~"attraction|museum|gallery|viewpoint"][name];nwr(around:9000,${latitude},${longitude})[historic][name];nwr(around:9000,${latitude},${longitude})[leisure~"park|garden"][name];);out center 30;`
     ];
     const placeEndpoints = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
     const elements = [];
@@ -321,9 +322,9 @@ const fetchLocalPlaces = async (mission) => {
     const seen = new Set();
     const normalize = (entry) => {
       const tags = entry.tags || {};
-      const kind = tags.tourism ? "hotel" : tags.amenity && /restaurant|cafe|fast_food/.test(tags.amenity) ? "restaurant" : "transport";
+      const kind = tags.amenity && /restaurant|cafe|fast_food/.test(tags.amenity) ? "restaurant" : tags.tourism && /hotel|hostel|guest_house|motel|apartment/.test(tags.tourism) ? "hotel" : tags.tourism || tags.historic || /park|garden/.test(tags.leisure || "") ? "place" : "transport";
       const name = tags[mission.language === "ko" ? "name:ko" : "name:en"] || tags.name;
-      return stampGeographicEvidence({ label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", source: "OpenStreetMap" }, geographicScope, { latitude: entry.lat || entry.center?.lat, longitude: entry.lon || entry.center?.lon });
+      const commonsFile = String(tags.wikimedia_commons || "").replace(/^File:/i, ""); const imageUrl = tags.image || (commonsFile ? "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(commonsFile) + "?width=1000" : ""); return stampGeographicEvidence({ label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", imageUrl, imageAlt: name, wikipedia: tags.wikipedia || "", source: "OpenStreetMap" }, geographicScope, { latitude: entry.lat || entry.center?.lat, longitude: entry.lon || entry.center?.lon });
     };
     const items = elements.map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
     if (items.filter((item) => item.kind === "restaurant").length < 4) {

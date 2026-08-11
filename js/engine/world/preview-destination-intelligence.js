@@ -1,4 +1,11 @@
 export const PREVIEW_DESTINATION_PROFILES = {
+  "honolulu": {
+    "id":"honolulu","city":"Honolulu","cityKo":"호놀룰루","country":"United States","countryKo":"미국","countryCode":"US","currency":"USD","continent":"Oceania","latitude":21.3069,"longitude":-157.8583,"zoom":11,
+    "aliases":["honolulu","hawaii","oahu","하와이","호놀룰루","오아후"],
+    "restaurants":[{"name":"Helena's Hawaiian Food","category":"food","latitude":21.3294,"longitude":-157.8611},{"name":"Highway Inn Kakaako","category":"food","latitude":21.2965,"longitude":-157.856},{"name":"Merriman's Honolulu","category":"food","latitude":21.2942,"longitude":-157.8566},{"name":"Marugame Udon Waikiki","category":"food","latitude":21.2808,"longitude":-157.8254}],
+    "places":[{"name":"Waikiki Beach","category":"beach","latitude":21.2767,"longitude":-157.8275},{"name":"Diamond Head State Monument","category":"landmark","latitude":21.262,"longitude":-157.8057},{"name":"Iolani Palace","category":"culture","latitude":21.3069,"longitude":-157.8583},{"name":"Bishop Museum","category":"museum","latitude":21.3331,"longitude":-157.8704},{"name":"Kailua Beach Park","category":"beach","latitude":21.3975,"longitude":-157.7266},{"name":"Kualoa Ranch","category":"activity","latitude":21.5206,"longitude":-157.8373},{"name":"Waimea Valley","category":"nature","latitude":21.6419,"longitude":-158.0637}],
+    "journeys":[{"name":{"en":"7-day Oahu family adventure","ko":"오아후 7일 가족 여행"},"purpose":{"en":"A well-paced Hawaii plan for two adults and two children.","ko":"성인 2명과 아이 2명을 위한 여유 있는 하와이 일정"},"timeline":["Waikiki arrival","Honolulu culture","Windward coast","Kualoa","North Shore","Ko Olina","Departure"]}]
+  },
   "tokyo": {
     "id": "tokyo",
     "city": "Tokyo",
@@ -312,7 +319,7 @@ export const PREVIEW_DESTINATION_PROFILES = {
       "\ub274\uc695"
     ],
     "hero": {
-      "url": "https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80",
+      "url": "https://images.unsplash.com/photo-1762091409592-ed6d0dfed0ba?auto=format&fit=crop&w=1200&q=82",
       "alt": "New York City preview",
       "line": {
         "en": "Manhattan icons, Brooklyn neighborhoods, food stops, shopping, and skyline nights.",
@@ -346,8 +353,8 @@ export const PREVIEW_DESTINATION_PROFILES = {
         "latitude": 40.7128,
         "longitude": -74.006,
         "image": {
-          "url": "https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?auto=format&fit=crop&w=900&q=80",
-          "alt": "New York City landmark"
+          "url": "https://images.unsplash.com/photo-1762091409592-ed6d0dfed0ba?auto=format&fit=crop&w=1200&q=82",
+          "alt": "Statue of Liberty on Liberty Island"
         },
         "advice": {
           "en": "Make this the anchor stop, then build food and rest around it.",
@@ -573,7 +580,7 @@ export const PREVIEW_DESTINATION_PROFILES = {
       "\uc11c\uc6b8"
     ],
     "hero": {
-      "url": "https://images.unsplash.com/photo-1538485399081-7c8edb9c1759?auto=format&fit=crop&w=900&q=80",
+      "url": "assets/namsan-weekend-date.jpg?v=20260812-namsan-card-v7",
       "alt": "Seoul preview",
       "line": {
         "en": "Seoul highlights, local food, and a practical route.",
@@ -607,7 +614,7 @@ export const PREVIEW_DESTINATION_PROFILES = {
         "latitude": 37.5665,
         "longitude": 126.978,
         "image": {
-          "url": "https://images.unsplash.com/photo-1538485399081-7c8edb9c1759?auto=format&fit=crop&w=900&q=80",
+          "url": "assets/namsan-weekend-date.jpg?v=20260812-namsan-card-v7",
           "alt": "Seoul landmark"
         },
         "advice": {
@@ -1121,6 +1128,7 @@ export function dedupePreviewDestinations(destinations = []) {
     return true;
   });
 }
+PREVIEW_DESTINATION_PROFILES.new_york.places.push({name:"Central Park and The Met",category:"park",latitude:40.7794,longitude:-73.9632,image:{url:"https://images.unsplash.com/photo-1568515387631-8b650bbcdb90?auto=format&fit=crop&w=900&q=80",alt:"Central Park"}},{name:"Brooklyn Bridge and DUMBO",category:"viewpoint",latitude:40.7061,longitude:-73.9969,image:{url:"https://images.unsplash.com/photo-1649973816812-c41df3f227e8?auto=format&fit=crop&w=900&q=80",alt:"Brooklyn Bridge"}},{name:"Times Square and Broadway",category:"entertainment",latitude:40.758,longitude:-73.9855,image:{url:"https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=900&q=80",alt:"Times Square"}},{name:"High Line, Chelsea Market and Hudson Yards",category:"walk",latitude:40.748,longitude:-74.0048,image:{url:"https://images.unsplash.com/photo-1522083165195-3424ed129620?auto=format&fit=crop&w=900&q=80",alt:"Manhattan"}});
 export function localizedProfileText(value, language = "en") {
   if (!value || typeof value !== "object") return value || "";
   return value[language] || value.en || value.ko || value.es || value.fr || "";
@@ -1128,7 +1136,7 @@ export function localizedProfileText(value, language = "en") {
 export function previewItemAdvice(item = {}, language = "en") {
   return localizedProfileText(item.advice, language) || "Prepared as a destination-specific preview item.";
 }
-export function previewItemImage(item = {}) { return item?.image?.url ? item.image : null; }
+export function previewItemImage(item = {}) { if (item?.image?.url) return item.image; if (item?.imageUrl) return { url: item.imageUrl, alt: item.imageAlt || item.name || item.label || "Destination photo" }; return null; }
 export function osmEmbedUrlForProfile(profile) {
   if (!profile?.latitude || !profile?.longitude) return "";
   const lat = Number(profile.latitude); const lon = Number(profile.longitude); const delta = 0.055;

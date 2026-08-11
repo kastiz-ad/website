@@ -133,6 +133,6 @@ test("Investor Demo Mode routes medical and restaurant samples to the right doma
 
   const restaurant = getInvestorDemoScenario("restaurant_reservation");
   assert.equal(restaurant.missionType, "restaurant");
-  assert.match(restaurant.mission, /Seoul Han River restaurant reservation|Korean BBQ|river-view dining/i);
+  assert.match(restaurant.mission, /weekend date|2 day|jjimjilbang|excellent restaurants/i);
   assert.doesNotMatch(restaurant.mission, /dentist|tooth pain|diagnose/i);
 });

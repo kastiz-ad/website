@@ -9,7 +9,7 @@ import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i1
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260730-investor-demo-mode";
-import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260811-private-investor-entry-v1";
+import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
 
 const root = document.documentElement;
 const body = document.body;
@@ -28,6 +28,7 @@ const microphoneButton = document.getElementById("microphoneButton");
 const imageUploadButton = document.getElementById("imageUploadButton");
 const imageUploadInput = document.getElementById("imageUploadInput");
 const aiModeButton = document.getElementById("aiModeButton");
+const aiModeMenu = document.getElementById("aiModeMenu");
 const missionToolStatus = document.getElementById("missionToolStatus");
 const oneLogoText = document.querySelector(".one-logo-text");
 const loginButton = document.getElementById("loginButton");
@@ -513,6 +514,7 @@ let activeLanguage = "en";
 let activeMissionIndex = -1;
 let rotatorInterval = null;
 let aiModeEnabled = false;
+let aiPlanningMode = localStorage.getItem("kastiz-one-ai-planning-mode") || "complete";
 let selectedImageFiles = [];
 
 const getBrowserLanguage = () => {
@@ -1524,6 +1526,7 @@ const saveMission = (mission, schedule = null) => {
     : buildGeneralMission(cleanMission);
 
   payload.aiMode = aiModeEnabled;
+  payload.planningMode = aiModeEnabled ? aiPlanningMode : "complete";
   payload.schedule = schedule;
   payload.followUp = pendingFollowUp;
   payload.missionSeed = payload.missionSeed || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -1639,6 +1642,44 @@ const saveMission = (mission, schedule = null) => {
   return payload;
 };
 
+const isSeoulWeekendDateRequest = (mission = "") => {
+  const text = normalizeMission(mission);
+  const isWeekendDate = /weekend\s*(?:date|outing|plan)|(?:date|romantic)\s*weekend|주말\s*데이트|주말데이트|데이트\s*코스/i.test(text);
+  if (!isWeekendDate) return false;
+  const destination = resolvePreviewDestination(text)?.profile;
+  return !destination || destination.id === "seoul" || /(?:seoul|서울)/i.test(text);
+};
+
+const startSeoulWeekendDateMission = (mission) => {
+  const canonicalMission = activeLanguage === "ko"
+    ? "서울에서 맛집, 산책, 문화, 카페, 찜질방을 포함한 2일 주말 데이트를 계획해줘. 호텔 없음."
+    : "Plan a 2 day weekend date in Seoul with restaurants, walks, culture, cafes, and a jjimjilbang. No hotel.";
+  pendingDetectedDestination = {
+    id: "seoul",
+    city: "Seoul",
+    country: "South Korea",
+    countryCode: "KR",
+    continent: "Asia",
+    currency: "KRW",
+    latitude: 37.5665,
+    longitude: 126.978
+  };
+  const savedMission = saveMission(canonicalMission, null);
+  trackEvent("mission_started", {
+    mission_type: savedMission.type,
+    language: savedMission.language,
+    page: "home",
+    route: "seoul_weekend_date",
+    original_query: mission
+  });
+  const params = new URLSearchParams({
+    mission: canonicalMission,
+    destination: "Seoul",
+    lang: activeLanguage,
+    v: "20260812-la-wow-images-v42"
+  });
+  window.location.href = `results.html?${params.toString()}`;
+};
 const startMission = (mission, schedule = null) => {
   const cleanMission = normalizeMission(mission);
 
@@ -1893,15 +1934,13 @@ missionInput.addEventListener("click", () => {
   }
 });
 
-aiModeButton?.addEventListener("click", () => {
-  aiModeEnabled = !aiModeEnabled;
-  aiModeButton.setAttribute("aria-pressed", String(aiModeEnabled));
-  announceMissionTool(
-    aiModeEnabled ? "AI assistant mode is on." : "AI assistant mode is off.",
-    aiModeEnabled ? "AI 어시스턴트 모드가 켜졌습니다." : "AI 어시스턴트 모드가 꺼졌습니다."
-  );
-  missionInput.focus();
-});
+const closeAiModeMenu = () => { if (!aiModeMenu) return; aiModeMenu.hidden = true; aiModeButton?.setAttribute("aria-expanded", "false"); };
+
+aiModeButton?.addEventListener("click", () => { if (!aiModeMenu) return; aiModeMenu.hidden = !aiModeMenu.hidden; aiModeButton.setAttribute("aria-expanded", String(!aiModeMenu.hidden)); });
+
+aiModeMenu?.querySelectorAll("[data-ai-planning-mode]").forEach((option) => { option.addEventListener("click", () => { aiPlanningMode = option.dataset.aiPlanningMode === "basic" ? "basic" : "complete"; aiModeEnabled = true; localStorage.setItem("kastiz-one-ai-planning-mode", aiPlanningMode); aiModeMenu.querySelectorAll("[data-ai-planning-mode]").forEach((item) => item.setAttribute("aria-checked", String(item === option))); aiModeButton.setAttribute("aria-pressed", "true"); aiModeButton.textContent = aiPlanningMode === "basic" ? "AI · Basic" : "AI · Complete"; closeAiModeMenu(); announceMissionTool(aiPlanningMode === "basic" ? "Basic mode: ONE recommends the full plan. Review and approve." : "Complete mode: compare and choose every detail.", aiPlanningMode === "basic" ? "기본 모드: ONE이 전체 계획을 추천합니다. 검토 후 승인하세요." : "완성 모드: 모든 세부사항을 비교하고 선택하세요."); missionInput.focus(); }); });
+
+document.addEventListener("click", (event) => { if (!event.target.closest?.("#aiModeControl")) closeAiModeMenu(); });
 
 microphoneButton?.addEventListener("click", speakWelcomeMessage);
 
@@ -2058,6 +2097,10 @@ missionForm.addEventListener("submit", async (event) => {
   const mission = normalizeMission(missionInput.value);
   if (!mission) { missionInput.focus(); return; }
   missionInput.setCustomValidity("");
+  if (isSeoulWeekendDateRequest(mission)) {
+    startSeoulWeekendDateMission(mission);
+    return;
+  }
   const prototypeReference = mission.toUpperCase().match(/^ONE-DEMO-[A-Z0-9]{8}$/)?.[0];
   if (prototypeReference) {
     if (reopenPrototypeMission(prototypeReference)) return;

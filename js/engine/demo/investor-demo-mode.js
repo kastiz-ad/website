@@ -19,12 +19,9 @@ export const INVESTOR_DEMO_SCENARIOS = Object.freeze({
     highlight: "Shows enterprise policies, budgets, approval chain thinking, and provider-safe execution preparation."
   }),
   family_vacation: Object.freeze({
-    id: "family_vacation",
-    category: "Family vacation",
-    missionType: "travel",
-    title: "Family vacation",
-    mission: "Plan a family vacation to Osaka for two adults and two kids with hotels, restaurants, activities, and rainy day options.",
-    highlight: "Shows family-aware planning, schedule fit, activities, food, transportation, and safe final approval."
+    id: "family_vacation", category: "Family vacation", missionType: "travel", title: "7-day Hawaii family vacation",
+    mission: "Plan a great 7 day Hawaii vacation for a family of four, with two adults and two children. Include beaches, culture, food, family activities, sensible pacing, weather backup, flights, and a family-friendly stay.",
+    highlight: "Shows a complete family-aware Hawaii itinerary with pacing, food, weather alternatives, and approval protection."
   }),
   medical_appointment: Object.freeze({
     id: "medical_appointment",
@@ -36,11 +33,11 @@ export const INVESTOR_DEMO_SCENARIOS = Object.freeze({
   }),
   restaurant_reservation: Object.freeze({
     id: "restaurant_reservation",
-    category: "Restaurant reservation",
+    category: "Weekend date",
     missionType: "restaurant",
-    title: "Seoul restaurant reservation",
-    mission: "Prepare a Seoul Han River restaurant reservation for two people tonight with Korean BBQ or river-view dining options, budget, availability check, and approval before contact.",
-    highlight: "Shows restaurant routing, Seoul dining options, reservation preparation, clear approval, and no fake confirmation."
+    title: "Plan weekend date",
+    mission: "Plan a memorable 2 day weekend date in Seoul for two people with excellent restaurants, beautiful walks, culture, cafes, and a Korean jjimjilbang option. No hotel. Require approval before any reservation or contact.",
+    highlight: "Shows a polished two-day Seoul date with real places, strong restaurants, route logic, and no hotel."
   })
 });
 
@@ -171,6 +168,7 @@ export function buildInvestorDemoUrl(scenarioId = "travel", { language = "en", b
     lang: language,
     v: INVESTOR_DEMO_VERSION
   });
+  if (scenario.id === "restaurant_reservation") params.set("destination", "Seoul");
   return `${base}?${params.toString()}`;
 }
 

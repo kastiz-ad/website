@@ -13,8 +13,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260811-realistic-itinerary-v1";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-repair";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-la-wow-v2";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-nyc-food-logo-v44";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -470,7 +470,8 @@ const shouldUseReleasePreviewTravelFallback = (params = new URLSearchParams()) =
     || params.get("investorDemo") === "1"
     || scenario === "travel"
     || /^202607(?:13|22|26|29|30)/.test(version)
-    || /^20260803/.test(version);
+    || /^20260803/.test(version)
+    || (/^20260812/.test(version) && (Boolean(params.get("destination") || params.get("city") || params.get("country")) || /\b(?:trip|travel|vacation|visit|itinerary|tour|journey)\b|여행|휴가|관광/i.test(params.get("mission") || params.get("q") || "")));
 };
 
 const createReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
@@ -553,7 +554,13 @@ const MANUAL_V231_APPROVAL_SCENARIOS = Object.freeze({
   "korean-language-integrity": "preparation_approved"
 });
 
-const isTravelResult = (result) => ["travel", "travel-preparation"].includes(result?.type) || result?.domain === "travel" || result?.resolutionPlan?.domain === "travel";
+const isWeekendDatePlan = (result = {}) => {
+  const params = new URLSearchParams(window.location.search);
+  const currentRequest = params.get("mission") || params.get("q");
+  const text = String(currentRequest || result.originalMission || result.rawInput || result.mission || result.display?.title || "").toLowerCase();
+  return /weekend.{0,20}(?:date|outing|plan)|(?:date|romantic).{0,20}weekend|주말.{0,12}(?:데이트|나들이)|데이트.{0,12}(?:주말|코스)|fin de semana.{0,20}(?:cita|romántic)/i.test(text);
+};
+const isTravelResult = (result) => ["travel", "travel-preparation"].includes(result?.type) || result?.domain === "travel" || result?.resolutionPlan?.domain === "travel" || isWeekendDatePlan(result);
 
 const createResolutionResultFromPrompt = (prompt, language = activeLanguage) => {
   const kernelOutput = createHOSKernel().run({
@@ -622,13 +629,14 @@ const inferManualTravelerCount = (prompt = "", params = new URLSearchParams()) =
   if (Number.isFinite(explicit) && explicit > 0) return Math.min(12, Math.max(1, Math.round(explicit)));
   const text = String(prompt || "").toLowerCase();
   if (/solo|alone|one traveler|1 traveler|\uD63C\uC790|\uB098\uD640\uB85C|un viajero|viajero solo|voyageur solo/iu.test(text)) return 1;
+  if (/family of four|two adults and two (?:children|kids)|4 (?:people|travelers)|4\uBA85/iu.test(text)) return 4;
   const match = text.match(/(\d{1,2})\s*(?:travelers|people|\uBA85|personas|personnes)/iu);
   if (match) return Math.min(12, Math.max(1, Number(match[1])));
   return 1;
 };
 
 const shouldHydrateManualTravelResult = (prompt = "", params = new URLSearchParams(), scenario = "") => {
-  if (params.get("demoScenario") === "travel" || params.get("investorDemo") === "1") return true;
+  if (INVESTOR_TRAVEL_FALLBACK_SCENARIOS.has(params.get("demoScenario"))) return true;
   if (MANUAL_V23_TRAVEL_SCENARIOS[scenario] || MANUAL_V22_SCENARIOS[scenario] === MANUAL_V22_SCENARIOS.travel) return true;
   return previewTravelIntent(prompt) || Boolean(resolvePreviewDestination(prompt));
 };
@@ -1495,7 +1503,7 @@ const destinationPrototypeProfiles = {
   US: {
     airlines: ["Korean Air", "Delta Air Lines", "Asiana Airlines", "United Airlines"],
     flightPrices: [[2200000, 2850000], [2050000, 2700000], [2150000, 2800000], [1950000, 2600000]],
-    hotels: ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square"],
+    hotels: ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square", "The New Yorker, A Wyndham Hotel", "Arlo Midtown", "Moxy NYC Times Square", "citizenM New York Times Square", "The Dominick", "Hotel Beacon"],
     transfer: "AirTrain + subway or licensed airport transfer"
   },
   ES: {
@@ -1513,10 +1521,17 @@ const destinationPrototypeProfiles = {
   JP: {
     airlines: ["Korean Air", "Asiana Airlines", "Jeju Air", "Japan Airlines"],
     flightPrices: [[440000, 660000], [400000, 620000], [180000, 390000], [520000, 830000]],
-    hotels: ["Hotel Metropolitan Tokyo Marunouchi", "Hilton Tokyo", "Tokyu Stay Shinjuku", "APA Hotel"],
+    hotels: ["Hotel Metropolitan Tokyo Marunouchi", "Hilton Tokyo", "Tokyu Stay Shinjuku", "HOSHINOYA Tokyo", "Onsen Ryokan Yuen Shinjuku", "Ryokan Sawanoya", "Asakusa Shigetsu", "Mitsui Garden Hotel Ginza Premier", "The Gate Hotel Kaminarimon", "Hotel Groove Shinjuku"],
     transfer: "Narita Express or Airport Limousine Bus"
   }
 };
+const destinationHotelsByCity = Object.freeze({
+  "new york city": ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square", "The New Yorker, A Wyndham Hotel", "Arlo Midtown", "Moxy NYC Times Square", "citizenM New York Times Square", "The Dominick", "Hotel Beacon"],
+  "new york": ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square", "The New Yorker, A Wyndham Hotel", "Arlo Midtown", "Moxy NYC Times Square", "citizenM New York Times Square", "The Dominick", "Hotel Beacon"],
+  "los angeles": ["The Hollywood Roosevelt", "Omni Los Angeles Hotel at California Plaza", "The Hoxton Downtown LA", "InterContinental Los Angeles Downtown", "citizenM Los Angeles Downtown", "Freehand Los Angeles", "The LINE LA", "Hotel June West LA", "Shutters on the Beach", "The Beverly Hills Hotel"],
+  "tokyo": ["Hotel Metropolitan Tokyo Marunouchi", "Hilton Tokyo", "Tokyu Stay Shinjuku", "HOSHINOYA Tokyo", "Onsen Ryokan Yuen Shinjuku", "Ryokan Sawanoya", "Asakusa Shigetsu", "Mitsui Garden Hotel Ginza Premier", "The Gate Hotel Kaminarimon", "Hotel Groove Shinjuku"],
+  "kyoto": ["Hotel The Mitsui Kyoto", "Ace Hotel Kyoto", "The Thousand Kyoto", "Cross Hotel Kyoto", "Mitsui Garden Hotel Kyoto Kawaramachi Jokyoji", "Hiiragiya Ryokan", "Tawaraya Ryokan", "Ryokan Seryo", "Yuzuya Ryokan", "Nazuna Kyoto Gosho"]
+});
 const PROTOTYPE_MISSION_ARCHIVE_KEY = "kastiz-one-prototype-mission-archive";
 
 const sanitizeArchivedMission = (value) => {
@@ -1538,6 +1553,7 @@ const savePrototypeMission = (reference) => {
 };
 
 const airlineProfilesByCountry = {
+  US: [["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Delta Air Lines", "델타항공"], ["American Airlines", "아메리칸항공"], ["United Airlines", "유나이티드항공"]],
   KR: [["Korean Air", "대한항공"], ["Asiana Airlines", "아시아나항공"], ["Jeju Air", "제주항공"], ["T'way Air", "티웨이항공"]],
   CN: [["Korean Air", "대한항공"], ["Air China", "중국국제항공"], ["China Eastern Airlines", "중국동방항공"], ["China Southern Airlines", "중국남방항공"]],
   VN: [["Korean Air", "대한항공"], ["Vietnam Airlines", "베트남항공"], ["VietJet Air", "비엣젯항공"], ["Asiana Airlines", "아시아나항공"]],
@@ -1743,7 +1759,7 @@ const restaurantProfileForCity = (city, result = {}) => {
 
 const TRAVEL_OPTION_TARGETS = Object.freeze({
   flights: 8,
-  hotels: 8,
+  hotels: 12,
   restaurants: 12
 });
 
@@ -1880,10 +1896,12 @@ function adaptTravelResultToDestination(result) {
     Asia: [[100000, 300000], [200000, 550000], [80000, 220000], [60000, 160000]],
     "North America": [[170000, 480000], [320000, 800000], [130000, 360000], [90000, 260000]]
   };
-  const baseProfile = destinationPrototypeProfiles[code] || {
+  const countryPrototype = destinationPrototypeProfiles[code];
+  const cityHotelPool = destinationHotelsByCity[String(city || "").toLowerCase()] || [];
+  const baseProfile = countryPrototype ? { ...countryPrototype, hotels: cityHotelPool.length ? cityHotelPool : countryPrototype.hotels } : {
     airlines: airlineProfilesByCountry[code] || airlineProfilesByContinent[continent] || airlineProfilesByContinent.Asia,
     flightPrices: genericPrices,
-    hotels: worldHotelNames.length ? worldHotelNames : (liveHotelNames.length ? liveHotelNames : [`${city} accommodation search required`]),
+    hotels: liveHotelNames.length ? liveHotelNames : (worldHotelNames.length ? worldHotelNames : [`${city} accommodation live search required`]),
     hotelPrices: nightlyRangesByContinent[continent] || [[120000, 340000], [220000, 560000], [90000, 250000], [70000, 180000]],
     transfer: `Official airport rail, bus, taxi, or licensed transfer in ${city}`
   };
@@ -1899,9 +1917,10 @@ function adaptTravelResultToDestination(result) {
     `${city} flexible stay live search`,
     `${city} verified-provider search`
   ];
-  const hotelPool = [...new Set([...liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks])];
+  const hotelPool = liveHotelNames.length ? liveHotelNames : [...new Set([...(profile.hotels || []), ...worldHotelNames])].filter((name) => !/live search|search required|verified-provider| central hotel$/i.test(String(name)));
   profile.hotels = hotelPool.slice(0, TRAVEL_OPTION_TARGETS.hotels);
-  profile.airlines = uniqueProviderEntries([...(profile.airlines || []), ...airlineFallbackOptions]).slice(0, TRAVEL_OPTION_TARGETS.flights);
+  const verifiedWorldAirlines = worldFlights.filter((item) => item?.airline && /verified_live|cached_public/.test(String(item.sourceState))).map((item) => [item.airline, airlineNameKo[item.airline] || item.airline]);
+  profile.airlines = verifiedWorldAirlines.length ? uniqueProviderEntries(verifiedWorldAirlines).slice(0, TRAVEL_OPTION_TARGETS.flights) : [["Airline route verification required", "항공 노선 실시간 확인 필요"]];
   profile.flightPrices = expandPriceRanges(profile.flightPrices, genericPrices, TRAVEL_OPTION_TARGETS.flights);
   profile.hotelPrices = expandPriceRanges(profile.hotelPrices, nightlyRangesByContinent[continent], TRAVEL_OPTION_TARGETS.hotels);
   const flightReasons = [
@@ -1968,10 +1987,8 @@ function adaptTravelResultToDestination(result) {
     place.cuisine,
     place.source
   ]);
-  const restaurantCandidates = uniqueRestaurantCandidates([
-    ...liveRestaurantCandidates,
-    ...restaurantProfileForCity(city, result)
-  ]).slice(0, TRAVEL_OPTION_TARGETS.restaurants);
+  const curatedRestaurantCandidates = restaurantProfileForCity(city, result).filter((item) => !/destination cuisine fallback/i.test(String(item?.[5] || "")));
+  const restaurantCandidates = uniqueRestaurantCandidates(liveRestaurantCandidates.length ? liveRestaurantCandidates : curatedRestaurantCandidates).slice(0, TRAVEL_OPTION_TARGETS.restaurants);
   const restaurants = restaurantCandidates.map(([name, rating, min, max, cuisine, source], index) => ({
     ...(result.restaurants?.[index] || {}),
     id: `restaurant-${profileCode}-${index + 1}`,
@@ -1992,10 +2009,14 @@ function adaptTravelResultToDestination(result) {
   }));
   const flightsBudget = flights[0]?.estimatedPrice || result.budget?.flights;
   const nightlyBudget = hotels[0]?.estimatedNightlyPrice || result.budget?.hotel;
-  const hotelBudget = nightlyBudget ? {
-    currency: nightlyBudget.currency || "KRW",
-    min: Number(nightlyBudget.min || 0) * tripNights * rooms,
-    max: Number(nightlyBudget.max || 0) * tripNights * rooms
+  const isNewYorkBudget = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(city || ""));
+  const effectiveNightlyBudget = isNewYorkBudget
+    ? { currency: "KRW", min: 150000, max: 350000 }
+    : nightlyBudget;
+  const hotelBudget = effectiveNightlyBudget ? {
+    currency: effectiveNightlyBudget.currency || "KRW",
+    min: Number(effectiveNightlyBudget.min || 0) * tripNights * rooms,
+    max: Number(effectiveNightlyBudget.max || 0) * tripNights * rooms
   } : result.budget?.hotel;
   const averageRestaurantMin = restaurants.length
     ? Math.round(restaurants.reduce((sum, restaurant) => sum + Number(restaurant.estimatedPrice?.min || 0), 0) / restaurants.length)
@@ -2550,105 +2571,128 @@ const renderInvestorMedicalAppointmentMission = (result = currentResult) => {
 
 const renderInvestorRestaurantReservationMission = (result = currentResult) => {
   const local = investorMedicalText;
-  const title = local("One perfect Seoul dinner", "\uC11C\uC6B8\uC5D0\uC11C \uAE30\uC5B5\uC5D0 \uB0A8\uC744 \uD55C \uB07C", "Una cena especial en Seul");
-  missionTitle.textContent = title;
+  missionTitle.textContent = local("Seoul weekend date", "서울 주말 데이트", "Cita de fin de semana en Seul");
   missionGrid.innerHTML = "";
   missionGrid.classList.add("is-domain-layout", "is-investor-restaurant-layout", "is-investor-focused-layout");
   missionGrid.dataset.domain = "restaurant";
   currentResult.v22DomainLayout = true;
   const disclosure = document.querySelector(".prototype-disclosure");
-  if (disclosure) disclosure.textContent = local("Investor demo - restaurant reservation", "\uD22C\uC790\uC790 \uB370\uBAA8 - \uB808\uC2A4\uD1A0\uB791 \uC608\uC57D", "Demo inversor - reserva de restaurante");
+  if (disclosure) disclosure.textContent = local("Investor demo · 2-day Seoul date · no hotel", "투자자 데모 · 서울 2일 데이트 · 호텔 없음", "Demo · cita de 2 dias · sin hotel");
 
-  const hero = createInvestorMedicalCard({
-    className: "investor-restaurant-hero is-wide",
-    kicker: local("One meal - approval first", "\uD558\uB8E8 \uD55C \uB07C - \uC2B9\uC778 \uC6B0\uC120", "Una comida - aprobacion primero"),
-    title,
-    body: local(
-      "Not a 7-day trip. ONE prepares one dinner decision: mood, table style, route, budget, and the exact approval boundary before any contact.",
-      "7\uC77C \uC5EC\uD589\uC774 \uC544\uB2C8\uB77C \uC624\uB298 \uC800\uB141 \uD55C \uB07C\uB97C \uACE0\uB974\uB294 \uD654\uBA74\uC785\uB2C8\uB2E4. \uBD84\uC704\uAE30, \uC88C\uC11D, \uC774\uB3D9, \uC608\uC0B0, \uC2B9\uC778 \uBC94\uC704\uB97C \uD55C \uBC88\uC5D0 \uC815\uB9AC\uD569\uB2C8\uB2E4.",
-      "No es un viaje de 7 dias. ONE prepara una decision de cena: ambiente, mesa, ruta, presupuesto y aprobacion."
-    )
-  });
-  const visual = document.createElement("div");
-  visual.className = "investor-restaurant-visual";
-  visual.setAttribute("aria-label", local("Han River dinner preview", "\uD55C\uAC15 \uC800\uB141 \uC2DD\uC0AC \uD504\uB9AC\uBDF0", "Vista de cena junto al rio"));
-  appendInvestorMedicalText(visual, "span", "restaurant-skyline", "").setAttribute("aria-hidden", "true");
-  appendInvestorMedicalText(visual, "span", "restaurant-table", "").setAttribute("aria-hidden", "true");
-  appendInvestorMedicalText(visual, "strong", "", local("Han River night table", "\uD55C\uAC15 \uC57C\uACBD \uD14C\uC774\uBE14", "Mesa nocturna junto al rio"));
-  appendInvestorMedicalText(visual, "small", "", local("DEMO preview - live availability not connected", "DEMO preview - live availability not connected", "DEMO - disponibilidad no conectada"));
-  hero.appendChild(visual);
+  const hero = createInvestorMedicalCard({ className: "investor-restaurant-hero is-wide", kicker: local("Two days · no hotel · approval first", "2일 · 호텔 없음 · 승인 우선", "Dos dias · sin hotel"), title: local("A Seoul date worth remembering", "기억에 남는 서울 주말 데이트", "Una cita memorable en Seul"), body: local("ONE keeps each half-day in one neighborhood, pairs excellent restaurants with real places, and prepares one simple approval.", "반나절마다 한 동네에 집중하고, 좋은 식당과 실제 장소를 묶어 한 번의 승인으로 준비합니다.", "ONE agrupa restaurantes y lugares reales por barrio.") });
   missionGrid.appendChild(hero);
 
-  const optionsCard = createInvestorMedicalCard({
-    className: "is-wide investor-restaurant-options-card",
-    kicker: local("Choose the mood", "\uBD84\uC704\uAE30 \uC120\uD0DD", "Elige el estilo"),
-    title: local("Three investor-demo dinner paths", "\uD22C\uC790\uC790\uC5D0\uAC8C \uBCF4\uC5EC\uC8FC\uAE30 \uC88B\uC740 \uC800\uB141 \uC120\uD0DD\uC9C0", "Tres opciones de cena demo")
-  });
-  const optionGrid = document.createElement("div");
-  optionGrid.className = "investor-restaurant-option-grid";
-  const options = [
-    { icon: "river", title: local("River-view Korean table", "\uD55C\uAC15 \uC57C\uACBD \uD55C\uC2DD \uD14C\uC774\uBE14", "Mesa coreana con vista al rio"), note: local("For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "For a polished investor moment: grilled galbi, seasonal banchan, window seating request, taxi route prepared.", "Momento pulido: galbi, banchan de temporada, ventana y ruta en taxi."), tags: [local("Scenic", "Scenic", "Vista"), local("Korean", "Korean", "Coreano"), local("Dinner", "Dinner", "Cena")] },
-    { icon: "bbq", title: local("Private-room K-BBQ", "\uD504\uB77C\uC774\uBE57 \uB8F8 K-BBQ", "K-BBQ privado"), note: local("Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Best if the user wants lively but controlled: hanwoo set, ventilation, seating privacy, simple post-meal dessert nearby.", "Animado pero controlado: hanwoo, privacidad y postre cerca."), tags: [local("Premium", "Premium", "Premium"), local("Private", "Private", "Privado"), local("BBQ", "BBQ", "BBQ")] },
-    { icon: "dessert", title: local("Modern dessert finish", "\uBAA8\uB358 \uB514\uC800\uD2B8 \uB9C8\uBB34\uB9AC", "Final con postre moderno"), note: local("For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "For a lighter date-style evening: seasonal course, matcha or fruit dessert, short riverside walk after dinner.", "Cena ligera: menu de temporada, postre de matcha o fruta y paseo corto."), tags: [local("Date", "Date", "Cita"), local("Dessert", "Dessert", "Postre"), local("Walk", "Walk", "Paseo")] }
-  ];
-  options.forEach((item, index) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "investor-restaurant-option" + (index === 0 ? " is-selected" : "");
-    button.setAttribute("aria-pressed", index === 0 ? "true" : "false");
-    appendInvestorMedicalText(button, "span", "investor-restaurant-icon is-" + item.icon, "").setAttribute("aria-hidden", "true");
-    appendInvestorMedicalText(button, "strong", "", item.title);
-    appendInvestorMedicalText(button, "p", "", item.note);
-    const tags = document.createElement("span");
-    tags.className = "investor-restaurant-tags";
-    item.tags.forEach((tag) => appendInvestorMedicalText(tags, "em", "", tag));
-    button.appendChild(tags);
-    button.addEventListener("click", () => {
-      optionGrid.querySelectorAll(".investor-restaurant-option").forEach((node) => {
-        node.classList.remove("is-selected");
-        node.setAttribute("aria-pressed", "false");
-      });
-      button.classList.add("is-selected");
-      button.setAttribute("aria-pressed", "true");
+  const plans = [
+    {
+      day: local("Day 1 · Palace to Hannam", "1일차 · 궁에서 한남까지", "Día 1 · Del palacio a Hannam"),
+      title: local("Palace, art, Namsan, dinner, and jjimjilbang", "궁·예술·남산·특별한 저녁·찜질방", "Palacio, arte, Namsan, cena y jjimjilbang"),
+      stops: [
+        { time:"10:30", kind:local("Place","장소","Lugar"), name:local("Gyeongbokgung Palace + Bukchon","경복궁 + 북촌","Palacio Gyeongbokgung + Bukchon"), detail:local("Walk through the palace grounds and hanok lanes.","궁궐과 한옥 골목을 천천히 산책합니다.","Paseo por el palacio y las calles de hanok."), image:"https://images.unsplash.com/photo-1584664736667-8bf747a4f11d?auto=format&fit=crop&w=1000&q=82" },
+        { time:"12:30", kind:local("Restaurant","맛집","Restaurante"), name:"Onjium", detail:local("Refined Korean lunch · check reservation before confirming.","정갈한 한식 점심 · 확정 전 예약 가능 여부를 확인합니다.","Almuerzo coreano refinado · confirmar disponibilidad."), image:"https://media.alotea.com/onjium-seoul-dinner.webp" },
+        { time:"15:00", kind:local("Culture + cafe","문화 + 카페","Cultura + café"), name:local("MMCA Seoul + Samcheong-dong","국립현대미술관 서울 + 삼청동","MMCA Seúl + Samcheong-dong"), detail:local("See one exhibition, then take a quiet cafe break nearby.","전시 한 곳을 보고 근처 카페에서 여유롭게 쉽니다.","Una exposición y una pausa tranquila en un café cercano."), image:"https://images.divisare.com/images/c_limit%2Cf_auto%2Ch_2000%2Cq_auto%2Cw_3000/v1498440379/dmucmzl9v2jpn9ftxbed/mpart-architects-mmca-the-museum-of-modern-and-contemporary-art-seoul.jpg" },
+        { time:"18:30", kind:local("Viewpoint","전망","Mirador"), name:local("Namsan sunset walk","남산 노을 산책","Paseo al atardecer por Namsan"), detail:local("Walk toward N Seoul Tower as the city lights come on.","도시의 불빛이 켜질 때 N서울타워 방향으로 산책합니다.","Camina hacia la Torre N cuando se encienden las luces."), image:"assets/namsan-weekend-date.jpg?v=20260812-local-landmarks-v6" },
+        { time:"20:00", kind:local("Restaurant","맛집","Restaurante"), name:local("Mingles or Jungsik","밍글스 또는 정식당","Mingles o Jungsik"), detail:local("Choose one special dinner after checking the menu and availability.","메뉴와 좌석을 확인한 뒤 특별한 저녁 한 곳을 선택합니다.","Elegir una cena especial tras confirmar menú y disponibilidad."), image:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=82" },
+        { time:"22:00", kind:local("Optional rest","선택 휴식","Descanso opcional"), name:local("Sparex Dongdaemun jjimjilbang","스파렉스 동대문 찜질방","Jjimjilbang Sparex Dongdaemun"), detail:local("Optional first-night finish · verify hours and entry rules.","첫날 밤 선택 일정 · 영업시간과 입장 규정을 확인합니다.","Final opcional de la primera noche · verificar horario y acceso."), image:"https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=82" }
+      ]
+    },
+    {
+      day: local("Day 2 · Seongsu and the river", "2일차 · 성수와 한강", "Día 2 · Seongsu y el río"),
+      title: local("Design, local food, Seoul Forest, and sunset", "디자인·로컬 맛집·서울숲·노을", "Diseño, comida local, Seoul Forest y atardecer"),
+      stops: [
+        { time:"11:00", kind:local("Cafe + shops","카페 + 숍","Café + tiendas"), name:local("Seongsu design streets","성수 디자인 거리","Calles de diseño de Seongsu"), detail:local("Browse independent shops and choose one good coffee stop.","독립 숍을 둘러보고 마음에 드는 카페 한 곳을 고릅니다.","Explora tiendas independientes y elige un buen café."), image:"https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1000&q=82" },
+        { time:"13:00", kind:local("Restaurant","맛집","Restaurante"), name:local("Somunnan Gamjatang or Nanpo","소문난성수감자탕 또는 난포","Somunnan Gamjatang o Nanpo"), detail:local("Pick hearty gamjatang or a lighter modern Korean lunch.","든든한 감자탕 또는 가벼운 현대식 한식을 선택합니다.","Elige gamjatang abundante o comida coreana moderna."), image:"https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=1000&q=82" },
+        { time:"15:00", kind:local("Park","산책","Parque"), name:local("Seoul Forest","서울숲","Seoul Forest"), detail:local("Take a slow walk with time for benches and photos.","벤치와 사진 시간을 충분히 두고 천천히 산책합니다.","Paseo lento con tiempo para descansar y sacar fotos."), image:"assets/seoul-forest-weekend-date.jpg?v=20260812-local-landmarks-v6" },
+        { time:"17:30", kind:local("Viewpoint","전망","Mirador"), name:local("Eungbongsan sunset viewpoint","응봉산 노을 전망","Mirador de Eungbongsan"), detail:local("See the Han River and bridges at golden hour.","해 질 무렵 한강과 다리 풍경을 감상합니다.","Contempla el río Han y sus puentes al atardecer."), image:"https://images.unsplash.com/photo-1534274867514-d5b47ef89ed7?auto=format&fit=crop&w=1000&q=82" },
+        { time:"19:30", kind:local("Restaurant","맛집","Restaurante"), name:local("Born & Bred or Bicena","본앤브레드 또는 비채나","Born & Bred o Bicena"), detail:local("Choose the final dinner after live availability and menu review.","실시간 좌석과 메뉴를 확인한 뒤 마지막 저녁을 선택합니다.","Elige la cena final tras revisar menú y disponibilidad."), image:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1000&q=82" }
+      ]
+    }
+  ];  plans.forEach((plan) => {
+    const card=createInvestorMedicalCard({ className:"investor-restaurant-plan investor-weekend-day is-wide", kicker:plan.day, title:plan.title });
+    const rail=document.createElement("div");
+    rail.className="weekend-stop-rail";
+    rail.setAttribute("aria-label",plan.day);
+    rail.setAttribute("tabindex","0");
+    let dragStartX=0;
+    let dragStartScroll=0;
+    let isDragging=false;
+    rail.addEventListener("pointerdown",(event) => {
+      if(event.pointerType === "mouse" && event.button !== 0) return;
+      isDragging=true;
+      dragStartX=event.clientX;
+      dragStartScroll=rail.scrollLeft;
+      rail.classList.add("is-dragging");
+      rail.setPointerCapture(event.pointerId);
     });
-    optionGrid.appendChild(button);
+    rail.addEventListener("pointermove",(event) => {
+      if(!isDragging) return;
+      const distance=event.clientX-dragStartX;
+      if(Math.abs(distance)>4) event.preventDefault();
+      rail.scrollLeft=dragStartScroll-distance;
+    });
+    const stopDragging=(event) => {
+      if(!isDragging) return;
+      isDragging=false;
+      rail.classList.remove("is-dragging");
+      if(rail.hasPointerCapture(event.pointerId)) rail.releasePointerCapture(event.pointerId);
+    };
+    rail.addEventListener("pointerup",stopDragging);
+    rail.addEventListener("pointercancel",stopDragging);
+    rail.addEventListener("lostpointercapture",() => {
+      isDragging=false;
+      rail.classList.remove("is-dragging");
+    });
+    plan.stops.forEach((stop) => {
+      const item=document.createElement("article");
+      item.className="weekend-stop-card";
+      item.innerHTML=`
+        <div class="weekend-stop-image"><img src="${escapeSummaryText(stop.image)}" alt="${escapeSummaryText(stop.name)}" loading="lazy"></div>
+        <div class="weekend-stop-copy">
+          <div><time>${escapeSummaryText(stop.time)}</time><span>${escapeSummaryText(stop.kind)}</span></div>
+          <h3>${escapeSummaryText(stop.name)}</h3>
+          <p>${escapeSummaryText(stop.detail)}</p>
+        </div>`;
+      rail.appendChild(item);
+    });
+    card.appendChild(rail);
+    missionGrid.appendChild(card);
   });
-  optionsCard.appendChild(optionGrid);
-  missionGrid.appendChild(optionsCard);
+  const routeMap=createInvestorMedicalCard({ className:"investor-restaurant-map is-wide", kicker:local("Seoul route map","서울 데이트 동선","Mapa de Seul"), title:local("Palaces, Namsan, Seongsu, and the Han River","궁·남산·성수·한강을 잇는 동선","Palacios, Namsan, Seongsu y rio Han") });
+  const mapFrame=document.createElement("div");
+  mapFrame.className="investor-restaurant-map-frame";
 
-  const planCard = createInvestorMedicalCard({ className: "investor-restaurant-plan", kicker: local("Tonight", "\uC624\uB298 \uC800\uB141", "Esta noche"), title: local("Simple reservation flow", "\uAE54\uB054\uD55C \uC608\uC57D \uD750\uB984", "Flujo simple") });
-  const steps = document.createElement("ol");
-  steps.className = "investor-restaurant-steps";
-  [
-    ["18:30", local("Pick mood and budget", "\uBD84\uC704\uAE30\uC640 \uC608\uC0B0 \uC120\uD0DD", "Elegir estilo y presupuesto")],
-    ["19:00", local("Availability check after approval", "\uC2B9\uC778 \uD6C4 \uC88C\uC11D \uD655\uC778", "Disponibilidad tras aprobar")],
-    ["19:30", local("Route to table", "\uC2DD\uB2F9\uC73C\uB85C \uC774\uB3D9", "Ruta al restaurante")],
-    ["21:00", local("Dessert or riverside walk", "\uB514\uC800\uD2B8 \uB610\uB294 \uAC15\uBCC0 \uC0B0\uCC45", "Postre o paseo")]
-  ].forEach((item) => {
-    const li = document.createElement("li");
-    appendInvestorMedicalText(li, "span", "", item[0]);
-    appendInvestorMedicalText(li, "strong", "", item[1]);
-    steps.appendChild(li);
+  routeMap.appendChild(mapFrame);
+  missionGrid.appendChild(routeMap);
+  const routeIframe=document.createElement("iframe");
+  routeIframe.title=local("Seoul weekend date route map","서울 주말 데이트 동선 지도","Mapa de la cita de fin de semana en Seúl");
+  routeIframe.loading="eager";
+  routeIframe.setAttribute("width","100%");
+  routeIframe.setAttribute("height","100%");
+  const mapStops=document.createElement("div");
+  mapStops.className="investor-restaurant-map-stops";
+  ["1 · Gyeongbokgung|1 · 경복궁|1 · Gyeongbokgung","2 · Namsan|2 · 남산|2 · Namsan","3 · Seongsu|3 · 성수|3 · Seongsu","4 · Han River|4 · 한강|4 · Río Han"].forEach((labels) => {
+    const parts=labels.split("|");
+    const stop=document.createElement("span");
+    stop.textContent=local(parts[0],parts[1],parts[2]);
+    mapStops.appendChild(stop);
   });
-  planCard.appendChild(steps);
-  missionGrid.appendChild(planCard);
+  mapFrame.append(routeIframe,mapStops);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    routeIframe.src="https://www.openstreetmap.org/export/embed.html?bbox=126.88%2C37.45%2C127.12%2C37.64&layer=mapnik&marker=37.5665%2C126.9780";
+  }));
 
-  const approvalCard = createInvestorMedicalCard({
-    className: "investor-restaurant-approval",
-    kicker: local("Before contact", "\uC5F0\uB77D \uC804", "Antes de contactar"),
-    title: local("Approve one availability check", "\uC88C\uC11D \uAC00\uB2A5 \uC5EC\uBD80\uB9CC \uC2B9\uC778", "Aprobar solo consulta"),
-    body: local("No restaurant is contacted and no deposit is paid in this preview. A real provider connection is required for live availability.", "No restaurant is contacted and no deposit is paid in this preview. A real provider connection is required for live availability.", "No se contacta ni se paga deposito. Hace falta proveedor real.")
+  const approval=createInvestorMedicalCard({
+    className:"investor-restaurant-approval is-wide",
+    kicker:local("One easy decision","간단한 한 번의 결정","Una decisión"),
+    title:local("Approve ONE's recommended route","ONE 추천 동선 승인","Aprobar la ruta recomendada"),
+    body:local(
+      "No hotel is included. Restaurant availability, prices, opening hours, and jjimjilbang entry rules are checked after approval. Nothing has been booked.",
+      "호텔은 포함되지 않습니다. 승인 후 식당 좌석, 가격, 영업시간, 찜질방 입장 규정을 확인하며 아직 예약된 것은 없습니다.",
+      "No se incluye hotel. La disponibilidad, precios, horarios y reglas se verifican después de aprobar. No se ha reservado nada."
+    )
   });
-  const approveButton = document.createElement("button");
-  approveButton.type = "button";
-  approveButton.className = "investor-restaurant-primary";
-  approveButton.setAttribute("data-open-approval-review", "true");
-  approveButton.textContent = local("Approve", "\uC2B9\uC778\uD558\uAE30", "Aprobar");
-  approveButton.addEventListener("click", () => makeRealityButton?.click());
-  approvalCard.appendChild(approveButton);
-  missionGrid.appendChild(approvalCard);
+
+  missionGrid.appendChild(approval);
 };
-
 const getTravelDestinationLabel = (result) => {
   const city = activeLanguage === "ko" ? result.destination?.cityKo || result.destination?.city : result.destination?.city;
   const country = activeLanguage === "ko" ? result.destination?.countryKo || result.destination?.country : result.destination?.country;
@@ -2906,6 +2950,14 @@ const getAlpha03DestinationProfile = (destination) => {
   const previewProfile = profileForResult(currentResult || {}, destination);
   if (previewProfile) return previewProfile;
   const key = String(destination || "").toLowerCase();
+  const richProfiles = [
+    { match: /sapa|sa pa|사파/, id: "sapa", city: "Sapa", country: "Vietnam", latitude: 22.3364, longitude: 103.8438, restaurants: ["Aira Sapa Restaurant & Bar","Moment Romantic Restaurant","Sapa O'Chau Cafe","Red Dzao House"], places: ["Fansipan cable car","Muong Hoa Valley","Lao Chai and Ta Van villages","Cat Cat village"] },
+    { match: /lima|리마/, id: "lima", city: "Lima", country: "Peru", latitude: -12.0464, longitude: -77.0428, restaurants: ["Central","Maido","Isolina","La Mar Cebicheria"], places: ["Malecon de Miraflores","Huaca Pucllana","Bridge of Sighs Barranco","Plaza Mayor"] },
+    { match: /santiago|산티아고/, id: "santiago", city: "Santiago", country: "Chile", latitude: -33.4489, longitude: -70.6693, restaurants: ["Borago","Ambrosia","Liguria","Bocanariz"], places: ["San Cristobal Hill","Lastarria","Museo Chileno de Arte Precolombino","Bicentenario Park"] },
+    { match: /hawaii|honolulu|oahu|하와이|호놀룰루/, id: "honolulu", city: "Honolulu", country: "United States", latitude: 21.3069, longitude: -157.8583, restaurants: ["Helena's Hawaiian Food","Highway Inn","Marugame Udon Waikiki","Merriman's Honolulu"], places: ["Waikiki Beach","Diamond Head","Iolani Palace","Bishop Museum","Kailua Beach","Kualoa Ranch","Waimea Valley"] }
+  ];
+  const rich = richProfiles.find((profile) => profile.match.test(key));
+  if (rich) return { ...rich, aliases: [rich.city, rich.country], restaurants: rich.restaurants.map((name) => ({ name, tags: ["real place","verify hours"], source: "cached_public" })), places: rich.places.map((name) => ({ name, tags: ["real place","route-ready"], source: "cached_public" })) };
   if (/new york|nyc|ë‰´ìš•/.test(key)) {
     return {
       restaurants: [
@@ -3053,7 +3105,8 @@ const refineAlpha03ItemsForCommand = (items = [], result = {}, type = "places") 
 };
 
 const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
-  const { tripDays } = calculateTripDayCounts(result);
+  const { tripDays: calculatedTripDays } = calculateTripDayCounts(result);
+  const tripDays = isWeekendDatePlan(result) ? 2 : calculatedTripDays;
   const selectedProfile = profile || getAlpha03DestinationProfile(destination);
   const places = Array.isArray(selectedProfile.places) ? selectedProfile.places : [];
   const restaurants = Array.isArray(selectedProfile.restaurants) ? selectedProfile.restaurants : [];
@@ -3088,6 +3141,7 @@ const buildAlpha03DayCards = (journey, destination, result, profile = null) => {
     }));
   }
   const dayTitle = (index) => {
+    if (places.length >= 2) { const first = places[(index * 2) % places.length]?.name; const second = places[(index * 2 + 1) % places.length]?.name; if (first && second) return first + " · " + second; }
     if (index === 0) return local("Arrival and first taste", "도착과 첫 분위기", "Llegada y primer ambiente");
     if (index === tripDays - 1) return local("Checkout and departure", "체크아웃과 출발", "Checkout y salida");
     return local(`${destination} day ${index + 1}`, `${destination} ${index + 1}일차`, `Día ${index + 1} en ${destination}`);
@@ -3155,6 +3209,14 @@ const createAlpha03Card = ({ className, icon, title, badge, tags = [], text = ""
 
 const getAlpha03HeroTone = (destination = "") => {
   const key = String(destination || "").toLowerCase();
+  const richProfiles = [
+    { match: /sapa|sa pa|사파/, id: "sapa", city: "Sapa", country: "Vietnam", latitude: 22.3364, longitude: 103.8438, restaurants: ["Aira Sapa Restaurant & Bar","Moment Romantic Restaurant","Sapa O'Chau Cafe","Red Dzao House"], places: ["Fansipan cable car","Muong Hoa Valley","Lao Chai and Ta Van villages","Cat Cat village"] },
+    { match: /lima|리마/, id: "lima", city: "Lima", country: "Peru", latitude: -12.0464, longitude: -77.0428, restaurants: ["Central","Maido","Isolina","La Mar Cebicheria"], places: ["Malecon de Miraflores","Huaca Pucllana","Bridge of Sighs Barranco","Plaza Mayor"] },
+    { match: /santiago|산티아고/, id: "santiago", city: "Santiago", country: "Chile", latitude: -33.4489, longitude: -70.6693, restaurants: ["Borago","Ambrosia","Liguria","Bocanariz"], places: ["San Cristobal Hill","Lastarria","Museo Chileno de Arte Precolombino","Bicentenario Park"] },
+    { match: /hawaii|honolulu|oahu|하와이|호놀룰루/, id: "honolulu", city: "Honolulu", country: "United States", latitude: 21.3069, longitude: -157.8583, restaurants: ["Helena's Hawaiian Food","Highway Inn","Marugame Udon Waikiki","Merriman's Honolulu"], places: ["Waikiki Beach","Diamond Head","Iolani Palace","Bishop Museum","Kailua Beach","Kualoa Ranch","Waimea Valley"] }
+  ];
+  const rich = richProfiles.find((profile) => profile.match.test(key));
+  if (rich) return { ...rich, aliases: [rich.city, rich.country], restaurants: rich.restaurants.map((name) => ({ name, tags: ["real place","verify hours"], source: "cached_public" })), places: rich.places.map((name) => ({ name, tags: ["real place","route-ready"], source: "cached_public" })) };
   if (/new york|nyc|뉴욕/.test(key)) return { icon: "🗽", className: "is-nyc", line: alpha03Copy("Skyline, food, Broadway, neighborhoods.", "스카이라인, 음식, 브로드웨이, 동네 감성.", "Skyline, comida, Broadway y barrios.") };
   if (/japan|tokyo|osaka|kyoto|일본|도쿄|오사카|교토/.test(key)) return { icon: "⛩️", className: "is-japan", line: alpha03Copy("City lights, food alleys, quiet rituals.", "도시의 불빛, 골목 맛집, 조용한 순간.", "Luces, comida y momentos tranquilos.") };
   if (/sapporo|삿포로/.test(key)) return { icon: "❄️", className: "is-sapporo", line: alpha03Copy("Snow, ramen, warm indoor stops.", "눈, 라멘, 따뜻한 실내 휴식.", "Nieve, ramen y refugios cálidos.") };
@@ -3217,11 +3279,13 @@ const getAlpha03ItemAdvice = (item, type, index) => {
       : `Highlight ${index + 1}; ONE connects it with timing, photos, and nearby food.`;
 };
 
+document.addEventListener("error", (event) => { if (event.target?.matches?.(".alpha03-thumb.has-image img")) event.target.hidden = true; }, true);
+
 const createAlpha03VisualCard = (item, type, index) => {
   const image = previewItemImage(item);
   const imageMarkup = image?.url
-    ? `<img src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
-    : `<span class="alpha03-thumb-fallback" aria-hidden="true"></span>`;
+    ? `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>${type === "restaurant" ? "🍽️" : "📍"}</b></span><img src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
+    : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
   return `
   <article class="alpha03-visual-card alpha03-premium-card is-${type}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}">
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}">${imageMarkup}</div>
@@ -3252,55 +3316,132 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   `;
 };
 
-const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => `
-  <button class="alpha03-preview-option${selected ? " is-selected" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" aria-pressed="${selected ? "true" : "false"}">
-    <span>${selected ? "✓" : "+"}</span>
+const NEW_YORK_FOOD_VISUALS = Object.freeze([
+  { name:"Classic New York pizza slice", image:{url:"https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=82",alt:"New York style pizza"}, advice:{en:"Foldable street slice near the day's neighborhood route.",ko:"당일 동선 가까이에서 즐기는 뉴욕식 피자 한 조각"} },
+  { name:"Pastrami on rye at a Jewish deli", image:{url:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82",alt:"Pastrami deli sandwich"}, advice:{en:"Share a substantial pastrami sandwich and avoid the busiest queue.",ko:"푸짐한 파스트라미 샌드위치를 나눠 먹고 혼잡 시간을 피하세요"} },
+  { name:"Bagel with cream cheese and smoked salmon", image:{url:"https://images.unsplash.com/photo-1585478259715-876acc5be8eb?auto=format&fit=crop&w=900&q=82",alt:"Bagel with smoked salmon"}, advice:{en:"A proper NYC breakfast before museums or a long walking day.",ko:"박물관이나 긴 도보 일정 전에 좋은 뉴욕식 아침"} },
+  { name:"Chinatown dumplings and noodles", image:{url:"https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=82",alt:"Dumplings and noodles"}, advice:{en:"Pair Chinatown food with Lower Manhattan instead of crossing town.",ko:"차이나타운 식사는 로어맨해튼 일정과 함께 묶으세요"} },
+  { name:"New York steakhouse dinner", image:{url:"https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82",alt:"New York steakhouse steak"}, advice:{en:"Reserve one polished dinner and keep the daytime plan lighter.",ko:"특별한 스테이크 저녁을 위해 낮 일정은 가볍게 구성하세요"} },
+  { name:"New York cheesecake", image:{url:"https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=900&q=82",alt:"New York cheesecake"}, advice:{en:"Share dessert after dinner or use it as a midday cafe stop.",ko:"저녁 후 나눠 먹거나 오후 카페 일정으로 넣으세요"} },
+  { name:"Chelsea Market food hall", image:{url:"https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=82",alt:"New York food hall"}, advice:{en:"Browse several small dishes before walking the High Line.",ko:"하이라인 산책 전 여러 음식을 조금씩 맛보세요"} },
+  { name:"Halal cart chicken and rice", image:{url:"https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=82",alt:"Chicken and rice street food"}, advice:{en:"A fast street-food stop that fits Midtown sightseeing.",ko:"미드타운 관광 동선에 넣기 좋은 빠른 길거리 음식"} }
+]);
+const LOS_ANGELES_PLACE_VISUALS = Object.freeze([
+  { name:"Hollywood Sign + Griffith Observatory", image:{url:"https://travelarii.com/blog/wp-content/uploads/2025/12/Historical-Landmarks-in-Los-Angeles.jpg",alt:"Hollywood Sign and Griffith Observatory"}, advice:{en:"Use a clear front-facing Hollywood Sign view and stay for sunset.",ko:"할리우드 사인이 잘 보이는 정면 전망과 노을"} },
+  { name:"Downtown LA skyline", image:{url:"https://images.unsplash.com/photo-1587358831423-132afcab0008?auto=format&fit=crop&w=1200&q=82",alt:"Downtown Los Angeles skyline"}, advice:{en:"Pair downtown views with The Broad, Grand Central Market, or Arts District.",ko:"더 브로드·그랜드 센트럴 마켓·아츠 디스트릭트와 묶는 다운타운"} },
+  { name:"Santa Monica Pier", image:{url:"https://images.unsplash.com/photo-1505887280198-1301ee2128af?auto=format&fit=crop&w=1200&q=82",alt:"Santa Monica Pier and Pacific Park"}, advice:{en:"Pier, beach walk, and coastal sunset in one route.",ko:"부두·해변 산책·해안 노을을 한 동선으로 구성"} },
+  { name:"Universal Studios Hollywood", image:{url:"https://images.unsplash.com/photo-1618945373370-7bde4f8dd9c3?auto=format&fit=crop&w=1200&q=82",alt:"Universal Studios Hollywood globe"}, advice:{en:"Give the studio its own day instead of squeezing it between neighborhoods.",ko:"먼 동네 사이에 끼우지 않고 하루 중심으로 잡는 스튜디오"} },
+  { name:"Disneyland Resort", image:{url:"https://kesq.b-cdn.net/2022/10/MGN_1280x720_40715P00-OZEEM.jpg",alt:"Sleeping Beauty Castle at Disneyland"}, advice:{en:"A full Anaheim day with an early start and late return.",ko:"이른 출발과 늦은 귀환을 포함한 애너하임 하루 일정"} },
+  { name:"Dodger Stadium + downtown view", image:{url:"https://www.myusa.co.il/wp-content/uploads/2023/12/Los-Angeles-Dodgers.jpg",alt:"Dodger Stadium with Los Angeles skyline"}, advice:{en:"Check the game calendar or use the overlook as a photo stop.",ko:"경기 일정 확인 또는 전망 사진 명소로 활용"} },
+  { name:"Crypto.com Arena + LA Live", image:{url:"https://www.cryptoarena.com/assets/img/20231020_CA_PT_Exteriors_Proofs_5A0A0011_edit-e7434eb550.jpg",alt:"Crypto.com Arena in downtown Los Angeles"}, advice:{en:"Lakers, Kings, Sparks, concert, or downtown event night.",ko:"레이커스·킹스·스파크스·콘서트가 있는 다운타운 밤"} },
+  { name:"Academy Museum of Motion Pictures", image:{url:"https://images.ctfassets.net/m3qyzuwrf176/67ttk1XzrckYYu8Om6ADGb/7ee7cbffc9e675b9342387eface073d6/Photo-Joshua_White-jwpictures.com-0953.jpg",alt:"Academy Museum exterior in Los Angeles"}, advice:{en:"Cinema history, architecture, and Museum Row in one focused visit.",ko:"미술·건축·정원·웨스트사이드 전망을 묶은 반나절"} }
+]);
+const LOS_ANGELES_FOOD_VISUALS = Object.freeze([
+  { name:"Koreatown Korean BBQ", image:{url:"https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=900&q=82",alt:"Korean barbecue grilling at the table"}, advice:{en:"Tabletop Korean barbecue; verify wait or reservation policy.",ko:"테이블 한식 바비큐 · 대기 또는 예약 방식 확인"} },
+  { name:"Leo's Tacos or Mariscos Jalisco", image:{url:"https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=900&q=82",alt:"Los Angeles street tacos"}, advice:{en:"Al pastor or seafood tacos on a neighborhood-smart route.",ko:"동네 동선에 맞춘 알 파스토르 또는 해산물 타코"} },
+  { name:"In-N-Out Burger", image:{url:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82",alt:"California burger and fries"}, advice:{en:"A quick California classic between major stops.",ko:"핵심 일정 사이에 빠르게 즐기는 캘리포니아 대표 메뉴"} },
+  { name:"The Boiling Crab or Kickin' Crab", image:{url:"https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82",alt:"Seafood boil with crab"}, advice:{en:"Casual seafood boil; check queue time before going.",ko:"캐주얼 해산물 보일 · 방문 전 대기 시간 확인"} },
+  { name:"Steakhouse night", image:{url:"https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82",alt:"Grilled steak dinner"}, advice:{en:"One polished dinner night with a lighter daytime plan.",ko:"낮 일정은 가볍게 구성한 특별한 스테이크 저녁"} },
+  { name:"Chipotle-style burrito bowl", image:{url:"https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=900&q=82",alt:"Fresh burrito bowl"}, advice:{en:"A customizable, efficient lunch between attractions.",ko:"명소 사이에 먹기 좋은 맞춤형 부리토 볼"} },
+  { name:"Deli or Subway sandwich stop", image:{url:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82",alt:"Fresh deli sandwich"}, advice:{en:"A practical sandwich lunch on the busiest day.",ko:"가장 바쁜 관광일의 실용적인 샌드위치 점심"} },
+  { name:"Red Lobster-style seafood dinner", image:{url:"https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=900&q=82",alt:"Lobster and seafood dinner"}, advice:{en:"A familiar seafood dinner when it fits the route.",ko:"동선에 맞을 때 선택하는 익숙한 해산물 저녁"} }
+]);
+const alpha03TravelOptionImages = Object.freeze({
+  flights: ["https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1540339832862-474599807836?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=900&q=82"],
+  economy: ["https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=900&q=82"],
+  business: ["https://images.unsplash.com/photo-1540339832862-474599807836?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1587019158091-1a103c5dd17f?auto=format&fit=crop&w=900&q=82"],
+  first: ["https://static.wixstatic.com/media/021768_a72a9b42cc104b67b205f4a8097c8061~mv2.png/v1/fill/w_568%2Ch_426%2Cal_c%2Cq_85%2Cusm_0.66_1.00_0.01%2Cenc_avif%2Cquality_auto/021768_a72a9b42cc104b67b205f4a8097c8061~mv2.png"],
+  airlines: {
+    korean:"https://images.unsplash.com/photo-1709829633134-5031140a0e72?auto=format&fit=crop&w=1200&q=82",
+    asiana:"https://biz.chosun.com/resizer/v2/GM3GIMBWGNRDENZUMUYWIYRZGU.jpg?auth=030cb6e1a685ee3504ab2c375911fe59b70547614c3030b939bec725e7a6db10&height=900&smart=true&width=1400",
+    jal:"https://www.jal.com/assets/img/outline/aircraft/pic_aircraft_002.jpg",
+    american:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23f4f6f8%22/%3E%3Cpath d=%22M90 80h370L650 620H280z%22 fill=%22%230071c5%22/%3E%3Cpath d=%22M1110 80H740L550 620h370z%22 fill=%22%23d71920%22/%3E%3Ctext x=%22600%22 y=%22390%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%2290%22 font-weight=%22700%22 fill=%22%231d2630%22%3EAmerican Airlines%3C/text%3E%3C/svg%3E",
+    united:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23002744%22/%3E%3Ccircle cx=%22600%22 cy=%22275%22 r=%22145%22 fill=%22none%22 stroke=%22%2300a7e1%22 stroke-width=%2240%22/%3E%3Ctext x=%22600%22 y=%22570%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%22105%22 font-weight=%22700%22 fill=%22white%22%3EUNITED%3C/text%3E%3C/svg%3E",
+    delta:"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 700%22%3E%3Crect width=%221200%22 height=%22700%22 fill=%22%23f7f7f7%22/%3E%3Cpath d=%22M600 90 770 410 600 330 430 410z%22 fill=%22%23c8102e%22/%3E%3Cpath d=%22M600 330 770 410 600 500 430 410z%22 fill=%22%238b1538%22/%3E%3Ctext x=%22600%22 y=%22610%22 text-anchor=%22middle%22 font-family=%22Arial,sans-serif%22 font-size=%22110%22 font-weight=%22700%22 fill=%22%2300366b%22%3EDELTA%3C/text%3E%3C/svg%3E",
+    jeju:"https://logo.clearbit.com/jejuair.net?size=512"
+  },  hotels: ["https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=900&q=82"],
+  ryokan: ["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1545048702-79362596cdc9?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1601918774946-25832a4be0d6?auto=format&fit=crop&w=900&q=82"],
+  transport: ["https://images.unsplash.com/photo-1516939884455-1445c8652f83?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1515569067071-ec3b51335dd0?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&w=900&q=82"]
+});
+const alpha03OptionImage = (group, option, index) => {
+  const name = String(option?.name || "").toLowerCase();
+  if (group === "flights") {
+    if (/first/.test(name)) return alpha03TravelOptionImages.first[0];
+    if (/business/.test(name)) return alpha03TravelOptionImages.business[index % alpha03TravelOptionImages.business.length];
+    if (/economy/.test(name)) return alpha03TravelOptionImages.economy[0];
+    const airlineKey = /korean/.test(name) ? "korean" : /asiana/.test(name) ? "asiana" : /japan airlines|\bjal\b/.test(name) ? "jal" : /american/.test(name) ? "american" : /united/.test(name) ? "united" : /delta/.test(name) ? "delta" : /jeju/.test(name) ? "jeju" : "";
+    if (airlineKey) return alpha03TravelOptionImages.airlines[airlineKey];
+  }
+  if (group === "hotels" && /airbnb|serviced apartment|apartment/i.test(name)) return "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=82";
+  const isJapaneseStay = group === "hotels" && /ryokan|료칸|旅館|hoshinoya|yuen|shigetsu/i.test(name);
+  const pool = isJapaneseStay ? alpha03TravelOptionImages.ryokan : alpha03TravelOptionImages[group] || alpha03TravelOptionImages.hotels;
+  return pool[index % pool.length];
+};
+const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => {
+  const image = alpha03OptionImage(group, option, index);
+  return `
+  <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" aria-pressed="${selected ? "true" : "false"}">
+    <span class="alpha03-option-photo"><img src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false"></span>
+    <span class="alpha03-preview-check" aria-hidden="true">${selected ? "✓" : "+"}</span>
     <strong>${escapeSummaryText(option.name)}</strong>
     <em>${escapeSummaryText(option.meta)}</em>
   </button>
 `;
+};
 
 const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
   const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
-  const flights = (result.flights || []).slice(0, 8).map((flight) => ({
-    name: getFlightName(flight),
-    meta: formatRange(flight.estimatedPrice) || journey.budget
-  })).concat([
-    { name: `${firstFlightName} · Economy`, meta: alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica") },
-    { name: `${firstFlightName} · Business`, meta: alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad") },
-    { name: `${firstFlightName} · First`, meta: alpha03Copy("premium cabin check", "프리미엄 좌석 확인", "cabina premium") }
-  ]).slice(0, 8);
-  const hotels = (result.hotels || []).slice(0, 6).map((hotel) => ({
+  const destinationCode = String(result.destination?.countryCode || result.countryProfile?.code || result.country || "").toUpperCase();
+  const destinationAirlines = (airlineProfilesByCountry[destinationCode] || airlineProfilesByContinent[result.destination?.continent || result.countryProfile?.continent] || []).map(([en, ko]) => ({
+    name: activeLanguage === "ko" ? ko : en,
+    meta: alpha03Copy("route and schedule verification required", "노선·일정 실시간 확인 필요", "verificar ruta y horario")
+  }));
+  const flightSeen = new Set();
+  const flights = [
+    ...(result.flights || []).map((flight) => ({ name: getFlightName(flight), meta: formatRange(flight.estimatedPrice) || journey.budget })),
+    ...destinationAirlines,
+    { name: firstFlightName + " · Economy", meta: alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica") },
+    { name: firstFlightName + " · Business", meta: alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad") },
+    { name: firstFlightName + " · First", meta: alpha03Copy("premium cabin check", "프리미엄 좌석 확인", "cabina premium") }
+  ].filter((option) => option.name && !flightSeen.has(option.name) && flightSeen.add(option.name)).slice(0, 12);
+
+  const requestedHotelDestination = new URLSearchParams(location.search).get("destination")
+    || result.destination?.city
+    || result.destination?.cityKo
+    || "";
+  const isNewYorkHotelDestination = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(requestedHotelDestination));
+  const destinationHotelOptions = isNewYorkHotelDestination
+    ? destinationPrototypeProfiles.US.hotels.map((name) => ({ name }))
+    : [];
+  const hotelSource = [...destinationHotelOptions, ...(result.hotels || []), { name: requestedHotelDestination + " Airbnb-style apartment", representativeStay: true }, { name: requestedHotelDestination + " serviced apartment", representativeStay: true }];
+  const hotelSeen = new Set();
+  const hotels = hotelSource.map((hotel) => ({
     name: getHotelName(hotel),
-    meta: formatRange(hotel.estimatedNightlyPrice || result.budget?.hotel) || alpha03Copy("Price check", "가격 확인", "Ver precio")
-  })).concat([
-    { name: alpha03Copy("Ryokan / traditional stay", "료칸·전통 숙소", "Ryokan / alojamiento tradicional"), meta: alpha03Copy("Japan-style stay", "일본 감성 숙박", "estancia japonesa") },
-    { name: alpha03Copy("Hostel / budget stay", "호스텔·실속 숙소", "Hostal / económico"), meta: alpha03Copy("lower cost search", "낮은 비용 확인", "menor costo") },
-    { name: alpha03Copy("Luxury hotel", "럭셔리 호텔", "Hotel de lujo"), meta: alpha03Copy("service-first option", "서비스 우선", "servicio premium") }
-  ]).slice(0, 8);
-  const transfers = [
-    { name: alpha03Copy("Airport rail + subway + walk", "공항철도 + 지하철 + 도보", "Tren aeropuerto + metro + caminar"), meta: alpha03Copy("route search ready", "동선 검색 준비", "ruta preparada") },
+    meta: (formatRange(hotel.estimatedNightlyPrice || result.budget?.hotel) || alpha03Copy("Price check", "가격 확인", "Ver precio")) + alpha03Copy(" · Representative photo", " · 대표 이미지", " · Imagen representativa")
+  })).filter((hotel) => hotel.name && !/live search|search ready|search required|accommodation live/i.test(hotel.name) && !(destinationCode !== "JP" && /ryokan|료칸|旅館/i.test(hotel.name)) && !hotelSeen.has(hotel.name) && hotelSeen.add(hotel.name)).slice(0, 12);  const transfers = [
+    { name: alpha03Copy("Official airport transport + local transit", "공식 공항 교통 + 현지 대중교통", "Transporte oficial del aeropuerto + transporte local"), meta: alpha03Copy("destination-matched route", "목적지 맞춤 동선", "ruta adaptada al destino") },
     { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar"), meta: alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje") },
-    { name: alpha03Copy("JR / metro day route", "JR·지하철 하루 동선", "JR / metro diario"), meta: alpha03Copy("multi-stop route", "여러 장소 이동", "varias paradas") },
+    { name: alpha03Copy("Local rail, metro, bus, or ferry route", "현지 철도·메트로·버스·페리 동선", "Tren, metro, bus o ferry local"), meta: alpha03Copy("multi-stop local route", "현지 다중 이동", "ruta local con varias paradas") },
     { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar"), meta: alpha03Copy("comfort route", "편한 이동", "ruta cómoda") },
     { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado"), meta: alpha03Copy("higher cost", "높은 비용", "mayor costo") }
   ];
   transfers.push(
     { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar"), meta: alpha03Copy("regional route", "지역 이동", "ruta regional") },
-    { name: alpha03Copy("Subway pass route", "지하철 패스 동선", "Ruta con pase de metro"), meta: alpha03Copy("easy repeat rides", "반복 이동에 편함", "traslados repetidos") },
+    { name: alpha03Copy("Destination transit pass when available", "현지 교통 패스(운영 시)", "Pase local cuando exista"), meta: alpha03Copy("verify local coverage", "현지 적용 범위 확인", "verificar cobertura") },
     { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo"), meta: alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar") }
   );
-  const groups = [
+  const groups = (isInvestorRestaurantReservationDemo(result) || isWeekendDatePlan(result)) ? [] : [
     [alpha03Copy("Flights", "항공", "Vuelos"), "flights", flights],
     [alpha03Copy("Hotels", "숙소", "Hotel"), "hotels", hotels],
     [alpha03Copy("Transport", "이동", "Transporte"), "transport", transfers]
   ];
+  if (!groups.length) return "";
   return `
     <section class="alpha03-option-preview" aria-label="${escapeSummaryText(alpha03Copy("Selectable travel options", "선택 가능한 여행 옵션", "Opciones seleccionables"))}">
       ${groups.map(([title, key, options]) => `
         <div class="alpha03-preview-group">
           <h4>${escapeSummaryText(title)}</h4>
-          <div>
+          <div class="alpha03-visual-rail">
             ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "실시간 검색 준비", "Búsqueda en vivo lista"), meta: alpha03Copy("Prepared", "준비됨", "Preparado") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, index === 0)).join("")}
           </div>
         </div>
@@ -3349,7 +3490,14 @@ document.addEventListener("focusin", (event) => {
 });
 const createAlpha03ExperienceHtml = (journey, result) => {
   const destination = getTravelDestinationLabel(result);
-  const profile = getAlpha03DestinationProfile(destination);
+  const baseProfile = getAlpha03DestinationProfile(destination);
+  const livePlaceProvider = findLiveProvider(result, "local_places");
+  const liveItems = Array.isArray(livePlaceProvider?.items) ? livePlaceProvider.items : [];
+  const liveRestaurants = liveItems.filter((item) => item.kind === "restaurant").map((item) => ({ name: item.label, tags: [item.cuisine || "local", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, latitude: item.latitude, longitude: item.longitude }));
+  const resultRestaurants = (result.restaurants || []).filter((item) => item.livePlaceName || /openstreetmap/i.test(String(item.providerSource || ""))).map((item) => ({ name: item.venueName || item.type, tags: [item.cuisine || "local", "public place data"], source: item.providerSource || "OpenStreetMap" }));
+  const livePlaces = liveItems.filter((item) => item.kind === "place").map((item) => ({ name: item.label, tags: [item.value || "attraction", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, latitude: item.latitude, longitude: item.longitude }));
+  const uniqueItems = (items) => { const seen = new Set(); return items.filter((item) => { const key = String(item?.name || "").trim().toLowerCase(); if (!key || seen.has(key)) return false; seen.add(key); return true; }); };
+  const profile = { ...baseProfile, id: baseProfile.id || result.destination?.id || String(destination).toLowerCase().replace(/\W+/g, "_"), city: baseProfile.city || result.destination?.city || destination, country: baseProfile.country || result.destination?.country || result.countryProfile?.name || "", latitude: Number(baseProfile.latitude ?? result.destination?.latitude ?? result.countryProfile?.latitude), longitude: Number(baseProfile.longitude ?? result.destination?.longitude ?? result.countryProfile?.longitude), restaurants: uniqueItems([...liveRestaurants, ...resultRestaurants, ...(baseProfile.restaurants || [])]), places: uniqueItems([...livePlaces, ...(baseProfile.places || [])]) };
   const workspace = result.alpha04Workspace || null;
   const { tripDays } = calculateTripDayCounts(result);
   const { travelerCount } = getTravelPartyDetails(result);
@@ -3359,14 +3507,68 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   let places = selectAlpha03Items(profile.places, journey.tone, Math.min(12, Math.max(8, tripDays + 2)));
   restaurants = refineAlpha03ItemsForCommand(restaurants, result, "restaurants");
   places = refineAlpha03ItemsForCommand(places, result, "places");
-  const days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
+  if (profile.id === "los_angeles") {
+    restaurants = [...LOS_ANGELES_FOOD_VISUALS];
+    places = [...LOS_ANGELES_PLACE_VISUALS];
+  }  const isNewYorkGallery = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(destination || ""));
+  if (isNewYorkGallery) {
+    const statue = profile.places.find((item) => /statue of liberty/i.test(String(item?.name || "")));
+    if (statue) places = uniqueItems([statue, ...places]);
+  }
+  const restaurantImageSeeds = restaurants.map((item) => previewItemImage(item)?.url).filter(Boolean);
+  const resultRestaurantItems = (result.restaurants || []).map((item, index) => {
+    const name = getRestaurantName(item);
+    const imageUrl = restaurantImageSeeds[index % Math.max(1, restaurantImageSeeds.length)];
+    return name ? { name, category: "food", image: imageUrl ? { url: imageUrl, alt: name } : null } : null;
+  }).filter(Boolean);
+  restaurants = uniqueItems([...restaurants, ...resultRestaurantItems]).slice(0, 12);
+  let days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
+  const placeImageSeeds = [profile.hero?.url, ...places.map((item) => previewItemImage(item)?.url)].filter(Boolean);
+  const itineraryPlaceItems = days.flatMap((day) => day.slots || []).map((slot, index) => {
+    const name = Array.isArray(slot) ? slot[2] : slot?.label;
+    if (!name || /arrival|departure|check.?in|check.?out|airport|breakfast|lunch|dinner|rest and local travel buffer|local travel buffer|도착|출발|체크인|체크아웃|공항|아침|점심|저녁/i.test(String(name))) return null;
+    const imageUrl = placeImageSeeds[index % Math.max(1, placeImageSeeds.length)];
+    return { name, category: "attraction", image: imageUrl ? { url: imageUrl, alt: name } : null };
+  }).filter(Boolean);
+  places = uniqueItems([...places, ...itineraryPlaceItems]).slice(0, 12);
+  const picturePlaces = places.filter((item) => previewItemImage(item));
+  if (isInvestorRestaurantReservationDemo(result)) {
+    days = [
+      {
+        day: alpha03Copy("Day 1", "1일 차", "Dia 1"),
+        title: alpha03Copy("Palaces, art, and Namsan sunset", "궁·예술·남산 노을", "Palacios, arte y Namsan"),
+        theme: alpha03Copy("Gyeongbokgung · Bukchon · Namsan", "경복궁 · 북촌 · 남산", "Gyeongbokgung · Bukchon · Namsan"),
+        slots: [
+          ["🏛️", "10:30–12:00", alpha03Copy("Gyeongbokgung Palace and Bukchon walk", "경복궁과 북촌 산책", "Palacio Gyeongbokgung y Bukchon")],
+          ["🍽️", "12:30–13:45", alpha03Copy("Onjium refined Korean lunch · reservation check", "온지음 한식 점심 · 예약 확인", "Almuerzo coreano en Onjium")],
+          ["🎨", "15:00–17:00", alpha03Copy("MMCA Seoul and Samcheong-dong cafe", "국립현대미술관 서울과 삼청동 카페", "MMCA Seoul y cafe en Samcheong-dong")],
+          ["🌇", "17:30–18:30", alpha03Copy("Namsan sunset walk", "남산 노을 산책", "Paseo al atardecer por Namsan")],
+          ["🍷", "19:00–20:45", alpha03Copy("Mingles or Jungsik · approve before reservation", "밍글스 또는 정식당 · 예약 전 승인", "Mingles o Jungsik · aprobar antes de reservar")],
+          ["♨️", "21:30–23:30", alpha03Copy("Sparex Dongdaemun jjimjilbang · verify hours and entry rules", "스파렉스 동대문 찜질방 · 영업시간과 입장 규정 확인", "Sparex Dongdaemun · verificar horario y acceso")]
+        ]
+      },
+      {
+        day: alpha03Copy("Day 2", "2일 차", "Dia 2"),
+        title: alpha03Copy("Seongsu, Seoul Forest, and the Han River", "성수·서울숲·한강", "Seongsu, Seoul Forest y rio Han"),
+        theme: alpha03Copy("Seongsu · Eungbongsan · Han River", "성수 · 응봉산 · 한강", "Seongsu · Eungbongsan · rio Han"),
+        slots: [
+          ["☕", "11:00–12:30", alpha03Copy("Seongsu design shops and coffee", "성수 디자인 숍과 커피", "Tiendas de diseno y cafe en Seongsu")],
+          ["🍲", "13:00–14:15", alpha03Copy("Somunnan Gamjatang or Nanpo Seongsu", "소문난성수감자탕 또는 난포 성수", "Gamjatang o Nanpo Seongsu")],
+          ["🌿", "15:00–16:30", alpha03Copy("Slow walk through Seoul Forest", "서울숲 여유 산책", "Paseo tranquilo por Seoul Forest")],
+          ["🌅", "17:30–18:30", alpha03Copy("Eungbongsan sunset viewpoint", "응봉산 노을 전망", "Mirador de Eungbongsan")],
+          ["🥩", "19:00–20:30", alpha03Copy("Born & Bred or Bicena · reservation check", "본앤브레드 또는 비채나 · 예약 확인", "Born & Bred o Bicena")],
+          ["🏠", "20:30–21:00", alpha03Copy("Separate return-home routes · confirm each safe arrival", "각자 귀가 동선 · 서로 안전한 도착 확인", "Regreso separado a casa · confirmar llegada segura")]
+        ]
+      }
+    ];
+  }
   const hero = getAlpha03HeroTone(destination);
   const transportationSummary = journey.tone === "value"
     ? alpha03Copy("Transit-first route with licensed taxi only when it saves energy.", "대중교통 중심, 꼭 필요할 때만 허가된 택시를 사용합니다.", "Ruta con transporte público y taxi autorizado solo cuando ahorra energía.")
     : journey.tone === "rest"
       ? alpha03Copy("Short moves, fewer transfers, and more time inside the destination.", "짧은 이동, 적은 환승, 목적지에서 머무는 시간을 늘립니다.", "Traslados cortos, menos cambios y más tiempo en destino.")
       : alpha03Copy("Walkable core route with official transit or licensed transfer checks.", "도보 가능한 중심 동선에 공식 교통 또는 허가 이동수단을 확인합니다.", "Ruta caminable con transporte oficial o traslado autorizado.");
-  const budgetItems = createAlpha03BudgetItems(journey, result);
+  const budgetItems = createAlpha03BudgetItems(journey, result).filter((item) => !(isInvestorRestaurantReservationDemo(result) || isWeekendDatePlan(result)) || !/[✈🏨]/u.test(item[0]));
   const compactBudget = getCompactTravelBudgetLabel(result, journey.budget);
   const schedule = result.schedule || {};
   const dateText = schedule.startDate && schedule.endDate
@@ -3400,29 +3602,31 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       </div>
     </section>
 
+    <div class="alpha03-visual-pair-grid">
     ${restaurants.length ? `
     <section ${alpha04SectionAttrs(workspace, "restaurants", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "음식", "Comida"))}</span>
         <h3>${escapeSummaryText(alpha03Copy("Food worth planning around", "일정에 넣을 만한 음식", "Comida que vale planear"))}</h3>
       </div>
-      <div class="alpha03-card-grid is-restaurants">
+      <div class="alpha03-card-grid is-restaurants alpha03-visual-rail">
         ${restaurants.map((item, index) => createAlpha03VisualCard(item, "restaurant", index)).join("")}
       </div>
     </section>
     ` : profile.fallbackNote ? `<section class="alpha03-section"><p>${escapeSummaryText(profile.fallbackNote)}</p></section>` : ""}
 
-    ${places.length ? `
+    ${picturePlaces.length ? `
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares"))}</span>
         <h3>${escapeSummaryText(alpha03Copy("Places that make the trip feel real", "여행이 살아나는 장소", "Lugares que hacen real el viaje"))}</h3>
       </div>
-      <div class="alpha03-card-grid">
-        ${places.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
+      <div class="alpha03-card-grid alpha03-visual-rail">
+        ${picturePlaces.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
       </div>
     </section>
     ` : ""}
+    </div>
 
     ${createAlpha03TimelineHtml(days)}
 
@@ -3463,15 +3667,6 @@ const createTravelPackagesCard = (result, missionContext) => {
   article.className = "mission-card is-wide travel-package-card v23-travel-experience product-refined-results";
   article.dataset.cardId = "travel-experiences";
   article.innerHTML = `
-    <div class="v23-journey-layout product-journey-layout is-compact">
-      <div class="v23-alternative-journeys" aria-label="${escapeSummaryText(v22Local("Compare alternatives", "다른 선택지 비교", "Comparar alternativas"))}">
-        ${journeys.slice(0, 4).map((journey, index) => `
-          <button class="v23-journey-card${selectedIndex === index ? " is-selected" : ""}" type="button" data-journey-index="${index}" aria-pressed="${selectedIndex === index}">
-            ${renderV23JourneyCardInner(journey, false, result)}
-          </button>
-        `).join("")}
-      </div>
-    </div>
     <section class="v23-selected-journey" aria-live="polite">${createV23TravelDetailHtml(journeys[selectedIndex], result)}</section>
   `;
   article._v23Journeys = journeys;
@@ -4865,7 +5060,7 @@ const renderTravelMission = (result, missionContext) => {
   const travelExperience = createTravelPackagesCard(result, missionContext);
   const conciergeCard = createAIConciergeCard(result);
   missionGrid.appendChild(travelExperience);
-  if (conciergeCard) missionGrid.appendChild(conciergeCard);
+  if (conciergeCard && isFounderDiagnosticsMode()) missionGrid.appendChild(conciergeCard);
   if (refinementCard && isFounderDiagnosticsMode()) missionGrid.appendChild(refinementCard);
 
   if (isFounderDiagnosticsMode()) {
@@ -5407,8 +5602,11 @@ const createAIDecisionPanel = (result) => {
 
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
+  document.body.classList.toggle("is-investor-weekend-date", new URLSearchParams(window.location.search).get("demoScenario") === "restaurant_reservation" || isWeekendDatePlan(currentResult));
   currentExperienceReview = null;
+  document.body.classList.toggle("is-basic-planning-mode", currentResult?.planningMode === "basic");
   document.body.classList.toggle("travel-premium-result-view", isTravelResult(currentResult));
+  if (bottomActions) bottomActions.hidden = false;
   missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout", "is-v23-travel-layout", "is-investor-focused-layout", "is-investor-medical-layout", "is-investor-restaurant-layout");
   delete missionGrid.dataset.domain;
   const disclosure = document.querySelector(".prototype-disclosure");
@@ -5439,7 +5637,9 @@ const renderMission = () => {
     }
   }
 
-  if (isTravelResult(currentResult)) {
+  if (isWeekendDatePlan(currentResult)) {
+    renderInvestorRestaurantReservationMission(currentResult);
+  } else if (isTravelResult(currentResult)) {
     try {
       renderTravelMission(currentResult, currentResult.missionContext);
     } catch (error) {
@@ -5468,9 +5668,9 @@ const renderMission = () => {
     renderGeneralMission(currentResult);
   }
 
-  const isFocusedInvestorDemo = (isInvestorMedicalAppointmentDemo(currentResult) || isInvestorRestaurantReservationDemo(currentResult)) && !isFounderDiagnosticsMode();
+  const isFocusedInvestorDemo = (isInvestorMedicalAppointmentDemo(currentResult) || isInvestorRestaurantReservationDemo(currentResult) || isWeekendDatePlan(currentResult)) && !isFounderDiagnosticsMode();
   renderPathwayOpportunities();
-  if ((!isTravelResult(currentResult) && !isFocusedInvestorDemo) || isFounderDiagnosticsMode()) {
+  if (isFounderDiagnosticsMode()) {
     missionGrid.insertBefore(pathwayOpportunityPanel, missionGrid.firstChild);
   } else {
     pathwayOpportunityPanel.hidden = true;
@@ -5478,7 +5678,14 @@ const renderMission = () => {
   if (isFocusedInvestorDemo) {
     additionalServicesForm?.remove();
     if (additionalServiceList) additionalServiceList.innerHTML = "";
+  } else if (isTravelResult(currentResult) && !isFounderDiagnosticsMode()) {
+    if (additionalServicesForm) additionalServicesForm.hidden = false;
+    missionGrid.appendChild(additionalServicesForm);
+    renderRevisionAdditionNote();
+    renderCompleteMissionRevisionState();
+    missionGrid.appendChild(createApprovalCard(currentResult));
   } else {
+    if (additionalServicesForm) additionalServicesForm.hidden = false;
     const decisionPanel = createAIDecisionPanel(currentResult);
     if (decisionPanel) missionGrid.appendChild(decisionPanel);
     missionGrid.appendChild(additionalServicesForm);
@@ -5487,15 +5694,26 @@ const renderMission = () => {
     missionGrid.appendChild(createMissionConfidenceCard(currentResult));
     missionGrid.appendChild(createApprovalCard(currentResult));
   }
-  if (!isTravelResult(currentResult) || isFounderDiagnosticsMode()) {
+  if (isFounderDiagnosticsMode()) {
     attachMissionDirectorBrief(currentResult);
     attachProviderTrustBrief(currentResult);
     attachMissionMonitoringLayer(currentResult);
     attachLifeTimelineLayer(currentResult);
     attachExplainableIntelligenceLayer(currentResult);
   }
-  const missionUnderstood = document.getElementById("missionUnderstood");
-  const shouldHideMissionUnderstanding = (isTravelResult(currentResult) || isInvestorMedicalAppointmentDemo(currentResult) || isInvestorRestaurantReservationDemo(currentResult)) && !isFounderDiagnosticsMode();
+  if (!isFounderDiagnosticsMode()) {
+    missionGrid.querySelectorAll([
+      '[class*="alpha04-"]', '[class*="alpha05-"]', '[class*="alpha06-"]',
+      '[class*="alpha07-"]', '[class*="alpha08-"]', '[class*="alpha09-"]',
+      '[class*="alpha10-"]', '[class*="alpha11-"]', '[class*="alpha12-"]',
+      '[class*="alpha14-"]',
+      '[data-card-id*="alpha04"]', '[data-card-id*="alpha05"]', '[data-card-id*="alpha06"]',
+      '[data-card-id*="alpha07"]', '[data-card-id*="alpha08"]', '[data-card-id*="alpha09"]',
+      '[data-card-id*="alpha10"]', '[data-card-id*="alpha11"]', '[data-card-id*="alpha12"]',
+      '[data-card-id*="alpha14"]'
+    ].join(",")).forEach((element) => element.remove());
+  }  const missionUnderstood = document.getElementById("missionUnderstood");
+  const shouldHideMissionUnderstanding = !isFounderDiagnosticsMode();
   if (missionUnderstood) missionUnderstood.hidden = shouldHideMissionUnderstanding;
   if (!shouldHideMissionUnderstanding) renderMissionUnderstanding();
   renderMissionLifecycle(currentResult);
@@ -6111,7 +6329,7 @@ const buildJapanCreativeJourneys = (result, destination, duration) => {
     details: {
       flight: label("Compare round-trip flights from the selected departure airport.", "선택한 출발 공항 기준 왕복 항공편을 비교합니다.", "Comparar vuelos ida y vuelta desde el aeropuerto elegido."),
       hotel: label(`${destination} hotels are priced for the full stay and room count.`, `${destination} 숙소는 전체 숙박 기간과 객실 수 기준으로 계산합니다.`, `Hoteles en ${destination} calculados por duración completa y habitaciones.`),
-      transport: label("Compare JR, subway, official airport transfer, and taxis by day.", "JR·지하철·공식 공항 이동·택시를 일정별로 비교합니다.", "Comparar JR, metro, traslado oficial y taxi por día."),
+      transport: label("Compare destination-appropriate rail, metro, bus, ferry, airport transfer, and licensed taxis by day.", "목적지에 맞는 철도·메트로·버스·페리·공항 이동·허가 택시를 일정별로 비교합니다.", "Comparar transporte local, traslado oficial y taxi autorizado por día."),
       food: label("Spread ramen, sushi, market food, cafés, and desserts across the trip.", "라멘, 스시, 시장 음식, 카페, 디저트를 일정별로 분산합니다.", "Distribuir ramen, sushi, mercados, cafés y postres."),
       entry: label("Re-check entry requirements through official channels before execution.", "입국 요건은 실행 전 공식 채널로 다시 확인합니다.", "Revisar requisitos oficiales antes de ejecutar."),
       insurance: label("Prepare insurance and schedule-change risk review.", "여행자 보험과 일정 변경 리스크를 준비합니다.", "Preparar seguro y riesgo de cambios.")
@@ -6601,7 +6819,7 @@ const enableCustomization = () => {
         const selected = option === previewOption;
         option.classList.toggle("is-selected", selected);
         option.setAttribute("aria-pressed", selected ? "true" : "false");
-        const marker = option.querySelector("span");
+        const marker = option.querySelector(".alpha03-preview-check");
         if (marker) marker.textContent = selected ? "✓" : "+";
       });
       currentResult.alpha03PreviewSelections = {
@@ -6973,29 +7191,37 @@ window.addEventListener("scroll", () => {
 
 const enableTimelineDragScroll = () => {
   let dragState = null;
+  let suppressRailClick = false;
 
   document.addEventListener("pointerdown", (event) => {
-    const strip = event.target.closest?.(".alpha03-timeline-strip");
+    const strip = event.target.closest?.(".alpha03-timeline-strip, .alpha03-visual-rail");
     if (!strip || event.pointerType !== "mouse") return;
-    event.preventDefault();
     dragState = {
       strip,
       pointerId: event.pointerId,
       startX: event.clientX,
-      scrollLeft: strip.scrollLeft
+      scrollLeft: strip.scrollLeft,
+      moved: false
     };
-    strip.classList.add("is-dragging");
-    strip.setPointerCapture?.(event.pointerId);
+
   });
 
   document.addEventListener("pointermove", (event) => {
     if (!dragState) return;
-    dragState.strip.scrollLeft = dragState.scrollLeft - (event.clientX - dragState.startX);
+    const distance = event.clientX - dragState.startX;
+    if (Math.abs(distance) > 5 && !dragState.moved) {
+      dragState.moved = true;
+      dragState.strip.classList.add("is-dragging");
+      dragState.strip.setPointerCapture?.(event.pointerId);
+    }
+    if (!dragState.moved) return;
+    dragState.strip.scrollLeft = dragState.scrollLeft - distance;
     event.preventDefault();
   }, { passive: false });
 
   const endDrag = () => {
     if (!dragState) return;
+    const moved = dragState.moved;
     dragState.strip.classList.remove("is-dragging");
     try {
       dragState.strip.releasePointerCapture?.(dragState.pointerId);
@@ -7003,7 +7229,17 @@ const enableTimelineDragScroll = () => {
       // Some browsers release pointer capture automatically.
     }
     dragState = null;
+    if (moved) {
+      suppressRailClick = true;
+      window.setTimeout(() => { suppressRailClick = false; }, 0);
+    }
   };
+
+  document.addEventListener("click", (event) => {
+    if (!suppressRailClick || !event.target.closest?.(".alpha03-visual-rail")) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
 
   document.addEventListener("pointerup", endDrag);
   document.addEventListener("pointercancel", endDrag);

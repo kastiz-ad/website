@@ -1,1 +1,1 @@
-import "./js/pages/home-page.js?v=20260811-private-investor-entry-v1";
+import "./js/pages/home-page.js?v=20260812-la-wow-images-v42";

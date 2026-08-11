@@ -617,6 +617,14 @@ html[data-theme="midnight"] .search-box:focus-within {
   flex-shrink: 0;
 }
 
+.ai-mode-control { position:relative; display:inline-flex; }
+.ai-mode-menu { position:absolute; z-index:40; right:0; bottom:calc(100% + 12px); width:min(360px,calc(100vw - 32px)); padding:8px; border:1px solid var(--border); border-radius:20px; background:var(--surface); box-shadow:0 20px 60px rgba(0,0,0,.22); }
+.ai-mode-menu[hidden] { display:none; }
+.ai-mode-menu button { width:100%; display:grid; gap:4px; padding:13px 14px; border:0; border-radius:14px; background:transparent; color:var(--text); text-align:left; cursor:pointer; }
+.ai-mode-menu button:hover,.ai-mode-menu button[aria-checked="true"] { background:var(--chip-bg); }
+.ai-mode-menu strong { font-size:15px; }
+.ai-mode-menu span { color:var(--text-muted); font-size:12px; line-height:1.4; }
+
 .icon-button,
 .submit-button {
   width: 42px;

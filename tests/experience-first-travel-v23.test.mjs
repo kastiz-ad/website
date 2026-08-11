@@ -35,7 +35,7 @@ test("V23 travel renders one experience system instead of provider-first cards",
   assert.match(resultsPageSource, /buildV23TravelJourneys/);
   assert.match(resultsPageSource, /createTravelPackagesCard/);
   assert.match(resultsPageSource, /v23-travel-experience/);
-  assert.match(resultsPageSource, /v23-journey-layout/);
+  assert.doesNotMatch(resultsPageSource, /v23-journey-layout/);
   assert.match(resultsPageSource, /v23-selected-journey/);
   assert.match(resultsPageSource, /updateV23JourneySelection/);
   assert.doesNotMatch(travelRender, /createVisaVerificationCard/);
@@ -79,7 +79,7 @@ test("V23 travel styling supports responsive, no-overflow layouts", () => {
 });
 
 test("V23 result cache key is active", () => {
-  assert.match(resultsEntry, /20260730-investor-demo-mode/);
-  assert.match(resultsHtml, /20260730-investor-demo-mode/);
+  assert.match(resultsEntry, /20260812-la-wow-images-v42/);
+  assert.match(resultsHtml, /20260812-la-wow-images-v42/);
 });
 

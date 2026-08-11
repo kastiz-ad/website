@@ -6,7 +6,8 @@ const requiredCities=["tokyo","new_york","los_angeles","seoul","paris","london",
 const generic=/local breakfast|local lunch|dinner near hotel|neighborhood walk|key attraction|main attraction|evening view/i;
 
 test("all advertised reliable demo cities have structured destination knowledge",()=>{
-  assert.deepEqual(Object.keys(DESTINATION_KNOWLEDGE).sort(),[...requiredCities].sort());
+  assert.ok(requiredCities.every((id)=>DESTINATION_KNOWLEDGE[id]));
+  assert.ok(["sapa","lima","santiago","honolulu"].every((id)=>DESTINATION_KNOWLEDGE[id]));
   for(const id of requiredCities){const city=DESTINATION_KNOWLEDGE[id];assert.equal(city.id,id);assert.ok(city.currency);assert.ok(city.airports.length);assert.ok(city.districts.length>=5);assert.ok(city.attractions.length>=10);assert.ok(city.localSpecialties.length>=7);assert.ok(city.hotelDistricts.length);assert.ok(city.transport);for(const item of city.attractions){assert.ok(item.id);assert.ok(Number.isFinite(item.lat));assert.ok(Number.isFinite(item.lng));}}
 });
 test("every curated destination sustains a varied seven-day plan",()=>{
@@ -53,6 +54,15 @@ test("same mission is deterministic and customization does not create duplicates
   const input={destinationId:"barcelona",durationDays:5,mission:"shopping, vegetarian meals, remove nightlife and make it relaxed"};const first=buildRealisticItinerary(input);const second=buildRealisticItinerary(input);assert.deepEqual(first,second);assert.equal(first.purpose,"shopping");assert.equal(first.pace,"relaxed");assert.equal(validateItineraryQuality(first).valid,true);assert.ok(first.days.flatMap(day=>day.meals).every(meal=>/vegetarian|plant-based/.test(meal.cuisine)));
 });
 
+test("different leisure missions and dates can choose different coherent route orders",()=>{
+  const firstThemes=[
+    buildRealisticItinerary({destinationId:"seoul",durationDays:3,mission:"culture and quiet cafes",schedule:{startDate:"2026-09-05"}}),
+    buildRealisticItinerary({destinationId:"seoul",durationDays:3,mission:"food markets and design shops",schedule:{startDate:"2026-09-12"}}),
+    buildRealisticItinerary({destinationId:"seoul",durationDays:3,mission:"romantic parks and sunset views",schedule:{startDate:"2026-09-19"}}),
+    buildRealisticItinerary({destinationId:"seoul",durationDays:3,mission:"family museums and indoor activities",schedule:{startDate:"2026-09-26"}})
+  ].map(plan=>plan.days[0].theme);
+  assert.ok(new Set(firstThemes).size>1);
+});
 test("quality validator rejects duplicates, placeholders and map disagreement",()=>{
   const invalid={purpose:"leisure",days:[{day:1,theme:"x",isArrival:true,activities:[{id:"same"}],meals:[{id:"meal"}],markers:[{id:"pin"}],slots:[{label:"Neighborhood walk"}]},{day:2,theme:"y",isDeparture:true,activities:[{id:"same"}],meals:[{id:"meal"}],markers:[{id:"pin"}],slots:[{label:"Local lunch"}]}],markers:[]};const report=validateItineraryQuality(invalid);assert.equal(report.valid,false);assert.ok(report.issues.includes("duplicate_place_ids"));assert.ok(report.issues.includes("duplicate_meal_ids"));assert.ok(report.issues.includes("generic_placeholder_labels"));assert.ok(report.issues.includes("map_itinerary_disagreement"));
 });

@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=20260810-investor-demo-polish-2" />
+  <link rel="stylesheet" href="style.css?v=20260812-ai-modes-preview-v1" />
 </head>
 
 <body>
@@ -109,7 +109,7 @@
 
               <input id="imageUploadInput" type="file" accept="image/*" multiple hidden />
 
-              <button class="ai-pill" id="aiModeButton" type="button" aria-label="AI powered" data-i18n-aria="aiPowered" aria-pressed="false">AI</button>
+              <div class="ai-mode-control" id="aiModeControl"><button class="ai-pill" id="aiModeButton" type="button" aria-label="Choose AI planning mode" aria-haspopup="menu" aria-expanded="false" aria-pressed="false">AI</button><div class="ai-mode-menu" id="aiModeMenu" role="menu" aria-label="AI planning mode" hidden><button type="button" role="menuitemradio" aria-checked="false" data-ai-planning-mode="basic"><strong>Basic</strong><span>ONE decides the best plan. Just review and approve.</span></button><button type="button" role="menuitemradio" aria-checked="true" data-ai-planning-mode="complete"><strong>Complete</strong><span>Compare and choose flights, stays, restaurants, and details.</span></button></div></div>
 
               <button class="submit-button" type="submit" aria-label="Start mission" data-i18n-aria="startMission">
                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
@@ -223,6 +223,6 @@
     </form>
   </dialog>
 
-  <script type="module" src="script.js?v=20260811-private-investor-entry-v1"></script>
+  <script type="module" src="script.js?v=20260812-la-wow-images-v42"></script>
 </body>
 </html>
