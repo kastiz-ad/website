@@ -13,8 +13,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-la-wow-v2";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-smart-food-multiselect-v46";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-world-profile-v52";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-world-profile-v52";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -677,7 +677,16 @@ const hydrateManualTravelResultForPreview = (result, prompt = "", language = act
     domain: "travel",
     missionType: "travel-preparation",
     travelType: "international",
+    mission: prompt,
+    originalMission: prompt,
+    rawInput: prompt,
+    query: prompt,
     missionSeed: `${prompt}|${profile.id}|${durationDays}|${travelerCount}`,
+    realisticItinerary: null,
+    restaurants: [],
+    hotels: [],
+    flights: [],
+    airportTransfer: null,
     previewDestination: { id: profile.id, city: profile.city, country: profile.country, countryCode: profile.countryCode },
     detectedDestination: destination,
     destination,
@@ -1530,7 +1539,14 @@ const destinationHotelsByCity = Object.freeze({
   "new york": ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square", "The New Yorker, A Wyndham Hotel", "Arlo Midtown", "Moxy NYC Times Square", "citizenM New York Times Square", "The Dominick", "Hotel Beacon"],
   "los angeles": ["The Hollywood Roosevelt", "Omni Los Angeles Hotel at California Plaza", "The Hoxton Downtown LA", "InterContinental Los Angeles Downtown", "citizenM Los Angeles Downtown", "Freehand Los Angeles", "The LINE LA", "Hotel June West LA", "Shutters on the Beach", "The Beverly Hills Hotel"],
   "tokyo": ["Hotel Metropolitan Tokyo Marunouchi", "Hilton Tokyo", "Tokyu Stay Shinjuku", "HOSHINOYA Tokyo", "Onsen Ryokan Yuen Shinjuku", "Ryokan Sawanoya", "Asakusa Shigetsu", "Mitsui Garden Hotel Ginza Premier", "The Gate Hotel Kaminarimon", "Hotel Groove Shinjuku"],
-  "kyoto": ["Hotel The Mitsui Kyoto", "Ace Hotel Kyoto", "The Thousand Kyoto", "Cross Hotel Kyoto", "Mitsui Garden Hotel Kyoto Kawaramachi Jokyoji", "Hiiragiya Ryokan", "Tawaraya Ryokan", "Ryokan Seryo", "Yuzuya Ryokan", "Nazuna Kyoto Gosho"]
+  "kyoto": ["Hotel The Mitsui Kyoto", "Ace Hotel Kyoto", "The Thousand Kyoto", "Cross Hotel Kyoto", "Mitsui Garden Hotel Kyoto Kawaramachi Jokyoji", "Hiiragiya Ryokan", "Tawaraya Ryokan", "Ryokan Seryo", "Yuzuya Ryokan", "Nazuna Kyoto Gosho"],
+  "madrid": ["Riu Plaza España", "Only YOU Hotel Atocha", "Hotel Regina Madrid", "NH Collection Madrid Gran Vía", "VP Plaza España Design", "Dear Hotel Madrid", "Hotel Urban", "Room Mate Óscar"],
+  "paris": ["Pullman Paris Tour Eiffel", "Novotel Paris Les Halles", "citizenM Paris Gare de Lyon", "Hôtel Fabric", "Hôtel Le Six", "Mama Shelter Paris East", "Hôtel des Grands Boulevards", "Le Roch Hotel & Spa"],
+  "sapa": ["Hotel de la Coupole Sapa", "Topas Ecolodge", "Silk Path Grand Sapa Resort", "KK Sapa Hotel", "Pistachio Hotel Sapa", "Eco Palms House", "Sapa Horizon Hotel", "Ville De Mont Mountain Resort"],
+  "ho chi minh city": ["Park Hyatt Saigon", "The Myst Dong Khoi", "Mai House Saigon Hotel", "Silverland Ben Thanh", "Fusion Original Saigon Centre", "Mia Saigon", "Hotel des Arts Saigon", "Liberty Central Saigon Citypoint"],
+  "santiago": ["The Singular Santiago", "Hotel Magnolia Santiago", "Mandarin Oriental Santiago", "Luciano K Hotel", "Solace Hotel Santiago", "Pullman Santiago El Bosque", "Le Méridien Santiago", "Casa Bueras Boutique Hotel"],
+  "buenos aires": ["Alvear Palace Hotel", "Palladio Hotel Buenos Aires MGallery", "CasaSur Bellini", "Fierro Hotel Buenos Aires", "NH Collection Buenos Aires Centro Histórico", "Mine Hotel Boutique", "Mio Buenos Aires", "Loi Suites Recoleta"],
+  "lima": ["Belmond Miraflores Park", "Hotel B Barranco", "AC Hotel Lima Miraflores", "Pullman Lima Miraflores", "Casa Andina Premium Miraflores", "Atemporal", "Iberostar Selection Miraflores", "JW Marriott Hotel Lima"]
 });
 const PROTOTYPE_MISSION_ARCHIVE_KEY = "kastiz-one-prototype-mission-archive";
 
@@ -3316,6 +3332,103 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   `;
 };
 
+const WORLD_CITY_VISUAL_PACKS = Object.freeze([
+  { match:/\bmadrid\b|마드리드/i, foods:[
+    ["Madrid churros and chocolate","https://images.unsplash.com/photo-1624371414361-e670edf4898d?auto=format&fit=crop&w=900&q=82"],
+    ["Jamón ibérico and manchego","https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=82"],
+    ["Spanish tortilla and tapas","https://images.unsplash.com/photo-1515443961218-a51367888e4b?auto=format&fit=crop&w=900&q=82"],
+    ["Cocido madrileño","https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=82"],
+    ["Calamari sandwich near Plaza Mayor","https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82"],
+    ["Modern Madrid tasting menu","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=82"]
+  ], places:[
+    ["Royal Palace and Plaza de Oriente","https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=1200&q=82"],
+    ["Prado Museum and Retiro Park","https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=1200&q=82"],
+    ["Plaza Mayor and La Latina","https://images.unsplash.com/photo-1578305698944-874fa44d04c9?auto=format&fit=crop&w=1200&q=82"],
+    ["Gran Vía at night","https://images.unsplash.com/photo-1509840841025-9088ba78a826?auto=format&fit=crop&w=1200&q=82"]
+  ]},
+  { match:/\bparis\b|파리/i, foods:[
+    ["Paris croissant breakfast","https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=82"],
+    ["Steak frites at a neighborhood bistro","https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82"],
+    ["French onion soup","https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=82"],
+    ["Crêpes in Saint-Germain","https://images.unsplash.com/photo-1519676867240-f03562e64548?auto=format&fit=crop&w=900&q=82"],
+    ["Macarons and pâtisserie","https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&w=900&q=82"],
+    ["Duck confit dinner","https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=82"]
+  ], places:[
+    ["Eiffel Tower and Champ de Mars","https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=1200&q=82"],
+    ["Louvre and Palais Royal","https://images.unsplash.com/photo-1565099824688-e93eb20fe622?auto=format&fit=crop&w=1200&q=82"],
+    ["Montmartre and Sacré-Cœur","https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=82"],
+    ["Seine and Île de la Cité","https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1200&q=82"]
+  ]},
+  { match:/\bsapa\b|sa pa|사파/i, foods:[
+    ["Sapa salmon hotpot","https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=82"],
+    ["Thắng cố mountain stew","https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=82"],
+    ["Grilled mountain skewers","https://images.unsplash.com/photo-1521473717695-e8f5635b7f6a?auto=format&fit=crop&w=900&q=82"],
+    ["Pho breakfast","https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=82"],
+    ["Mountain vegetables and sticky rice","https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=900&q=82"],
+    ["Vietnamese coffee overlooking the valley","https://images.unsplash.com/photo-1521302080334-4bebac2763a6?auto=format&fit=crop&w=900&q=82"]
+  ], places:[
+    ["Fansipan cable car and summit","https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=82"],
+    ["Muong Hoa Valley rice terraces","https://images.unsplash.com/photo-1504457047772-27faf1c00561?auto=format&fit=crop&w=1200&q=82"],
+    ["Cat Cat village and waterfall","https://images.unsplash.com/photo-1521993117367-b7f70ccd029d?auto=format&fit=crop&w=1200&q=82"],
+    ["Sapa town and Stone Church","https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=1200&q=82"]
+  ]},
+  { match:/ho chi minh|ho chi min|saigon|hcmc|호치민|호찌민/i, foods:[
+    ["Bánh mì breakfast","https://images.unsplash.com/photo-1600454309261-3dc9b7597637?auto=format&fit=crop&w=900&q=82"],
+    ["Southern pho","https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=82"],
+    ["Cơm tấm grilled pork","https://images.unsplash.com/photo-1521473717695-e8f5635b7f6a?auto=format&fit=crop&w=900&q=82"],
+    ["Fresh spring rolls","https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=82"],
+    ["Ốc seafood dinner","https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82"],
+    ["Vietnamese iced coffee","https://images.unsplash.com/photo-1521302080334-4bebac2763a6?auto=format&fit=crop&w=900&q=82"]
+  ], places:[
+    ["Notre-Dame Cathedral and Central Post Office","https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=1200&q=82"],
+    ["Nguyễn Huệ walking street","https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&w=1200&q=82"],
+    ["War Remnants Museum","https://images.unsplash.com/photo-1531737212413-667205e1cda7?auto=format&fit=crop&w=1200&q=82"],
+    ["Chợ Lớn and Bình Tây Market","https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=82"]
+  ]},
+  { match:/\bsantiago\b|산티아고/i, foods:[
+    ["Chilean empanadas","https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=82"],
+    ["Pastel de choclo","https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=82"],
+    ["Chilean seafood and ceviche","https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82"],
+    ["Completo chileno","https://images.unsplash.com/photo-1612392062631-94dd858cba88?auto=format&fit=crop&w=900&q=82"],
+    ["Marraqueta breakfast","https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=82"],
+    ["Carménère wine dinner","https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=82"]
+  ], places:[
+    ["San Cristóbal Hill and Andes view","https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=1200&q=82"],
+    ["Plaza de Armas and historic center","https://images.unsplash.com/photo-1489447068241-b3490214e879?auto=format&fit=crop&w=1200&q=82"],
+    ["Lastarria cultural quarter","https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=82"],
+    ["Costanera Center skyline","https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=1200&q=82"]
+  ]},
+  { match:/buenos aires|부에노스아이레스/i, foods:[
+    ["Buenos Aires parrilla steak","https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82"],
+    ["Argentine empanadas","https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=82"],
+    ["Milanesa napolitana","https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=82"],
+    ["Medialunas and café","https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=82"],
+    ["Dulce de leche dessert","https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=82"],
+    ["Italian-Argentine pizza","https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=82"]
+  ], places:[
+    ["Casa Rosada and Plaza de Mayo","https://images.unsplash.com/photo-1589909202802-8f4aadce1849?auto=format&fit=crop&w=1200&q=82"],
+    ["La Boca and Caminito","https://images.unsplash.com/photo-1545063914-a1a6ec821c88?auto=format&fit=crop&w=1200&q=82"],
+    ["Recoleta Cemetery and architecture","https://images.unsplash.com/photo-1612294037637-ec328d0e075e?auto=format&fit=crop&w=1200&q=82"],
+    ["Palermo parks and design streets","https://images.unsplash.com/photo-1589909202802-8f4aadce1849?auto=format&fit=crop&w=1200&q=82"]
+  ]},
+  { match:/\blima\b|리마/i, foods:[
+    ["Lima ceviche","https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82"],
+    ["Lomo saltado","https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=82"],
+    ["Anticuchos","https://images.unsplash.com/photo-1521473717695-e8f5635b7f6a?auto=format&fit=crop&w=900&q=82"],
+    ["Nikkei tasting menu","https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=900&q=82"],
+    ["Pan con chicharrón","https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82"],
+    ["Picarones dessert","https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=82"]
+  ], places:[
+    ["Miraflores Malecón and Parque del Amor","https://images.unsplash.com/photo-1531968455001-5c5272a41129?auto=format&fit=crop&w=1200&q=82"],
+    ["Barranco and Bridge of Sighs","https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=82"],
+    ["Plaza Mayor historic center","https://images.unsplash.com/photo-1531968455001-5c5272a41129?auto=format&fit=crop&w=1200&q=82"],
+    ["Huaca Pucllana","https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=1200&q=82"]
+  ]}
+].map((pack) => Object.freeze({
+  ...pack,
+  foods: Object.freeze(pack.foods.map(([name,url]) => ({name,category:"food",image:{url,alt:name},advice:{en:"Match this meal to the nearest neighborhood day and verify the menu before approval.",ko:"가장 가까운 동네 일정과 묶고 승인 전 메뉴를 확인하세요."}}))),
+  places: Object.freeze(pack.places.map(([name,url]) => ({name,category:"attraction",image:{url,alt:name},advice:{en:"Use this as a neighborhood anchor and keep nearby food and rest on the same route.",ko:"이곳을 동네 핵심 장소로 두고 식사와 휴식을 같은 동선에 묶으세요."}})))
+})));
 const NEW_YORK_FOOD_VISUALS = Object.freeze([
   { name:"Classic New York pizza slice", image:{url:"https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=82",alt:"New York style pizza"}, advice:{en:"Foldable street slice near the day's neighborhood route.",ko:"당일 동선 가까이에서 즐기는 뉴욕식 피자 한 조각"} },
   { name:"Pastrami on rye at a Jewish deli", image:{url:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82",alt:"Pastrami deli sandwich"}, advice:{en:"Share a substantial pastrami sandwich and avoid the busiest queue.",ko:"푸짐한 파스트라미 샌드위치를 나눠 먹고 혼잡 시간을 피하세요"} },
@@ -3438,10 +3551,11 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
     || result.destination?.city
     || result.destination?.cityKo
     || "";
+  const requestedHotelKey = String(requestedHotelDestination).trim().toLowerCase();
   const isNewYorkHotelDestination = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(requestedHotelDestination));
-  const destinationHotelOptions = isNewYorkHotelDestination
-    ? destinationPrototypeProfiles.US.hotels.map((name) => ({ name }))
-    : [];
+  const destinationHotelNames = destinationHotelsByCity[requestedHotelKey]
+    || (isNewYorkHotelDestination ? destinationPrototypeProfiles.US.hotels : []);
+  const destinationHotelOptions = destinationHotelNames.map((name) => ({ name, representativeStay: true }));
   const hotelSource = [...destinationHotelOptions, ...(result.hotels || []), { name: requestedHotelDestination + " Airbnb-style apartment", representativeStay: true }, { name: requestedHotelDestination + " serviced apartment", representativeStay: true }];
   const hotelSeen = new Set();
   const hotels = hotelSource.map((hotel) => ({
@@ -3540,8 +3654,19 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     restaurants = [...LOS_ANGELES_FOOD_VISUALS];
     places = [...LOS_ANGELES_PLACE_VISUALS];
   }
+  const destinationParams = new URLSearchParams(location.search);
+  const destinationSearchText = [
+    destination,
+    destinationParams.get("destination"), destinationParams.get("city"), destinationParams.get("country"),
+    destinationParams.get("mission"), destinationParams.get("q"),
+    result.originalMission, result.rawInput, result.mission, result.display?.title, result.title,
+    result.destination?.id, result.destination?.city, result.destination?.cityKo, result.destination?.country, result.destination?.countryKo,
+    result.countryProfile?.name, result.countryProfile?.nameKo
+  ].filter(Boolean).join(" ");
+  const worldCityVisualPack = WORLD_CITY_VISUAL_PACKS.find((pack) => pack.match.test(destinationSearchText));
+  if (worldCityVisualPack) { restaurants = [...worldCityVisualPack.foods]; places = [...worldCityVisualPack.places]; }
   const isTokyoGallery = /\b(?:tokyo|japan)\b|東京|日本|도쿄|일본/i.test(String(destination || ""));
-  if (isTokyoGallery) restaurants = [...TOKYO_FOOD_VISUALS];
+  if (!worldCityVisualPack && isTokyoGallery) restaurants = [...TOKYO_FOOD_VISUALS];
   const isNewYorkGallery = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(destination || ""));
   if (isNewYorkGallery) {
     const statue = profile.places.find((item) => /statue of liberty/i.test(String(item?.name || "")));
@@ -7439,3 +7564,5 @@ if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
 }
 trackEvent("page_visit", { page: "results", language: activeLanguage });
 trackEvent("results_viewed", { page: "results", language: activeLanguage, mission_type: currentResult?.type });
+
+
