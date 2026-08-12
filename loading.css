@@ -277,3 +277,5 @@ html[data-theme="light"] .one-mark img { filter: invert(1); }
     transition-duration: 1ms !important;
   }
 }
+/* v78: compact phone loading card with a single-line heading and prominent mission. */
+@media(max-width:640px){.loading-shell{padding:10px!important}.loading-card{min-height:0!important;padding:28px 18px 22px!important;border-radius:24px!important}.one-mark{font-size:clamp(48px,15vw,64px)!important;margin-bottom:14px!important}.loading-title{font-size:clamp(19px,5.5vw,25px)!important;line-height:1.1!important;letter-spacing:-.045em!important;white-space:nowrap!important}.mission-name{max-width:100%!important;margin:10px 0 18px!important;color:var(--text)!important;font-size:clamp(20px,6vw,27px)!important;line-height:1.15!important;font-weight:800!important}.loading-message{min-height:0!important;margin-bottom:14px!important;font-size:13px!important}.loading-steps{gap:4px!important}.loading-step{height:34px!important;padding:0 10px!important;font-size:12px!important}}
