@@ -2008,3 +2008,7 @@ html[data-theme="midnight"] .header-mini-symbol {
   transform: rotate(225deg) translate(-1px, -1px) !important;
   opacity: 0.95 !important;
 }
+/* v77: fit the travel details and primary action in one phone viewport. */
+@media(max-width:520px){
+.schedule-modal{box-sizing:border-box!important;max-height:calc(100dvh - 24px)!important;padding:18px 12px 12px!important;overflow-y:auto!important;overscroll-behavior:contain!important}.schedule-modal-close{top:8px!important;right:10px!important;font-size:24px!important}.schedule-modal .login-modal-kicker{margin:0 0 5px!important;font-size:9px!important}.schedule-modal h2{margin:0 0 4px!important;font-size:19px!important}.schedule-help{margin:0 0 10px!important;font-size:11px!important;line-height:1.3!important}.schedule-modal form{overflow:visible!important}.schedule-date-grid{gap:6px!important}.schedule-modal label{gap:4px!important;font-size:11px!important}.schedule-modal input,.schedule-modal select{height:34px!important}.schedule-date-value{height:34px!important;font-size:12px!important}.schedule-time-label{margin-top:8px!important}.schedule-trip-details{margin-top:8px!important;gap:6px!important}.schedule-summary{display:none!important}.schedule-confirm{position:sticky!important;bottom:0!important;z-index:4!important;min-height:44px!important;margin-top:10px!important;border:1px solid var(--border)!important;box-shadow:0 -8px 18px var(--surface-color)!important}
+}

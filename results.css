@@ -6102,3 +6102,6 @@ body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-card-grid{dis
 }
 /* v76: restore the preferred Liberty photo and bias its crop upward to keep the face visible. */
 .alpha03-visual-card[data-alpha03-item-name*= Statue of Liberty] .alpha03-thumb.has-image img{object-fit:cover!important;object-position:center 28%!important}
+/* v77: keep the original Liberty face in frame in galleries and itinerary cards. */
+img[src*= photo-1762091409592-ed6d0dfed0ba]{object-position:center top!important}
+.alpha03-visual-card img[src*=photo-1762091409592-ed6d0dfed0ba],.alpha03-timeline-photo[src*=photo-1762091409592-ed6d0dfed0ba]{object-fit:cover!important;object-position:center 0%!important}
