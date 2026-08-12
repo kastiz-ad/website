@@ -273,7 +273,7 @@ export function mountInvestorDemoResults({
         <p>Investor Demo Mode</p>
         <strong>${snapshot.scenario.category}</strong>
       </div>
-      <span class="investor-demo-timer" data-demo-timer>00:00</span>
+      <div class="investor-demo-head-actions"><span class="investor-demo-timer" data-demo-timer>00:00</span><button type="button" class="investor-demo-collapse" data-demo-action="toggle_panel" aria-expanded="true" aria-label="Collapse investor controls">−</button></div>
     </div>
     <p class="investor-demo-disclosure">${snapshot.evidence.disclosure}</p>
     <div class="investor-demo-flow" data-demo-flow></div>
@@ -321,7 +321,16 @@ export function mountInvestorDemoResults({
   panel.addEventListener("click", (event) => {
     const action = event.target.closest("[data-demo-action]")?.dataset.demoAction;
     if (!action) return;
-    if (action === "reset") {
+    if (action === "toggle_panel") {
+      const collapsed = panel.classList.toggle("is-collapsed");
+      const toggle = panel.querySelector(".investor-demo-collapse");
+      if (toggle) {
+        toggle.textContent = collapsed ? "+" : "−";
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+        toggle.setAttribute("aria-label", collapsed ? "Expand investor controls" : "Collapse investor controls");
+      }
+      return;
+    }    if (action === "reset") {
       resetInvestorDemo(window.sessionStorage);
       window.location.href = "index.html?demo=1";
       return;
@@ -335,6 +344,15 @@ export function mountInvestorDemoResults({
 
   document.body.append(panel);
   document.body.classList.add("investor-demo-mode");
+  if (window.matchMedia?.("(max-width: 680px)")?.matches) {
+    panel.classList.add("is-collapsed");
+    const toggle = panel.querySelector(".investor-demo-collapse");
+    if (toggle) {
+      toggle.textContent = "+";
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Expand investor controls");
+    }
+  }
   persistAndRender(state);
   window.setInterval(() => renderTimer(), 1000);
   return panel;

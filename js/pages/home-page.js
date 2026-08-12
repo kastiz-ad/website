@@ -8,7 +8,7 @@ import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
-import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260730-investor-demo-mode";
+import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-results-v69";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
 
 const root = document.documentElement;
@@ -1679,7 +1679,7 @@ const startSeoulWeekendDateMission = (mission) => {
     mission: canonicalMission,
     destination: "Seoul",
     lang: activeLanguage,
-    v: "20260812-la-wow-images-v42"
+    v: "20260813-mobile-results-v69"
   });
   window.location.href = `results.html?${params.toString()}`;
 };
@@ -1701,7 +1701,12 @@ const startMission = (mission, schedule = null) => {
   body.classList.add("is-transitioning");
 
   window.setTimeout(() => {
-    window.location.href = `loading.html?lang=${encodeURIComponent(activeLanguage)}`;
+    const loadingRouteParams = new URLSearchParams({ lang: activeLanguage });
+    if (shouldShowInvestorPanel(window.location)) {
+      loadingRouteParams.set("investorDemo", "1");
+      loadingRouteParams.set("demo", "1");
+    }
+    window.location.href = `loading.html?${loadingRouteParams.toString()}`;
   }, 360);
 };
 

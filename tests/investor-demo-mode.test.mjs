@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import {
   INVESTOR_DEMO_SCENARIOS,
@@ -135,4 +136,20 @@ test("Investor Demo Mode routes medical and restaurant samples to the right doma
   assert.equal(restaurant.missionType, "restaurant");
   assert.match(restaurant.mission, /weekend date|2 day|jjimjilbang|excellent restaurants/i);
   assert.doesNotMatch(restaurant.mission, /dentist|tooth pain|diagnose/i);
+});
+
+test("investor query flags survive typed mission loading and mount on results", () => {
+  const homeSource = readFileSync(new URL("../js/pages/home-page.js", import.meta.url), "utf8");
+  const loadingSource = readFileSync(new URL("../js/pages/loading-page.js", import.meta.url), "utf8");
+  const resultsSource = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(homeSource, /loadingRouteParams\.set\("investorDemo", "1"\)/);
+  assert.match(loadingSource, /resultsParams\.set\("investorDemo", "1"\)/);
+  assert.match(resultsSource, /if \(isInvestorDemoMode\(window\.location\)\)/);
+});
+
+test("phone result CSS uses large picture cards and compact investor controls", () => {
+  const css = readFileSync(new URL("../results.css", import.meta.url), "utf8");
+  assert.match(css, /v67: phone-first result repair/);
+  assert.match(css, /\.alpha03-premium-card \{ grid-template-columns:1fr; grid-template-rows:210px auto/);
+  assert.match(css, /\.investor-demo-controls\.is-collapsed/);
 });

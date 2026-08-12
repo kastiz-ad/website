@@ -4,7 +4,7 @@ import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { normalizeResultLocale, resolveResultLocale } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
-import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-one-lockup-baseline-v66";
+import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-results-v69";
 
 const root = document.documentElement;
 const body = document.body;
@@ -638,11 +638,17 @@ const runLoadingSequence = async () => {
     const resultsMission = enrichedMission.rawInput || enrichedMission.mission || enrichedMission.originalMission || mission.rawInput || mission.mission || "";
     const resultsDestination = resolvePreviewDestination(resultsMission)?.profile?.city || enrichedMission.destination?.city || enrichedMission.detectedDestination?.city || mission.destination?.city || "";
     const resultsParams = new URLSearchParams({
-      v: "20260812-one-lockup-baseline-v66",
+      v: "20260813-mobile-results-v69",
       lang: fallbackLanguage
     });
     if (resultsMission) resultsParams.set("mission", resultsMission);
     if (resultsDestination) resultsParams.set("destination", resultsDestination);
+    if (loadingParams.get("investorDemo") === "1" || loadingParams.get("demo") === "1") {
+      resultsParams.set("investorDemo", "1");
+      resultsParams.set("demo", "1");
+      const demoScenario = loadingParams.get("demoScenario");
+      if (demoScenario) resultsParams.set("demoScenario", demoScenario);
+    }
     window.location.href = `results.html?${resultsParams.toString()}`;
   }, 360);
 };

@@ -1,6 +1,5 @@
 import { renderSafeMedicalAppointmentDemo } from "./medical-appointment-demo.js?v=20260811-medical-ui-v3";
 import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMissionType } from "../engine/approval/mission-specific-approval.js?v=20260811-mission-specific-approval-v1";
-import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-investor-route-only-v1";
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
@@ -13,8 +12,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260812-one-lockup-baseline-v66";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260812-one-lockup-baseline-v66";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-mobile-results-v69";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-results-v69";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -93,7 +92,7 @@ import {
 import {
   isInvestorDemoMode,
   mountInvestorDemoResults
-} from "../engine/demo/investor-demo-mode.js?v=20260730-investor-demo-mode";
+} from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-results-v69";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -3473,7 +3472,7 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
 const NEW_YORK_FOOD_VISUALS = Object.freeze([
   { name:"Classic New York pizza slice", image:{url:"https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=82",alt:"New York style pizza"}, advice:{en:"Foldable street slice near the day's neighborhood route.",ko:"당일 동선 가까이에서 즐기는 뉴욕식 피자 한 조각"} },
   { name:"Pastrami on rye at a Jewish deli", image:{url:"https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82",alt:"Pastrami deli sandwich"}, advice:{en:"Share a substantial pastrami sandwich and avoid the busiest queue.",ko:"푸짐한 파스트라미 샌드위치를 나눠 먹고 혼잡 시간을 피하세요"} },
-  { name:"Bagel with cream cheese and smoked salmon", image:{url:"https://images.unsplash.com/photo-1585478259715-876acc5be8eb?auto=format&fit=crop&w=900&q=82",alt:"Bagel with smoked salmon"}, advice:{en:"A proper NYC breakfast before museums or a long walking day.",ko:"박물관이나 긴 도보 일정 전에 좋은 뉴욕식 아침"} },
+  { name:"Bagel with cream cheese and smoked salmon", image:{url:"assets/nyc-bagel-lox-v1.png",alt:"Bagel with smoked salmon"}, advice:{en:"A proper NYC breakfast before museums or a long walking day.",ko:"박물관이나 긴 도보 일정 전에 좋은 뉴욕식 아침"} },
   { name:"Chinatown dumplings and noodles", image:{url:"https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=900&q=82",alt:"Dumplings and noodles"}, advice:{en:"Pair Chinatown food with Lower Manhattan instead of crossing town.",ko:"차이나타운 식사는 로어맨해튼 일정과 함께 묶으세요"} },
   { name:"New York steakhouse dinner", image:{url:"https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82",alt:"New York steakhouse steak"}, advice:{en:"Reserve one polished dinner and keep the daytime plan lighter.",ko:"특별한 스테이크 저녁을 위해 낮 일정은 가볍게 구성하세요"} },
   { name:"New York cheesecake", image:{url:"https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=900&q=82",alt:"New York cheesecake"}, advice:{en:"Share dessert after dinner or use it as a midday cafe stop.",ko:"저녁 후 나눠 먹거나 오후 카페 일정으로 넣으세요"} },
@@ -3523,7 +3522,7 @@ const alpha03FoodImageForName = (name = "", ownImage = "") => {
     [/lobster|crab|shrimp|seafood/, "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=82"],
     [/steak|wagyu|beef/, "https://images.unsplash.com/photo-1654879259483-af42804bd2bb?auto=format&fit=crop&w=900&q=82"],
     [/korean bbq|k-?bbq|galbi/, "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=900&q=82"],
-    [/bagel|smoked salmon/, "https://images.unsplash.com/photo-1585478259715-876acc5be8eb?auto=format&fit=crop&w=900&q=82"],
+    [/bagel|smoked salmon/, "assets/nyc-bagel-lox-v1.png"],
     [/pastrami|deli|sandwich|subway/, "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82"],
     [/cheesecake|dessert|cake/, "https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=900&q=82"]
   ];
@@ -3642,17 +3641,19 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
   `;
 };
 
-const createAlpha03TimelineHtml = (days) => `
+const createAlpha03TimelineHtml = (days, places = []) => `
   <section class="alpha03-section alpha03-timeline-redesign">
     <div class="alpha03-section-heading">
       <span class="v23-eyebrow">${escapeSummaryText(resultText(activeLanguage, "timeline"))}</span>
       <h3>${escapeSummaryText(resultText(activeLanguage, "timelineTitle"))}</h3>
     </div>
     <div class="alpha03-timeline-strip">
-      ${days.map((day) => {
+      ${days.map((day, dayIndex) => {
         const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
+        const dayImage = previewItemImage(places[dayIndex % Math.max(1, places.length)] || {});
         return `
           <article class="alpha03-timeline-card" tabindex="0" data-itinerary-day="${escapeSummaryText(day.day.replace(/\D/g, ""))}">
+            ${dayImage?.url ? `<img class="alpha03-timeline-photo" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : ""}
             <span>${escapeSummaryText(day.day)}</span>
             <strong>${escapeSummaryText(day.title)}</strong>
             ${day.theme ? `<em class="realistic-day-theme">${escapeSummaryText(day.theme)}</em>` : ""}
@@ -3718,6 +3719,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   if (!worldCityVisualPack && isTokyoGallery) restaurants = [...TOKYO_FOOD_VISUALS];
   const isNewYorkGallery = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(destination || ""));
   if (isNewYorkGallery) {
+    restaurants = [...NEW_YORK_FOOD_VISUALS];
     const statue = profile.places.find((item) => /statue of liberty/i.test(String(item?.name || "")));
     if (statue) places = uniqueItems([statue, ...places]);
   }
@@ -3834,7 +3836,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ` : ""}
     </div>
 
-    ${createAlpha03TimelineHtml(days)}
+    ${createAlpha03TimelineHtml(days, picturePlaces)}
 
     ${createAlpha03OptionPreview(journey, result, transportationSummary)}
 
@@ -7582,7 +7584,7 @@ initializeOptionSelections();
 renderApprovalList();
 enableCustomization();
 enableTimelineDragScroll();
-if (shouldShowInvestorPanel(window.location) && isInvestorDemoMode(window.location)) {
+if (isInvestorDemoMode(window.location)) {
   mountInvestorDemoResults({ result: currentResult, language: activeLanguage });
 }
 applyV231ManualApprovalScenario();

@@ -5880,3 +5880,97 @@ body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-gri
 .alpha03-visual-card.is-restaurant.is-selected { border-color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent),var(--shadow-card); }
 .alpha03-food-select-mark { position:absolute; top:12px; right:12px; display:grid; place-items:center; width:30px; height:30px; border-radius:999px; background:var(--surface-strong); border:1px solid var(--border-strong); color:var(--text); font-weight:900; z-index:2; }
 .alpha03-visual-card.is-restaurant.is-selected .alpha03-food-select-mark { background:var(--accent); color:var(--accent-text); }
+/* v67: phone-first result repair and persistent investor controls. */
+.investor-demo-head-actions { display:flex; align-items:center; gap:7px; }
+.investor-demo-collapse { display:grid; place-items:center; width:32px; height:32px; padding:0; border:1px solid var(--border); border-radius:999px; background:var(--chip); color:var(--text); font-size:18px; font-weight:850; line-height:1; cursor:pointer; }
+.investor-demo-controls.is-collapsed { width:min(260px,calc(100vw - 20px)); max-height:none; overflow:hidden; }
+.investor-demo-controls.is-collapsed .investor-demo-disclosure,
+.investor-demo-controls.is-collapsed .investor-demo-flow,
+.investor-demo-controls.is-collapsed .investor-demo-buttons,
+.investor-demo-controls.is-collapsed .investor-demo-notes { display:none!important; }
+
+@media (max-width:680px) {
+  .results-header { padding:12px 14px; gap:10px; }
+  .results-header .brand { height:40px; }
+  .brand > .header-mini-symbol { width:40px!important; height:40px!important; flex-basis:40px; }
+  .brand > .header-mini-ne { font-size:27px; }
+  .header-actions { min-width:0; gap:9px; }
+  .result-language-control select { max-width:112px; height:40px; padding-inline:12px 30px; }
+  .header-link { font-size:12px; }
+  .mission-layout { width:100%; padding:24px 10px 88px; overflow:hidden; }
+  .mission-grid { width:100%; gap:10px; }
+  .mission-card,.mission-card.is-wide,.mission-card.is-full { min-width:0; min-height:0; padding:16px; border-radius:20px; overflow:hidden; }
+  .product-refined-results { width:100%; padding:9px; border-radius:22px; overflow:hidden; }
+  .product-hero-heading,.alpha03-premium-hero,.alpha03-recommendation-stage,.alpha03-story-panel,.alpha03-journey-map,.alpha03-budget-breakdown { padding:14px; border-radius:20px; }
+  .product-hero-heading h2,.alpha03-hero-copy h2 { font-size:clamp(30px,9.6vw,42px); overflow-wrap:anywhere; }
+  .alpha03-section-heading h3 { font-size:clamp(25px,8vw,34px); line-height:1.08; }
+  body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid,
+  body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid.is-restaurants,
+  .alpha03-preview-group > .alpha03-visual-rail { grid-auto-columns:calc(100vw - 42px); gap:10px; scroll-padding-inline:2px; }
+  .alpha03-premium-card { grid-template-columns:1fr; grid-template-rows:210px auto; min-height:300px; border-radius:20px; }
+  .alpha03-premium-card .alpha03-thumb,
+  .alpha03-premium-card .alpha03-thumb.has-image,
+  .alpha03-premium-card .alpha03-thumb-fallback { width:100%; height:210px; min-height:210px; border-radius:0; }
+  .alpha03-premium-card .alpha03-thumb.has-image img { width:100%; height:210px; min-height:210px; object-fit:cover; }
+  .alpha03-premium-card > div:last-child { padding:15px 16px 17px; }
+  .alpha03-visual-card strong { font-size:18px; }
+  .alpha03-visual-card p { font-size:13px; line-height:1.42; }
+  .alpha03-picture-option { grid-template-rows:205px auto auto; min-height:308px; border-radius:20px; }
+  .alpha03-picture-option .alpha03-option-photo { height:205px; }
+  .alpha03-picture-option.is-airline-brand .alpha03-option-photo { padding:30px; }
+  .alpha03-preview-group { padding:12px 9px; border-radius:20px; overflow:hidden; }
+  .alpha03-timeline-strip { grid-auto-columns:calc(100vw - 48px); gap:10px; padding-inline:2px; }
+  .alpha03-timeline-card { padding:15px; border-radius:20px; }
+  .alpha03-map-canvas.is-osm-preview,.alpha03-map-canvas.is-osm-preview iframe { min-height:240px; height:240px; border-radius:18px; }
+  .alpha03-map-note { max-width:calc(100% - 16px); left:8px; bottom:8px; font-size:9px; white-space:normal; }
+  .bottom-actions { width:calc(100% - 20px); margin-top:32px; padding:8px; border-radius:24px; }
+  .investor-demo-controls { left:10px; right:10px; bottom:calc(10px + env(safe-area-inset-bottom)); width:auto; max-height:62dvh; padding:10px; border-radius:18px; }
+  .investor-demo-control-head { align-items:center; }
+  .investor-demo-flow { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; }
+  .investor-demo-flow span { flex:0 0 70%; scroll-snap-align:start; }
+  .investor-demo-buttons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .investor-demo-controls.is-collapsed { left:auto; width:min(250px,calc(100vw - 20px)); }
+  body.investor-demo-mode .bottom-actions { padding-bottom:72px; }
+}
+
+@media (max-width:420px) {
+  .header-actions .header-link { display:none; }
+  .result-language-control select { max-width:118px; }
+  body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid,
+  body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid.is-restaurants,
+  .alpha03-preview-group > .alpha03-visual-rail { grid-auto-columns:calc(100vw - 34px); }
+  .alpha03-premium-card { grid-template-rows:220px auto; }
+  .alpha03-premium-card .alpha03-thumb,
+  .alpha03-premium-card .alpha03-thumb.has-image,
+  .alpha03-premium-card .alpha03-thumb-fallback,
+  .alpha03-premium-card .alpha03-thumb.has-image img { height:220px; min-height:220px; }
+}
+/* v68: give food-card copy the same comfortable visual inset as place cards. */
+.alpha03-visual-card.is-restaurant > .alpha03-thumb + div { padding-top: 21px; }
+@media (max-width:680px) {
+  .alpha03-visual-card.is-restaurant > .alpha03-thumb + div { padding-top:18px; }
+}
+/* v69: compact, readable phone galleries and itinerary cards. */
+.alpha03-timeline-photo{display:block;width:calc(100% + 36px);height:168px;margin:-18px -18px 2px;object-fit:cover;border-radius:24px 24px 0 0}
+@media(max-width:680px){
+body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid,body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-grid.is-restaurants{grid-auto-columns:min(78vw,300px);padding-right:18vw}
+.alpha03-premium-card{grid-template-rows:230px auto;min-height:286px}
+.alpha03-premium-card .alpha03-thumb,.alpha03-premium-card .alpha03-thumb.has-image,.alpha03-premium-card .alpha03-thumb-fallback,.alpha03-premium-card .alpha03-thumb.has-image img{height:230px;min-height:230px}
+.alpha03-visual-card>div:last-of-type{min-width:0;padding:13px 14px 15px}
+.alpha03-visual-card strong{display:block;font-size:16px;line-height:1.18;overflow-wrap:anywhere}
+.alpha03-visual-card p{display:none}
+.alpha03-visual-card.is-restaurant>.alpha03-thumb+div{padding-top:13px}
+.alpha03-timeline-strip{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,318px);gap:10px;overflow-x:auto;padding:2px 16vw 10px 2px}
+.alpha03-timeline-card{display:flex;flex-direction:column;width:auto;min-width:0;padding:14px;gap:10px;overflow:hidden}
+.alpha03-timeline-photo{width:calc(100% + 28px);height:176px;margin:-14px -14px 2px;border-radius:20px 20px 0 0}
+.alpha03-timeline-card>span,.alpha03-timeline-card>strong,.alpha03-timeline-card .realistic-day-theme,.alpha03-timeline-card .alpha03-day-slot,.alpha03-timeline-card .realistic-weather-alternative{width:100%;min-width:0}
+.alpha03-timeline-card>strong{font-size:18px;line-height:1.2;overflow-wrap:anywhere}
+.alpha03-timeline-card .alpha03-day-slot b{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;width:100%;min-width:0;font-size:12px;line-height:1.35;white-space:normal}
+.alpha03-timeline-card .alpha03-day-slot p{font-size:12px;line-height:1.42;overflow-wrap:anywhere}
+.alpha03-preview-group>.alpha03-visual-rail{grid-auto-columns:min(76vw,292px);padding-right:20vw}
+.alpha03-picture-option{grid-template-rows:176px auto auto;min-height:258px}
+.alpha03-picture-option .alpha03-option-photo{height:176px}
+.alpha03-picture-option.is-airline-brand .alpha03-option-photo{padding:22px}
+.alpha03-picture-option strong{font-size:14px;line-height:1.2}
+.alpha03-picture-option em{font-size:11px}
+}
