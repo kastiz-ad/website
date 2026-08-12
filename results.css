@@ -5974,3 +5974,72 @@ body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-gri
 .alpha03-picture-option strong{font-size:14px;line-height:1.2}
 .alpha03-picture-option em{font-size:11px}
 }
+/* v70: food/place cards match option galleries; schedule times stay horizontal. */
+@media(max-width:680px){
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-premium-card{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:190px auto!important;
+    width:100%!important;
+    min-height:248px!important;
+    text-align:left!important;
+  }
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-thumb,
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-thumb.has-image,
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-thumb-fallback{
+    grid-column:1!important;
+    grid-row:1!important;
+    width:100%!important;
+    height:190px!important;
+    min-height:190px!important;
+    border-radius:0!important;
+  }
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-thumb.has-image img{
+    width:100%!important;
+    height:190px!important;
+    min-height:190px!important;
+    object-fit:cover!important;
+  }
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-card-grid,
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-card-grid.is-restaurants{
+    grid-auto-columns:min(76vw,292px)!important;
+    padding-right:20vw!important;
+  }
+  body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-visual-card>div:last-of-type{
+    grid-column:1!important;
+    grid-row:2!important;
+    padding:13px 14px 15px!important;
+  }
+  .alpha03-timeline-card .alpha03-day-slot{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  .alpha03-timeline-card .alpha03-day-slot b{
+    display:flex!important;
+    flex-flow:row nowrap!important;
+    align-items:center!important;
+    gap:9px!important;
+    width:100%!important;
+    min-width:0!important;
+    white-space:nowrap!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    font-size:13px!important;
+    line-height:1.25!important;
+  }
+  .alpha03-timeline-card .alpha03-day-slot i{
+    flex:0 0 30px!important;
+    width:30px!important;
+    height:30px!important;
+    font-size:17px!important;
+  }
+  .alpha03-timeline-card .alpha03-day-slot p{
+    margin-top:7px!important;
+    padding-left:39px!important;
+    font-size:13px!important;
+    line-height:1.45!important;
+    word-break:keep-all!important;
+    overflow-wrap:anywhere!important;
+  }
+}

@@ -8,7 +8,7 @@ import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
-import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-results-v69";
+import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-card-schedule-v70";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
 
 const root = document.documentElement;
@@ -1679,7 +1679,7 @@ const startSeoulWeekendDateMission = (mission) => {
     mission: canonicalMission,
     destination: "Seoul",
     lang: activeLanguage,
-    v: "20260813-mobile-results-v69"
+    v: "20260813-mobile-card-schedule-v70"
   });
   window.location.href = `results.html?${params.toString()}`;
 };
