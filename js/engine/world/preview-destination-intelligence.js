@@ -353,8 +353,8 @@ export const PREVIEW_DESTINATION_PROFILES = {
         "latitude": 40.7128,
         "longitude": -74.006,
         "image": {
-          "url": "https://images.unsplash.com/photo-1762091409592-ed6d0dfed0ba?auto=format&fit=crop&w=1200&q=82",
-          "alt": "Statue of Liberty on Liberty Island"
+          'url': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Front_view_of_Statue_of_Liberty_with_pedestal_and_base_2024.jpg/500px-Front_view_of_Statue_of_Liberty_with_pedestal_and_base_2024.jpg',
+          'alt': 'Front view of the Statue of Liberty with face, torch, pedestal, and base visible'
         },
         "advice": {
           "en": "Make this the anchor stop, then build food and rest around it.",
