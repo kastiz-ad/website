@@ -12,8 +12,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-mobile-density-i18n-v72";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-density-i18n-v72";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-mobile-polish-v73";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-polish-v73";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -92,7 +92,7 @@ import {
 import {
   isInvestorDemoMode,
   mountInvestorDemoResults
-} from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-density-i18n-v72";
+} from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-polish-v73";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -3335,6 +3335,7 @@ document.addEventListener("error", (event) => { if (event.target?.matches?.(".al
 const alpha03LocalizedDisplayName = (value = "") => {
   const source = String(value || "");
   if (activeLanguage === "en") return source;
+  const protectedNewYorker = source.replace(/The New Yorker, A Wyndham Hotel/gi, '__THE_NEW_YORKER_HOTEL__');
   const entries = [
     [/NYC icons, Broadway, food, and skyline/gi,"뉴욕 명소, 브로드웨이, 미식과 스카이라인","Iconos de NYC, Broadway, gastronomía y skyline","Icônes de New York, Broadway, gastronomie et skyline"],
     [/Central Park, Fifth Avenue, Lower Manhattan, Brooklyn, museums, and one show night\./gi,"센트럴파크, 5번가, 로어맨해튼, 브루클린, 박물관과 공연이 있는 밤을 즐기는 일정입니다.","Central Park, Quinta Avenida, Bajo Manhattan, Brooklyn, museos y una noche de espectáculo.","Central Park, la Cinquième Avenue, Lower Manhattan, Brooklyn, les musées et une soirée spectacle."],
@@ -3369,7 +3370,9 @@ const alpha03LocalizedDisplayName = (value = "") => {
     [/recovery and local errands/gi,"휴식과 현지 일정","Descanso y recados locales","Repos et activités locales"]
   ];
   const languageIndex = activeLanguage === "ko" ? 1 : activeLanguage === "es" ? 2 : 3;
-  return entries.reduce((output, entry) => output.replace(entry[0], entry[languageIndex]), source);
+  return entries
+ .reduce((output, entry) => output.replace(entry[0], entry[languageIndex]), protectedNewYorker)
+    .replace(/__THE_NEW_YORKER_HOTEL__/g, 'The New Yorker, A Wyndham Hotel');
 };
 const createAlpha03VisualCard = (item, type, index) => {
   const image = previewItemImage(item);
@@ -3854,7 +3857,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     <section ${alpha04SectionAttrs(workspace, "restaurants", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "음식", "Comida"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Food worth planning around", "일정에 넣을 만한 음식", "Comida que vale planear"))}</h3>
+        <h3>${escapeSummaryText(alpha03Copy("Curated local dining", "엄선한 현지 미식", "Gastronomía local seleccionada"))}</h3>
       </div>
       <div class="alpha03-card-grid is-restaurants alpha03-visual-rail">
         ${restaurants.map((item, index) => createAlpha03VisualCard(item, "restaurant", index)).join("")}
@@ -3866,7 +3869,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Places that make the trip feel real", "여행이 살아나는 장소", "Lugares que hacen real el viaje"))}</h3>
+        <h3>${escapeSummaryText(alpha03Copy("Destination highlights", "주요 명소와 추천 장소", "Lugares destacados del destino"))}</h3>
       </div>
       <div class="alpha03-card-grid alpha03-visual-rail">
         ${picturePlaces.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
