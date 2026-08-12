@@ -12,8 +12,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-mobile-card-schedule-v70";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-card-schedule-v70";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-localized-budget-v71";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-localized-budget-v71";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -92,7 +92,7 @@ import {
 import {
   isInvestorDemoMode,
   mountInvestorDemoResults
-} from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-card-schedule-v70";
+} from "../engine/demo/investor-demo-mode.js?v=20260813-localized-budget-v71";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -3332,6 +3332,42 @@ const getAlpha03ItemAdvice = (item, type, index) => {
 
 document.addEventListener("error", (event) => { if (event.target?.matches?.(".alpha03-thumb.has-image img")) event.target.hidden = true; }, true);
 
+const alpha03LocalizedDisplayName = (value = "") => {
+  const source = String(value || "");
+  if (activeLanguage === "en") return source;
+  const entries = [
+    [/Classic New York pizza slice/gi, "뉴욕식 피자 한 조각", "Porción de pizza neoyorquina"],
+    [/Pastrami on rye at a Jewish deli/gi, "유대인 델리의 호밀빵 파스트라미", "Pastrami con pan de centeno"],
+    [/Bagel with cream cheese and smoked salmon/gi, "크림치즈와 훈제연어 베이글", "Bagel con queso crema y salmón ahumado"],
+    [/Chinatown dumplings and noodles/gi, "차이나타운 만두와 면 요리", "Dumplings y fideos de Chinatown"],
+    [/New York steakhouse dinner/gi, "뉴욕 스테이크하우스 저녁", "Cena en steakhouse de Nueva York"],
+    [/New York cheesecake/gi, "뉴욕 치즈케이크", "Cheesecake de Nueva York"],
+    [/Chelsea Market food hall/gi, "첼시마켓 푸드홀", "Mercado gastronómico de Chelsea"],
+    [/Halal cart chicken and rice/gi, "할랄 카트 치킨 라이스", "Pollo con arroz de carrito halal"],
+    [/Statue of Liberty/gi, "자유의 여신상", "Estatua de la Libertad"],
+    [/Central Park/gi, "센트럴파크", "Central Park"],
+    [/The Metropolitan Museum of Art|The Met/gi, "메트로폴리탄 미술관", "Museo Metropolitano de Arte"],
+    [/High Line/gi, "하이라인", "High Line"],
+    [/Hudson Yards/gi, "허드슨 야드", "Hudson Yards"],
+    [/Brooklyn Bridge/gi, "브루클린 브리지", "Puente de Brooklyn"],
+    [/DUMBO/gi, "덤보", "DUMBO"],
+    [/Times Square/gi, "타임스스퀘어", "Times Square"],
+    [/Fifth Avenue/gi, "5번가", "Quinta Avenida"],
+    [/Upper Manhattan/gi, "어퍼맨해튼", "Alto Manhattan"],
+    [/Lower Manhattan/gi, "로어맨해튼", "Bajo Manhattan"],
+    [/New York City|New York/gi, "뉴욕", "Nueva York"],
+    [/Airbnb-style apartment/gi, "에어비앤비형 아파트", "Apartamento tipo Airbnb"],
+    [/serviced apartment/gi, "서비스드 아파트", "Apartamento con servicios"],
+    [/Arrival/gi, "도착", "Llegada"],
+    [/Departure/gi, "출발", "Salida"],
+    [/Breakfast/gi, "아침 식사", "Desayuno"],
+    [/Lunch/gi, "점심 식사", "Almuerzo"],
+    [/Dinner/gi, "저녁 식사", "Cena"],
+    [/rest and local travel buffer/gi, "휴식 및 현지 이동 여유 시간", "Descanso y margen de traslado local"],
+    [/recovery and local errands/gi, "휴식과 현지 일정", "Descanso y recados locales"]
+  ];
+  return entries.reduce((output, [pattern, ko, es]) => output.replace(pattern, activeLanguage === "ko" ? ko : es), source);
+};
 const createAlpha03VisualCard = (item, type, index) => {
   const image = previewItemImage(item);
   const imageMarkup = image?.url
@@ -3343,7 +3379,7 @@ const createAlpha03VisualCard = (item, type, index) => {
   return `
   <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}">${imageMarkup}</div>
-    <div><strong>${escapeSummaryText(item.name)}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p></div>
+    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p></div>
     ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true">${selected ? "✓" : "+"}</span>` : ""}
   </${tag}>
 `;
@@ -3573,7 +3609,7 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
   <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}${isAirlineBrand ? " is-airline-brand" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" data-preview-name="${escapeSummaryText(option.name)}" data-preview-meta="${escapeSummaryText(option.meta)}" aria-pressed="${selected ? "true" : "false"}">
     <span class="alpha03-option-photo"><img src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false"></span>
     <span class="alpha03-preview-check" aria-hidden="true">${selected ? "✓" : "+"}</span>
-    <strong>${escapeSummaryText(option.name)}</strong>
+    <strong>${escapeSummaryText(alpha03LocalizedDisplayName(option.name))}</strong>
     <em>${escapeSummaryText(option.meta)}</em>
   </button>
 `;
@@ -3654,11 +3690,11 @@ const createAlpha03TimelineHtml = (days, places = []) => `
         return `
           <article class="alpha03-timeline-card" tabindex="0" data-itinerary-day="${escapeSummaryText(day.day.replace(/\D/g, ""))}">
             ${dayImage?.url ? `<img class="alpha03-timeline-photo" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : ""}
-            <span>${escapeSummaryText(day.day)}</span>
-            <strong>${escapeSummaryText(day.title)}</strong>
-            ${day.theme ? `<em class="realistic-day-theme">${escapeSummaryText(day.theme)}</em>` : ""}
-            ${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(label)}</b><p>${escapeSummaryText(value)}</p></div>`).join("")}
-            ${day.weatherAlternative ? `<p class="realistic-weather-alternative">${escapeSummaryText(day.weatherAlternative)}</p>` : ""}
+            <span>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</span>
+            <strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong>
+            ${day.theme ? `<em class="realistic-day-theme">${escapeSummaryText(alpha03LocalizedDisplayName(day.theme))}</em>` : ""}
+            ${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(alpha03LocalizedDisplayName(label))}</b><p>${escapeSummaryText(alpha03LocalizedDisplayName(value))}</p></div>`).join("")}
+            ${day.weatherAlternative ? `<p class="realistic-weather-alternative">${escapeSummaryText(alpha03LocalizedDisplayName(day.weatherAlternative))}</p>` : ""}
           </article>
         `;
       }).join("")}

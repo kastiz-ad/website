@@ -6043,3 +6043,21 @@ body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-gri
     overflow-wrap:anywhere!important;
   }
 }
+/* v71: denser budget summary with left label and right value. */
+.alpha03-budget-breakdown{grid-template-columns:minmax(180px,.42fr) minmax(0,1fr);padding:clamp(14px,2vw,20px)}
+.alpha03-budget-grid{gap:8px}
+.alpha03-budget-grid span{grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto;align-items:center;column-gap:8px;min-height:58px;padding:9px 11px;border-radius:16px}
+.alpha03-budget-grid i{grid-column:1;font-size:18px}
+.alpha03-budget-grid b{grid-column:2;min-width:0;font-size:12px;line-height:1.2}
+.alpha03-budget-grid em{grid-column:3;text-align:right;font-size:11px;line-height:1.2;overflow-wrap:anywhere}
+@media(max-width:760px){
+.alpha03-budget-breakdown{grid-template-columns:1fr;gap:10px}
+.alpha03-budget-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.alpha03-budget-grid span{min-height:54px}
+.alpha03-budget-grid em{max-width:92px}
+}
+@media(max-width:390px){
+.alpha03-budget-grid span{grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto}
+.alpha03-budget-grid i{grid-row:1/span 2}
+.alpha03-budget-grid em{grid-column:2;grid-row:2;max-width:none;text-align:left}
+}
