@@ -6061,3 +6061,28 @@ body.travel-premium-result-view:not(.is-investor-weekend-date) .alpha03-card-gri
 .alpha03-budget-grid i{grid-row:1/span 2}
 .alpha03-budget-grid em{grid-column:2;grid-row:2;max-width:none;text-align:left}
 }
+/* v72: remove phone dead space, fix revision action, and keep summaries compact. */
+@media(max-width:680px){
+  .alpha03-budget-breakdown{padding:12px!important;gap:9px!important}
+  .alpha03-budget-breakdown>div:first-child h3{font-size:clamp(24px,7vw,32px);line-height:1.08;margin:7px 0 2px}
+  .alpha03-budget-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .alpha03-budget-grid span{min-width:0!important;min-height:50px!important;padding:8px 9px!important;border-radius:14px!important;grid-template-columns:auto minmax(0,1fr)!important;grid-template-rows:auto auto!important;align-content:center!important}
+  .alpha03-budget-grid i{grid-column:1!important;grid-row:1/span 2!important;font-size:17px!important}
+  .alpha03-budget-grid b{grid-column:2!important;grid-row:1!important;font-size:11px!important}
+  .alpha03-budget-grid em{grid-column:2!important;grid-row:2!important;max-width:none!important;text-align:left!important;font-size:10px!important;line-height:1.18!important}
+  .alpha03-recommendation-stage{padding:12px!important;gap:12px!important}
+  .alpha03-recommendation-copy{gap:10px!important}
+  .alpha03-recommendation-copy h2{font-size:clamp(29px,8.5vw,39px)!important;line-height:1.04!important}
+  .alpha03-recommendation-copy>p{font-size:13px!important;line-height:1.45!important}
+  .alpha03-recommendation-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  .alpha03-recommendation-metrics span{min-width:0!important;padding:9px!important;border-radius:14px!important}
+  .alpha03-recommendation-metrics b{font-size:12px!important;white-space:normal!important;overflow:visible!important}
+  .alpha03-recommendation-metrics em{font-size:9px!important}
+  .revision-command{padding:16px!important;min-height:0!important}
+  .revision-command .additional-service-entry{display:grid!important;grid-template-columns:1fr!important;gap:9px!important}
+  .revision-command textarea{min-height:76px!important;font-size:14px!important}
+  .revision-command #addServiceButton{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-width:0!important;min-height:46px!important;padding:0 16px!important;border-radius:15px!important;font-size:15px!important;line-height:1!important;white-space:nowrap!important;word-break:keep-all!important;writing-mode:horizontal-tb!important}
+  .revision-command .card-title{font-size:20px!important;line-height:1.25!important}
+  .revision-lead{font-size:13px!important;line-height:1.45!important}
+  .approval-preview-card,.approval-protection-card{min-height:0!important;padding:18px!important}
+}

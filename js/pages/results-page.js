@@ -12,8 +12,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-localized-budget-v71";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-localized-budget-v71";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-mobile-density-i18n-v72";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-density-i18n-v72";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -92,7 +92,7 @@ import {
 import {
   isInvestorDemoMode,
   mountInvestorDemoResults
-} from "../engine/demo/investor-demo-mode.js?v=20260813-localized-budget-v71";
+} from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-density-i18n-v72";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -3336,37 +3336,40 @@ const alpha03LocalizedDisplayName = (value = "") => {
   const source = String(value || "");
   if (activeLanguage === "en") return source;
   const entries = [
-    [/Classic New York pizza slice/gi, "뉴욕식 피자 한 조각", "Porción de pizza neoyorquina"],
-    [/Pastrami on rye at a Jewish deli/gi, "유대인 델리의 호밀빵 파스트라미", "Pastrami con pan de centeno"],
-    [/Bagel with cream cheese and smoked salmon/gi, "크림치즈와 훈제연어 베이글", "Bagel con queso crema y salmón ahumado"],
-    [/Chinatown dumplings and noodles/gi, "차이나타운 만두와 면 요리", "Dumplings y fideos de Chinatown"],
-    [/New York steakhouse dinner/gi, "뉴욕 스테이크하우스 저녁", "Cena en steakhouse de Nueva York"],
-    [/New York cheesecake/gi, "뉴욕 치즈케이크", "Cheesecake de Nueva York"],
-    [/Chelsea Market food hall/gi, "첼시마켓 푸드홀", "Mercado gastronómico de Chelsea"],
-    [/Halal cart chicken and rice/gi, "할랄 카트 치킨 라이스", "Pollo con arroz de carrito halal"],
-    [/Statue of Liberty/gi, "자유의 여신상", "Estatua de la Libertad"],
-    [/Central Park/gi, "센트럴파크", "Central Park"],
-    [/The Metropolitan Museum of Art|The Met/gi, "메트로폴리탄 미술관", "Museo Metropolitano de Arte"],
-    [/High Line/gi, "하이라인", "High Line"],
-    [/Hudson Yards/gi, "허드슨 야드", "Hudson Yards"],
-    [/Brooklyn Bridge/gi, "브루클린 브리지", "Puente de Brooklyn"],
-    [/DUMBO/gi, "덤보", "DUMBO"],
-    [/Times Square/gi, "타임스스퀘어", "Times Square"],
-    [/Fifth Avenue/gi, "5번가", "Quinta Avenida"],
-    [/Upper Manhattan/gi, "어퍼맨해튼", "Alto Manhattan"],
-    [/Lower Manhattan/gi, "로어맨해튼", "Bajo Manhattan"],
-    [/New York City|New York/gi, "뉴욕", "Nueva York"],
-    [/Airbnb-style apartment/gi, "에어비앤비형 아파트", "Apartamento tipo Airbnb"],
-    [/serviced apartment/gi, "서비스드 아파트", "Apartamento con servicios"],
-    [/Arrival/gi, "도착", "Llegada"],
-    [/Departure/gi, "출발", "Salida"],
-    [/Breakfast/gi, "아침 식사", "Desayuno"],
-    [/Lunch/gi, "점심 식사", "Almuerzo"],
-    [/Dinner/gi, "저녁 식사", "Cena"],
-    [/rest and local travel buffer/gi, "휴식 및 현지 이동 여유 시간", "Descanso y margen de traslado local"],
-    [/recovery and local errands/gi, "휴식과 현지 일정", "Descanso y recados locales"]
+    [/NYC icons, Broadway, food, and skyline/gi,"뉴욕 명소, 브로드웨이, 미식과 스카이라인","Iconos de NYC, Broadway, gastronomía y skyline","Icônes de New York, Broadway, gastronomie et skyline"],
+    [/Central Park, Fifth Avenue, Lower Manhattan, Brooklyn, museums, and one show night\./gi,"센트럴파크, 5번가, 로어맨해튼, 브루클린, 박물관과 공연이 있는 밤을 즐기는 일정입니다.","Central Park, Quinta Avenida, Bajo Manhattan, Brooklyn, museos y una noche de espectáculo.","Central Park, la Cinquième Avenue, Lower Manhattan, Brooklyn, les musées et une soirée spectacle."],
+    [/Classic New York pizza slice/gi,"뉴욕식 피자 한 조각","Porción de pizza neoyorquina","Part de pizza new-yorkaise"],
+    [/Pastrami on rye at a Jewish deli/gi,"유대인 델리의 호밀빵 파스트라미","Pastrami con pan de centeno","Pastrami sur pain de seigle"],
+    [/Bagel with cream cheese and smoked salmon/gi,"크림치즈와 훈제연어 베이글","Bagel con queso crema y salmón ahumado","Bagel au fromage frais et saumon fumé"],
+    [/Chinatown dumplings and noodles/gi,"차이나타운 만두와 면 요리","Dumplings y fideos de Chinatown","Raviolis et nouilles de Chinatown"],
+    [/New York steakhouse dinner/gi,"뉴욕 스테이크하우스 저녁","Cena en steakhouse de Nueva York","Dîner dans un steakhouse new-yorkais"],
+    [/New York cheesecake/gi,"뉴욕 치즈케이크","Cheesecake de Nueva York","Cheesecake new-yorkais"],
+    [/Chelsea Market food hall/gi,"첼시마켓 푸드홀","Mercado gastronómico de Chelsea","Halle gourmande de Chelsea Market"],
+    [/Halal cart chicken and rice/gi,"할랄 카트 치킨 라이스","Pollo con arroz de carrito halal","Poulet-riz d’un stand halal"],
+    [/Statue of Liberty and Lower Manhattan/gi,"자유의 여신상과 로어맨해튼","Estatua de la Libertad y Bajo Manhattan","Statue de la Liberté et Lower Manhattan"],
+    [/Statue of Liberty/gi,"자유의 여신상","Estatua de la Libertad","Statue de la Liberté"],
+    [/Central Park and Upper Manhattan/gi,"센트럴파크와 어퍼맨해튼","Central Park y Alto Manhattan","Central Park et Upper Manhattan"],
+    [/Central Park/gi,"센트럴파크","Central Park","Central Park"],
+    [/The Metropolitan Museum of Art|The Met/gi,"메트로폴리탄 미술관","Museo Metropolitano de Arte","Metropolitan Museum of Art"],
+    [/High Line and Hudson Yards/gi,"하이라인과 허드슨 야드","High Line y Hudson Yards","High Line et Hudson Yards"],
+    [/High Line/gi,"하이라인","High Line","High Line"],
+    [/Hudson Yards/gi,"허드슨 야드","Hudson Yards","Hudson Yards"],
+    [/Brooklyn Bridge/gi,"브루클린 브리지","Puente de Brooklyn","Pont de Brooklyn"],
+    [/DUMBO/gi,"덤보","DUMBO","DUMBO"],
+    [/Times Square/gi,"타임스스퀘어","Times Square","Times Square"],
+    [/Fifth Avenue/gi,"5번가","Quinta Avenida","Cinquième Avenue"],
+    [/Upper Manhattan/gi,"어퍼맨해튼","Alto Manhattan","Upper Manhattan"],
+    [/Lower Manhattan/gi,"로어맨해튼","Bajo Manhattan","Lower Manhattan"],
+    [/New York City|New York/gi,"뉴욕","Nueva York","New York"],
+    [/Airbnb-style apartment/gi,"에어비앤비형 아파트","Apartamento tipo Airbnb","Appartement type Airbnb"],
+    [/serviced apartment/gi,"서비스드 아파트","Apartamento con servicios","Appartement avec services"],
+    [/Arrival/gi,"도착","Llegada","Arrivée"],[/Departure/gi,"출발","Salida","Départ"],
+    [/Breakfast/gi,"아침 식사","Desayuno","Petit-déjeuner"],[/Lunch/gi,"점심 식사","Almuerzo","Déjeuner"],[/Dinner/gi,"저녁 식사","Cena","Dîner"],
+    [/rest and local travel buffer/gi,"휴식 및 현지 이동 여유 시간","Descanso y margen de traslado local","Repos et marge de déplacement local"],
+    [/recovery and local errands/gi,"휴식과 현지 일정","Descanso y recados locales","Repos et activités locales"]
   ];
-  return entries.reduce((output, [pattern, ko, es]) => output.replace(pattern, activeLanguage === "ko" ? ko : es), source);
+  const languageIndex = activeLanguage === "ko" ? 1 : activeLanguage === "es" ? 2 : 3;
+  return entries.reduce((output, entry) => output.replace(entry[0], entry[languageIndex]), source);
 };
 const createAlpha03VisualCard = (item, type, index) => {
   const image = previewItemImage(item);
@@ -3822,8 +3825,8 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
       <div class="alpha03-recommendation-copy">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda"))}</span>
-        <h2>${escapeSummaryText(journey.name)}</h2>
-        <p>${escapeSummaryText(journey.purpose)}</p>
+        <h2>${escapeSummaryText(alpha03LocalizedDisplayName(journey.name))}</h2>
+        <p>${escapeSummaryText(alpha03LocalizedDisplayName(journey.purpose))}</p>
         <div class="alpha03-recommendation-metrics">
           <span><b>${escapeSummaryText(String(tripDays))}</b><em>${escapeSummaryText(alpha03Copy("days", "일", "días"))}</em></span>
           <span><b>${escapeSummaryText(compactBudget)}</b><em>${escapeSummaryText(alpha03Copy("estimated", "예상", "estimado"))}</em></span>
@@ -6674,7 +6677,7 @@ const renderV231PreparationContinuation = ({ state = "preparation_approved" } = 
       <article class="v231-selected-journey">
         <span class="v23-eyebrow">${escapeSummaryText(v231Local("Selected journey", "선택한 여행", "Viaje elegido"))}</span>
         <h4>${escapeSummaryText(journey.name)}</h4>
-        <p>${escapeSummaryText(journey.purpose)}</p>
+        <p>${escapeSummaryText(alpha03LocalizedDisplayName(journey.purpose))}</p>
         <div class="v23-overview-meta">
           <span>${escapeSummaryText(journey.duration)}</span>
           <span>${escapeSummaryText(journey.comfort)}</span>
