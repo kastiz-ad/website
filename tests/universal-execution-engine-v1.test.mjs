@@ -200,6 +200,6 @@ test("founder demo shows safe simulated execution without claiming live booking"
 test("results page and cache key reference the current results milestone", () => {
   const resultsHtml = readFileSync(new URL("../results.html", import.meta.url), "utf8");
   const resultsEntry = readFileSync(new URL("../results.js", import.meta.url), "utf8");
-  assert.match(resultsHtml, /20260730-investor-demo-mode/);
-  assert.match(resultsEntry, /20260730-investor-demo-mode/);
+  assert.match(resultsHtml, /20260813-preview-v79/);
+  assert.match(resultsEntry, /20260813-preview-v79/);
 });

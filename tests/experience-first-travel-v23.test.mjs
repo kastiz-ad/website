@@ -79,7 +79,7 @@ test("V23 travel styling supports responsive, no-overflow layouts", () => {
 });
 
 test("V23 result cache key is active", () => {
-  assert.match(resultsEntry, /20260812-la-wow-images-v42/);
-  assert.match(resultsHtml, /20260812-la-wow-images-v42/);
+  assert.match(resultsEntry, /20260813-preview-v79/);
+  assert.match(resultsHtml, /20260813-preview-v79/);
 });
 

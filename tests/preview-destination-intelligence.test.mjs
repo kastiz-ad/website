@@ -59,7 +59,7 @@ test("supported preview destinations provide real image URLs and item advice", (
   for (const prompt of ["trip to Tokyo", "Paris", "NYC", "London", "Seoul", "Bangkok", "Singapore", "Rome", "Barcelona", "Sydney"]) {
     const profile = resolvePreviewDestination(prompt)?.profile;
     assert.ok(profile, `${prompt} should resolve`);
-    assert.ok(profile.hero.url.startsWith("https://images.unsplash.com/"));
+    assert.match(profile.hero.url, /^(https:\/\/images\.unsplash\.com\/|assets\/)/);
     const sample = [...profile.restaurants, ...profile.places][0];
     assert.ok(previewItemImage(sample)?.url.includes("images.unsplash.com"));
     assert.ok(previewItemAdvice(sample, "fr").length > 8);

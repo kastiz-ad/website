@@ -8,7 +8,7 @@ test("travel customer results hide founder-only alpha diagnostics by default", (
   assert.match(resultsPageSource, /const isFounderDiagnosticsMode = \(\) =>/);
   assert.match(resultsPageSource, /if \(isFounderDiagnosticsMode\(\)\) \{/);
   assert.match(resultsPageSource, /attachMissionDirectorBrief\(currentResult\)/);
-  assert.match(resultsPageSource, /!isTravelResult\(currentResult\) \|\| isFounderDiagnosticsMode\(\)/);
+  assert.match(resultsPageSource, /const shouldHideMissionUnderstanding = !isFounderDiagnosticsMode\(\)/);
 });
 
 test("specific city travel avoids generic placeholder places", () => {

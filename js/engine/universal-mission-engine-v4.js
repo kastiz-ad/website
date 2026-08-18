@@ -7,9 +7,15 @@ import { buildLifeMemoryContext } from "../profile/life-memory-engine.js";
 import { buildMissionPersonalization } from "../profile/ai-mission-memory-engine.js";
 
 export const PIPELINE=Object.freeze(["mission","classifier",HUMAN_REASONING_PIPELINE_SLOT,"context","experience","provider","live-intelligence","one-pick","preparation","approval","receipt"]);
-export const PROVIDER_TYPES=Object.freeze(["education","healthcare","restaurant","accommodation","transportation","entertainment","professional-service","government","pet-care","home-services","home_services","beauty","sports","sports_wellness","shopping","repair","photography","legal","finance","events","travel","childcare","senior-care","automotive","professionals","career","foreigner_korea"]);
+export const PROVIDER_TYPES=Object.freeze(["presentation","meeting","interview","learning","research","document","education","healthcare","restaurant","accommodation","transportation","entertainment","professional-service","government","pet-care","home-services","home_services","beauty","sports","sports_wellness","shopping","repair","photography","legal","finance","events","travel","childcare","senior-care","automotive","professionals","career","foreigner_korea"]);
 
 const RULES=[
+  ["presentation",/presentation|pitch deck|slide deck|speaker notes|rehears(?:al|e)|발표|프레젠테이션|피치덱|슬라이드|리허설|presentaci[oó]n/i],
+  ["meeting",/investor meeting|client meeting|team meeting|meeting preparation|prepare .*meeting|투자자 미팅|고객 미팅|팀 회의|회의 준비|reuni[oó]n/i],
+  ["interview",/interview|mock interview|면접|모의 면접|entrevista/i],
+  ["learning",/pass topik|study plan|learning plan|learn .* months|topik|학습 계획|공부 계획|시험 준비|aprender|plan de estudio/i],
+  ["research",/competitor research|research .*brief|경쟁사 조사|조사.*브리핑|investigaci[oó]n/i],
+  ["document",/monthly report|quarterly report|client proposal|executive summary|보고서|제안서|informe|propuesta/i],
   ["education",/tutor|lesson|teacher|spanish|piano|driving instructor|과외|튜터|수업|스페인어|피아노|운전 강사/i],
   ["healthcare",/hospital|doctor|dentist|dermatolog|clinic|orthopedic|병원|의사|치과|피부과|의원|정형외과/i],
   ["restaurant",/restaurant|korean bbq|dinner|lunch|food|레스토랑|식당|고기|저녁|점심|맛집/i],
@@ -29,7 +35,7 @@ const RULES=[
   ["events",/wedding|event|celebration|웨딩|결혼식|행사/i],
   ["travel",/trip|travel|vacation|business trip|family weekend|여행|출장|휴가|가족 주말/i]
 ];
-const KOREAN={education:"교육",healthcare:"의료",restaurant:"레스토랑",accommodation:"숙박",transportation:"교통",entertainment:"엔터테인먼트",beauty:"뷰티","pet-care":"반려동물 케어","home-services":"생활 서비스",repair:"수리",photography:"사진",legal:"법률",finance:"금융",government:"정부 서비스",shopping:"쇼핑",sports:"스포츠",events:"행사",travel:"여행","professional-service":"전문 서비스"};
+const KOREAN={presentation:"발표 준비",meeting:"미팅 준비",interview:"면접 준비",learning:"학습",research:"리서치",document:"문서 준비",education:"교육",healthcare:"의료",restaurant:"레스토랑",accommodation:"숙박",transportation:"교통",entertainment:"엔터테인먼트",beauty:"뷰티","pet-care":"반려동물 케어","home-services":"생활 서비스",repair:"수리",photography:"사진",legal:"법률",finance:"금융",government:"정부 서비스",shopping:"쇼핑",sports:"스포츠",events:"행사",travel:"여행","professional-service":"전문 서비스"};
 
 export function classifyUniversalMission(value=""){
   const mission=String(value).normalize("NFKC").trim().replace(/\s+/g," ");

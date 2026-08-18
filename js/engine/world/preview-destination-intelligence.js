@@ -1115,7 +1115,12 @@ export function resolvePreviewDestination(input = "") {
   const raw = String(input || "");
   const normalized = normalize(raw);
   const matches = Object.values(PREVIEW_DESTINATION_PROFILES).map((profile) => {
-    const alias = profile.aliases.find((candidate) => normalized.includes(normalize(candidate)) || raw.includes(candidate));
+    const alias = profile.aliases.find((candidate) => {
+      const normalizedCandidate = normalize(candidate);
+      if (!normalizedCandidate) return false;
+      if (normalizedCandidate.length <= 2) return (` ${normalized} `).includes(` ${normalizedCandidate} `);
+      return normalized.includes(normalizedCandidate) || raw.includes(candidate);
+    });
     if (!alias) return null;
     const specificity = normalize(alias).split(" ").filter(Boolean).length;
     return { profile, alias, confidence: Math.min(99, 88 + specificity * 4) };

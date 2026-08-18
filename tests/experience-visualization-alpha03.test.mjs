@@ -25,9 +25,9 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
 
   const experienceIndex = travelDetailSource.indexOf("alpha03-recommendation-stage");
   const mapIndex = travelDetailSource.indexOf("createAlpha03JourneyMap");
-  const restaurantIndex = travelDetailSource.indexOf("Food");
-  const placesIndex = travelDetailSource.indexOf("Places");
-  const dayIndex = travelDetailSource.indexOf("Timeline");
+  const restaurantIndex = travelDetailSource.indexOf('alpha03Copy("Food"', mapIndex);
+  const placesIndex = travelDetailSource.indexOf('alpha03Copy("Places"', restaurantIndex);
+  const dayIndex = travelDetailSource.indexOf("createAlpha03TimelineHtml(days", placesIndex);
   const optionIndex = travelDetailSource.indexOf("createAlpha03OptionPreview");
   const prepIndex = travelDetailSource.indexOf("alpha03-preparation-details");
 
@@ -83,7 +83,7 @@ test("ALPHA-03 keeps map pins clean and transport choices top-aligned", () => {
   assert.match(journeyMapSource, /class="alpha03-map-pin/);
   assert.doesNotMatch(journeyMapSource, /<b>/);
   assert.match(resultsPageSource, /Train \+ local bus \+ walk/);
-  assert.match(resultsPageSource, /Subway pass route/);
+  assert.match(resultsPageSource, /Destination transit pass when available/);
   assert.match(resultsPageSource, /Late-night taxi backup/);
   assert.match(resultsCss, /alpha03-option-preview[\s\S]*align-items:\s*start/);
   assert.match(resultsCss, /alpha03-preview-group > div[\s\S]*align-content:\s*start/);

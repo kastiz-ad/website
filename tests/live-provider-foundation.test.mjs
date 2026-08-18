@@ -76,7 +76,7 @@ test("UX cleanup keeps the journey choices before the daily schedule and uses CS
 
   assert.ok(resultsPage.indexOf("v23-journey-layout") < resultsPage.indexOf("v23-selected-journey"));
   assert.doesNotMatch(resultsPage, /v23-journey-layout product-journey-layout is-compact\" hidden/);
-  assert.match(resultsHtml, /with-one-mark/);
-  assert.doesNotMatch(resultsHtml.slice(resultsHtml.indexOf("bottom-actions")), /one-final-circle\.png\?v=20260713-20/);
-  assert.match(resultsCss, /conic-gradient/);
+  assert.match(resultsHtml, /with-one-lockup/);
+  assert.match(resultsHtml.slice(resultsHtml.indexOf("bottom-actions")), /one-final-circle\.png\?v=20260713-20/);
+  assert.match(resultsCss, /\.with-one-lockup \{ display: inline-flex; align-items: flex-end/);
 });

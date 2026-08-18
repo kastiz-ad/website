@@ -56,7 +56,7 @@ test("rich travel renderer still includes populated result sections", () => {
   const requiredPatterns = [
     /createTravelPackagesCard\(result, missionContext\)/,
     /createAlpha03ExperienceHtml\(journey, result\)/,
-    /TRAVEL_OPTION_TARGETS = Object\.freeze\(\{\s*flights:\s*8,\s*hotels:\s*8,\s*restaurants:\s*12\s*\}\)/,
+    /TRAVEL_OPTION_TARGETS = Object\.freeze\(\{\s*flights:\s*8,\s*hotels:\s*12,\s*restaurants:\s*12\s*\}\)/,
     /currentResult\.flights/,
     /currentResult\.hotels/,
     /currentResult\.restaurants/,
@@ -71,11 +71,11 @@ test("rich travel renderer still includes populated result sections", () => {
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260812-medical-fieldset-v13/);
-  assert.match(resultsHtml, /results\.js\?v=20260812-medical-fieldset-v13/);
-  assert.match(resultsJs, /results-page\.js\?v=20260812-medical-fieldset-v13/);
-  assert.match(homepageHtml, /style\.css\?v=20260810-investor-demo-polish-2/);
-  assert.match(homepageHtml, /script\.js\?v=20260811-private-investor-entry-v1/);
+  assert.match(resultsHtml, /results\.css\?v=20260813-preview-v79/);
+  assert.match(resultsHtml, /results\.js\?v=20260813-preview-v79/);
+  assert.match(resultsJs, /results-page\.js\?v=20260813-preview-v79/);
+  assert.match(homepageHtml, /style\.css\?v=20260812-ai-modes-preview-v1/);
+  assert.match(homepageHtml, /script\.js\?v=20260813-preview-v79/);
 });
 
 test("destination selector is centered and constrained on small screens", () => {
@@ -116,17 +116,17 @@ test("investor medical appointment demo has a dedicated clean healthcare rendere
 
 
 test("investor medical appointment demo hides the shared mission summary panel", () => {
-  assert.match(resultsPage, /shouldHideMissionUnderstanding = \(isTravelResult\(currentResult\) \|\| isInvestorMedicalAppointmentDemo\(currentResult\) \|\| isInvestorRestaurantReservationDemo\(currentResult\)\)/);
+  assert.match(resultsPage, /const shouldHideMissionUnderstanding = !isFounderDiagnosticsMode\(\)/);
   assert.equal(resultsPage.includes("if (!shouldHideMissionUnderstanding) renderMissionUnderstanding();"), true);
 });
 
 
-test("investor restaurant reservation demo renders a one-meal focused flow", () => {
+test("investor restaurant reservation demo renders the focused weekend-date flow", () => {
   assert.match(resultsPage, /isInvestorRestaurantReservationDemo/);
   assert.match(resultsPage, /renderInvestorRestaurantReservationMission/);
-  assert.match(resultsPage, /Not a 7-day trip/);
-  assert.match(resultsPage, /investor-restaurant-option-grid/);
-  assert.match(resultsPage, /Approve one availability check/);
+  assert.match(resultsPage, /Seoul weekend date/);
+  assert.match(resultsPage, /weekend-stop-rail/);
+  assert.match(resultsPage, /No hotel is included/);
   assert.match(resultsPage, /isFocusedInvestorDemo/);
 });
 
@@ -170,6 +170,6 @@ test("medical review controls retain readable contrast in gray and midnight them
 test("medical review fieldset and investor controls respect page context", () => {
   assert.match(resultsCss, /Medical review fieldset theme fix v13/);
   assert.match(resultsCss, /medical-review fieldset\{background:var\(--surface-strong\)!important;border-color:var\(--border\)!important;color:var\(--text\)!important\}/);
-  assert.match(resultsPage, /if \(shouldShowInvestorPanel\(window\.location\) && isInvestorDemoMode\(window\.location\)\)/);
-  assert.match(resultsPage, /from "\.\.\/config\/investor-visibility\.js\?v=20260812-investor-route-only-v1"/);
+  assert.match(resultsPage, /if \(isInvestorDemoMode\(window\.location\)\)/);
+  assert.match(resultsPage, /mountInvestorDemoResults\(\{ result: currentResult, language: activeLanguage \}\)/);
 });

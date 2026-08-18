@@ -34,9 +34,9 @@ test("desktop and responsive/mobile navigation share the same controls", () => {
 });
 
 test("public homepage references updated cache-busted assets", () => {
-  assert.match(html, /style\.css\?v=20260810-investor-demo-polish-2/);
-  assert.match(html, /script\.js\?v=20260811-private-investor-entry-v1/);
-  assert.match(script, /home-page\.js\?v=20260811-private-investor-entry-v1/);
+  assert.match(html, /style\.css\?v=20260812-ai-modes-preview-v1/);
+  assert.match(html, /script\.js\?v=20260813-preview-v79/);
+  assert.match(script, /home-page\.js\?v=20260813-mobile-flow-v78/);
 });
 
 

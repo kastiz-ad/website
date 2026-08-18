@@ -8,8 +8,9 @@ import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
-import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-flow-v78";
+import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-preview-v79";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
+import { buildMissionBriefing, createWorkMissionFoundation } from "../engine/work-mission-foundation.js?v=20260818-work-missions-v2";
 
 const root = document.documentElement;
 const body = document.body;
@@ -170,6 +171,12 @@ const translations = {
     },
     missions: [
       "Plan my Japan trip.",
+      "Prepare me for tomorrow's presentation.",
+      "Get me ready for my investor meeting.",
+      "Help me pass TOPIK 4.",
+      "Prepare my client proposal.",
+      "Research competitors and prepare a briefing.",
+      "Prepare me for tomorrow's interview.",
       "Find my first home.",
       "Start a business.",
       "Move to Canada.",
@@ -244,6 +251,12 @@ const translations = {
     },
     missions: [
       "일본 여행 계획해줘",
+      "내일 발표를 완벽하게 준비해줘",
+      "투자자 미팅 준비를 도와줘",
+      "TOPIK 4급 합격 계획을 준비해줘",
+      "고객 제안서를 준비해줘",
+      "경쟁사를 조사하고 브리핑을 준비해줘",
+      "내일 면접을 준비해줘",
       "영어 선생님 찾아줘",
       "좋은 노트북 추천해줘",
       "캐나다 이주 도와줘",
@@ -940,6 +953,7 @@ const buildMissionObject = (mission) => {
   }
 
   const type = classifyMission(cleanMission);
+  const missionFoundation = createWorkMissionFoundation(type, { rawInput: cleanMission, desiredOutcome: cleanMission });
   const country = detectCountry(cleanMission, type);
   const theme = root.getAttribute("data-theme") || "light";
   const providers = providerCatalog[type] || providerCatalog.general_mission;
@@ -986,6 +1000,10 @@ const buildMissionObject = (mission) => {
     mission: cleanMission,
     slug: createMissionSlug(cleanMission),
     type,
+    missionType: type,
+    missionCategory: missionFoundation?.missionCategory || (type === "travel" ? "travel" : "personal"),
+    missionFoundation,
+    missionBriefing: buildMissionBriefing(missionFoundation),
     subtype: isTutorMission ? "tutor_search" : detectSubtype(type),
     language: activeLanguage,
     theme,
@@ -1502,11 +1520,12 @@ const buildGeneralMission = (mission) => {
       currentLocation: activeLanguage === "ko" ? "서울" : "Seoul"
     });
     const plan = output.resolutionPlan;
+    const preserveWorkMissionType = ["presentation", "meeting", "interview"].includes(base.type);
     return {
       ...base,
-      type: plan?.domain || output.classification?.providerType || base.type,
-      domain: plan?.domain || output.classification?.providerType || base.type,
-      missionType: plan?.missionType || output.classification?.providerType || base.type,
+      type: preserveWorkMissionType ? base.type : plan?.domain || output.classification?.providerType || base.type,
+      domain: preserveWorkMissionType ? "work" : plan?.domain || output.classification?.providerType || base.type,
+      missionType: preserveWorkMissionType ? base.type : plan?.missionType || output.classification?.providerType || base.type,
       classification: output.classification,
       humanReasoning: output.humanReasoning,
       missionIntelligence: output.missionIntelligence,
@@ -1679,7 +1698,7 @@ const startSeoulWeekendDateMission = (mission) => {
     mission: canonicalMission,
     destination: "Seoul",
     lang: activeLanguage,
-    v: "20260813-mobile-flow-v78"
+    v: "20260818-work-missions-v3"
   });
   window.location.href = `results.html?${params.toString()}`;
 };

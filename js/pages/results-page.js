@@ -2,6 +2,7 @@ import { renderSafeMedicalAppointmentDemo } from "./medical-appointment-demo.js?
 import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMissionType } from "../engine/approval/mission-specific-approval.js?v=20260811-mission-specific-approval-v1";
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
+import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work-mission-experience.js?v=20260818-work-missions-v3";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260730-mission-orchestration";
@@ -12,8 +13,8 @@ import { buildMissionContext, isDomesticContext } from "../engine/context/missio
 import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-memory.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
-import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-mobile-flow-v78";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-flow-v78";
+import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -92,7 +93,7 @@ import {
 import {
   isInvestorDemoMode,
   mountInvestorDemoResults
-} from "../engine/demo/investor-demo-mode.js?v=20260813-mobile-flow-v78";
+} from "../engine/demo/investor-demo-mode.js?v=20260813-preview-v79";
 
 const root = document.documentElement;
 const missionTitle = document.getElementById("missionTitle");
@@ -121,6 +122,7 @@ const experienceReviewConfidence = document.getElementById("experienceReviewConf
 const revisionLead = document.getElementById("revisionLead");
 const missionUnderstoodGoal = document.getElementById("missionUnderstoodGoal");
 const missionUnderstoodItems = document.getElementById("missionUnderstoodItems");
+const missionUnderstoodPanel = document.getElementById("missionUnderstood");
 const missionLifecyclePanel = document.getElementById("missionLifecyclePanel");
 const missionLifecycleTitle = document.getElementById("missionLifecycleTitle");
 const missionLifecycleEyebrow = document.getElementById("missionLifecycleEyebrow");
@@ -676,14 +678,24 @@ const createPreviewTravelBudget = (profile, durationDays = 7, travelerCount = 1,
 };
 const hydrateManualTravelResultForPreview = (result, prompt = "", language = activeLanguage, params = new URLSearchParams(), scenario = "") => {
   if (!shouldHydrateManualTravelResult(prompt, params, scenario)) return result;
-  const destinationMatch = resolvePreviewDestination([
-    params.get("destination"),
-    params.get("city"),
-    params.get("country"),
-    prompt
-  ].filter(Boolean).join(" "));
-  if (!destinationMatch?.profile) return result;
-  const profile = destinationMatch.profile;
+  const explicitDestination = params.get("destination") || params.get("city") || result?.destination?.city || result?.detectedDestination?.city || result?.countryProfile?.capital || "";
+  const destinationMatch = resolvePreviewDestination(explicitDestination) || (!explicitDestination ? resolvePreviewDestination([params.get("country"), prompt].filter(Boolean).join(" ")) : null);
+  const resolvedDestination = result?.detectedDestination || result?.destination || {};
+  const resolvedCountry = result?.countryProfile || {};
+  const dynamicProfile = explicitDestination ? {
+    id: String(explicitDestination).normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_|_$/g, "") || "live_destination",
+    city: explicitDestination, cityKo: resolvedDestination.cityKo || explicitDestination,
+    country: resolvedDestination.country || resolvedCountry.name || params.get("country") || "",
+    countryKo: resolvedDestination.countryKo || resolvedCountry.nameKo || resolvedDestination.country || resolvedCountry.name || params.get("country") || "",
+    countryCode: resolvedDestination.countryCode || resolvedDestination.code || resolvedCountry.code || result.country || "",
+    currency: resolvedDestination.currency || resolvedCountry.currency || "", continent: resolvedDestination.continent || resolvedCountry.continent || "",
+    latitude: Number(resolvedDestination.latitude ?? resolvedCountry.latitude) || undefined,
+    longitude: Number(resolvedDestination.longitude ?? resolvedCountry.longitude) || undefined,
+    aliases: [explicitDestination], restaurants: [], places: [], journeys: []
+  } : null;
+  const profile = destinationMatch?.profile || dynamicProfile;
+  if (!profile) return result;
+  const destinationConfidence = destinationMatch?.confidence || (resolvedDestination.confidence ? Math.round(Number(resolvedDestination.confidence) * 100) : 82);
   const durationDays = inferManualTravelDurationDays(prompt, params);
   const travelerCount = inferManualTravelerCount(prompt, params);
   const rooms = Math.max(1, Number(params.get("rooms") || result.rooms || 1));
@@ -702,7 +714,7 @@ const hydrateManualTravelResultForPreview = (result, prompt = "", language = act
     currency: profile.currency,
     latitude: profile.latitude,
     longitude: profile.longitude,
-    confidence: destinationMatch.confidence,
+    confidence: destinationConfidence,
     source: "preview_destination_intelligence"
   };
   return {
@@ -1968,7 +1980,7 @@ function adaptTravelResultToDestination(result) {
     `${city} flexible stay live search`,
     `${city} verified-provider search`
   ];
-  const hotelPool = liveHotelNames.length ? liveHotelNames : [...new Set([...(profile.hotels || []), ...worldHotelNames])].filter((name) => !/live search|search required|verified-provider| central hotel$/i.test(String(name)));
+  const hotelPool = [...new Set([liveHotelNames, ...(profile.hotels || []), ...hotelFallbacks, ...worldHotelNames].flat())].filter((name) => !/ central hotel$/i.test(String(name)));
   profile.hotels = hotelPool.slice(0, TRAVEL_OPTION_TARGETS.hotels);
   const verifiedWorldAirlines = worldFlights.filter((item) => item?.airline && /verified_live|cached_public/.test(String(item.sourceState))).map((item) => [item.airline, airlineNameKo[item.airline] || item.airline]);
   profile.airlines = verifiedWorldAirlines.length ? uniqueProviderEntries(verifiedWorldAirlines).slice(0, TRAVEL_OPTION_TARGETS.flights) : [["Airline route verification required", "항공 노선 실시간 확인 필요"]];
@@ -3740,6 +3752,15 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const journeySourceStates = { insurance: "estimated", entry: "estimated", transport: "estimated", ...(journey.sourceStates || {}) };
   let restaurants = selectAlpha03Items(profile.restaurants, journey.tone, Math.min(12, Math.max(6, tripDays + 3)));
   let places = selectAlpha03Items(profile.places, journey.tone, Math.min(12, Math.max(8, tripDays + 2)));
+  const localVisualFallback = (kind, count) => Array.from({ length: count }, (_, index) => ({
+    name: kind === "restaurant"
+      ? alpha03Copy(`${profile.city || destination} local dining ${index + 1}`, `${profile.city || destination} 현지 식당 ${index + 1}`, `Restaurante local ${index + 1}`)
+      : alpha03Copy(`${profile.city || destination} local highlight ${index + 1}`, `${profile.city || destination} 추천 장소 ${index + 1}`, `Lugar destacado ${index + 1}`),
+    category: kind === "restaurant" ? "food" : "attraction",
+    latitude: Number(profile.latitude), longitude: Number(profile.longitude), source: "live_search_pending"
+  }));
+  if (!restaurants.length) restaurants = localVisualFallback("restaurant", 8);
+  if (!places.length) places = localVisualFallback("place", 10);
   restaurants = refineAlpha03ItemsForCommand(restaurants, result, "restaurants");
   places = refineAlpha03ItemsForCommand(places, result, "places");
   if (profile.id === "los_angeles") {
@@ -5852,12 +5873,21 @@ const createAIDecisionPanel = (result) => {
 
 const renderMission = () => {
   currentResult = normalizeStoredResult(getStoredResult());
+  if (isWorkMissionExperience(currentResult)) {
+    const normalizedWorkType = ["presentation", "meeting", "interview"].includes(currentResult.type)
+      ? currentResult.type
+      : currentResult.missionType;
+    currentResult.type = normalizedWorkType;
+    currentResult.missionType = normalizedWorkType;
+    currentResult.domain = "work";
+  }
   document.body.classList.toggle("is-investor-weekend-date", new URLSearchParams(window.location.search).get("demoScenario") === "restaurant_reservation" || isWeekendDatePlan(currentResult));
   currentExperienceReview = null;
   document.body.classList.toggle("is-basic-planning-mode", currentResult?.planningMode === "basic");
   document.body.classList.toggle("travel-premium-result-view", isTravelResult(currentResult));
+  document.body.classList.toggle("work-mission-result-view", isWorkMissionExperience(currentResult));
   if (bottomActions) bottomActions.hidden = false;
-  missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout", "is-v23-travel-layout", "is-investor-focused-layout", "is-investor-medical-layout", "is-investor-restaurant-layout");
+  missionGrid.classList.remove("is-domain-layout", "is-travel-package-layout", "is-v23-travel-layout", "is-investor-focused-layout", "is-investor-medical-layout", "is-investor-restaurant-layout", "is-work-mission-layout");
   delete missionGrid.dataset.domain;
   const disclosure = document.querySelector(".prototype-disclosure");
   if (disclosure) disclosure.hidden = false;
@@ -5887,7 +5917,25 @@ const renderMission = () => {
     }
   }
 
-  if (isWeekendDatePlan(currentResult)) {
+  if (isWorkMissionExperience(currentResult)) {
+    missionTitle.textContent = currentResult.type === "presentation"
+      ? (activeLanguage === "ko" ? "발표 미션" : activeLanguage === "es" ? "Misión de presentación" : "Presentation Mission")
+      : currentResult.type === "meeting"
+        ? (activeLanguage === "ko" ? "미팅 준비" : activeLanguage === "es" ? "Preparación de reunión" : "Meeting Preparation")
+        : (activeLanguage === "ko" ? "면접 준비" : activeLanguage === "es" ? "Preparación de entrevista" : "Interview Preparation");
+    missionGrid.innerHTML = "";
+    missionGrid.classList.add("is-work-mission-layout");
+    missionGrid.appendChild(renderWorkMissionExperience(currentResult, activeLanguage, {
+      onStateChange: (next) => {
+        sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(next));
+        sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(next));
+      }
+    }));
+    const disclosure = document.querySelector(".prototype-disclosure");
+    if (disclosure) disclosure.hidden = true;
+    if (missionLifecyclePanel) missionLifecyclePanel.hidden = true;
+    if (missionUnderstoodPanel) missionUnderstoodPanel.hidden = true;
+  } else if (isWeekendDatePlan(currentResult)) {
     renderInvestorRestaurantReservationMission(currentResult);
   } else if (isTravelResult(currentResult)) {
     try {
@@ -5925,7 +5973,11 @@ const renderMission = () => {
   } else {
     pathwayOpportunityPanel.hidden = true;
   }
-  if (isFocusedInvestorDemo) {
+  if (isWorkMissionExperience(currentResult)) {
+    if (additionalServicesForm) additionalServicesForm.hidden = false;
+    missionGrid.appendChild(additionalServicesForm);
+    if (bottomActions) bottomActions.hidden = true;
+  } else if (isFocusedInvestorDemo) {
     additionalServicesForm?.remove();
     if (additionalServiceList) additionalServiceList.innerHTML = "";
   } else if (isTravelResult(currentResult) && !isFounderDiagnosticsMode()) {

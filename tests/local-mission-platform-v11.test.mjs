@@ -75,7 +75,7 @@ test("classifier recognizes Phase 1 local mission families without breaking exis
 test("travel result generator keeps investor-demo option counts", () => {
   const source = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   assert.match(source, /flights:\s*8/);
-  assert.match(source, /hotels:\s*8/);
+  assert.match(source, /hotels:\s*12/);
   assert.match(source, /restaurants:\s*12/);
   assert.match(source, /slice\(0,\s*TRAVEL_OPTION_TARGETS\.flights\)/);
   assert.match(source, /slice\(0,\s*TRAVEL_OPTION_TARGETS\.hotels\)/);

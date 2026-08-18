@@ -4,7 +4,7 @@ import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { normalizeResultLocale, resolveResultLocale } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
-import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-mobile-flow-v78";
+import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 
 const root = document.documentElement;
 const body = document.body;
@@ -43,6 +43,9 @@ const approvalMessages = {
 
 const loadingMessages = {
   en: {
+    presentation: ["Understanding your presentation goal...", "Structuring the key message...", "Preparing slides and speaker notes...", "Preparing likely questions...", "Building your rehearsal plan..."],
+    meeting: ["Understanding the meeting objective...", "Preparing talking points...", "Preparing questions and objections...", "Organizing the meeting brief...", "Preparing the final checklist..."],
+    interview: ["Understanding the interview goal...", "Preparing likely questions...", "Preparing concise and full answers...", "Identifying weak areas...", "Preparing the mock interview..."],
     general_mission: ["Understanding your mission...", "Finding trusted options...", "Checking live data...", "Preparing your ONE Pick...", "Turning your idea into reality..."],
     travel: ["Understanding your travel mission...", "Checking weather...", "Checking exchange rates...", "Preparing flight options...", "Preparing hotel options...", "Preparing your travel checklist..."],
     shopping: ["Understanding your shopping mission...", "Comparing products...", "Checking price options...", "Preparing best-value choices...", "Preparing your buying checklist..."],
@@ -59,6 +62,9 @@ const loadingMessages = {
     lifestyle: ["Understanding your lifestyle mission...", "Preparing vendors...", "Preparing timeline...", "Preparing budget options...", "Preparing reservation checklist..."]
   },
   ko: {
+    presentation: ["발표 목표를 이해하고 있어요...", "핵심 메시지를 구성하고 있어요...", "슬라이드와 발표자 노트를 준비하고 있어요...", "예상 질문을 준비하고 있어요...", "리허설 계획을 만들고 있어요..."],
+    meeting: ["미팅 목표를 이해하고 있어요...", "핵심 논점을 준비하고 있어요...", "질문과 반론을 준비하고 있어요...", "미팅 브리핑을 정리하고 있어요...", "최종 체크리스트를 준비하고 있어요..."],
+    interview: ["면접 목표를 이해하고 있어요...", "예상 질문을 준비하고 있어요...", "짧은 답변과 전체 답변을 준비하고 있어요...", "약점을 확인하고 있어요...", "모의 면접을 준비하고 있어요..."],
     general_mission: ["미션을 이해하고 있어요...", "신뢰할 수 있는 선택지를 찾고 있어요...", "실시간 데이터를 확인하고 있어요...", "ONE Pick을 준비하고 있어요...", "당신의 아이디어를 현실로 만들고 있어요..."],
     travel: ["여행 미션을 이해하고 있어요...", "날씨를 확인하고 있어요...", "환율을 확인하고 있어요...", "항공권 옵션을 준비하고 있어요...", "숙소 옵션을 준비하고 있어요...", "여행 체크리스트를 준비하고 있어요..."],
     shopping: ["쇼핑 미션을 이해하고 있어요...", "제품을 비교하고 있어요...", "가격 옵션을 확인하고 있어요...", "가성비 좋은 선택지를 준비하고 있어요...", "구매 체크리스트를 준비하고 있어요..."],
@@ -638,7 +644,7 @@ const runLoadingSequence = async () => {
     const resultsMission = enrichedMission.rawInput || enrichedMission.mission || enrichedMission.originalMission || mission.rawInput || mission.mission || "";
     const resultsDestination = resolvePreviewDestination(resultsMission)?.profile?.city || enrichedMission.destination?.city || enrichedMission.detectedDestination?.city || mission.destination?.city || "";
     const resultsParams = new URLSearchParams({
-      v: "20260813-mobile-flow-v78",
+      v: "20260818-work-missions-v4",
       lang: fallbackLanguage
     });
     if (resultsMission) resultsParams.set("mission", resultsMission);

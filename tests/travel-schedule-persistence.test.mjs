@@ -18,6 +18,6 @@ test("the final summary renders and preserves the selected dates", () => {
   assert.match(resultsSource, /schedule\.endDate \|\| "—"/);
   assert.match(resultsSource, /s: \[schedule\.startDate \|\| "", schedule\.endDate \|\| "", schedule\.timePreference \|\| "any"\]/);
   assert.match(resultsSource, /const \{ tripDays, tripNights \} = calculateTripDayCounts\(result\);/);
-  assert.match(resultsSource, /Number\(nightlyBudget\.min \|\| 0\) \* tripNights \* rooms/);
+  assert.match(resultsSource, /Number\(effectiveNightlyBudget\.min \|\| 0\) \* tripNights \* rooms/);
   assert.match(resultsSource, /plannedMealsPerDay \* tripDays \* travelerCount/);
 });

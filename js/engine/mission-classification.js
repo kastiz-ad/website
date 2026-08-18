@@ -1,4 +1,10 @@
 const RULES = {
+  presentation: /presentation|pitch deck|slide deck|speaker notes|rehears(?:al|e)|present it|발표|프레젠테이션|피치덱|슬라이드|발표 대본|리허설|presentaci[oó]n|diapositivas/i,
+  meeting: /prepare (?:me |everything )?for .*meeting|investor meeting|client meeting|team meeting|meeting preparation|미팅 준비|회의 준비|투자자 미팅|고객 미팅|팀 회의|reuni[oó]n/i,
+  interview: /interview preparation|prepare (?:me )?for .*interview|i have an interview|mock interview|면접 준비|면접.*준비|모의 면접|entrevista/i,
+  learning: /pass topik|learn .* in (?:six|\d+) months|study plan|learning plan|시험 준비|학습 계획|공부 계획|topik|aprender|plan de estudio/i,
+  research: /research .* and prepare|competitor research|research mission|경쟁사 조사|리서치 미션|조사해서.*준비|investigaci[oó]n/i,
+  document: /prepare .*report|monthly report|quarterly report|client proposal|executive summary|보고서 준비|월간 보고서|분기 보고서|제안서 작성|informe|propuesta/i,
   travel: /travel|trip|business trip|vacation|honeymoon|flight|hotel|japan|tokyo|osaka|kyoto|surat|airport|여행|출장|해외출장|업무출장|일본|도쿄|오사카|교토|수라트|항공권|호텔|신혼여행|공항/i,
   shopping: /buy|laptop|phone|product|compare|deal|구매|노트북|핸드폰|제품|비교|최저가|추천/i,
   housing: /home|house|apartment|rent|mortgage|property|집|아파트|전세|월세|부동산|주택담보대출/i,
@@ -42,4 +48,16 @@ export function classifyMission(value) {
   const priority = Object.entries(PRIORITY_LOCAL_RULES).find(([, pattern]) => pattern.test(text));
   if (priority) return priority[0];
   return Object.entries(RULES).find(([, pattern]) => pattern.test(text))?.[0] || "general_mission";
+}
+
+export const MISSION_CATEGORIES = Object.freeze([
+  "travel", "work", "presentation", "meeting", "research", "document",
+  "interview", "learning", "planning", "personal"
+]);
+
+export function missionCategoryFor(type = "general_mission") {
+  if (["presentation", "meeting", "research", "document", "interview"].includes(type)) return "work";
+  if (type === "learning" || type === "education" || type === "tutoring") return "learning";
+  if (type === "travel") return "travel";
+  return "personal";
 }
