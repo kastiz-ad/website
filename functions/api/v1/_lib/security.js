@@ -11,14 +11,26 @@ export function enforceCsrf(request, cfg) {
   if (!header || !cookies[cfg.csrfCookie] || header !== cookies[cfg.csrfCookie]) throw new ApiError(403, "csrf_failed", "Security verification failed. Refresh and try again.");
 }
 export async function rateLimit(context, bucket = "general", maximum = 60) {
-  if (!context.env.RATE_LIMITER) {
+  const service = context.env.RATE_LIMITER_SERVICE;
+  if (!service) {
     const production = context.env.APP_ENV === "production" || context.env.CF_PAGES_BRANCH === "main";
     if (production) throw new ApiError(503, "rate_limiter_unavailable", "This service is temporarily unavailable.");
     return;
   }
   const ip = context.request.headers.get("CF-Connecting-IP") || "unknown";
-  const result = await context.env.RATE_LIMITER.limit({ key: `${bucket}:${ip}` });
-  if (!result.success) throw new ApiError(429, "rate_limited", "Too many requests. Try again shortly.");
+  let response;
+  try {
+    response = await service.fetch("https://rate-limiter.internal/limit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: `${bucket}:${ip}`, maximum })
+    });
+  } catch {
+    throw new ApiError(503, "rate_limiter_unavailable", "This service is temporarily unavailable.");
+  }
+  if (!response.ok) throw new ApiError(503, "rate_limiter_unavailable", "This service is temporarily unavailable.");
+  const result = await response.json().catch(() => null);
+  if (!result || result.success !== true) throw new ApiError(429, "rate_limited", "Too many requests. Try again shortly.");
 }
 export const securityHeaders = headers => ({
   ...headers, "Referrer-Policy": "strict-origin-when-cross-origin", "X-Content-Type-Options": "nosniff",
