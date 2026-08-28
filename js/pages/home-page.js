@@ -11,7 +11,7 @@ import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-preview-v79";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
 import { buildMissionBriefing, createWorkMissionFoundation } from "../engine/work-mission-foundation.js?v=20260818-work-missions-v2";
-import { applyTravelConstraints, parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260829-one-free-constraints-v1";
+import { applyTravelConstraints, parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260829-one-free-constraints-v2";
 
 const root = document.documentElement;
 const body = document.body;
@@ -56,6 +56,7 @@ const scheduleDepartureAirport = document.getElementById("scheduleDepartureAirpo
 const scheduleSummary = document.getElementById("scheduleSummary");
 let pendingMissionText = "";
 let pendingFollowUp = null;
+let scheduleFieldSources = {};
 let pendingDetectedDestination = null;
 let pendingDestinationMatches = [];
 
@@ -1542,8 +1543,6 @@ const saveMission = (mission, schedule = null) => {
     ? buildTravelMission(cleanMission)
     : buildGeneralMission(cleanMission);
 
-  if (missionType === "travel") payload = applyTravelConstraints(payload, cleanMission);
-
   if (["presentation", "meeting", "interview"].includes(classifiedType)) {
     const workFoundation = createWorkMissionFoundation(classifiedType, { rawInput: cleanMission, desiredOutcome: cleanMission });
     payload.type = classifiedType;
@@ -1568,11 +1567,12 @@ const saveMission = (mission, schedule = null) => {
     } else if (parsedConstraints.dateIntent) {
       delete payload.dateIntent;
     }
+    payload = applyTravelConstraints(payload, cleanMission);
   }
   payload.followUp = pendingFollowUp;
   payload.missionSeed = payload.missionSeed || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   if (payload.type === "travel" && schedule) {
-    const travelerCount = normalizeScheduleCount(schedule.travelerCount || schedule.travelers || schedule.adults, 1);
+    const travelerCount = normalizeScheduleCount(payload.travelerCount || payload.travelers || schedule.travelerCount || schedule.travelers || schedule.adults, 1);
     const roomCount = normalizeScheduleCount(schedule.rooms || schedule.roomCount, Math.max(1, Math.ceil(travelerCount / 2)));
     const originAirport = schedule.originAirport || schedule.departureAirport || "ICN";
     payload.travelerCount = travelerCount;
@@ -1653,9 +1653,6 @@ const saveMission = (mission, schedule = null) => {
     }
   }
   payload.presentationMode = isPresentationMode();
-  if (schedule?.startDate && schedule?.endDate) {
-    payload.durationDays = Math.max(1, Math.round((new Date(`${schedule.endDate}T00:00:00`) - new Date(`${schedule.startDate}T00:00:00`)) / 86400000) + 1);
-  }
   const profileContext = getProfileForMission(payload.type);
   payload.userPreferences = profileContext.enabled
     ? Object.fromEntries(Object.entries(profileContext.category).map(([key, record]) => [key, record.value]))
@@ -2074,8 +2071,8 @@ const scheduleAirportLabel = (value) => {
 };
 
 const collectScheduleDetails = () => ({
-  source: "user_confirmed",
-  userConfirmed: true,
+  source: Object.values(scheduleFieldSources).includes("manual") ? "mixed" : "inferred_or_default",
+  fieldSources: { ...scheduleFieldSources },
   startDate: scheduleStartDate.value,
   endDate: scheduleEndDate.value,
   timePreference: scheduleTimePreference.value,
@@ -2120,6 +2117,12 @@ const openScheduleModal = (mission) => {
   if (!pendingMissionText) { missionInput.focus(); return; }
   const today = new Date();
   const constraints = parseTravelConstraints(pendingMissionText, { now: today });
+  scheduleFieldSources = {
+    startDate: constraints.startDate ? "inferred" : "default",
+    endDate: constraints.endDate || constraints.durationDays ? "inferred" : "default",
+    travelerCount: constraints.travelerCount ? "inferred" : "default",
+    roomCount: constraints.travelerCount ? "derived" : "default"
+  };
   const defaultStart = constraints.startDate ? new Date(`${constraints.startDate}T00:00:00`) : today;
   const defaultEnd = constraints.endDate ? new Date(`${constraints.endDate}T00:00:00`) : new Date(defaultStart);
   if (!constraints.endDate) defaultEnd.setDate(defaultEnd.getDate() + (constraints.durationDays || 7) - 1);
@@ -2136,11 +2139,15 @@ const openScheduleModal = (mission) => {
   else scheduleModal.setAttribute("open", "");
 };
 
-scheduleStartDate?.addEventListener("change", updateScheduleSummary);
-scheduleEndDate?.addEventListener("change", updateScheduleSummary);
+scheduleStartDate?.addEventListener("change", () => {
+  scheduleFieldSources.startDate = "manual";
+  if (scheduleEndDate.value < scheduleStartDate.value) scheduleFieldSources.endDate = "manual";
+  updateScheduleSummary();
+});
+scheduleEndDate?.addEventListener("change", () => { scheduleFieldSources.endDate = "manual"; updateScheduleSummary(); });
 scheduleTimePreference?.addEventListener("change", updateScheduleSummary);
-scheduleTravelerCount?.addEventListener("change", updateScheduleSummary);
-scheduleRoomCount?.addEventListener("change", updateScheduleSummary);
+scheduleTravelerCount?.addEventListener("change", () => { scheduleFieldSources.travelerCount = "manual"; updateScheduleSummary(); });
+scheduleRoomCount?.addEventListener("change", () => { scheduleFieldSources.roomCount = "manual"; updateScheduleSummary(); });
 scheduleDepartureAirport?.addEventListener("change", updateScheduleSummary);
 scheduleModalClose?.addEventListener("click", () => scheduleModal.close());
 scheduleModal?.addEventListener("click", (event) => { if (event.target === scheduleModal) scheduleModal.close(); });

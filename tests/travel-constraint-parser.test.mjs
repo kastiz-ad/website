@@ -46,13 +46,27 @@ test("initial NLP beats generated fallback values", () => {
   assert.deepEqual(JSON.parse(JSON.stringify(normalized)), normalized);
 });
 
+test("untouched inferred modal values survive Continue without becoming defaults", () => {
+  const prompt = "Plan a 3-day trip to Tokyo for 2 people next month.";
+  const submitted = applyTravelConstraints({
+    durationDays: 7, travelerCount: 1,
+    schedule: {
+      source: "inferred_or_default",
+      fieldSources: { startDate: "inferred", endDate: "inferred", travelerCount: "inferred", roomCount: "derived" },
+      startDate: "2026-09-01", endDate: "2026-09-03", travelerCount: 2, travelers: 2, adults: 2, rooms: 1
+    }
+  }, prompt, { now });
+  assert.deepEqual([submitted.durationDays, submitted.travelerCount, submitted.schedule.startDate, submitted.schedule.endDate], [3, 2, "2026-09-01", "2026-09-03"]);
+  assert.equal(submitted.schedule.fieldSources.travelerCount, "inferred");
+});
+
 test("manual confirmation beats earlier inferred natural-language constraints", () => {
   const prompt = "Plan a 3-day trip to Tokyo for 2 people next month.";
   const inferred = applyTravelConstraints({ durationDays: 7, travelerCount: 1, schedule: {} }, prompt, { now });
   const confirmed = applyTravelConstraints({
     ...inferred,
     schedule: {
-      source: "user_confirmed", userConfirmed: true,
+      source: "mixed", fieldSources: { startDate: "manual", endDate: "manual", travelerCount: "manual" },
       startDate: "2026-09-10", endDate: "2026-09-14",
       travelerCount: 3, travelers: 3, adults: 3
     }
@@ -66,12 +80,12 @@ test("manual confirmation beats earlier inferred natural-language constraints", 
 
 test("independent manual date, duration, and traveler changes remain authoritative", () => {
   const prompt = "Plan a 3-day trip to Tokyo for 2 people next month.";
-  const confirmed = (schedule) => applyTravelConstraints({ durationDays: 3, travelerCount: 2, travelers: 2, schedule: { source: "user_confirmed", userConfirmed: true, ...schedule } }, prompt, { now });
-  const datesOnly = confirmed({ startDate: "2026-09-10", endDate: "2026-09-12", travelerCount: 2 });
+  const confirmed = (schedule) => applyTravelConstraints({ durationDays: 3, travelerCount: 2, travelers: 2, schedule: { source: "mixed", ...schedule } }, prompt, { now });
+  const datesOnly = confirmed({ fieldSources: { startDate: "manual", endDate: "manual", travelerCount: "inferred" }, startDate: "2026-09-10", endDate: "2026-09-12", travelerCount: 2 });
   assert.deepEqual([datesOnly.schedule.startDate, datesOnly.schedule.endDate, datesOnly.durationDays, datesOnly.travelerCount], ["2026-09-10", "2026-09-12", 3, 2]);
-  const durationOnly = confirmed({ startDate: "2026-09-01", endDate: "2026-09-05", travelerCount: 2 });
+  const durationOnly = confirmed({ fieldSources: { startDate: "inferred", endDate: "manual", travelerCount: "inferred" }, startDate: "2026-09-01", endDate: "2026-09-05", travelerCount: 2 });
   assert.deepEqual([durationOnly.durationDays, durationOnly.travelerCount], [5, 2]);
-  const travelersOnly = confirmed({ startDate: "2026-09-01", endDate: "2026-09-03", travelerCount: 3 });
+  const travelersOnly = confirmed({ fieldSources: { startDate: "inferred", endDate: "inferred", travelerCount: "manual" }, startDate: "2026-09-01", endDate: "2026-09-03", travelerCount: 3 });
   assert.deepEqual([travelersOnly.durationDays, travelersOnly.travelerCount], [3, 3]);
 });
 
@@ -80,7 +94,7 @@ test("saved manual values remain authoritative after restore and provider handof
   const saved = JSON.parse(JSON.stringify({
     durationDays: 5, travelerCount: 3, travelers: 3,
     destination: { city: "Tokyo" },
-    schedule: { source: "user_confirmed", userConfirmed: true, startDate: "2026-09-10", endDate: "2026-09-14", travelerCount: 3 }
+    schedule: { source: "mixed", fieldSources: { startDate: "manual", endDate: "manual", travelerCount: "manual" }, startDate: "2026-09-10", endDate: "2026-09-14", travelerCount: 3 }
   }));
   const restored = applyTravelConstraints(saved, prompt, { now });
   assert.equal(restored.durationDays, 5);

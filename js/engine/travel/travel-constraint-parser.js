@@ -73,19 +73,22 @@ export function parseTravelConstraints(text, { now = new Date() } = {}) {
 export function applyTravelConstraints(result = {}, text = "", options = {}) {
   const parsed = parseTravelConstraints(text, options);
   const schedule = result.schedule || {};
-  const userConfirmed = schedule.source === "user_confirmed" || schedule.userConfirmed === true;
-  const confirmedStart = userConfirmed ? schedule.startDate || null : null;
-  const confirmedEnd = userConfirmed ? schedule.endDate || null : null;
+  const fieldSources = schedule.fieldSources || {};
+  const legacyConfirmation = schedule.source === "user_confirmed" || schedule.userConfirmed === true;
+  const datesManuallyEdited = fieldSources.startDate === "manual" || fieldSources.endDate === "manual" || (legacyConfirmation && !Object.keys(fieldSources).length);
+  const travelersManuallyEdited = fieldSources.travelerCount === "manual" || (legacyConfirmation && !Object.keys(fieldSources).length);
+  const confirmedStart = datesManuallyEdited ? schedule.startDate || null : null;
+  const confirmedEnd = datesManuallyEdited ? schedule.endDate || null : null;
   const confirmedRangeDays = confirmedStart && confirmedEnd
     ? clampInteger((new Date(`${confirmedEnd}T00:00:00`) - new Date(`${confirmedStart}T00:00:00`)) / 86400000 + 1, 1, 30)
     : null;
   const structuredDuration = clampInteger(schedule.durationDays || result.durationDays, 1, 30);
   const structuredTravelers = clampInteger(schedule.travelerCount || schedule.travelers || schedule.adults || result.travelerCount || result.travelers || result.followUp?.answers?.adults, 1, 12);
-  const durationDays = (userConfirmed && (confirmedRangeDays || structuredDuration)) || parsed.durationDays || structuredDuration;
-  const travelerCount = (userConfirmed && structuredTravelers) || parsed.travelerCount || structuredTravelers;
+  const durationDays = (datesManuallyEdited && (confirmedRangeDays || structuredDuration)) || parsed.durationDays || structuredDuration;
+  const travelerCount = (travelersManuallyEdited && structuredTravelers) || parsed.travelerCount || structuredTravelers;
   const startDate = confirmedStart || parsed.startDate || schedule.startDate || null;
   const endDate = confirmedEnd || parsed.endDate || schedule.endDate || (startDate && durationDays ? isoDate(addLocalDays(new Date(`${startDate}T00:00:00`), durationDays - 1)) : null);
-  const dateIntent = userConfirmed ? schedule.dateIntent || null : parsed.dateIntent || schedule.dateIntent || result.dateIntent || null;
+  const dateIntent = datesManuallyEdited ? schedule.dateIntent || null : parsed.dateIntent || schedule.dateIntent || result.dateIntent || null;
   const normalized = {
     ...result,
     ...(durationDays ? { durationDays } : {}),
