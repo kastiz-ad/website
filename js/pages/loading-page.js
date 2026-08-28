@@ -644,7 +644,7 @@ const runLoadingSequence = async () => {
     const resultsMission = enrichedMission.rawInput || enrichedMission.mission || enrichedMission.originalMission || mission.rawInput || mission.mission || "";
     const resultsDestination = resolvePreviewDestination(resultsMission)?.profile?.city || enrichedMission.destination?.city || enrichedMission.detectedDestination?.city || mission.destination?.city || "";
     const resultsParams = new URLSearchParams({
-      v: "20260818-work-missions-v4",
+      v: "20260819-launch-blockers-v2",
       lang: fallbackLanguage
     });
     if (resultsMission) resultsParams.set("mission", resultsMission);

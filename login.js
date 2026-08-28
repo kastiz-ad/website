@@ -9,13 +9,13 @@ document.documentElement.dataset.theme = theme;
 
 const copy = {
   en: {
-    pricing:"Pricing", settings:"Settings", status:"SECURE ACCOUNT ACCESS", title:"Sign in to Kastiz ONE", copy:"Protect your profile, memory and future missions with your account.", email:"Email", password:"Password", displayName:"Display name", signIn:"Sign in", createAccount:"Create account", resetPassword:"Reset password", waitlist:"Join waitlist", request:"Request early access", support:"Contact support", forgot:"Forgot password", privacy:"Privacy request", deletion:"Account deletion & data export", preferences:"Mission history, notifications, language & theme settings", emailOpen:"Enter your email and password.", oauthPending:"Opening secure {provider} sign-in...", oauthSetup:"{provider} sign-in is not configured on this environment yet.", offline:"Secure accounts are not configured on this preview yet. No password was stored.", sent:"If the account exists, reset instructions were sent.", registered:"Check your email to verify the account before signing in.", registerHelp:"Enter name, email and password, then choose Create account again.", signedIn:"You are signed in. Opening your profile..."
+    pricing:"Pricing", settings:"Settings", status:"ACCOUNTS UNAVAILABLE IN PUBLIC BETA", title:"ONE Free does not require an account", copy:"Use ONE Free without signing in. Trips are saved only on this device during public beta.", email:"Email", password:"Password", displayName:"Display name", signIn:"Sign in", createAccount:"Create account", resetPassword:"Reset password", waitlist:"Join waitlist", request:"Request early access", support:"Contact support", forgot:"Forgot password", privacy:"Privacy request", deletion:"Account deletion & data export", preferences:"Mission history, notifications, language & theme settings", emailOpen:"Enter your email and password.", oauthPending:"Opening secure {provider} sign-in...", oauthSetup:"{provider} sign-in is not configured on this environment yet.", offline:"Accounts are unavailable during ONE Free public beta. No password was stored.", sent:"If the account exists, reset instructions were sent.", registered:"Check your email to verify the account before signing in.", registerHelp:"Enter name, email and password, then choose Create account again.", signedIn:"You are signed in. Opening your profile..."
   },
   ko: {
-    pricing:"요금제", settings:"설정", status:"안전한 계정 액세스", title:"Kastiz ONE 로그인", copy:"프로필, 메모리, 다음 미션을 계정으로 안전하게 보호하세요.", email:"이메일", password:"비밀번호", displayName:"표시 이름", signIn:"로그인", createAccount:"계정 만들기", resetPassword:"비밀번호 재설정", waitlist:"대기 명단 참여", request:"얼리 액세스 요청", support:"지원 문의", forgot:"비밀번호 찾기", privacy:"개인정보 요청", deletion:"계정 삭제 및 데이터 내보내기", preferences:"미션 기록, 알림, 언어 및 테마 설정", emailOpen:"이메일과 비밀번호를 입력하세요.", oauthPending:"안전한 {provider} 로그인을 여는 중입니다...", oauthSetup:"이 환경에는 아직 {provider} 로그인이 설정되지 않았습니다.", offline:"이 미리보기에는 아직 안전한 계정이 설정되지 않았습니다. 비밀번호는 저장되지 않았습니다.", sent:"계정이 존재하면 재설정 안내를 전송했습니다.", registered:"로그인 전에 이메일에서 계정을 확인하세요.", registerHelp:"이름, 이메일, 비밀번호를 입력한 뒤 계정 만들기를 다시 누르세요.", signedIn:"로그인되어 있습니다. 프로필을 엽니다..."
+    pricing:"요금제", settings:"설정", status:"공개 베타에서는 계정을 사용할 수 없습니다", title:"ONE Free는 계정 없이 사용할 수 있습니다", copy:"로그인 없이 ONE Free를 이용하세요. 공개 베타에서는 여행이 이 기기에만 저장됩니다.", email:"이메일", password:"비밀번호", displayName:"표시 이름", signIn:"로그인", createAccount:"계정 만들기", resetPassword:"비밀번호 재설정", waitlist:"대기 명단 참여", request:"얼리 액세스 요청", support:"지원 문의", forgot:"비밀번호 찾기", privacy:"개인정보 요청", deletion:"계정 삭제 및 데이터 내보내기", preferences:"미션 기록, 알림, 언어 및 테마 설정", emailOpen:"이메일과 비밀번호를 입력하세요.", oauthPending:"안전한 {provider} 로그인을 여는 중입니다...", oauthSetup:"이 환경에는 아직 {provider} 로그인이 설정되지 않았습니다.", offline:"ONE Free 공개 베타에서는 계정을 사용할 수 없습니다. 비밀번호는 저장되지 않았습니다.", sent:"계정이 존재하면 재설정 안내를 전송했습니다.", registered:"로그인 전에 이메일에서 계정을 확인하세요.", registerHelp:"이름, 이메일, 비밀번호를 입력한 뒤 계정 만들기를 다시 누르세요.", signedIn:"로그인되어 있습니다. 프로필을 엽니다..."
   },
   es: {
-    pricing:"Precios", settings:"Ajustes", status:"ACCESO SEGURO", title:"Iniciar sesión en Kastiz ONE", copy:"Protege tu perfil, memoria y próximas misiones con tu cuenta.", email:"Email", password:"Contraseña", displayName:"Nombre visible", signIn:"Iniciar sesión", createAccount:"Crear cuenta", resetPassword:"Restablecer contraseña", waitlist:"Unirse a la lista", request:"Solicitar acceso", support:"Soporte", forgot:"Olvidé mi contraseña", privacy:"Privacidad", deletion:"Eliminar cuenta y exportar datos", preferences:"Historial, notificaciones, idioma y tema", emailOpen:"Escribe tu email y contraseña.", oauthPending:"Abriendo inicio seguro con {provider}...", oauthSetup:"{provider} todavía no está configurado en este entorno.", offline:"Las cuentas seguras no están configuradas en esta vista previa. No se guardó ninguna contraseña.", sent:"Si la cuenta existe, se enviaron instrucciones.", registered:"Revisa tu email para verificar la cuenta antes de iniciar sesión.", registerHelp:"Escribe nombre, email y contraseña; luego pulsa Crear cuenta otra vez.", signedIn:"Ya iniciaste sesión. Abriendo tu perfil..."
+    pricing:"Precios", settings:"Ajustes", status:"CUENTAS NO DISPONIBLES EN LA BETA PÚBLICA", title:"ONE Free no requiere una cuenta", copy:"Usa ONE Free sin iniciar sesión. Durante la beta, los viajes se guardan solo en este dispositivo.", email:"Email", password:"Contraseña", displayName:"Nombre visible", signIn:"Iniciar sesión", createAccount:"Crear cuenta", resetPassword:"Restablecer contraseña", waitlist:"Unirse a la lista", request:"Solicitar acceso", support:"Soporte", forgot:"Olvidé mi contraseña", privacy:"Privacidad", deletion:"Eliminar cuenta y exportar datos", preferences:"Historial, notificaciones, idioma y tema", emailOpen:"Escribe tu email y contraseña.", oauthPending:"Abriendo inicio seguro con {provider}...", oauthSetup:"{provider} todavía no está configurado en este entorno.", offline:"Las cuentas no están disponibles durante la beta pública de ONE Free. No se guardó ninguna contraseña.", sent:"Si la cuenta existe, se enviaron instrucciones.", registered:"Revisa tu email para verificar la cuenta antes de iniciar sesión.", registerHelp:"Escribe nombre, email y contraseña; luego pulsa Crear cuenta otra vez.", signedIn:"Ya iniciaste sesión. Abriendo tu perfil..."
   }
 }[language] || {};
 
@@ -28,8 +28,8 @@ Object.assign(copy, {
   signIn: commonCopy.login || copy.signIn,
   createAccount: language === "ko" ? "계정 만들기" : language === "es" ? "Crear cuenta" : copy.createAccount,
   resetPassword: language === "ko" ? "비밀번호 재설정" : language === "es" ? "Restablecer contraseña" : copy.resetPassword,
-  title: language === "ko" ? "Kastiz ONE 로그인" : language === "es" ? "Iniciar sesión en Kastiz ONE" : copy.title,
-  copy: language === "ko" ? "프로필, 메모리, 다음 미션을 계정으로 안전하게 보호하세요." : language === "es" ? "Protege tu perfil, memoria y próximas misiones con tu cuenta." : copy.copy
+  title: copy.title,
+  copy: copy.copy
 });
 
 document.querySelectorAll("[data-i18n]").forEach(el => { if (copy[el.dataset.i18n]) el.textContent = copy[el.dataset.i18n]; });
@@ -43,6 +43,13 @@ const passwordInput = document.getElementById("authPassword");
 const displayInput = document.getElementById("authDisplayName");
 const buttons = () => [...form.querySelectorAll("button")];
 const setStatus = message => { status.textContent = message; };
+
+document.querySelectorAll("[data-provider]").forEach(button => {
+  button.disabled = true;
+  button.setAttribute("aria-disabled", "true");
+});
+form.hidden = true;
+setStatus(copy.offline);
 
 getSession().then(session => {
   if (session.authenticated) {

@@ -3,6 +3,7 @@ import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMiss
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js";
 import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work-mission-experience.js?v=20260818-work-missions-v3";
+import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260819-trust-index-v2";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260730-mission-orchestration";
@@ -487,6 +488,8 @@ const createReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
   );
 };
 
+const isExplicitInterviewPreparation = (value = "") => /interview|mock interview|면접|모의 면접|entrevista/i.test(String(value));
+
 const getStoredResult = () => {
   const params = new URLSearchParams(window.location.search);
   const releasePreviewFallback = shouldUseReleasePreviewTravelFallback(params);
@@ -502,7 +505,13 @@ const getStoredResult = () => {
     const missionRaw = sessionStorage.getItem(STORAGE_KEYS.mission);
     const parsed = JSON.parse(resultsRaw || travelRaw || missionRaw);
 
-    if (parsed?.type) return parsed;
+    if (parsed?.type) {
+      const explicitPrompt = params.get("mission") || params.get("q") || parsed.rawInput || parsed.mission || "";
+      if (isExplicitInterviewPreparation(explicitPrompt)) {
+        return { ...parsed, type: "interview", missionType: "interview", domain: "work", missionCategory: "work" };
+      }
+      return parsed;
+    }
   } catch {}
 
   if (releasePreviewFallback) return createReleasePreviewTravelFallback(params);
@@ -779,6 +788,12 @@ function getManualScenarioResult() {
   if (!prompt) return null;
   const language = params.get("lang") || (/[\u3131-\uD79D]/.test(prompt) ? "ko" : activeLanguage);
   const result = createResolutionResultFromPrompt(prompt, language);
+  if (/interview|mock interview|면접|모의 면접|entrevista/i.test(prompt)) {
+    result.type = "interview";
+    result.missionType = "interview";
+    result.domain = "work";
+    result.missionCategory = "work";
+  }
   result.v24WorldScenario = params.get("v24WorldScenario") || "";
   result.alpha04Scenario = params.get("alpha04Scenario") || "";
   if (MANUAL_V23_TRAVEL_SCENARIOS[scenario]) {
@@ -1512,8 +1527,8 @@ const createApprovalCard = (result) => {
   return createMissionCard({
     id: "approval-protection",
     title: t("approvalProtectionTitle"),
-    label: activeLanguage === "ko" ? "필수" : "Required",
-    value: activeLanguage === "ko" ? "승인 전 실행 금지" : "Approval-first execution",
+    label: activeLanguage === "ko" ? "필수" : activeLanguage === "es" ? "Obligatorio" : "Required",
+    value: activeLanguage === "ko" ? "계획 검토 및 승인" : activeLanguage === "es" ? "Revisión y aprobación del plan" : "Plan review and approval",
     reason: result.display?.approvalProtection || localize(result.approvalProtection) || t("approvalProtection"),
     options: [],
     wide: true,
@@ -1609,10 +1624,12 @@ const sanitizeArchivedMission = (value) => {
 const savePrototypeMission = (reference) => {
   try {
     const existing = JSON.parse(localStorage.getItem(PROTOTYPE_MISSION_ARCHIVE_KEY) || "[]");
-    const record = { reference, savedAt: new Date().toISOString(), result: sanitizeArchivedMission(currentResult) };
+    const record = createDeviceTripRecord({ reference, result: sanitizeArchivedMission(currentResult) });
     const next = [record, ...existing.filter((item) => item?.reference !== reference)].slice(0, 10);
     localStorage.setItem(PROTOTYPE_MISSION_ARCHIVE_KEY, JSON.stringify(next));
-  } catch {}
+    trackEvent("trip_saved", { mission_type: currentResult?.type, storage: "device", page: "results" });
+    return true;
+  } catch { return false; }
 };
 
 const airlineProfilesByCountry = {
@@ -3416,7 +3433,7 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
       <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(resultText(activeLanguage, "itineraryMarkers"))}">
         ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-itinerary-day="${escapeSummaryText(marker.day || "all")}" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
       </div>
-      <p class='alpha03-map-note'>${escapeSummaryText(resultText(activeLanguage, "mapNote"))}</p>
+      <p class='alpha03-map-note'>${escapeSummaryText(alpha03Copy("Estimated route — verify hours and availability before using an external provider.", "예상 동선입니다. 외부 제공업체 이용 전 운영 시간과 이용 가능 여부를 확인하세요.", "Ruta estimada: verifica horarios y disponibilidad antes de usar un proveedor externo."))}</p>
     </div>
   `;
 };
@@ -3620,6 +3637,24 @@ const alpha03OptionImage = (group, option, index) => {
   const pool = isJapaneseStay ? alpha03TravelOptionImages.ryokan : alpha03TravelOptionImages[group] || alpha03TravelOptionImages.hotels;
   return pool[index % pool.length];
 };
+const oneFreeTrustLabel = (label) => {
+  const labels = {
+    Trusted: ["Trusted", "신뢰 높음", "Confiable"],
+    Reliable: ["Reliable", "신뢰 가능", "Fiable"],
+    Estimated: ["Estimated", "예상", "Estimado"],
+    Limited: ["Limited", "제한적", "Limitado"],
+    Experimental: ["Experimental", "실험적", "Experimental"],
+    Unverified: ["Unverified", "미검증", "Sin verificar"]
+  };
+  const copy = labels[label] || [label, label, label];
+  return alpha03Copy(copy[0], copy[1], copy[2]);
+};
+const createOneFreeTrustMarkup = (trust) => {
+  const label = trust?.label || "Unverified";
+  const score = Number.isFinite(trust?.score) ? Number(trust.score).toFixed(1) : "—";
+  const explanation = trust?.explanation?.[activeLanguage] || trust?.explanation?.en || "";
+  return `<details class="one-free-trust-inline"><summary aria-label="ONE Trust Index"><strong>★ ${score}</strong><em>${escapeSummaryText(oneFreeTrustLabel(label))}</em></summary><p>${escapeSummaryText(explanation)}</p></details>`;
+};
 const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => {
   const image = alpha03OptionImage(group, option, index);
   const isAirlineBrand = group === "flights" && !/economy|business|first/i.test(String(option?.name || "")) && /korean|대한항공|asiana|아시아나항공|vietnam|베트남항공|latam|라탐항공|avianca|아비앙카항공|iberia|이베리아항공|lufthansa|루프트한자|air\s*france|에어프랑스|\bklm\b|네덜란드항공/i.test(String(option?.name || ""));
@@ -3633,7 +3668,7 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
 `;
 };
 
-const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
+const createAlpha03OptionPreview = (journey, result, transportationSummary, trustBySection = {}) => {
   const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
   const destinationCode = String(result.destination?.countryCode || result.countryProfile?.code || result.country || "").toUpperCase();
   const destinationAirlines = (airlineProfilesByCountry[destinationCode] || airlineProfilesByContinent[result.destination?.continent || result.countryProfile?.continent] || []).map(([en, ko]) => ({
@@ -3685,7 +3720,7 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
     <section class="alpha03-option-preview" aria-label="${escapeSummaryText(alpha03Copy("Selectable travel options", "선택 가능한 여행 옵션", "Opciones seleccionables"))}">
       ${groups.map(([title, key, options]) => `
         <div class="alpha03-preview-group">
-          <h4>${escapeSummaryText(title)}</h4>
+          <h4>${escapeSummaryText(title)}${trustBySection[key] ? createOneFreeTrustMarkup(trustBySection[key]) : ""}</h4>
           <div class="alpha03-visual-rail">
             ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "실시간 검색 준비", "Búsqueda en vivo lista"), meta: alpha03Copy("Prepared", "준비됨", "Preparado") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, (currentResult.alpha03PreviewSelections?.[key] ?? 0) === index)).join("")}
           </div>
@@ -3695,11 +3730,12 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary) => {
   `;
 };
 
-const createAlpha03TimelineHtml = (days, places = []) => `
+const createAlpha03TimelineHtml = (days, places = [], trust = null) => `
   <section class="alpha03-section alpha03-timeline-redesign">
     <div class="alpha03-section-heading">
       <span class="v23-eyebrow">${escapeSummaryText(resultText(activeLanguage, "timeline"))}</span>
       <h3>${escapeSummaryText(resultText(activeLanguage, "timelineTitle"))}</h3>
+      ${trust ? createOneFreeTrustMarkup(trust) : ""}
     </div>
     <div class="alpha03-timeline-strip">
       ${days.map((day, dayIndex) => {
@@ -3845,6 +3881,81 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const dateText = schedule.startDate && schedule.endDate
     ? `${formatAlpha03Date(schedule.startDate)} → ${formatAlpha03Date(schedule.endDate)}`
     : alpha03Copy("Dates flexible", "날짜 유동적", "Fechas flexibles");
+  const itemStates = (items, fallback) => items.map((item) => item?.sourceState || item?.liveStatus || item?.providerEvidence?.sourceState || item?.source || item?.providerSource || fallback).filter(Boolean);
+  const hasFreshEvidence = (items) => items.some((item) => item?.lastVerified || item?.retrievedAt || item?.updatedAt || item?.freshness === "verified today");
+  const hasNamedIdentity = (items, getter) => items.some((item) => {
+    const name = String(getter(item) || "").trim();
+    return name && !/search|option|candidate|placeholder|추천|후보|검색/i.test(name);
+  });
+  const flightItems = result.flights || [];
+  const hotelItems = result.hotels || [];
+  const restaurantEvidenceItems = [...liveRestaurants, ...resultRestaurants, ...restaurants];
+  const placeEvidenceItems = [...livePlaces, ...places];
+  const transportItems = [result.airportTransfer, ...(result.transportation || []), ...(result.transfers || [])].filter(Boolean);
+  const hasCoordinates = Number.isFinite(Number(profile.latitude)) && Number.isFinite(Number(profile.longitude));
+  const scheduleFeasible = days.length === tripDays && days.every((day) => Array.isArray(day.slots) && day.slots.length >= 2);
+  const localizedContent = ["en", "ko", "es"].includes(activeLanguage);
+  const trustBySection = oneFreeTrustProfile({
+    destination: {
+      sourceStates: [profile.sourceState || (hasCoordinates ? "cached_public" : "unavailable")],
+      signals: { destinationResolved: Boolean(destination), geocodeMatch: hasCoordinates },
+      missingProviders: hasCoordinates ? 0 : 1
+    },
+    flights: {
+      sourceStates: itemStates(flightItems, "estimated"),
+      signals: {
+        liveProvider: flightItems.some((item) => /verified_live|^live$/i.test(String(item?.sourceState || item?.liveStatus || ""))),
+        freshPrice: flightItems.some((item) => item?.priceState === "verified_live" || (item?.estimatedPrice && hasFreshEvidence([item]))),
+        carrierRouteConfirmed: flightItems.some((item) => (item?.airline || item?.carrier) && item?.origin && item?.destination),
+        datesMatch: flightItems.some((item) => item?.departure && schedule.startDate && String(item.departure).startsWith(schedule.startDate)),
+        travelersMatch: flightItems.some((item) => Number(item?.travelers || item?.passengers) === travelerCount)
+      },
+      missingProviders: flightItems.length ? 0 : 1
+    },
+    hotels: {
+      sourceStates: itemStates(hotelItems, "estimated"),
+      signals: {
+        liveInventory: hotelItems.some((item) => /verified_live|^live$/i.test(String(item?.sourceState || item?.liveStatus || "")) && item?.availabilityState === "verified_live"),
+        realIdentity: hasNamedIdentity(hotelItems, getHotelName),
+        destinationMatch: hotelItems.some((item) => String(item?.location || item?.city || "").toLowerCase().includes(String(profile.city || destination).toLowerCase())),
+        freshRate: hotelItems.some((item) => item?.priceState === "verified_live" || (item?.estimatedNightlyPrice && hasFreshEvidence([item])))
+      },
+      missingProviders: hotelItems.length ? 0 : 1
+    },
+    restaurants: {
+      sourceStates: itemStates(restaurantEvidenceItems, liveItems.length ? "cached_public" : "curated"),
+      signals: {
+        realIdentity: hasNamedIdentity(restaurantEvidenceItems, (item) => item?.name || item?.venueName || item?.type),
+        destinationMatch: restaurantEvidenceItems.some((item) => Number.isFinite(Number(item?.latitude)) && Number.isFinite(Number(item?.longitude))),
+        publicConfirmation: restaurantEvidenceItems.some((item) => /openstreetmap|public|verified/i.test(String(item?.source || item?.providerSource || item?.sourceState || ""))),
+        freshDetails: hasFreshEvidence(restaurantEvidenceItems)
+      },
+      missingImages: Math.max(0, restaurants.length - restaurantImageSeeds.length),
+      missingProviders: restaurants.length ? 0 : 1
+    },
+    places: {
+      sourceStates: itemStates(placeEvidenceItems, liveItems.length ? "cached_public" : "curated"),
+      signals: {
+        realIdentity: hasNamedIdentity(placeEvidenceItems, (item) => item?.name || item?.label),
+        geocodeMatch: placeEvidenceItems.some((item) => Number.isFinite(Number(item?.latitude)) && Number.isFinite(Number(item?.longitude))),
+        reliableImages: picturePlaces.length > 0 && picturePlaces.every((item) => Boolean(previewItemImage(item)?.url))
+      },
+      missingImages: Math.max(0, places.length - picturePlaces.length),
+      missingProviders: places.length ? 0 : 1
+    },
+    transport: {
+      sourceStates: itemStates(transportItems, journeySourceStates.transport || "estimated"),
+      signals: {
+        providerConfirmed: transportItems.some((item) => /verified_live|^live$/i.test(String(item?.sourceState || item?.liveStatus || ""))),
+        destinationMatch: transportItems.some((item) => item?.destination || item?.route || item?.steps)
+      },
+      missingProviders: transportItems.length ? 0 : 1
+    },
+    itinerary: {
+      components: ["destination", "places", "restaurants", "transport"],
+      scheduleFeasible
+    }
+  }, { localizedContent });
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
       <div class="alpha03-recommendation-copy">
@@ -3857,6 +3968,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
           <span><b>${escapeSummaryText(dateText)}</b><em>${escapeSummaryText(alpha03Copy("dates", "날짜", "fechas"))}</em></span>
         </div>
         <span class="alpha03-primary-action">${escapeSummaryText(alpha03Copy("Live search ready", "실시간 검색 준비 완료", "Búsqueda en vivo lista"))}</span>
+        ${createOneFreeTrustMarkup(trustBySection.final)}
       </div>
       <div class="alpha03-recommendation-map" aria-label="${escapeSummaryText(alpha03Copy("Map preview", "지도 미리보기", "Vista de mapa"))}">
         ${createAlpha03JourneyMap(days, restaurants, places, profile)}
@@ -3879,6 +3991,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "음식", "Comida"))}</span>
         <h3>${escapeSummaryText(alpha03Copy("Curated local dining", "엄선한 현지 미식", "Gastronomía local seleccionada"))}</h3>
+        ${createOneFreeTrustMarkup(trustBySection.restaurants)}
       </div>
       <div class="alpha03-card-grid is-restaurants alpha03-visual-rail">
         ${restaurants.map((item, index) => createAlpha03VisualCard(item, "restaurant", index)).join("")}
@@ -3891,6 +4004,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares"))}</span>
         <h3>${escapeSummaryText(alpha03Copy("Destination highlights", "주요 명소와 추천 장소", "Lugares destacados del destino"))}</h3>
+        ${createOneFreeTrustMarkup(trustBySection.places)}
       </div>
       <div class="alpha03-card-grid alpha03-visual-rail">
         ${picturePlaces.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
@@ -3899,9 +4013,9 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ` : ""}
     </div>
 
-    ${createAlpha03TimelineHtml(days, picturePlaces)}
+    ${createAlpha03TimelineHtml(days, picturePlaces, trustBySection.itinerary)}
 
-    ${createAlpha03OptionPreview(journey, result, transportationSummary)}
+    ${createAlpha03OptionPreview(journey, result, transportationSummary, trustBySection)}
 
     <details ${alpha04SectionAttrs(workspace, "preparation", "alpha03-preparation-details")} hidden>
       <summary>${escapeSummaryText(alpha03Copy("Preparation details", "준비 세부사항", "Detalles de preparación"))}</summary>
@@ -6880,6 +6994,8 @@ const buildExecutionSummary = () => {
   }).filter(Boolean).slice(0, 6);
   const pictureFoodSelections = (currentResult.alpha03FoodSelections || []).filter(Boolean);
   const suggestedRestaurantNames = pictureFoodSelections.length ? pictureFoodSelections : selectedRestaurantNames.length ? selectedRestaurantNames : (currentResult.restaurants || []).slice(0, 4).map((restaurant) => (activeLanguage === "ko" ? restaurant.venueNameKo : restaurant.venueName) || restaurant.venueName || restaurant.type).filter(Boolean);
+  const finalPlaceItems = Array.isArray(currentResult.places) ? currentResult.places : Array.isArray(currentResult.itinerary?.places) ? currentResult.itinerary.places : [];
+  const selectedPlaceNames = finalPlaceItems.slice(0, 6).map((place) => (activeLanguage === "ko" ? place.nameKo || place.titleKo : place.name || place.title) || place.name || place.title).filter(Boolean);
   const portableCountry = activeLanguage === "ko"
     ? currentResult.destination?.countryKo || currentResult.destination?.country || ""
     : currentResult.destination?.country || "";
@@ -6903,9 +7019,9 @@ const buildExecutionSummary = () => {
   const completionSubtitle = completionMessage?.querySelector("p");
   if (completionSubtitle) {
     completionSubtitle.textContent = local(
-      "Your mission pass is ready. Review the plan, scan the QR, then approve any real provider action separately.",
-      "미션 패스를 준비했습니다. 계획과 QR을 확인하고, 실제 제공업체 실행은 별도로 승인하세요.",
-      "Tu pase de misión está listo. Revisa el plan, escanea el QR y aprueba cualquier acción real por separado."
+      "Your plan is ready. Use the manual provider links when you are ready to finish the booking yourself.",
+      "계획이 준비되었습니다. 준비가 되면 외부 제공업체 링크를 열어 사용자가 직접 예약을 완료하세요.",
+      "Tu plan está listo. Usa los enlaces externos cuando quieras completar la reserva por tu cuenta."
     );
   }
 
@@ -6919,26 +7035,76 @@ const buildExecutionSummary = () => {
   const diningDetail = suggestedRestaurantNames.length
     ? suggestedRestaurantNames.join(" · ")
     : local("ONE will refresh restaurant options before any reservation step.", "예약 단계 전 레스토랑 후보를 다시 확인합니다.", "ONE actualizará opciones de restaurantes antes de reservar.");
-  const qrMarkup = `
-    <article class="execution-summary-item is-wide is-reference mission-pass-reference">
-      <span class="execution-summary-label">${escapeSummaryText(local("Mission pass reference", "미션 패스 참조 번호", "Referencia del pase de misión"))}</span>
-      <span class="execution-summary-value">${escapeSummaryText(reference)}</span>
-      <a href="${escapeSummaryText(portableUrl)}" aria-label="${escapeSummaryText(local("Reopen this mission pass from the QR link", "QR 링크로 미션 패스 다시 열기", "Volver a abrir este pase desde el QR"))}"><img class="prototype-reference-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=900x900&amp;format=png&amp;ecc=L&amp;qzone=8&amp;data=${encodeURIComponent(portableUrl)}" alt="${escapeSummaryText(local("Mission pass QR code", "미션 패스 QR 코드", "Código QR del pase"))}" width="320" height="320"></a>
-      <small class="prototype-reference-qr-help">${escapeSummaryText(local("Scan to reopen this exact prepared mission pass.", "스캔하면 준비된 미션 패스를 다시 열 수 있습니다.", "Escanea para reabrir este pase preparado."))}</small>
-      <span class="execution-summary-detail">${escapeSummaryText(local("Prototype reference only — not a booking number.", "프로토타입 참조용 — 실제 예약 번호가 아닙니다.", "Solo referencia de prototipo — no es una reserva."))}</span>
+  const handoff = buildOneFreeProviderHandoff({
+    destination: currentResult.destination,
+    origin: currentResult.originAirport || currentResult.followUp?.answers?.originAirport || currentResult.followUp?.answers?.origin || "",
+    dates: schedule,
+    travelers: currentResult.travelerCount || currentResult.travelers || currentResult.followUp?.answers?.adults || 1,
+    selections: { flight: airlineName, hotel: hotelName, restaurants: suggestedRestaurantNames, places: selectedPlaceNames },
+    locale: activeLanguage
+  });
+  const resultTrust = oneFreeTrustProfile({
+    destination: {
+      sourceStates: [currentResult.destination?.sourceState || (currentResult.destination?.city ? "cached_public" : "unavailable")],
+      signals: { destinationResolved: Boolean(currentResult.destination?.city || currentResult.destination?.name) }
+    },
+    flights: {
+      sourceStates: flight ? [flight.sourceState || flight.liveStatus || "estimated", flight.priceState].filter(Boolean) : [],
+      signals: { providerAvailable: Boolean(flight), freshPrice: flight?.priceState === "verified_live", routeConfirmed: Boolean(flight?.origin && flight?.destination) },
+      missingProviders: flight ? 0 : 1
+    },
+    hotels: {
+      sourceStates: hotel ? [hotel.sourceState || hotel.liveStatus || "estimated", hotel.availabilityState].filter(Boolean) : [],
+      signals: { providerAvailable: Boolean(hotel), realIdentity: Boolean(hotelName && !/search|option|후보|검색/i.test(hotelName)), liveAvailability: hotel?.availabilityState === "verified_live" },
+      missingProviders: hotel ? 0 : 1
+    },
+    restaurants: {
+      sourceStates: (currentResult.restaurants || []).map((item) => item.sourceState || item.providerSource || "estimated"),
+      signals: { realIdentity: suggestedRestaurantNames.length > 0, liveDetails: (currentResult.restaurants || []).some((item) => item.openingHoursState === "verified_live") },
+      missingImages: (currentResult.restaurants || []).filter((item) => !item.image && !item.imageUrl).length,
+      missingProviders: currentResult.restaurants?.length ? 0 : 1
+    },
+    places: {
+      sourceStates: finalPlaceItems.map((item) => item.sourceState || item.providerSource || "estimated"),
+      signals: { destinationMatch: Boolean(currentResult.destination?.city) },
+      missingProviders: finalPlaceItems.length ? 0 : 1
+    },
+    transport: {
+      sourceStates: currentResult.airportTransfer ? [currentResult.airportTransfer.sourceState || "estimated"] : [],
+      signals: { providerConfirmed: currentResult.airportTransfer?.sourceState === "verified_live" },
+      missingProviders: currentResult.airportTransfer ? 0 : 1
+    },
+    itinerary: {
+      components: ["destination", "places", "restaurants", "transport"],
+      scheduleFeasible: Boolean(schedule.startDate && schedule.endDate)
+    }
+  }, { localizedContent: ["en", "ko", "es"].includes(activeLanguage) });
+  const handoffMarkup = `
+    <article class="execution-summary-item is-wide one-free-handoff">
+      <div class="one-free-handoff-head">
+        <div><span class="execution-summary-label">${escapeSummaryText(local("Manual provider handoff", "외부 제공업체로 직접 이동", "Acceso manual a proveedores"))}</span><span class="execution-summary-detail">${escapeSummaryText(handoff.message)}</span></div>
+        ${createOneFreeTrustMarkup(resultTrust.final)}
+      </div>
+      <div class="one-free-provider-links">${handoff.links.length ? handoff.links.map((link) => `<a href="${escapeSummaryText(link.url)}" target="_blank" rel="noopener noreferrer" data-provider-link="${escapeSummaryText(link.id)}"><strong>${escapeSummaryText(link.label)}</strong><span>${escapeSummaryText(link.detail)}</span><small>${escapeSummaryText(local("Opens an external provider search", "외부 제공업체 검색 열기", "Abre una búsqueda externa"))}</small></a>`).join("") : `<p>${escapeSummaryText(handoff.message)}</p>`}</div>
+      <div class="one-free-save-row">
+        <button type="button" data-save-one-free-trip data-reference="${escapeSummaryText(reference)}">${escapeSummaryText(local("Save trip", "여행 저장", "Guardar viaje"))}</button>
+        <a href="${escapeSummaryText(portableUrl)}" data-copy-one-free-trip>${escapeSummaryText(local("Open shareable trip", "공유용 여행 열기", "Abrir viaje para compartir"))}</a>
+        <span data-one-free-save-status role="status">${escapeSummaryText(local("Not saved yet", "아직 저장되지 않음", "Aún no guardado"))}</span>
+      </div>
+      <p class="one-free-manual-notice">${escapeSummaryText(local("ONE Free does not book, reserve, purchase, charge, submit, or contact a provider. You review the external site and complete any action yourself.", "ONE Free는 예약, 구매, 결제, 제출 또는 제공업체 연락을 실행하지 않습니다. 외부 사이트에서 내용을 확인하고 사용자가 직접 완료합니다.", "ONE Free no reserva, compra, cobra, envía ni contacta proveedores. Revisa el sitio externo y completa cualquier acción por tu cuenta."))}</p>
     </article>`;
   const nextChecks = [
     local("Confirm live provider availability and final prices", "실시간 제공업체 가능 여부와 최종 가격 확인", "Confirmar disponibilidad y precios finales"),
     local("Show exact terms before booking or payment", "예약·결제 전 정확한 조건 표시", "Mostrar condiciones exactas antes de reservar o pagar"),
-    local("Ask again before any external action", "외부 실행 전 다시 승인 요청", "Pedir aprobación antes de cualquier acción externa")
+    local("Review the external provider before continuing", "외부 제공업체에서 조건을 다시 확인", "Revisar el proveedor externo antes de continuar")
   ];
 
   executionSummary.innerHTML = `
-    <section class="mission-pass-summary" aria-label="${escapeSummaryText(local("Prepared mission pass", "준비된 미션 패스", "Pase de misión preparado"))}">
+    <section class="mission-pass-summary" aria-label="${escapeSummaryText(local("Prepared trip summary", "준비된 여행 요약", "Resumen del viaje preparado"))}">
       <div class="execution-summary-head mission-pass-head">
         <span class="execution-summary-status">${escapeSummaryText(local("Plan ready · Nothing booked yet", "계획 준비 완료 · 아직 예약 아님", "Plan listo · Nada reservado"))}</span>
-        <h4>${escapeSummaryText(local("Your mission pass", "미션 패스", "Tu pase de misión"))}</h4>
-        <p>${escapeSummaryText(local("Useful details are organized here. Real booking, payment, ticketing, or provider contact still needs separate approval.", "필요한 정보만 정리했습니다. 실제 예약, 결제, 발권, 제공업체 연락은 별도 승인 후에만 진행됩니다.", "Aquí está lo necesario. Reserva, pago, emisión o contacto con proveedor requiere otra aprobación."))}</p>
+        <h4>${escapeSummaryText(local("Your trip summary", "여행 요약", "Resumen de tu viaje"))}</h4>
+        <p>${escapeSummaryText(local("Useful details are organized here. Open an external provider when ready and complete any booking or payment yourself.", "필요한 정보를 정리했습니다. 준비되면 외부 제공업체를 열고 예약이나 결제는 사용자가 직접 완료하세요.", "Aquí está lo necesario. Cuando quieras, abre un proveedor externo y completa tú mismo cualquier reserva o pago."))}</p>
       </div>
       <article class="execution-summary-item is-wide is-schedule mission-pass-route">
         <span class="execution-summary-label">${escapeSummaryText(local("Trip window", "여행 일정", "Fechas del viaje"))}</span>
@@ -6949,18 +7115,17 @@ const buildExecutionSummary = () => {
         ${detailCard(local("Outbound", "출발 항공", "Ida"), flight ? `${airlineName} · ${flightCode}` : airlineName, `${schedule.startDate || dateRange} · ${formatRange(flight?.estimatedPrice) || local("Price check needed", "가격 확인 필요", "Precio por confirmar")}`, "✈")}
         ${isRoundTrip ? detailCard(local("Return", "귀국 항공", "Vuelta"), flight ? `${airlineName} · ${returnFlightCode}` : airlineName, `${schedule.endDate || dateRange} · ${local("Return time requires final provider check", "귀국 시간은 최종 제공업체 확인 필요", "La hora de regreso requiere verificación")}`, "↩") : ""}
         ${detailCard(local("Stay", "숙소", "Alojamiento"), hotelName, `${dateRange} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice) || local("Final price check needed", "최종 가격 확인 필요", "Precio final por confirmar")}`, "🏨")}
-        ${detailCard(local("Local movement", "현지 이동", "Transporte local"), transferName, local("Route and licensed provider will be checked before execution.", "실행 전 경로와 공식 제공업체를 확인합니다.", "La ruta y proveedor autorizado se verifican antes."), "🚕")}
+        ${detailCard(local("Local movement", "현지 이동", "Transporte local"), transferName, local("Review the route and licensed provider before continuing externally.", "외부 사이트로 이동하기 전에 경로와 공식 제공업체를 확인하세요.", "Revisa la ruta y el proveedor autorizado antes de continuar externamente."), "🚕")}
         ${detailCard(local("Dining", "식사", "Comida"), suggestedRestaurantNames.length ? local("Shortlist ready", "후보 준비됨", "Lista preparada") : local("Needs final picks", "최종 후보 필요", "Faltan opciones"), diningDetail, "🍽", "is-restaurant")}
         ${detailCard(local("Budget", "예산", "Presupuesto"), formatRange(totalRange) || local("Flexible", "유동적", "Flexible"), local("Budget updates if you change flight, hotel, dining, or transport.", "항공·숙소·식사·이동을 바꾸면 예산도 함께 업데이트됩니다.", "El presupuesto cambia si modificas vuelos, hotel, comida o transporte."), "₩")}
-        ${qrMarkup}
+        ${handoffMarkup}
       </div>
       <article class="execution-summary-item is-wide mission-pass-next">
-        <span class="execution-summary-label">${escapeSummaryText(local("Before anything real happens", "실제 실행 전 확인", "Antes de cualquier acción real"))}</span>
+        <span class="execution-summary-label">${escapeSummaryText(local("Before opening an external provider", "외부 제공업체로 이동하기 전", "Antes de abrir un proveedor externo"))}</span>
         <ul>${nextChecks.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
       </article>
       <a class="all-in-slogan" href="index.html" aria-label="${escapeSummaryText(local("Return home", "홈으로 돌아가기", "Volver al inicio"))}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>
     </section>`;
-  savePrototypeMission(reference);
 };
 
 const runApprovalSequence = () => {
@@ -7012,6 +7177,24 @@ const runApprovalSequence = () => {
     }, index * 760);
   });
 };
+
+executionSummary?.addEventListener("click", (event) => {
+  const saveButton = event.target.closest("[data-save-one-free-trip]");
+  if (saveButton) {
+    const status = executionSummary.querySelector("[data-one-free-save-status]");
+    const saved = savePrototypeMission(saveButton.dataset.reference);
+    saveButton.disabled = saved;
+    saveButton.textContent = saved
+      ? completeMissionLocal("Saved", "저장됨", "Guardado")
+      : completeMissionLocal("Try again", "다시 시도", "Reintentar");
+    if (status) status.textContent = saved
+      ? completeMissionLocal("Saved on this device", "이 기기에 저장됨", "Guardado en este dispositivo")
+      : completeMissionLocal("Could not save on this device", "이 기기에 저장할 수 없습니다", "No se pudo guardar en este dispositivo");
+    return;
+  }
+  const providerLink = event.target.closest("[data-provider-link]");
+  if (providerLink) trackEvent("provider_link_clicked", { provider_type: providerLink.dataset.providerLink, mission_type: currentResult?.type, page: "results" });
+});
 
 const applySimulatedModification = (cardId, card, button) => {
   const cardTitle = card.querySelector(".card-title")?.textContent || "";

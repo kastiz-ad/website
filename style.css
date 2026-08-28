@@ -2031,3 +2031,14 @@ html[data-theme="midnight"] .header-mini-symbol {
 .schedule-summary{display:none!important}
 .schedule-confirm{position:static!important;flex:0 0 auto!important;min-height:40px!important;height:40px!important;margin-top:7px!important;box-shadow:none!important}
 }
+
+.saved-trips-panel{width:min(760px,calc(100vw - 32px));margin:18px auto 0;border:1px solid var(--border);border-radius:20px;background:var(--surface);padding:16px;text-align:left}
+.saved-trips-panel>div:first-child{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.saved-trips-panel h2{margin:0;font-size:18px}
+.saved-trips-panel>div>span{color:var(--text-muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.saved-trips-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.saved-trips-list button{display:grid;gap:3px;min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--surface-strong);padding:12px;color:var(--text);text-align:left;cursor:pointer}
+.saved-trips-list strong,.saved-trips-list span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-trips-list span,.saved-trips-list small{color:var(--text-muted)}
+@media(max-width:640px){.saved-trips-panel{margin-top:12px;padding:12px}.saved-trips-list{display:flex;overflow-x:auto}.saved-trips-list button{flex:0 0 76%}}
+#loginButton[hidden] { display: none !important; }

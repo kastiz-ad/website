@@ -98,15 +98,17 @@ test("V23.1 styling supports the continuation and blocked states", () => {
 
 test("static HTML no longer defaults to fake ONE'D completion copy", () => {
   assert.match(resultsHtml, /Next step prepared/);
-  assert.match(resultsHtml, /Your mission pass is ready/);
+  assert.match(resultsHtml, /Use the manual provider links/);
   assert.doesNotMatch(resultsHtml, /Everything is prepared\. You're always in control\./);
 });
 
-test("approval completion renders a mission pass instead of a dry execution receipt", () => {
+test("approval completion renders a truthful manual handoff instead of a prototype receipt", () => {
   assert.match(resultsPageSource, /mission-pass-summary/);
-  assert.match(resultsPageSource, /Your mission pass/);
+  assert.match(resultsPageSource, /Your trip summary/);
   assert.match(resultsPageSource, /Plan ready · Nothing booked yet/);
-  assert.match(resultsPageSource, /Mission pass reference/);
+  assert.match(resultsPageSource, /Manual provider handoff/);
+  assert.match(resultsPageSource, /data-save-one-free-trip/);
+  assert.doesNotMatch(resultsPageSource.slice(resultsPageSource.indexOf("const buildExecutionSummary"), resultsPageSource.indexOf("const runApprovalSequence")), /api\.qrserver\.com/);
   assert.match(resultsCss, /\.mission-pass-summary/);
   assert.match(resultsCss, /\.mission-pass-card/);
 });
