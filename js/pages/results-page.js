@@ -15,6 +15,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260829-one-free-constraints-v1";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -627,22 +628,13 @@ const addDaysToIsoDate = (startDate, daysToAdd) => {
 const inferManualTravelDurationDays = (prompt = "", params = new URLSearchParams()) => {
   const explicit = Number(params.get("days") || params.get("durationDays") || params.get("tripDays"));
   if (Number.isFinite(explicit) && explicit > 0) return Math.min(30, Math.max(1, Math.round(explicit)));
-  const text = String(prompt || "");
-  const match = text.match(/(\d{1,2})\s*(?:day|days|\uC77C|dias|d\u00EDas|jours|\u65E5)/iu);
-  if (match) return Math.min(30, Math.max(1, Number(match[1])));
-  if (/week|\uC8FC|semana|semaine/iu.test(text)) return 7;
-  return 7;
+  return parseTravelConstraints(prompt).durationDays || 7;
 };
 
 const inferManualTravelerCount = (prompt = "", params = new URLSearchParams()) => {
   const explicit = Number(params.get("travelers") || params.get("travelerCount") || params.get("people"));
   if (Number.isFinite(explicit) && explicit > 0) return Math.min(12, Math.max(1, Math.round(explicit)));
-  const text = String(prompt || "").toLowerCase();
-  if (/solo|alone|one traveler|1 traveler|\uD63C\uC790|\uB098\uD640\uB85C|un viajero|viajero solo|voyageur solo/iu.test(text)) return 1;
-  if (/family of four|two adults and two (?:children|kids)|4 (?:people|travelers)|4\uBA85/iu.test(text)) return 4;
-  const match = text.match(/(\d{1,2})\s*(?:travelers|people|\uBA85|personas|personnes)/iu);
-  if (match) return Math.min(12, Math.max(1, Number(match[1])));
-  return 1;
+  return parseTravelConstraints(prompt).travelerCount || 1;
 };
 
 const shouldHydrateManualTravelResult = (prompt = "", params = new URLSearchParams(), scenario = "") => {
@@ -707,9 +699,10 @@ const hydrateManualTravelResultForPreview = (result, prompt = "", language = act
   const destinationConfidence = destinationMatch?.confidence || (resolvedDestination.confidence ? Math.round(Number(resolvedDestination.confidence) * 100) : 82);
   const durationDays = inferManualTravelDurationDays(prompt, params);
   const travelerCount = inferManualTravelerCount(prompt, params);
+  const parsedConstraints = parseTravelConstraints(prompt);
   const rooms = Math.max(1, Number(params.get("rooms") || result.rooms || 1));
-  const startDate = params.get("startDate") || params.get("from") || result.schedule?.startDate || new Date().toISOString().slice(0, 10);
-  const endDate = params.get("endDate") || params.get("to") || result.schedule?.endDate || addDaysToIsoDate(startDate, durationDays - 1);
+  const startDate = params.get("startDate") || params.get("from") || result.schedule?.startDate || parsedConstraints.startDate || new Date().toISOString().slice(0, 10);
+  const endDate = params.get("endDate") || params.get("to") || result.schedule?.endDate || parsedConstraints.endDate || addDaysToIsoDate(startDate, durationDays - 1);
   const destination = {
     ...(result.destination || {}),
     id: profile.id,
@@ -761,6 +754,7 @@ const hydrateManualTravelResultForPreview = (result, prompt = "", language = act
       startDate,
       endDate,
       durationDays,
+      ...(parsedConstraints.dateIntent ? { dateIntent: parsedConstraints.dateIntent } : {}),
       timePreference: result.schedule?.timePreference || "flexible"
     },
     travelerCount,

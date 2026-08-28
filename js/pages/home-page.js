@@ -11,6 +11,7 @@ import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-preview-v79";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
 import { buildMissionBriefing, createWorkMissionFoundation } from "../engine/work-mission-foundation.js?v=20260818-work-missions-v2";
+import { applyTravelConstraints, parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260829-one-free-constraints-v1";
 
 const root = document.documentElement;
 const body = document.body;
@@ -1073,18 +1074,7 @@ const detectDestination = (mission, countryProfile = null) => {
 };
 
 const detectDurationDays = (mission) => {
-  const englishMatch = mission.match(/(\d+)\s*(day|days)/i);
-  const koreanMatch = mission.match(/(\d+)\s*(일|박)/);
-
-  if (englishMatch) {
-    return Number(englishMatch[1]);
-  }
-
-  if (koreanMatch) {
-    return Number(koreanMatch[1]);
-  }
-
-  return 7;
+  return parseTravelConstraints(mission).durationDays || 7;
 };
 
 const detectDepartureCountry = () => {
@@ -1548,9 +1538,11 @@ const saveMission = (mission, schedule = null) => {
   const missionType = pendingFollowUp?.type === "travel" || classifiedType === "travel" || destinationTravelIntent
     ? "travel"
     : pendingFollowUp?.type || classifiedType;
-  const payload = missionType === "travel"
+  let payload = missionType === "travel"
     ? buildTravelMission(cleanMission)
     : buildGeneralMission(cleanMission);
+
+  if (missionType === "travel") payload = applyTravelConstraints(payload, cleanMission);
 
   if (["presentation", "meeting", "interview"].includes(classifiedType)) {
     const workFoundation = createWorkMissionFoundation(classifiedType, { rawInput: cleanMission, desiredOutcome: cleanMission });
@@ -1565,6 +1557,18 @@ const saveMission = (mission, schedule = null) => {
   payload.aiMode = aiModeEnabled;
   payload.planningMode = aiModeEnabled ? aiPlanningMode : "complete";
   payload.schedule = schedule;
+  if (payload.type === "travel") {
+    const parsedConstraints = parseTravelConstraints(cleanMission);
+    const scheduleMatchesRelativeIntent = parsedConstraints.dateIntent
+      && schedule?.startDate === parsedConstraints.startDate
+      && schedule?.endDate === parsedConstraints.endDate;
+    if (scheduleMatchesRelativeIntent) {
+      payload.dateIntent = parsedConstraints.dateIntent;
+      payload.schedule = { ...schedule, dateIntent: parsedConstraints.dateIntent };
+    } else if (parsedConstraints.dateIntent) {
+      delete payload.dateIntent;
+    }
+  }
   payload.followUp = pendingFollowUp;
   payload.missionSeed = payload.missionSeed || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   if (payload.type === "travel" && schedule) {
@@ -2070,6 +2074,8 @@ const scheduleAirportLabel = (value) => {
 };
 
 const collectScheduleDetails = () => ({
+  source: "user_confirmed",
+  userConfirmed: true,
   startDate: scheduleStartDate.value,
   endDate: scheduleEndDate.value,
   timePreference: scheduleTimePreference.value,
@@ -2113,15 +2119,17 @@ const openScheduleModal = (mission) => {
   pendingMissionText = normalizeMission(mission);
   if (!pendingMissionText) { missionInput.focus(); return; }
   const today = new Date();
-  const defaultEnd = new Date(today);
-  defaultEnd.setDate(defaultEnd.getDate() + 6);
+  const constraints = parseTravelConstraints(pendingMissionText, { now: today });
+  const defaultStart = constraints.startDate ? new Date(`${constraints.startDate}T00:00:00`) : today;
+  const defaultEnd = constraints.endDate ? new Date(`${constraints.endDate}T00:00:00`) : new Date(defaultStart);
+  if (!constraints.endDate) defaultEnd.setDate(defaultEnd.getDate() + (constraints.durationDays || 7) - 1);
   scheduleStartDate.min = toLocalIsoDate(today);
-  scheduleStartDate.value = toLocalIsoDate(today);
+  scheduleStartDate.value = toLocalIsoDate(defaultStart);
   scheduleEndDate.min = scheduleStartDate.value;
   scheduleEndDate.value = toLocalIsoDate(defaultEnd);
   scheduleTimePreference.value = "any";
-  if (scheduleTravelerCount) scheduleTravelerCount.value = "1";
-  if (scheduleRoomCount) scheduleRoomCount.value = "1";
+  if (scheduleTravelerCount) scheduleTravelerCount.value = String(constraints.travelerCount || 1);
+  if (scheduleRoomCount) scheduleRoomCount.value = String(Math.max(1, Math.ceil((constraints.travelerCount || 1) / 2)));
   if (scheduleDepartureAirport) scheduleDepartureAirport.value = "ICN";
   updateScheduleSummary();
   if (typeof scheduleModal.showModal === "function") scheduleModal.showModal();

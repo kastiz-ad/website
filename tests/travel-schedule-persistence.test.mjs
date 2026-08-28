@@ -8,6 +8,8 @@ const resultsSource = fs.readFileSync(new URL("../js/pages/results-page.js", imp
 test("travel missions open the schedule step before starting", () => {
   assert.match(homeSource, /if \(type === "travel"\) \{\s*pendingFollowUp = null;\s*openScheduleModal\(mission\);/);
   assert.match(homeSource, /const schedule = collectScheduleDetails\(\);/);
+  assert.match(homeSource, /source: "user_confirmed"/);
+  assert.match(homeSource, /userConfirmed: true/);
   assert.match(homeSource, /travelerCount: normalizeScheduleCount\(scheduleTravelerCount\?\.value, 1\)/);
   assert.match(homeSource, /originAirport: scheduleDepartureAirport\?\.value \|\| "ICN"/);
   assert.match(homeSource, /startMission\(pendingMissionText, schedule\);/);
