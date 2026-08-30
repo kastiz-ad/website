@@ -11,6 +11,10 @@ const WORD_NUMBERS = Object.freeze({
 
 const numberValue = (value) => clampInteger(/^\d+$/.test(value) ? value : WORD_NUMBERS[value.toLocaleLowerCase()], 1, 30);
 
+const normalizeConstraintText = (value) => String(value || "")
+  .normalize("NFKC")
+  .replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/gu, "-");
+
 const isoDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -51,7 +55,7 @@ const inclusiveDaySpan = (startDate, endDate) => {
 };
 
 const parseExplicitMonth = (text) => {
-  const normalized = String(text || "").normalize("NFKC").toLocaleLowerCase();
+  const normalized = normalizeConstraintText(text).toLocaleLowerCase();
   const korean = normalized.match(/(?:(20\d{2})\s*년\s*)?(1[0-2]|[1-9])\s*월/u);
   if (korean) return { monthIndex: Number(korean[2]) - 1, explicitYear: korean[1] ? Number(korean[1]) : null, label: `${korean[2]}월` };
   for (const [monthIndex, names] of MONTH_NAMES) {
@@ -62,7 +66,7 @@ const parseExplicitMonth = (text) => {
 };
 
 const parseDuration = (text) => {
-  const normalized = String(text || "").normalize("NFKC");
+  const normalized = normalizeConstraintText(text);
   const match = normalized.match(/\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\s*[- ]?\s*(day|days|night|nights)\b/iu)
     || normalized.match(/\b(\d{1,2}|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s*[- ]?\s*(día|días|dia|dias|noche|noches)\b/iu)
     || normalized.match(/(\d{1,2}|한|하나|두|둘|세|셋|네|넷|다섯|여섯|일곱)\s*(일|박)/u);
@@ -78,7 +82,7 @@ const parseDuration = (text) => {
 };
 
 const parseTravelers = (text) => {
-  const normalized = String(text || "").normalize("NFKC").toLocaleLowerCase();
+  const normalized = normalizeConstraintText(text).toLocaleLowerCase();
   if (/\b(?:my wife|my husband|my partner|my spouse)\s+and\s+me\b|\b(?:mi esposa|mi marido|mi pareja)\s+y\s+yo\b|(?:아내|남편|배우자|여자친구|남자친구)와?\s*(?:나|저)/iu.test(normalized)) return 2;
   if (/\b(?:solo|alone|by myself|viajo solo|viajo sola)\b|혼자|나홀로/iu.test(normalized)) return 1;
   const match = normalized.match(/(?:\bfor\s+|\bpara\s+)(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|adults?|personas?|viajeros?|adultos?)\b/iu)
@@ -89,7 +93,7 @@ const parseTravelers = (text) => {
 };
 
 const parseDateIntent = (text, now, durationDays) => {
-  const normalized = String(text || "").normalize("NFKC");
+  const normalized = normalizeConstraintText(text);
   if (/\bnext\s+(?:calendar\s+)?month\b|다음\s*달|\b(?:el\s+)?próximo\s+mes\b|\bmes\s+que\s+viene\b/iu.test(normalized)) {
     const start = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const end = durationDays

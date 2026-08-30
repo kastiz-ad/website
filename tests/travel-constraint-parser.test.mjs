@@ -23,6 +23,18 @@ test("resolves generic explicit calendar months with duration-safe local dates",
   assert.deepEqual([explicitYear.dateIntent.year, explicitYear.dateIntent.explicitYear, explicitYear.startDate, explicitYear.endDate], [2026, true, "2026-10-01", "2026-10-03"]);
   const november = parseTravelConstraints("Plan a 5-day trip to Paris in November.", { now });
   assert.deepEqual([november.durationDays, november.startDate, november.endDate], [5, "2026-11-01", "2026-11-05"]);
+  const fiveOctoberDays = parseTravelConstraints("Plan a 5-day trip to Tokyo in October.", { now });
+  assert.deepEqual([fiveOctoberDays.durationDays, fiveOctoberDays.startDate, fiveOctoberDays.endDate], [5, "2026-10-01", "2026-10-05"]);
+  const twoNovemberDays = parseTravelConstraints("Plan a 2-day trip to Tokyo in November.", { now });
+  assert.deepEqual([twoNovemberDays.durationDays, twoNovemberDays.startDate, twoNovemberDays.endDate], [2, "2026-11-01", "2026-11-02"]);
+});
+
+test("normalizes visually identical Unicode duration dashes before month resolution", () => {
+  for (const dash of ["‑", "–", "—", "−", "﹣", "－"]) {
+    const parsed = parseTravelConstraints(`Plan a 3${dash}day trip to Tokyo for 2 people in October.`, { now });
+    assert.deepEqual([parsed.durationDays, parsed.travelerCount, parsed.startDate, parsed.endDate], [3, 2, "2026-10-01", "2026-10-03"]);
+    assert.equal(parsed.dateIntent.kind, "explicit_month");
+  }
 });
 
 test("rolls an already-passed implicit month forward but honors an explicit year", () => {

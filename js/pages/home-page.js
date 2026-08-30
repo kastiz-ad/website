@@ -11,7 +11,7 @@ import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-preview-v79";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
 import { buildMissionBriefing, createWorkMissionFoundation } from "../engine/work-mission-foundation.js?v=20260818-work-missions-v2";
-import { applyTravelConstraints, parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260831-explicit-months-v1";
+import { applyTravelConstraints, parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260831-duration-dashes-v1";
 
 const root = document.documentElement;
 const body = document.body;
