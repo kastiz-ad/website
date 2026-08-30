@@ -14,6 +14,81 @@ test("extracts English duration, travelers, and a runtime-relative next-month ra
   assert.equal(parsed.endDate, "2026-09-03");
 });
 
+test("resolves generic explicit calendar months with duration-safe local dates", () => {
+  const october = parseTravelConstraints("Plan a 3-day trip to Tokyo for 2 people in October.", { now });
+  assert.deepEqual([october.dateIntent.kind, october.dateIntent.month, october.dateIntent.year, october.startDate, october.endDate], ["explicit_month", 10, 2026, "2026-10-01", "2026-10-03"]);
+  const thisOctober = parseTravelConstraints("Plan a 3-day trip to Tokyo for 2 people this October.", { now });
+  assert.deepEqual([thisOctober.startDate, thisOctober.endDate], ["2026-10-01", "2026-10-03"]);
+  const explicitYear = parseTravelConstraints("Plan a 3-day trip to Tokyo for 2 people in October 2026.", { now });
+  assert.deepEqual([explicitYear.dateIntent.year, explicitYear.dateIntent.explicitYear, explicitYear.startDate, explicitYear.endDate], [2026, true, "2026-10-01", "2026-10-03"]);
+  const november = parseTravelConstraints("Plan a 5-day trip to Paris in November.", { now });
+  assert.deepEqual([november.durationDays, november.startDate, november.endDate], [5, "2026-11-01", "2026-11-05"]);
+});
+
+test("rolls an already-passed implicit month forward but honors an explicit year", () => {
+  const decemberNow = new Date(2026, 11, 15, 12);
+  const implicit = parseTravelConstraints("Plan a trip in October.", { now: decemberNow });
+  assert.deepEqual([implicit.startDate, implicit.endDate], ["2027-10-01", "2027-10-31"]);
+  const explicit = parseTravelConstraints("Plan a trip in October 2026.", { now: decemberNow });
+  assert.deepEqual([explicit.startDate, explicit.endDate], ["2026-10-01", "2026-10-31"]);
+});
+
+test("resolves Korean and Spanish explicit calendar months", () => {
+  const korean = parseTravelConstraints("10월에 도쿄 3일 여행 2명", { now });
+  assert.deepEqual([korean.durationDays, korean.travelerCount, korean.startDate, korean.endDate], [3, 2, "2026-10-01", "2026-10-03"]);
+  const spanish = parseTravelConstraints("Viaje de cinco días a París en noviembre para dos personas", { now });
+  assert.deepEqual([spanish.durationDays, spanish.travelerCount, spanish.startDate, spanish.endDate], [5, 2, "2026-11-01", "2026-11-05"]);
+});
+
+test("explicit month beats stale generated dates and normalizes the exact span", () => {
+  const normalized = applyTravelConstraints({
+    durationDays: 7, travelerCount: 1,
+    schedule: { startDate: "2023-08-31", endDate: "2026-09-02", durationDays: 7, travelerCount: 1 }
+  }, "Plan a 3-day trip to Tokyo for 2 people in October.", { now });
+  assert.deepEqual([normalized.durationDays, normalized.travelerCount, normalized.schedule.startDate, normalized.schedule.endDate], [3, 2, "2026-10-01", "2026-10-03"]);
+  assert.equal(normalized.dateIntent.kind, "explicit_month");
+  assert.equal(normalized.schedule.dateIntent.kind, "explicit_month");
+});
+
+test("explicit month preserves independent manual traveler and date overrides", () => {
+  const prompt = "Plan a 3-day trip to Tokyo for 2 people in October.";
+  const travelerOverride = applyTravelConstraints({ schedule: {
+    source: "mixed", fieldSources: { startDate: "inferred", endDate: "inferred", travelerCount: "manual" },
+    startDate: "2026-10-01", endDate: "2026-10-03", travelerCount: 3
+  } }, prompt, { now });
+  assert.deepEqual([travelerOverride.durationDays, travelerOverride.travelerCount, travelerOverride.schedule.startDate, travelerOverride.schedule.endDate], [3, 3, "2026-10-01", "2026-10-03"]);
+  const dateOverride = applyTravelConstraints({ schedule: {
+    source: "mixed", fieldSources: { startDate: "manual", endDate: "manual", travelerCount: "inferred" },
+    startDate: "2026-10-10", endDate: "2026-10-14", travelerCount: 2
+  } }, prompt, { now });
+  assert.deepEqual([dateOverride.durationDays, dateOverride.travelerCount, dateOverride.schedule.startDate, dateOverride.schedule.endDate], [5, 2, "2026-10-10", "2026-10-14"]);
+  assert.equal(dateOverride.dateIntent, undefined);
+});
+
+test("explicit-month schedules survive save/restore and provider handoff", () => {
+  const prompt = "Plan a 3-day trip to Tokyo for 2 people in October.";
+  const saved = JSON.parse(JSON.stringify(applyTravelConstraints({ destination: { city: "Tokyo" }, schedule: {} }, prompt, { now })));
+  const restored = applyTravelConstraints(saved, prompt, { now });
+  assert.deepEqual([restored.durationDays, restored.schedule.startDate, restored.schedule.endDate], [3, "2026-10-01", "2026-10-03"]);
+  const handoff = buildOneFreeProviderHandoff({ destination: restored.destination, dates: restored.schedule, travelers: restored.travelerCount });
+  const queries = handoff.links.map((link) => new URL(link.url).searchParams.get("q") || "").join(" ");
+  assert.match(queries, /2026-10-01/);
+  assert.match(queries, /2026-10-03/);
+  assert.match(queries, /2 travelers/);
+});
+
+test("invalid structured schedules cannot create malformed or reverse ranges", () => {
+  const prompt = "Plan a 3-day trip to Tokyo for 2 people in October.";
+  for (const schedule of [
+    { startDate: "2026-13-01", endDate: "2026-10-03" },
+    { startDate: "2026-10-10", endDate: "2026-10-01" },
+    { startDate: "2023-08-31", endDate: "2026-09-02" }
+  ]) {
+    const normalized = applyTravelConstraints({ durationDays: 7, schedule }, prompt, { now });
+    assert.deepEqual([normalized.durationDays, normalized.schedule.startDate, normalized.schedule.endDate], [3, "2026-10-01", "2026-10-03"]);
+  }
+});
+
 test("extracts common English day and night variants", () => {
   assert.deepEqual(parseTravelConstraints("Plan 5 days in Paris for 3 people.", { now }), {
     durationDays: 5, durationNights: 4, source: "explicit", travelerCount: 3, dateIntent: null, startDate: null, endDate: null

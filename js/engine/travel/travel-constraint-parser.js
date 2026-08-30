@@ -24,6 +24,43 @@ const addLocalDays = (date, days) => {
   return next;
 };
 
+const MONTH_NAMES = Object.freeze([
+  [0, ["january", "jan", "enero"]], [1, ["february", "feb", "febrero"]],
+  [2, ["march", "mar", "marzo"]], [3, ["april", "apr", "abril"]],
+  [4, ["may", "mayo"]], [5, ["june", "jun", "junio"]],
+  [6, ["july", "jul", "julio"]], [7, ["august", "aug", "agosto"]],
+  [8, ["september", "sep", "sept", "septiembre", "setiembre"]],
+  [9, ["october", "oct", "octubre"]], [10, ["november", "nov", "noviembre"]],
+  [11, ["december", "dec", "diciembre"]]
+]);
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const validLocalIsoDate = (value) => {
+  const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return date.getFullYear() === Number(match[1]) && date.getMonth() === Number(match[2]) - 1 && date.getDate() === Number(match[3]) ? date : null;
+};
+
+const inclusiveDaySpan = (startDate, endDate) => {
+  const start = validLocalIsoDate(startDate);
+  const end = validLocalIsoDate(endDate);
+  if (!start || !end || end < start) return null;
+  return clampInteger(Math.round((end - start) / 86400000) + 1, 1, 30);
+};
+
+const parseExplicitMonth = (text) => {
+  const normalized = String(text || "").normalize("NFKC").toLocaleLowerCase();
+  const korean = normalized.match(/(?:(20\d{2})\s*년\s*)?(1[0-2]|[1-9])\s*월/u);
+  if (korean) return { monthIndex: Number(korean[2]) - 1, explicitYear: korean[1] ? Number(korean[1]) : null, label: `${korean[2]}월` };
+  for (const [monthIndex, names] of MONTH_NAMES) {
+    const match = normalized.match(new RegExp(`\\b(${names.map(escapeRegex).join("|")})\\b(?:\\s+(?:of\\s+|de\\s+)?(20\\d{2}))?`, "iu"));
+    if (match) return { monthIndex, explicitYear: match[2] ? Number(match[2]) : null, label: match[1] };
+  }
+  return null;
+};
+
 const parseDuration = (text) => {
   const normalized = String(text || "").normalize("NFKC");
   const match = normalized.match(/\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\s*[- ]?\s*(day|days|night|nights)\b/iu)
@@ -60,6 +97,19 @@ const parseDateIntent = (text, now, durationDays) => {
       : new Date(now.getFullYear(), now.getMonth() + 2, 0);
     return { kind: "next_month", label: "next month", startDate: isoDate(start), endDate: isoDate(end), resolvedAt: isoDate(now) };
   }
+  const explicitMonth = parseExplicitMonth(normalized);
+  if (explicitMonth) {
+    const currentYear = now.getFullYear();
+    const currentMonthStart = new Date(currentYear, explicitMonth.monthIndex, 1);
+    const today = new Date(currentYear, now.getMonth(), now.getDate());
+    const year = explicitMonth.explicitYear || (currentMonthStart >= today ? currentYear : currentYear + 1);
+    const start = new Date(year, explicitMonth.monthIndex, 1);
+    const end = durationDays ? addLocalDays(start, durationDays - 1) : new Date(year, explicitMonth.monthIndex + 1, 0);
+    return {
+      kind: "explicit_month", label: explicitMonth.label, month: explicitMonth.monthIndex + 1,
+      year, explicitYear: Boolean(explicitMonth.explicitYear), startDate: isoDate(start), endDate: isoDate(end), resolvedAt: isoDate(now)
+    };
+  }
   return null;
 };
 
@@ -79,21 +129,27 @@ export function applyTravelConstraints(result = {}, text = "", options = {}) {
   const travelersManuallyEdited = fieldSources.travelerCount === "manual" || (legacyConfirmation && !Object.keys(fieldSources).length);
   const confirmedStart = datesManuallyEdited ? schedule.startDate || null : null;
   const confirmedEnd = datesManuallyEdited ? schedule.endDate || null : null;
-  const confirmedRangeDays = confirmedStart && confirmedEnd
-    ? clampInteger((new Date(`${confirmedEnd}T00:00:00`) - new Date(`${confirmedStart}T00:00:00`)) / 86400000 + 1, 1, 30)
-    : null;
+  const confirmedRangeDays = inclusiveDaySpan(confirmedStart, confirmedEnd);
   const structuredDuration = clampInteger(schedule.durationDays || result.durationDays, 1, 30);
   const structuredTravelers = clampInteger(schedule.travelerCount || schedule.travelers || schedule.adults || result.travelerCount || result.travelers || result.followUp?.answers?.adults, 1, 12);
-  const durationDays = (datesManuallyEdited && (confirmedRangeDays || structuredDuration)) || parsed.durationDays || structuredDuration;
+  const durationDays = (datesManuallyEdited && confirmedRangeDays) || parsed.durationDays || structuredDuration;
   const travelerCount = (travelersManuallyEdited && structuredTravelers) || parsed.travelerCount || structuredTravelers;
-  const startDate = confirmedStart || parsed.startDate || schedule.startDate || null;
-  const endDate = confirmedEnd || parsed.endDate || schedule.endDate || (startDate && durationDays ? isoDate(addLocalDays(new Date(`${startDate}T00:00:00`), durationDays - 1)) : null);
-  const dateIntent = datesManuallyEdited ? schedule.dateIntent || null : parsed.dateIntent || schedule.dateIntent || result.dateIntent || null;
+  const manualRangeValid = Boolean(confirmedRangeDays);
+  const structuredStart = validLocalIsoDate(schedule.startDate) ? schedule.startDate : null;
+  const structuredEnd = validLocalIsoDate(schedule.endDate) ? schedule.endDate : null;
+  const startDate = (manualRangeValid && confirmedStart) || parsed.startDate || structuredStart || null;
+  const preferredEnd = (manualRangeValid && confirmedEnd) || parsed.endDate || structuredEnd || null;
+  const preferredSpan = inclusiveDaySpan(startDate, preferredEnd);
+  const finalDurationDays = preferredSpan || durationDays;
+  const endDate = startDate && finalDurationDays
+    ? isoDate(addLocalDays(validLocalIsoDate(startDate), finalDurationDays - 1))
+    : null;
+  const dateIntent = manualRangeValid ? schedule.dateIntent || null : parsed.dateIntent || schedule.dateIntent || result.dateIntent || null;
   const normalized = {
     ...result,
-    ...(durationDays ? { durationDays } : {}),
+    ...(finalDurationDays ? { durationDays: finalDurationDays } : {}),
     ...(travelerCount ? { travelerCount, travelers: travelerCount } : {}),
-    schedule: { ...schedule, ...(startDate ? { startDate } : {}), ...(endDate ? { endDate } : {}), ...(durationDays ? { durationDays } : {}), ...(dateIntent ? { dateIntent } : {}) },
+    schedule: { ...schedule, ...(startDate ? { startDate } : {}), ...(endDate ? { endDate } : {}), ...(finalDurationDays ? { durationDays: finalDurationDays } : {}), ...(dateIntent ? { dateIntent } : {}) },
     ...(dateIntent ? { dateIntent } : {})
   };
   if (!dateIntent) delete normalized.dateIntent;
