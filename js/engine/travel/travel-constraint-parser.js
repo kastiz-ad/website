@@ -40,6 +40,11 @@ const MONTH_NAMES = Object.freeze([
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const monthIndexForName = (value) => {
+  const normalized = String(value || "").toLocaleLowerCase();
+  return MONTH_NAMES.find(([, names]) => names.includes(normalized))?.[0] ?? null;
+};
+
 const validLocalIsoDate = (value) => {
   const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
@@ -52,6 +57,43 @@ const inclusiveDaySpan = (startDate, endDate) => {
   const end = validLocalIsoDate(endDate);
   if (!start || !end || end < start) return null;
   return clampInteger(Math.round((end - start) / 86400000) + 1, 1, 30);
+};
+
+const parseExplicitDateRange = (text, now) => {
+  const normalized = normalizeConstraintText(text).toLocaleLowerCase();
+  const monthWords = MONTH_NAMES.flatMap(([, names]) => names).map(escapeRegex).join("|");
+  const iso = normalized.match(/\b(20\d{2}-\d{2}-\d{2})\s*(?:to|through|until|-)\s*(20\d{2}-\d{2}-\d{2})\b/iu);
+  if (iso) {
+    const durationDays = inclusiveDaySpan(iso[1], iso[2]);
+    return durationDays ? { startDate: iso[1], endDate: iso[2], durationDays, explicitYear: true, label: iso[0] } : null;
+  }
+  const crossMonth = normalized.match(new RegExp(`(?:\\bfrom\\s+)?\\b(${monthWords})\\s+(\\d{1,2})(?:,?\\s*(20\\d{2}))?\\s*(?:to|through|until|-)\\s*(${monthWords})\\s+(\\d{1,2})(?:,?\\s*(20\\d{2}))?`, "iu"));
+  const sameMonth = normalized.match(new RegExp(`\\b(${monthWords})\\s+(\\d{1,2})\\s*(?:to|through|until|-)\\s*(\\d{1,2})(?:,?\\s*(20\\d{2}))?`, "iu"));
+  let startMonth; let startDay; let startYear; let endMonth; let endDay; let endYear; let label;
+  if (crossMonth) {
+    [, label, startDay, startYear, , endDay, endYear] = crossMonth;
+    startMonth = monthIndexForName(crossMonth[1]);
+    endMonth = monthIndexForName(crossMonth[4]);
+  } else if (sameMonth) {
+    [, label, startDay, endDay, startYear] = sameMonth;
+    startMonth = monthIndexForName(sameMonth[1]);
+    endMonth = startMonth;
+    endYear = startYear;
+  } else return null;
+  const explicitYear = Boolean(startYear || endYear);
+  const currentYear = now.getFullYear();
+  const candidate = new Date(currentYear, startMonth, Number(startDay));
+  const today = new Date(currentYear, now.getMonth(), now.getDate());
+  startYear = Number(startYear || endYear || (candidate >= today ? currentYear : currentYear + 1));
+  endYear = Number(endYear || startYear + (endMonth < startMonth ? 1 : 0));
+  const start = new Date(startYear, startMonth, Number(startDay));
+  const end = new Date(endYear, endMonth, Number(endDay));
+  if (start.getFullYear() !== startYear || start.getMonth() !== startMonth || start.getDate() !== Number(startDay)
+    || end.getFullYear() !== endYear || end.getMonth() !== endMonth || end.getDate() !== Number(endDay)) return null;
+  const startDate = isoDate(start);
+  const endDate = isoDate(end);
+  const durationDays = inclusiveDaySpan(startDate, endDate);
+  return durationDays ? { startDate, endDate, durationDays, explicitYear, label } : null;
 };
 
 const parseExplicitMonth = (text) => {
@@ -78,14 +120,28 @@ const parseDuration = (text) => {
   if (/\b(?:a|one)\s+week\b|\buna\s+semana\b|일주일|한\s*주/iu.test(normalized)) {
     return { durationDays: 7, durationNights: 6, source: "explicit" };
   }
+  const weeks = normalized.match(/\b(\d{1,2}|one|two|three|four|un|una|uno|dos|tres|cuatro)\s+weeks?\b/iu)
+    || normalized.match(/\b(\d{1,2}|un|una|uno|dos|tres|cuatro)\s+semanas?\b/iu)
+    || normalized.match(/(\d{1,2}|한|하나|두|둘|세|셋|네|넷)\s*주(?:일)?/u);
+  if (weeks) {
+    const durationDays = clampInteger(numberValue(weeks[1]) * 7, 1, 30);
+    return { durationDays, durationNights: durationDays - 1, source: "explicit" };
+  }
+  if (/\b(?:this\s+)?weekend\b|\bfin\s+de\s+semana\b|이번\s*주말|주말/iu.test(normalized)) {
+    return { durationDays: 2, durationNights: 1, source: "explicit" };
+  }
   return { durationDays: null, durationNights: null, source: "unspecified" };
 };
 
 const parseTravelers = (text) => {
   const normalized = normalizeConstraintText(text).toLocaleLowerCase();
   if (/\b(?:my wife|my husband|my partner|my spouse)\s+and\s+me\b|\b(?:mi esposa|mi marido|mi pareja)\s+y\s+yo\b|(?:아내|남편|배우자|여자친구|남자친구)와?\s*(?:나|저)/iu.test(normalized)) return 2;
+  if (/\b(?:a\s+)?couple\b|\bpareja\b|커플|부부/iu.test(normalized)) return 2;
+  if (/\b(?:for\s+)?me\b|\bpara\s+m[ií]\b|나\s*혼자|저\s*혼자/iu.test(normalized)) return 1;
   if (/\b(?:solo|alone|by myself|viajo solo|viajo sola)\b|혼자|나홀로/iu.test(normalized)) return 1;
-  const match = normalized.match(/(?:\bfor\s+|\bpara\s+)(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|adults?|personas?|viajeros?|adultos?)\b/iu)
+  const match = normalized.match(/\b(?:a\s+)?family\s+of\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/iu)
+    || normalized.match(/\bfamilia\s+de\s+(\d{1,2}|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\b/iu)
+    || normalized.match(/(?:\bfor\s+|\bpara\s+)(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|adults?|personas?|viajeros?|adultos?)\b/iu)
     || normalized.match(/(?:\bfor\s+|\bpara\s+)(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)(?=\s*(?:$|[.,!?]))/iu)
     || normalized.match(/\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|adults?|personas?|viajeros?|adultos?)\b/iu)
     || normalized.match(/(\d{1,2}|한|하나|두|둘|세|셋|네|넷|다섯|여섯|일곱)\s*명/u);
@@ -94,6 +150,8 @@ const parseTravelers = (text) => {
 
 const parseDateIntent = (text, now, durationDays) => {
   const normalized = normalizeConstraintText(text);
+  const explicitRange = parseExplicitDateRange(normalized, now);
+  if (explicitRange) return { kind: "explicit_range", ...explicitRange, resolvedAt: isoDate(now) };
   if (/\bnext\s+(?:calendar\s+)?month\b|다음\s*달|\b(?:el\s+)?próximo\s+mes\b|\bmes\s+que\s+viene\b/iu.test(normalized)) {
     const start = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const end = durationDays
@@ -121,7 +179,8 @@ export function parseTravelConstraints(text, { now = new Date() } = {}) {
   const duration = parseDuration(text);
   const travelerCount = parseTravelers(text);
   const dateIntent = parseDateIntent(text, now, duration.durationDays);
-  return { ...duration, travelerCount, dateIntent, startDate: dateIntent?.startDate || null, endDate: dateIntent?.endDate || null };
+  const durationDays = dateIntent?.kind === "explicit_range" ? dateIntent.durationDays : duration.durationDays;
+  return { ...duration, durationDays, durationNights: durationDays ? durationDays - 1 : duration.durationNights, travelerCount, dateIntent, startDate: dateIntent?.startDate || null, endDate: dateIntent?.endDate || null };
 }
 
 export function applyTravelConstraints(result = {}, text = "", options = {}) {

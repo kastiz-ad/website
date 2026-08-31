@@ -114,6 +114,41 @@ test("extracts common English day and night variants", () => {
   assert.equal(parseTravelConstraints("Tokyo for 3.", { now }).travelerCount, 3);
 });
 
+test("preserves common week, weekend, solo, couple, and family phrasing", () => {
+  const twoWeeks = parseTravelConstraints("Plan a 2 week trip to Bangkok for a family of 4 in October.", { now });
+  assert.deepEqual([twoWeeks.durationDays, twoWeeks.travelerCount, twoWeeks.startDate, twoWeeks.endDate], [14, 4, "2026-10-01", "2026-10-14"]);
+
+  const weekend = parseTravelConstraints("Weekend in Sydney for 2 people next month.", { now });
+  assert.deepEqual([weekend.durationDays, weekend.travelerCount, weekend.startDate, weekend.endDate], [2, 2, "2026-09-01", "2026-09-02"]);
+
+  assert.equal(parseTravelConstraints("Plan a trip to London for a couple.", { now }).travelerCount, 2);
+  assert.equal(parseTravelConstraints("Plan a trip to Tokyo for me.", { now }).travelerCount, 1);
+  assert.equal(parseTravelConstraints("Viaje de dos semanas para una familia de cuatro en octubre.", { now }).durationDays, 14);
+  assert.equal(parseTravelConstraints("Viaje de dos semanas para una familia de cuatro en octubre.", { now }).travelerCount, 4);
+  assert.equal(parseTravelConstraints("10월에 가족 4명과 2주 여행", { now }).durationDays, 14);
+  assert.equal(parseTravelConstraints("10월에 가족 4명과 2주 여행", { now }).travelerCount, 4);
+});
+
+test("explicit date ranges outrank month inference across calendar boundaries", () => {
+  const sameMonth = parseTravelConstraints("Plan a trip to Paris from October 10 to October 14 for 2 people.", { now });
+  assert.deepEqual([sameMonth.dateIntent.kind, sameMonth.durationDays, sameMonth.startDate, sameMonth.endDate], ["explicit_range", 5, "2026-10-10", "2026-10-14"]);
+
+  const compact = parseTravelConstraints("Plan a trip to Paris October 10-14, 2026 for 2 people.", { now });
+  assert.deepEqual([compact.durationDays, compact.startDate, compact.endDate], [5, "2026-10-10", "2026-10-14"]);
+
+  const yearRollover = parseTravelConstraints("Plan a trip from December 30, 2026 to January 2, 2027.", { now });
+  assert.deepEqual([yearRollover.durationDays, yearRollover.startDate, yearRollover.endDate], [4, "2026-12-30", "2027-01-02"]);
+
+  const leapYear = parseTravelConstraints("Plan a trip from February 27 to March 2, 2028.", { now });
+  assert.deepEqual([leapYear.durationDays, leapYear.startDate, leapYear.endDate], [5, "2028-02-27", "2028-03-02"]);
+
+  const isoRange = parseTravelConstraints("Travel from 2026-11-29 to 2026-12-02.", { now });
+  assert.deepEqual([isoRange.durationDays, isoRange.startDate, isoRange.endDate], [4, "2026-11-29", "2026-12-02"]);
+
+  const impossible = parseTravelConstraints("Travel from February 30 to March 2, 2028.", { now });
+  assert.notEqual(impossible.dateIntent?.kind, "explicit_range");
+});
+
 test("extracts existing Korean and Spanish travel language paths", () => {
   const korean = parseTravelConstraints("다음 달 서울 3일 여행 2명", { now });
   assert.equal(korean.durationDays, 3);
