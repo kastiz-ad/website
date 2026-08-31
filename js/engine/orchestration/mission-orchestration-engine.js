@@ -1,5 +1,5 @@
 import { MissionStore, MISSION_ORCHESTRATION_VERSION, missionStateChangedFields } from "./mission-store.js";
-import { parseMissionEdit } from "./mission-parser.js";
+import { parseMissionEdit } from "./mission-parser.js?v=20260901-founder-revision-v2";
 import { dependenciesToSections, providerRefreshPlan, resolveDependencies } from "./dependency-engine.js";
 
 const clone = (value) => JSON.parse(JSON.stringify(value ?? null));
@@ -120,6 +120,18 @@ const updateLegacyResult = (result, state, intent, dependencies, sections, befor
     const restaurant = makeRestaurantInjection(kind, destination);
     if (restaurant) next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, restaurant);
   }
+  if (intent.type === "ADD_RESTAURANT_OPTIONS") {
+    next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, { name: `${destination} additional restaurant candidates · live search needed`, tags: ["user requested", "live search needed"], source: "provider_search_ready" });
+  }
+  if (intent.type === "ADD_SHIBUYA_PLACE") {
+    next.orchestrationInjections.places = prependUniqueByName(next.orchestrationInjections.places, { name: "Shibuya nearby attraction candidate · live search needed", tags: ["Shibuya", "user requested"], source: "provider_search_ready" });
+  }
+  if (intent.type === "ADD_HOTEL_OPTION") {
+    next.hotels = prependUniqueByName(next.hotels || [], { name: `${destination} additional hotel candidate · live availability check needed`, sourceState: "estimated" });
+  }
+  if (intent.type === "ADD_LOWER_FARE_FLIGHT") {
+    next.flights = prependUniqueByName(next.flights || [], { name: `Lower-fare ${destination} flight search · live price check needed`, sourceState: "estimated" });
+  }
   if (intent.type === "ADD_FOOD_CONSTRAINT" && /vegetarian|vegan|채식|비건/i.test(intent.command)) {
     const restaurant = makeRestaurantInjection("vegetarian", destination);
     if (restaurant) next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, restaurant);
@@ -174,6 +186,10 @@ const createShortSummary = (intent, dependencies, destination) => {
   if (intent.type === "ADD_FOOD_STOP" && /matcha|말차|green tea/i.test(intent.command)) {
     return `Added matcha dessert near the ${destination} route. Food, route, timeline and map are refreshed.`;
   }
+  if (intent.type === "ADD_RESTAURANT_OPTIONS") return `Added another ${destination} restaurant search candidate; live identity and availability still need verification.`;
+  if (intent.type === "ADD_HOTEL_OPTION") return `Added another ${destination} hotel candidate; live availability still needs verification.`;
+  if (intent.type === "ADD_LOWER_FARE_FLIGHT") return `Added a lower-fare ${destination} flight search candidate; live price still needs verification.`;
+  if (intent.type === "ADD_SHIBUYA_PLACE") return "Added a Shibuya-area attraction search candidate; live place details still need verification.";
   if (intent.type === "ADD_MOBILITY_REQUIREMENT") {
     return "Accessibility changed. ONE refreshed walking, transport, restaurant and itinerary sections only.";
   }
@@ -258,6 +274,8 @@ export const applyMissionEdit = (currentResult = {}, command = "", options = {})
   const dependencies = resolveDependencies(changedFields.length ? changedFields : intent.changedFields);
   const sections = dependenciesToSections(dependencies);
   const mission = updateLegacyResult(currentResult, updated.after, { ...intent, changedFields: changedFields.length ? changedFields : intent.changedFields }, dependencies, sections, beforeResult);
+  const visibleIntent = intent.type !== "NOOP" && (intent.type !== "ADD_INTEREST" || /shopping|쇼핑|compras/i.test(intent.command));
+  const hasMeaningfulRevision = visibleIntent && (changedFields.length > 0 || ["ADD_RESTAURANT_OPTIONS", "ADD_HOTEL_OPTION", "ADD_LOWER_FARE_FLIGHT", "ADD_SHIBUYA_PLACE"].includes(intent.type));
   return {
     mission,
     intent,
@@ -266,6 +284,7 @@ export const applyMissionEdit = (currentResult = {}, command = "", options = {})
     affectedSections: sections,
     providerRefreshPlan: mission.missionOrchestration.providerRefreshPlan,
     summary: mission.missionOrchestration.summary,
+    hasMeaningfulRevision,
     performanceTarget: "under_1_second_for_local_changes",
     regeneratedEverything: false
   };

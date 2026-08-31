@@ -115,6 +115,27 @@ test("Founder demo chains accessibility and matcha without page refresh architec
   assert.ok(demo.providerRefreshPlan.some((item) => item.scope === "nearby_food_only"));
 });
 
+test("visible revision intents change real result sections and chain from the latest state", () => {
+  const restaurants = applyMissionEdit(baseJapanMission(), "Add more restaurants.");
+  assert.equal(restaurants.hasMeaningfulRevision, true);
+  assert.match(restaurants.mission.orchestrationInjections.restaurants[0].name, /additional restaurant candidates/i);
+  const hotel = applyMissionEdit(restaurants.mission, "Give me another hotel option.");
+  assert.equal(hotel.hasMeaningfulRevision, true);
+  assert.match(hotel.mission.hotels[0].name, /additional hotel candidate/i);
+  assert.match(hotel.mission.orchestrationInjections.restaurants[0].name, /additional restaurant candidates/i);
+  const flight = applyMissionEdit(hotel.mission, "Show me cheaper flights.");
+  assert.equal(flight.hasMeaningfulRevision, true);
+  assert.match(flight.mission.flights[0].name, /lower-fare/i);
+});
+
+test("unsupported revision is a truthful no-op and does not mutate the result", () => {
+  const before = baseJapanMission();
+  const result = applyMissionEdit(before, "Replace Day 2 with a completely different mystery theme.");
+  assert.equal(result.intent.type, "NOOP");
+  assert.equal(result.hasMeaningfulRevision, false);
+  assert.deepEqual(result.mission.missionState.interests, []);
+});
+
 test("Results page is wired to Mission Orchestration, undo and changed-section rendering", () => {
   const source = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   const css = readFileSync(new URL("../results.css", import.meta.url), "utf8");
@@ -123,5 +144,8 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /orchestrationInjections/);
   assert.match(source, /missionState/);
   assert.match(css, /revision-affected-parts/);
+  assert.match(source, /if \(!result\.hasMeaningfulRevision\)/);
+  assert.match(css, /Founder retest v2: intrinsic two-column budget cards/);
+  assert.match(css, /width:min\(100%,860px\)/);
 });
 

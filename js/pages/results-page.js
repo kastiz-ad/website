@@ -6,7 +6,7 @@ import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work
 import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260819-trust-index-v2";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
-import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260730-mission-orchestration";
+import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260901-founder-revision-v3";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -3814,7 +3814,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const worldCityVisualPack = WORLD_CITY_VISUAL_PACKS.find((pack) => pack.match.test(destinationSearchText));
   if (worldCityVisualPack) { restaurants = [...worldCityVisualPack.foods]; places = [...worldCityVisualPack.places]; }
   const isTokyoGallery = /\b(?:tokyo|japan)\b|東京|日本|도쿄|일본/i.test(String(destination || ""));
-  if (!worldCityVisualPack && isTokyoGallery) restaurants = [...TOKYO_FOOD_VISUALS];
+  if (!worldCityVisualPack && isTokyoGallery) restaurants = uniqueItems([...(result.orchestrationInjections?.restaurants || []), ...TOKYO_FOOD_VISUALS]);
   const isNewYorkGallery = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(destination || ""));
   if (isNewYorkGallery) {
     restaurants = [...NEW_YORK_FOOD_VISUALS];
@@ -3979,7 +3979,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         <h3>${escapeSummaryText(compactBudget)}</h3>
       </div>
       <div class="alpha03-budget-grid">
-        ${budgetItems.map(([icon, label, value]) => `<span><i>${escapeSummaryText(icon)}</i><b>${escapeSummaryText(label)}</b><em>${escapeSummaryText(value)}</em></span>`).join("")}
+        ${budgetItems.map(([icon, label, value]) => `<span><i>${escapeSummaryText(icon)}</i><span class="alpha03-budget-text"><b>${escapeSummaryText(label)}</b><em>${escapeSummaryText(value)}</em></span></span>`).join("")}
       </div>
     </section>
 
@@ -5876,10 +5876,11 @@ const organizeProgressiveResults = () => {
 };
 
 const renderRevisionAdditionNote = () => {
-  if (!additionalServiceList) return;
+  const revisionList = document.getElementById("additionalServiceList");
+  if (!revisionList) return;
   const note = currentResult?.alpha15LastAddition;
   if (!note?.text) {
-    additionalServiceList.innerHTML = "";
+    revisionList.innerHTML = "";
     return;
   }
   const label = v22Local("Added to this mission", "미션에 추가됨", "Añadido a la misión");
@@ -5892,7 +5893,7 @@ const renderRevisionAdditionNote = () => {
     ? note.affectedSections.map((section) => `<span>${escapeSummaryText(section)}</span>`).join("")
     : "";
   const undo = note.previousResult ? `<button type="button" class="revision-undo-button" data-mission-undo="last">${escapeSummaryText(v22Local("Undo", "되돌리기", "Deshacer"))}</button>` : "";
-  additionalServiceList.innerHTML = `
+  revisionList.innerHTML = `
     <div class="revision-added-note">
       <span>${escapeSummaryText(label)}</span>
       <strong>${escapeSummaryText(note.text)}</strong>
@@ -5904,7 +5905,8 @@ const renderRevisionAdditionNote = () => {
 };
 
 const renderCompleteMissionRevisionState = () => {
-  if (!additionalServiceList) return;
+  const revisionList = document.getElementById("additionalServiceList");
+  if (!revisionList) return;
   const note = currentResult?.alpha15LastAddition;
   const state = missionExperienceState();
   if (!note?.text && !state.history.length) return;
@@ -5923,7 +5925,7 @@ const renderCompleteMissionRevisionState = () => {
       <ol>${state.history.slice(0, 5).map((item) => `<li><strong>${escapeSummaryText(item.command)}</strong><span>${escapeSummaryText(item.summary || item.affectedSections?.join(", ") || "")}</span></li>`).join("")}</ol>
     </details>
   ` : "";
-  additionalServiceList.innerHTML = `
+  revisionList.innerHTML = `
     <div class="revision-added-note complete-mission-revision-state">
       <span>${escapeSummaryText(completeMissionLocal("Latest change", "최근 변경", "Último cambio"))}</span>
       <strong>${escapeSummaryText(note?.text || state.history[0]?.command || completeMissionLocal("Mission updated", "미션 업데이트", "Misión actualizada"))}</strong>
@@ -6344,7 +6346,7 @@ const approvalMissionName = () => {
 
 const escapeSummaryText = (value) => String(value ?? "—").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 
-const completeMissionLocal = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+const completeMissionLocal = (en, ko, es, fr = en) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : activeLanguage === "fr" ? fr : en;
 const CHANGE_HISTORY_LIMIT = 8;
 
 const missionExperienceState = () => {
@@ -7454,6 +7456,16 @@ const applyRevisionCommand = async () => {
   try {
     const beforeRevision = JSON.parse(JSON.stringify(currentResult));
     const result = applyMissionEdit(currentResult, value, { language: activeLanguage, provider: "OPENAI" });
+    if (!result.hasMeaningfulRevision) {
+      if (revisionStatus) revisionStatus.textContent = completeMissionLocal(
+        "I couldn't make a visible, reliable change for that request with the current local data. The result was kept unchanged.",
+        "현재 로컬 데이터로는 요청한 내용을 눈에 보이고 신뢰할 수 있게 변경할 수 없어 결과를 그대로 유지했습니다.",
+        "No pude hacer un cambio visible y fiable con los datos locales actuales. El resultado quedó sin cambios.",
+        "Je n’ai pas pu produire un changement visible et fiable avec les données locales actuelles. Le résultat reste inchangé."
+      );
+      additionalServiceList.innerHTML = "";
+      return;
+    }
     currentResult = result.mission;
     const baseMissionText = currentResult.rawInput || currentResult.mission || currentResult.originalMission || "";
     currentResult.rawInput = [baseMissionText, value].filter(Boolean).join(" · ");
@@ -7474,17 +7486,20 @@ const applyRevisionCommand = async () => {
     });
     sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
     sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
-    if (revisionStatus) revisionStatus.textContent = v22Local(
-      `Updated ${result.affectedSections.length} parts of your mission.`,
-      `미션 ${result.affectedSections.length}곳을 업데이트했습니다.`,
-      `Se actualizaron ${result.affectedSections.length} partes de la misión.`
-    );
+    if (revisionStatus) revisionStatus.textContent = result.summary;
     trackEvent("mission_revision_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", revision_type: result.intent.type, approval_invalidated: result.affectedSections.includes("approval"), affected_sections: result.affectedSections.join("|"), provider: "MISSION_ORCHESTRATION_ENGINE" });
     additionalServiceInput.value = "";
     renderMission();
     renderRevisionAdditionNote();
     renderCompleteMissionRevisionState();
-    additionalServiceInput.focus();
+    const liveRevisionList = document.getElementById("additionalServiceList");
+    if (liveRevisionList) {
+      liveRevisionList.innerHTML = `<div class="revision-added-note" tabindex="-1"><span>${escapeSummaryText(v22Local("Updated based on your request", "요청에 따라 변경됨", "Actualizado según tu solicitud", "Mis à jour selon votre demande"))}</span><strong>${escapeSummaryText(value)}</strong><p>${escapeSummaryText(result.summary)}</p><div class="revision-affected-parts">${result.affectedSections.map((section) => `<span>${escapeSummaryText(section)}</span>`).join("")}</div></div>`;
+    }
+    liveRevisionList?.closest(".revision-command")?.classList.add("is-revision-applied");
+    window.setTimeout(() => liveRevisionList?.closest(".revision-command")?.classList.remove("is-revision-applied"), 2200);
+    liveRevisionList?.querySelector(".revision-added-note")?.setAttribute("tabindex", "-1");
+    liveRevisionList?.querySelector(".revision-added-note")?.focus({ preventScroll: false });
   } catch {
     if (revisionStatus) revisionStatus.textContent = completeMissionLocal(
       "I couldn't apply that change safely. Your current mission is still available.",

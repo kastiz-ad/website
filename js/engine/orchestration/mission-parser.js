@@ -50,6 +50,18 @@ export const parseMissionEdit = (command = "") => {
   if (/sushi|스시|초밥|寿司/i.test(text)) {
     return { type: "ADD_FOOD_STOP", command: text, entity: entity || "sushi", value: "sushi", changedFields: ["foodPreferences", "restaurants", "dailyPlan"], confidence: 0.93 };
   }
+  if (/add more restaurants|more restaurants|another restaurant|레스토랑.*추가|식당.*추가|más restaurantes|otro restaurante/i.test(text)) {
+    return { type: "ADD_RESTAURANT_OPTIONS", command: text, entity: "additional restaurants", value: text, changedFields: ["restaurants"], confidence: 0.9 };
+  }
+  if (/another hotel|more hotels|hotel option|숙소.*추가|호텔.*추가|otro hotel|más hoteles/i.test(text)) {
+    return { type: "ADD_HOTEL_OPTION", command: text, entity: "additional hotel", value: text, changedFields: ["hotels"], confidence: 0.9 };
+  }
+  if (/cheaper flights?|lower[- ]cost flights?|저렴한 항공|항공.*저렴|vuelos? más baratos/i.test(text)) {
+    return { type: "ADD_LOWER_FARE_FLIGHT", command: text, entity: "lower-fare flight", value: text, changedFields: ["flights", "budget"], confidence: 0.9 };
+  }
+  if (/attraction.*shibuya|place.*shibuya|시부야.*명소|atracci[oó]n.*shibuya/i.test(text)) {
+    return { type: "ADD_SHIBUYA_PLACE", command: text, entity: "Shibuya attraction", value: text, changedFields: ["places"], confidence: 0.9 };
+  }
   if (/move|day\s*\d|일차|디즈니|disney/i.test(text) && /disney|디즈니/i.test(text)) {
     const day = Number(text.match(/day\s*(\d+)|(\d+)\s*일차/i)?.[1] || text.match(/day\s*(\d+)|(\d+)\s*일차/i)?.[2] || 3);
     return { type: "MOVE_PLACE", command: text, entity: "Disney", value: { place: "Disney", day }, changedFields: ["dailyPlan", "places"], confidence: 0.9 };
@@ -75,6 +87,6 @@ export const parseMissionEdit = (command = "") => {
   if (/remove|delete|skip|avoid|without|no|빼|제외|없애|quita|elimina|sin/i.test(text)) {
     return { type: "REMOVE_ITEM", command: text, entity, value: entity, changedFields: ["hardConstraints", "dailyPlan", "places", "restaurants"], confidence: 0.78 };
   }
-  return { type: "ADD_INTEREST", command: text, entity: entity || text, value: entity || text, changedFields: ["interests", "dailyPlan"], confidence: 0.62 };
+  return { type: "NOOP", command: text, entity: entity || text, value: entity || text, changedFields: [], confidence: 0.2 };
 };
 
