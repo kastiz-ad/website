@@ -10,10 +10,36 @@ test("ONE Free provider handoff preserves destination, dates, travelers and sele
     selections: { flight: "Korean Air", hotel: "Hotel Beacon", restaurants: ["Katz's Delicatessen"], places: ["Statue of Liberty"] }
   });
   assert.equal(handoff.state, "available");
-  assert.deepEqual(handoff.links.map((link) => link.id), ["flights", "hotels", "restaurants", "places"]);
+  assert.deepEqual(handoff.links.map((link) => link.id), ["flight-selected", "flights-all", "hotel-selected", "hotels-all", "restaurant-selected", "restaurants-all", "place-selected", "places-all"]);
   const combined = handoff.links.map((link) => new URL(link.url).searchParams.get("q")).join(" ");
   for (const value of ["New York City", "2026-09-10", "2026-09-17", "Korean Air", "Hotel Beacon", "Katz's Delicatessen", "Statue of Liberty"]) assert.match(combined, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   for (const link of handoff.links) assert.match(link.url, /^https:\/\//);
+});
+
+test("provider handoff separates selected options from broad searches and labels limits honestly", () => {
+  const handoff = buildOneFreeProviderHandoff({ destination: "Tokyo", origin: "ICN", dates: { startDate: "2026-10-01", endDate: "2026-10-03" }, travelers: 2, selections: { flight: "Korean Air", hotel: "Tokyo Station Hotel", restaurants: ["Sushi Dai"], places: ["Meiji Shrine"] } });
+  for (const kind of ["flights", "hotels", "restaurants", "places"]) assert.equal(handoff.links.filter((link) => link.kind === kind).length, 2);
+  assert.match(handoff.links.find((link) => link.id === "flight-selected").label, /this flight option/i);
+  assert.match(handoff.links.find((link) => link.id === "flights-all").label, /all flights/i);
+  assert.match(handoff.links.find((link) => link.id === "hotel-selected").url, /Tokyo\+Station\+Hotel/);
+  assert.match(handoff.links.find((link) => link.id === "restaurant-selected").url, /Sushi\+Dai/);
+  assert.match(handoff.links.find((link) => link.id === "place-selected").url, /Meiji\+Shrine/);
+  assert.deepEqual(handoff.links.find((link) => link.id === "flights-all").transferred, ["origin", "destination", "dates", "travelers"]);
+});
+
+test("provider handoff omits fake selected actions when no restaurant or place was selected", () => {
+  const handoff = buildOneFreeProviderHandoff({ destination: "Tokyo", dates: { startDate: "2026-10-01", endDate: "2026-10-03" }, travelers: 2 });
+  assert.equal(handoff.links.some((link) => link.id === "restaurant-selected"), false);
+  assert.equal(handoff.links.some((link) => link.id === "place-selected"), false);
+  assert.equal(handoff.links.some((link) => link.id === "restaurants-all"), true);
+  assert.equal(handoff.links.some((link) => link.id === "places-all"), true);
+});
+
+test("results timeline only uses an image when its place name matches that day", async () => {
+  const source = await fs.readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(source, /const matchingPlace = places\.find/);
+  assert.match(source, /const dayImage = matchingPlace \? previewItemImage\(matchingPlace\) : null/);
+  assert.doesNotMatch(source, /placeImageSeeds\[index % Math\.max\(1, placeImageSeeds\.length\)\]/);
 });
 
 test("ONE Free handoff is honestly unavailable without a destination", () => {

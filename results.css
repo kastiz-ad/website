@@ -3811,6 +3811,9 @@ body.travel-premium-result-view .alpha02-refinement-card {
 .one-free-provider-links a{display:grid;gap:5px;min-width:0;border:1px solid var(--border);border-radius:16px;background:var(--surface);padding:16px;color:var(--text);text-decoration:none}
 .one-free-provider-links a:hover,.one-free-provider-links a:focus-visible{border-color:var(--text);transform:translateY(-1px)}
 .one-free-provider-links span,.one-free-provider-links small{overflow:hidden;text-overflow:ellipsis;color:var(--text-muted)}
+.one-free-provider-links span,.one-free-provider-links small{overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:break-word}
+.one-free-provider-links{grid-template-columns:repeat(4,minmax(150px,1fr))}
+.one-free-provider-links a{align-content:start}
 .one-free-save-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .one-free-save-row button,.one-free-save-row a{border:1px solid var(--border);border-radius:999px;background:var(--text);padding:11px 16px;color:var(--surface);font:inherit;font-weight:800;text-decoration:none;cursor:pointer}
 .one-free-save-row a{background:transparent;color:var(--text)}
@@ -3822,6 +3825,21 @@ body.travel-premium-result-view .alpha02-refinement-card {
   .one-free-provider-links a{padding:13px}
   .one-free-save-row{align-items:stretch;flex-direction:column}
   .one-free-save-row button,.one-free-save-row a{text-align:center}
+}
+
+/* Founder RC readability: core trip values never collapse into letter stacks or clipped fragments. */
+.alpha03-budget-grid span{min-width:0;overflow-wrap:normal;word-break:normal}
+.alpha03-budget-grid b,.alpha03-budget-grid em{white-space:normal;word-break:keep-all;overflow-wrap:break-word}
+.alpha03-hero-copy h2{font-size:clamp(28px,3.35vw,48px);font-weight:850;letter-spacing:-.055em;overflow-wrap:break-word;word-break:keep-all}
+.alpha03-recommendation-metrics b,.alpha03-recommendation-metrics em{overflow:visible;text-overflow:clip;white-space:normal;word-break:keep-all}
+.alpha03-map-canvas.is-osm-preview,.alpha03-map-canvas.is-osm-preview iframe{height:260px;min-height:260px}
+@media (max-width:1000px){.one-free-provider-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){
+  .alpha03-hero-copy h2{font-size:clamp(27px,8.8vw,38px);line-height:1.06}
+  .alpha03-budget-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .alpha03-budget-grid span{grid-template-columns:22px minmax(0,1fr)!important;min-width:0!important}
+  .alpha03-budget-grid b,.alpha03-budget-grid em{writing-mode:horizontal-tb;text-orientation:mixed}
+  .alpha03-map-canvas.is-osm-preview,.alpha03-map-canvas.is-osm-preview iframe{height:220px!important;min-height:220px!important}
 }
 .revision-lead{margin:0 auto 16px;color:var(--text-muted);line-height:1.5;text-align:center}
 .pathway-opportunity-list{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:18px}

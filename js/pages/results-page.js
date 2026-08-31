@@ -3734,7 +3734,12 @@ const createAlpha03TimelineHtml = (days, places = [], trust = null) => `
     <div class="alpha03-timeline-strip">
       ${days.map((day, dayIndex) => {
         const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
-        const dayImage = previewItemImage(places[dayIndex % Math.max(1, places.length)] || {});
+        const dayText = [day.title, day.theme, ...slots.map((slot) => slot?.[2])].join(" ").toLowerCase();
+        const matchingPlace = places.find((place) => {
+          const name = String(place?.name || place?.title || "").toLowerCase();
+          return name.length >= 5 && dayText.includes(name);
+        });
+        const dayImage = matchingPlace ? previewItemImage(matchingPlace) : null;
         return `
           <article class="alpha03-timeline-card" tabindex="0" data-itinerary-day="${escapeSummaryText(day.day.replace(/\D/g, ""))}">
             ${dayImage?.url ? `<img class="alpha03-timeline-photo" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : ""}
@@ -3828,8 +3833,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const itineraryPlaceItems = days.flatMap((day) => day.slots || []).map((slot, index) => {
     const name = Array.isArray(slot) ? slot[2] : slot?.label;
     if (!name || /arrival|departure|check.?in|check.?out|airport|breakfast|lunch|dinner|rest and local travel buffer|local travel buffer|도착|출발|체크인|체크아웃|공항|아침|점심|저녁/i.test(String(name))) return null;
-    const imageUrl = placeImageSeeds[index % Math.max(1, placeImageSeeds.length)];
-    return { name, category: "attraction", image: imageUrl ? { url: imageUrl, alt: name } : null };
+    return { name, category: "attraction", image: null };
   }).filter(Boolean);
   places = uniqueItems(worldCityVisualPack ? places : [...places, ...itineraryPlaceItems]).slice(0, 12);
   const picturePlaces = places.filter((item) => previewItemImage(item));
@@ -7079,7 +7083,7 @@ const buildExecutionSummary = () => {
         <div><span class="execution-summary-label">${escapeSummaryText(local("Manual provider handoff", "외부 제공업체로 직접 이동", "Acceso manual a proveedores"))}</span><span class="execution-summary-detail">${escapeSummaryText(handoff.message)}</span></div>
         ${createOneFreeTrustMarkup(resultTrust.final)}
       </div>
-      <div class="one-free-provider-links">${handoff.links.length ? handoff.links.map((link) => `<a href="${escapeSummaryText(link.url)}" target="_blank" rel="noopener noreferrer" data-provider-link="${escapeSummaryText(link.id)}"><strong>${escapeSummaryText(link.label)}</strong><span>${escapeSummaryText(link.detail)}</span><small>${escapeSummaryText(local("Opens an external provider search", "외부 제공업체 검색 열기", "Abre una búsqueda externa"))}</small></a>`).join("") : `<p>${escapeSummaryText(handoff.message)}</p>`}</div>
+      <div class="one-free-provider-links">${handoff.links.length ? handoff.links.map((link) => `<a href="${escapeSummaryText(link.url)}" target="_blank" rel="noopener noreferrer" data-provider-link="${escapeSummaryText(link.id)}" data-provider-kind="${escapeSummaryText(link.kind)}"><strong>${escapeSummaryText(link.label)}</strong><span>${escapeSummaryText(link.detail)}</span><small>${escapeSummaryText(local("Search context is sent; verify all fields on the provider site", "검색 조건을 전달하지만 제공업체 사이트에서 모든 항목을 확인하세요", "Se envía el contexto; verifica todos los campos en el proveedor"))}</small></a>`).join("") : `<p>${escapeSummaryText(handoff.message)}</p>`}</div>
       <div class="one-free-save-row">
         <button type="button" data-save-one-free-trip data-reference="${escapeSummaryText(reference)}">${escapeSummaryText(local("Save trip", "여행 저장", "Guardar viaje"))}</button>
         <a href="${escapeSummaryText(portableUrl)}" data-copy-one-free-trip>${escapeSummaryText(local("Open shareable trip", "공유용 여행 열기", "Abrir viaje para compartir"))}</a>
