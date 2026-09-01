@@ -4,6 +4,17 @@ import { dependenciesToSections, providerRefreshPlan, resolveDependencies } from
 
 const clone = (value) => JSON.parse(JSON.stringify(value ?? null));
 
+const compactRevisionSnapshot = (value) => {
+  const snapshot = clone(value);
+  if (snapshot?.missionOrchestration) snapshot.missionOrchestration.previousResult = null;
+  if (snapshot?.alpha15LastAddition) snapshot.alpha15LastAddition.previousResult = null;
+  if (snapshot?.completeMissionExperience) {
+    snapshot.completeMissionExperience.undoStack = [];
+    snapshot.completeMissionExperience.redoStack = [];
+  }
+  return snapshot;
+};
+
 const uniquePush = (list, value) => {
   if (!value) return list;
   const next = Array.isArray(list) ? [...list] : [];
@@ -90,7 +101,7 @@ const updateLegacyResult = (result, state, intent, dependencies, sections, befor
       affectedSections: sections,
       providerRefreshPlan: providerRefreshPlan(dependencies),
       summary: createShortSummary(intent, dependencies, destination),
-      previousResult: beforeResult,
+      previousResult: compactRevisionSnapshot(beforeResult),
       updatedAt: state.updatedAt
     },
     revisionProvider: "MISSION_ORCHESTRATION_ENGINE",

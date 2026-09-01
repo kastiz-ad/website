@@ -146,6 +146,13 @@ test("repeated restaurant and hotel revisions remain distinct and newest-first",
   ]);
 });
 
+test("repeated revisions keep persistence snapshots bounded instead of nesting prior results", () => {
+  let mission = baseJapanMission();
+  for (let index = 0; index < 10; index += 1) mission = applyMissionEdit(mission, "Add more restaurants.").mission;
+  assert.equal(mission.missionOrchestration.previousResult?.missionOrchestration?.previousResult, null);
+  assert.ok(JSON.stringify(mission).length < 250000);
+});
+
 test("presentation ordering keeps revisions ahead of selected, curated, fallback, then deduplicates and limits", () => {
   const presented = prioritizeRevisionCandidates({
     revision: [{ name: "Restaurant A", source: "user_revision" }],

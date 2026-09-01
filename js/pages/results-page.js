@@ -6,8 +6,8 @@ import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work
 import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260819-trust-index-v2";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
-import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260902-founder-revision-presentation-v2";
-import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v2";
+import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260902-founder-revision-presentation-v3";
+import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -7480,6 +7480,12 @@ const applyRevisionCommand = async () => {
   await new Promise((resolve) => window.setTimeout(resolve, 120));
   try {
     const beforeRevision = JSON.parse(JSON.stringify(currentResult));
+    if (beforeRevision?.missionOrchestration) beforeRevision.missionOrchestration.previousResult = null;
+    if (beforeRevision?.alpha15LastAddition) beforeRevision.alpha15LastAddition.previousResult = null;
+    if (beforeRevision?.completeMissionExperience) {
+      beforeRevision.completeMissionExperience.undoStack = [];
+      beforeRevision.completeMissionExperience.redoStack = [];
+    }
     const result = applyMissionEdit(currentResult, value, { language: activeLanguage, provider: "OPENAI" });
     if (!result.hasMeaningfulRevision) {
       if (revisionStatus) revisionStatus.textContent = completeMissionLocal(
