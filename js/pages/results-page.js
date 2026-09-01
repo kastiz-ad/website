@@ -6,7 +6,8 @@ import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work
 import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260819-trust-index-v2";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
-import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260901-founder-revision-v3";
+import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260902-founder-revision-presentation-v1";
+import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v1";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -495,6 +496,10 @@ const getStoredResult = () => {
   const params = new URLSearchParams(window.location.search);
   const releasePreviewFallback = shouldUseReleasePreviewTravelFallback(params);
   const hasExplicitPreviewMission = Boolean(params.get("mission") || params.get("q") || params.get("destination") || params.get("city") || params.get("country"));
+  try {
+    const revised = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.results) || "null");
+    if (revised?.type && revised.alpha15LastAddition && revised.alpha15SourceLocation === `${location.pathname}${location.search}`) return revised;
+  } catch {}
   if (releasePreviewFallback && hasExplicitPreviewMission) return createReleasePreviewTravelFallback(params);
   const manualScenario = getManualScenarioResult();
   if (manualScenario) return manualScenario;
@@ -3687,7 +3692,14 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
   const destinationHotelNames = destinationHotelsByCity[requestedHotelKey]
     || (isNewYorkHotelDestination ? destinationPrototypeProfiles.US.hotels : []);
   const destinationHotelOptions = destinationHotelNames.map((name) => ({ name, representativeStay: true }));
-  const hotelSource = [...destinationHotelOptions, ...(result.hotels || []), { name: requestedHotelDestination + " Airbnb-style apartment", representativeStay: true }, { name: requestedHotelDestination + " serviced apartment", representativeStay: true }];
+  const resultHotels = result.hotels || [];
+  const hotelSource = prioritizeRevisionCandidates({
+    revision: resultHotels.filter((hotel) => hotel?.source === "user_revision" || hotel?.revisionCandidate),
+    selected: resultHotels.filter((hotel) => hotel?.source !== "user_revision" && !hotel?.revisionCandidate),
+    curated: destinationHotelOptions,
+    fallback: [{ name: requestedHotelDestination + " Airbnb-style apartment", representativeStay: true }, { name: requestedHotelDestination + " serviced apartment", representativeStay: true }],
+    limit: 12
+  });
   const hotelSeen = new Set();
   const hotels = hotelSource.map((hotel) => ({
     name: getHotelName(hotel),
@@ -3827,7 +3839,14 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     const imageUrl = alpha03FoodImageForName(name);
     return name ? { name, category: "food", image: imageUrl ? { url: imageUrl, alt: name } : null } : null;
   }).filter(Boolean);
-  restaurants = uniqueItems(worldCityVisualPack ? restaurants : [...restaurants, ...resultRestaurantItems]).slice(0, 12);
+  const revisionRestaurants = (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source === "user_revision" || item?.revisionCandidate);
+  restaurants = prioritizeRevisionCandidates({
+    revision: revisionRestaurants,
+    selected: resultRestaurantItems,
+    curated: restaurants,
+    fallback: (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source !== "user_revision" && !item?.revisionCandidate),
+    limit: 12
+  });
   let days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
   const placeImageSeeds = [profile.hero?.url, ...places.map((item) => previewItemImage(item)?.url)].filter(Boolean);
   const itineraryPlaceItems = days.flatMap((day) => day.slots || []).map((slot, index) => {
@@ -5985,8 +6004,8 @@ const createAIDecisionPanel = (result) => {
   return panel;
 };
 
-const renderMission = () => {
-  currentResult = normalizeStoredResult(getStoredResult());
+const renderMission = ({ preserveCurrent = false } = {}) => {
+  if (!preserveCurrent) currentResult = normalizeStoredResult(getStoredResult());
   if (isWorkMissionExperience(currentResult)) {
     const normalizedWorkType = ["presentation", "meeting", "interview"].includes(currentResult.type)
       ? currentResult.type
@@ -7467,9 +7486,6 @@ const applyRevisionCommand = async () => {
       return;
     }
     currentResult = result.mission;
-    const baseMissionText = currentResult.rawInput || currentResult.mission || currentResult.originalMission || "";
-    currentResult.rawInput = [baseMissionText, value].filter(Boolean).join(" · ");
-    currentResult.mission = currentResult.rawInput;
     currentResult.alpha15LastAddition = {
       text: value,
       summary: result.summary,
@@ -7477,6 +7493,25 @@ const applyRevisionCommand = async () => {
       previousResult: result.mission?.missionOrchestration?.previousResult || null,
       at: new Date().toISOString()
     };
+    currentResult.alpha15SourceLocation = `${location.pathname}${location.search}`;
+    renderMission({ preserveCurrent: true });
+    if (result.presentationCandidateName) {
+      const presentedItems = [...document.querySelectorAll("[data-alpha03-item-name], [data-preview-name]")].map((element) => ({
+        name: element.dataset.alpha03ItemName || element.dataset.previewName || ""
+      }));
+      if (!presentationContainsCandidate(presentedItems, result.presentationCandidateName)) {
+        currentResult = beforeRevision;
+        renderMission({ preserveCurrent: true });
+        if (revisionStatus) revisionStatus.textContent = completeMissionLocal(
+          "I couldn't show the requested option reliably, so the result was kept unchanged.",
+          "요청한 옵션을 화면에 신뢰성 있게 표시하지 못해 결과를 그대로 유지했습니다.",
+          "No pude mostrar la opción solicitada de forma fiable, así que el resultado quedó sin cambios.",
+          "Je n’ai pas pu afficher l’option demandée de façon fiable ; le résultat reste inchangé."
+        );
+        additionalServiceList.innerHTML = "";
+        return;
+      }
+    }
     pushMissionChangeHistory({
       before: beforeRevision,
       command: value,
@@ -7489,7 +7524,6 @@ const applyRevisionCommand = async () => {
     if (revisionStatus) revisionStatus.textContent = result.summary;
     trackEvent("mission_revision_completed", { mission_type: currentResult?.type, language: activeLanguage, page: "results", revision_type: result.intent.type, approval_invalidated: result.affectedSections.includes("approval"), affected_sections: result.affectedSections.join("|"), provider: "MISSION_ORCHESTRATION_ENGINE" });
     additionalServiceInput.value = "";
-    renderMission();
     renderRevisionAdditionNote();
     renderCompleteMissionRevisionState();
     const liveRevisionList = document.getElementById("additionalServiceList");

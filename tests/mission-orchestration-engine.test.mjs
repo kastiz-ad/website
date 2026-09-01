@@ -5,6 +5,7 @@ import { test } from "node:test";
 import { applyMissionEdit, createFounderOrchestrationDemo } from "../js/engine/orchestration/mission-orchestration-engine.js";
 import { createMissionState } from "../js/engine/orchestration/mission-store.js";
 import { parseMissionEdit, parseMissionSeed } from "../js/engine/orchestration/mission-parser.js";
+import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../js/ui/revision-presentation.js";
 
 const baseJapanMission = () => ({
   id: "demo-japan",
@@ -118,14 +119,44 @@ test("Founder demo chains accessibility and matcha without page refresh architec
 test("visible revision intents change real result sections and chain from the latest state", () => {
   const restaurants = applyMissionEdit(baseJapanMission(), "Add more restaurants.");
   assert.equal(restaurants.hasMeaningfulRevision, true);
-  assert.match(restaurants.mission.orchestrationInjections.restaurants[0].name, /additional restaurant candidates/i);
+  assert.equal(restaurants.presentationCandidateName, "Additional Japan restaurant option");
+  assert.equal(restaurants.mission.orchestrationInjections.restaurants[0].source, "user_revision");
   const hotel = applyMissionEdit(restaurants.mission, "Give me another hotel option.");
   assert.equal(hotel.hasMeaningfulRevision, true);
-  assert.match(hotel.mission.hotels[0].name, /additional hotel candidate/i);
-  assert.match(hotel.mission.orchestrationInjections.restaurants[0].name, /additional restaurant candidates/i);
+  assert.equal(hotel.presentationCandidateName, "Additional Japan hotel option");
+  assert.equal(hotel.mission.hotels[0].source, "user_revision");
+  assert.equal(hotel.mission.orchestrationInjections.restaurants[0].name, "Additional Japan restaurant option");
   const flight = applyMissionEdit(hotel.mission, "Show me cheaper flights.");
   assert.equal(flight.hasMeaningfulRevision, true);
   assert.match(flight.mission.flights[0].name, /lower-fare/i);
+});
+
+test("repeated restaurant and hotel revisions remain distinct and newest-first", () => {
+  const restaurantOne = applyMissionEdit(baseJapanMission(), "Add more restaurants.");
+  const restaurantTwo = applyMissionEdit(restaurantOne.mission, "Add more restaurants.");
+  assert.deepEqual(restaurantTwo.mission.orchestrationInjections.restaurants.slice(0, 2).map((item) => item.name), [
+    "Additional Japan restaurant option 2",
+    "Additional Japan restaurant option"
+  ]);
+  const hotelOne = applyMissionEdit(restaurantTwo.mission, "Give me another hotel option.");
+  const hotelTwo = applyMissionEdit(hotelOne.mission, "Give me another hotel option.");
+  assert.deepEqual(hotelTwo.mission.hotels.slice(0, 2).map((item) => item.name), [
+    "Additional Japan hotel option 2",
+    "Additional Japan hotel option"
+  ]);
+});
+
+test("presentation ordering keeps revisions ahead of selected, curated, fallback, then deduplicates and limits", () => {
+  const presented = prioritizeRevisionCandidates({
+    revision: [{ name: "Restaurant A", source: "user_revision" }],
+    selected: [{ name: "restaurant-a" }, { name: "Selected B" }],
+    curated: [{ name: "Curated C" }, { name: "Curated D" }],
+    fallback: [{ name: "Fallback E" }],
+    limit: 4
+  });
+  assert.deepEqual(presented.map((item) => item.name), ["Restaurant A", "Selected B", "Curated C", "Curated D"]);
+  assert.equal(presentationContainsCandidate(presented, "restaurant a"), true);
+  assert.equal(presentationContainsCandidate(presented, "Fallback E"), false);
 });
 
 test("unsupported revision is a truthful no-op and does not mutate the result", () => {
@@ -145,6 +176,9 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /missionState/);
   assert.match(css, /revision-affected-parts/);
   assert.match(source, /if \(!result\.hasMeaningfulRevision\)/);
+  assert.match(source, /renderMission\(\{ preserveCurrent: true \}\)/);
+  assert.match(source, /presentationContainsCandidate/);
+  assert.doesNotMatch(source, /currentResult\.rawInput = \[baseMissionText, value\]/);
   assert.match(css, /Founder retest v2: intrinsic two-column budget cards/);
   assert.match(css, /width:min\(100%,860px\)/);
 });

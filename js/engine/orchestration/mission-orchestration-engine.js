@@ -16,6 +16,11 @@ const prependUniqueByName = (items = [], item) => {
   return [item, ...items.filter((candidate) => String(candidate?.name || candidate?.venueName || "").toLowerCase() !== name.toLowerCase())];
 };
 
+const numberedRevisionName = (items = [], baseName = "Additional option") => {
+  const count = items.filter((item) => item?.source === "user_revision" && String(item?.name || "").startsWith(baseName)).length;
+  return count ? `${baseName} ${count + 1}` : baseName;
+};
+
 const destinationLabel = (missionState = {}) => {
   const destination = missionState.destinations?.[0] || {};
   return destination.city || destination.country || "destination";
@@ -121,13 +126,15 @@ const updateLegacyResult = (result, state, intent, dependencies, sections, befor
     if (restaurant) next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, restaurant);
   }
   if (intent.type === "ADD_RESTAURANT_OPTIONS") {
-    next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, { name: `${destination} additional restaurant candidates · live search needed`, tags: ["user requested", "live search needed"], source: "provider_search_ready" });
+    const name = numberedRevisionName(next.orchestrationInjections.restaurants, `Additional ${destination} restaurant option`);
+    next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, { name, tags: ["user requested", "live verification needed"], source: "user_revision", revisionCandidate: true });
   }
   if (intent.type === "ADD_SHIBUYA_PLACE") {
     next.orchestrationInjections.places = prependUniqueByName(next.orchestrationInjections.places, { name: "Shibuya nearby attraction candidate · live search needed", tags: ["Shibuya", "user requested"], source: "provider_search_ready" });
   }
   if (intent.type === "ADD_HOTEL_OPTION") {
-    next.hotels = prependUniqueByName(next.hotels || [], { name: `${destination} additional hotel candidate · live availability check needed`, sourceState: "estimated" });
+    const name = numberedRevisionName(next.hotels || [], `Additional ${destination} hotel option`);
+    next.hotels = prependUniqueByName(next.hotels || [], { name, source: "user_revision", revisionCandidate: true, sourceState: "estimated" });
   }
   if (intent.type === "ADD_LOWER_FARE_FLIGHT") {
     next.flights = prependUniqueByName(next.flights || [], { name: `Lower-fare ${destination} flight search · live price check needed`, sourceState: "estimated" });
@@ -285,6 +292,11 @@ export const applyMissionEdit = (currentResult = {}, command = "", options = {})
     providerRefreshPlan: mission.missionOrchestration.providerRefreshPlan,
     summary: mission.missionOrchestration.summary,
     hasMeaningfulRevision,
+    presentationCandidateName: intent.type === "ADD_RESTAURANT_OPTIONS"
+      ? mission.orchestrationInjections?.restaurants?.find((item) => item?.source === "user_revision")?.name || ""
+      : intent.type === "ADD_HOTEL_OPTION"
+        ? mission.hotels?.find((item) => item?.source === "user_revision")?.name || ""
+        : "",
     performanceTarget: "under_1_second_for_local_changes",
     regeneratedEverything: false
   };
