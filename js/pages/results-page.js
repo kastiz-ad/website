@@ -6,8 +6,8 @@ import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work
 import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260819-trust-index-v2";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
-import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260902-founder-revision-presentation-v1";
-import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v1";
+import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260902-founder-revision-presentation-v2";
+import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v2";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -2043,7 +2043,7 @@ function adaptTravelResultToDestination(result) {
       reasonKo: flightReasons[index]?.[1] || `${cityKo} 노선의 실용적인 프로토타입 항공 옵션입니다.`
     };
   });
-  const hotels = profile.hotels.map((name, index) => ({
+  const generatedHotels = profile.hotels.map((name, index) => ({
     ...(result.hotels?.[index] || result.hotels?.[0] || {}),
     id: `hotel-${profileCode}-${index + 1}`,
     name,
@@ -2058,6 +2058,12 @@ function adaptTravelResultToDestination(result) {
     reason: hotelReasons[index]?.[0] || `Practical prototype accommodation option in ${city}.`,
     reasonKo: hotelReasons[index]?.[1] || `${cityKo}의 실용적인 프로토타입 숙소 옵션입니다.`
   }));
+  const revisionHotels = (result.hotels || []).filter((hotel) => hotel?.source === "user_revision" || hotel?.revisionCandidate);
+  const hotels = prioritizeRevisionCandidates({
+    revision: revisionHotels,
+    curated: generatedHotels,
+    limit: TRAVEL_OPTION_TARGETS.hotels
+  });
   const liveRestaurantCandidates = liveRestaurantPlaces.map((place, index) => [
     place.label,
     null,

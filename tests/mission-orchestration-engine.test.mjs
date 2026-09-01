@@ -178,6 +178,7 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /if \(!result\.hasMeaningfulRevision\)/);
   assert.match(source, /renderMission\(\{ preserveCurrent: true \}\)/);
   assert.match(source, /presentationContainsCandidate/);
+  assert.match(source, /revisionHotels[\s\S]*prioritizeRevisionCandidates/);
   assert.doesNotMatch(source, /currentResult\.rawInput = \[baseMissionText, value\]/);
   assert.match(css, /Founder retest v2: intrinsic two-column budget cards/);
   assert.match(css, /width:min\(100%,860px\)/);
