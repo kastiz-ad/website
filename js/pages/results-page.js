@@ -8,6 +8,8 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260902-founder-revision-presentation-v3";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260903-founder-qa-v3";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260903-founder-qa-v3";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -16,7 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
-import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260829-one-free-constraints-v2";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260903-founder-qa-v3";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -498,7 +500,11 @@ const getStoredResult = () => {
   const hasExplicitPreviewMission = Boolean(params.get("mission") || params.get("q") || params.get("destination") || params.get("city") || params.get("country"));
   try {
     const revised = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.results) || "null");
-    if (revised?.type && revised.alpha15LastAddition && revised.alpha15SourceLocation === `${location.pathname}${location.search}`) return revised;
+    const sourceLocation = `${location.pathname}${location.search}`;
+    if (revised?.type && (
+      (revised.alpha15LastAddition && revised.alpha15SourceLocation === sourceLocation)
+      || revised.alpha03SelectionSourceLocation === sourceLocation
+    )) return revised;
   } catch {}
   if (releasePreviewFallback && hasExplicitPreviewMission) return createReleasePreviewTravelFallback(params);
   const manualScenario = getManualScenarioResult();
@@ -1331,7 +1337,7 @@ const makeOptionList = (options) => {
 const normalizeOptionLabel = (value) => String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
 
 const getFlightName = (flight) => {
-  const name = activeLanguage === "ko" ? flight.providerKo || flight.provider : flight.provider;
+  const name = activeLanguage === "ko" ? flight.providerKo || flight.provider || flight.nameKo || flight.name : flight.provider || flight.name;
   return /^KLM(?:\s|$)/i.test(String(name || "")) ? "KLM" : name;
 };
 
@@ -2825,7 +2831,7 @@ const compactWonMan = (value) => {
 const getCompactTravelBudgetLabel = (result, fallback = "") => {
   const total = result.budget?.estimatedTotal || result.budget?.total;
   if (typeof total?.min === "number" && typeof total?.max === "number") {
-    if (activeLanguage === "ko") return `예상 ${compactWonMan(total.min)} - ${compactWonMan(total.max)}`;
+    if (activeLanguage === "ko") return `예상 ${compactWonMan(total.min)}–${compactWonMan(total.max)}`;
     return `${compactMoney(total.min)} – ${compactMoney(total.max)}`;
   }
   return String(fallback || "").replace(/^Estimated\s+/i, "").replace(/^Estimado\s+/i, "");
@@ -3642,6 +3648,25 @@ const alpha03OptionImage = (group, option, index) => {
   const pool = isJapaneseStay ? alpha03TravelOptionImages.ryokan : alpha03TravelOptionImages[group] || alpha03TravelOptionImages.hotels;
   return pool[index % pool.length];
 };
+
+const alpha03RestaurantBulkLabel = (state = "none", selected = 0, total = 0) => {
+  if (state === "all") return completeMissionLocal("Deselect all", "전체 선택 해제", "Deseleccionar todos", "Tout désélectionner");
+  const label = completeMissionLocal("Select all restaurants", "모든 식당 선택", "Seleccionar todos los restaurantes", "Sélectionner tous les restaurants");
+  return state === "partial" ? `${label} (${selected}/${total})` : label;
+};
+
+const syncAlpha03RestaurantBulkControl = () => {
+  const button = document.querySelector("[data-alpha03-food-bulk]");
+  if (!button) return;
+  const foods = [...document.querySelectorAll(".alpha03-visual-card.is-restaurant[data-alpha03-item-name]")];
+  const { state, selectedCount, total } = getRestaurantSelectionState(
+    foods.map((food) => food.dataset.alpha03ItemName),
+    currentResult?.alpha03FoodSelections
+  );
+  button.dataset.selectionState = state;
+  button.setAttribute("aria-pressed", state === "all" ? "true" : "false");
+  button.textContent = `${state === "all" ? "✓" : "+"} ${alpha03RestaurantBulkLabel(state, selectedCount, total)}`;
+};
 const oneFreeTrustLabel = (label) => {
   const labels = {
     Trusted: ["Trusted", "신뢰 높음", "Confiable"],
@@ -3742,7 +3767,9 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
   `;
 };
 
-const createAlpha03TimelineHtml = (days, places = [], trust = null) => `
+const createAlpha03TimelineHtml = (days, places = [], trust = null, destinationFallback = null) => {
+  const dayImages = resolveSemanticItineraryImages(days, places, destinationFallback);
+  return `
   <section class="alpha03-section alpha03-timeline-redesign">
     <div class="alpha03-section-heading">
       <span class="v23-eyebrow">${escapeSummaryText(resultText(activeLanguage, "timeline"))}</span>
@@ -3752,15 +3779,10 @@ const createAlpha03TimelineHtml = (days, places = [], trust = null) => `
     <div class="alpha03-timeline-strip">
       ${days.map((day, dayIndex) => {
         const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
-        const dayText = [day.title, day.theme, ...slots.map((slot) => slot?.[2])].join(" ").toLowerCase();
-        const matchingPlace = places.find((place) => {
-          const name = String(place?.name || place?.title || "").toLowerCase();
-          return name.length >= 5 && dayText.includes(name);
-        });
-        const dayImage = matchingPlace ? previewItemImage(matchingPlace) : null;
+        const dayImage = dayImages[dayIndex];
         return `
           <article class="alpha03-timeline-card" tabindex="0" data-itinerary-day="${escapeSummaryText(day.day.replace(/\D/g, ""))}">
-            ${dayImage?.url ? `<img class="alpha03-timeline-photo" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : ""}
+            ${dayImage?.url ? `<img class="alpha03-timeline-photo" data-image-match="${dayImage.match}" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : ""}
             <span>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</span>
             <strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong>
             ${day.theme ? `<em class="realistic-day-theme">${escapeSummaryText(alpha03LocalizedDisplayName(day.theme))}</em>` : ""}
@@ -3772,6 +3794,7 @@ const createAlpha03TimelineHtml = (days, places = [], trust = null) => `
     </div>
   </section>
 `;
+};
 
 const emphasizeItineraryDay = (day = "") => {
   document.querySelectorAll(".alpha03-map-marker[data-itinerary-day]").forEach((marker) => {
@@ -3862,6 +3885,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   }).filter(Boolean);
   places = uniqueItems(worldCityVisualPack ? places : [...places, ...itineraryPlaceItems]).slice(0, 12);
   const picturePlaces = places.filter((item) => previewItemImage(item));
+  const highlightPlaces = uniqueItems([
+    ...picturePlaces,
+    ...(profile.hero?.url ? [{ name: `${profile.city || destination} skyline`, image: profile.hero, category: "destination" }] : [])
+  ]).slice(0, 8);
   if (isInvestorRestaurantReservationDemo(result)) {
     days = [
       {
@@ -3900,6 +3927,9 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       : alpha03Copy("Walkable core route with official transit or licensed transfer checks.", "도보 가능한 중심 동선에 공식 교통 또는 허가 이동수단을 확인합니다.", "Ruta caminable con transporte oficial o traslado autorizado.");
   const budgetItems = createAlpha03BudgetItems(journey, result).filter((item) => !(isInvestorRestaurantReservationDemo(result) || isWeekendDatePlan(result)) || !/[✈🏨]/u.test(item[0]));
   const compactBudget = getCompactTravelBudgetLabel(result, journey.budget);
+  const selectedRestaurantNames = new Set(currentResult?.alpha03FoodSelections || []);
+  const selectedRestaurantCount = restaurants.filter((item) => selectedRestaurantNames.has(item.name)).length;
+  const restaurantBulkState = restaurants.length && selectedRestaurantCount === restaurants.length ? "all" : selectedRestaurantCount ? "partial" : "none";
   const schedule = result.schedule || {};
   const dateText = schedule.startDate && schedule.endDate
     ? `${formatAlpha03Date(schedule.startDate)} → ${formatAlpha03Date(schedule.endDate)}`
@@ -4016,13 +4046,14 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         <h3>${escapeSummaryText(alpha03Copy("Curated local dining", "엄선한 현지 미식", "Gastronomía local seleccionada"))}</h3>
         ${createOneFreeTrustMarkup(trustBySection.restaurants)}
       </div>
+      <button type="button" class="alpha03-food-bulk" data-alpha03-food-bulk data-selection-state="${restaurantBulkState}" aria-pressed="${restaurantBulkState === "all"}">${restaurantBulkState === "all" ? "✓" : "+"} ${escapeSummaryText(alpha03RestaurantBulkLabel(restaurantBulkState, selectedRestaurantCount, restaurants.length))}</button>
       <div class="alpha03-card-grid is-restaurants alpha03-visual-rail">
         ${restaurants.map((item, index) => createAlpha03VisualCard(item, "restaurant", index)).join("")}
       </div>
     </section>
     ` : profile.fallbackNote ? `<section class="alpha03-section"><p>${escapeSummaryText(profile.fallbackNote)}</p></section>` : ""}
 
-    ${picturePlaces.length ? `
+    ${highlightPlaces.length ? `
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares"))}</span>
@@ -4030,13 +4061,13 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         ${createOneFreeTrustMarkup(trustBySection.places)}
       </div>
       <div class="alpha03-card-grid alpha03-visual-rail">
-        ${picturePlaces.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
+        ${highlightPlaces.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
       </div>
     </section>
     ` : ""}
     </div>
 
-    ${createAlpha03TimelineHtml(days, picturePlaces, trustBySection.itinerary)}
+    ${createAlpha03TimelineHtml(days, picturePlaces, trustBySection.itinerary, profile.hero)}
 
     ${createAlpha03OptionPreview(journey, result, transportationSummary, trustBySection)}
 
@@ -7324,17 +7355,36 @@ const enableCustomization = () => {
       return;
     }
 
+    const foodBulk = event.target.closest("[data-alpha03-food-bulk]");
+    if (foodBulk) {
+      const foods = [...document.querySelectorAll(".alpha03-visual-card.is-restaurant[data-alpha03-item-name]")];
+      const selectAll = foodBulk.dataset.selectionState !== "all";
+      currentResult.alpha03FoodSelections = setAllRestaurantSelections(foods.map((food) => food.dataset.alpha03ItemName), selectAll);
+      currentResult.alpha03SelectionSourceLocation = `${location.pathname}${location.search}`;
+      foods.forEach((food) => {
+        food.classList.toggle("is-selected", selectAll);
+        food.setAttribute("aria-pressed", selectAll ? "true" : "false");
+        const marker = food.querySelector(".alpha03-food-select-mark");
+        if (marker) marker.textContent = selectAll ? "✓" : "+";
+      });
+      syncAlpha03RestaurantBulkControl();
+      sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+      sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+      return;
+    }
     const foodOption = event.target.closest(".alpha03-visual-card.is-restaurant[data-alpha03-food-index]");
     if (foodOption) {
       const name = foodOption.dataset.alpha03ItemName || "";
       const selectedFoods = new Set(currentResult.alpha03FoodSelections || []);
       if (selectedFoods.has(name)) selectedFoods.delete(name); else selectedFoods.add(name);
       currentResult.alpha03FoodSelections = [...selectedFoods];
+      currentResult.alpha03SelectionSourceLocation = `${location.pathname}${location.search}`;
       const selected = selectedFoods.has(name);
       foodOption.classList.toggle("is-selected", selected);
       foodOption.setAttribute("aria-pressed", selected ? "true" : "false");
       const marker = foodOption.querySelector(".alpha03-food-select-mark");
       if (marker) marker.textContent = selected ? "✓" : "+";
+      syncAlpha03RestaurantBulkControl();
       sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
       sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
       return;

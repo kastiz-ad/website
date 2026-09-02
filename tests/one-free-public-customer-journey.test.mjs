@@ -37,8 +37,8 @@ test("provider handoff omits fake selected actions when no restaurant or place w
 
 test("results timeline only uses an image when its place name matches that day", async () => {
   const source = await fs.readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
-  assert.match(source, /const matchingPlace = places\.find/);
-  assert.match(source, /const dayImage = matchingPlace \? previewItemImage\(matchingPlace\) : null/);
+  assert.match(source, /resolveSemanticItineraryImages/);
+  assert.match(source, /const dayImages = resolveSemanticItineraryImages\(days, places, destinationFallback\)/);
   assert.doesNotMatch(source, /placeImageSeeds\[index % Math\.max\(1, placeImageSeeds\.length\)\]/);
 });
 

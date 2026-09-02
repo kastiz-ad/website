@@ -6,6 +6,8 @@ import { applyMissionEdit, createFounderOrchestrationDemo } from "../js/engine/o
 import { createMissionState } from "../js/engine/orchestration/mission-store.js";
 import { parseMissionEdit, parseMissionSeed } from "../js/engine/orchestration/mission-parser.js";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../js/ui/revision-presentation.js";
+import { resolveSemanticItineraryImages } from "../js/ui/semantic-itinerary-image.js";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../js/ui/restaurant-selection.js";
 
 const baseJapanMission = () => ({
   id: "demo-japan",
@@ -166,6 +168,32 @@ test("presentation ordering keeps revisions ahead of selected, curated, fallback
   assert.equal(presentationContainsCandidate(presented, "Fallback E"), false);
 });
 
+test("itinerary images use semantic place matches and an honest destination fallback, never array position", () => {
+  const days = [
+    { title: "Shibuya and Harajuku", theme: "Meiji and Shibuya", slots: [] },
+    { title: "Kichijoji and Mitaka", theme: "Inokashira Park", slots: [] }
+  ];
+  const places = [
+    { name: "Asakusa and Senso-ji", image: { url: "asakusa.jpg", alt: "Senso-ji" } },
+    { name: "Shibuya Sky", image: { url: "shibuya.jpg", alt: "Shibuya" } }
+  ];
+  const images = resolveSemanticItineraryImages(days, places, { url: "tokyo.jpg", alt: "Tokyo skyline" });
+  assert.deepEqual(images.map((image) => [image.url, image.match]), [["shibuya.jpg", "semantic"], ["tokyo.jpg", "destination_fallback"]]);
+  assert.notEqual(images[0].url, places[0].image.url);
+});
+
+test("restaurant bulk selection shares one state for all, none, partial, and persisted data", () => {
+  const visible = ["Sushi A", "Ramen B", "Sushi A", "Tempura C"];
+  const selected = setAllRestaurantSelections(visible, true);
+  assert.deepEqual(selected, ["Sushi A", "Ramen B", "Tempura C"]);
+  assert.deepEqual(getRestaurantSelectionState(visible, selected), { state: "all", selectedCount: 3, total: 3 });
+  assert.deepEqual(getRestaurantSelectionState(visible, ["Ramen B"]), { state: "partial", selectedCount: 1, total: 3 });
+  assert.deepEqual(setAllRestaurantSelections(visible, false), []);
+  assert.deepEqual(getRestaurantSelectionState(visible, []), { state: "none", selectedCount: 0, total: 3 });
+  const restored = JSON.parse(JSON.stringify({ alpha03FoodSelections: selected }));
+  assert.deepEqual(getRestaurantSelectionState(visible, restored.alpha03FoodSelections), { state: "all", selectedCount: 3, total: 3 });
+});
+
 test("unsupported revision is a truthful no-op and does not mutate the result", () => {
   const before = baseJapanMission();
   const result = applyMissionEdit(before, "Replace Day 2 with a completely different mystery theme.");
@@ -185,8 +213,13 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /if \(!result\.hasMeaningfulRevision\)/);
   assert.match(source, /renderMission\(\{ preserveCurrent: true \}\)/);
   assert.match(source, /presentationContainsCandidate/);
+  assert.match(source, /flight\.provider \|\| flight\.name/);
   assert.match(source, /revisionHotels[\s\S]*prioritizeRevisionCandidates/);
   assert.doesNotMatch(source, /currentResult\.rawInput = \[baseMissionText, value\]/);
+  assert.match(source, /data-alpha03-food-bulk/);
+  assert.match(source, /setAllRestaurantSelections/);
+  assert.match(source, /alpha03SelectionSourceLocation === sourceLocation/);
+  assert.match(source, /syncAlpha03RestaurantBulkControl\(\)/);
   assert.match(css, /Founder retest v2: intrinsic two-column budget cards/);
   assert.match(css, /width:min\(100%,860px\)/);
 });

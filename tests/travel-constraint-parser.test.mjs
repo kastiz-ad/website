@@ -52,6 +52,26 @@ test("resolves Korean and Spanish explicit calendar months", () => {
   assert.deepEqual([spanish.durationDays, spanish.travelerCount, spanish.startDate, spanish.endDate], [5, 2, "2026-11-01", "2026-11-05"]);
 });
 
+test("explicit Korean month-day start outranks month inference and uses inclusive duration", () => {
+  const korean = parseTravelConstraints("일본여행 5일 10월 3일부터", { now });
+  assert.deepEqual([korean.durationDays, korean.dateIntent.kind, korean.startDate, korean.endDate], [5, "explicit_start", "2026-10-03", "2026-10-07"]);
+  const spaced = parseTravelConstraints("일본여행 5일 10월 3일 부터", { now });
+  assert.deepEqual([spaced.startDate, spaced.endDate], ["2026-10-03", "2026-10-07"]);
+  const rollover = parseTravelConstraints("일본여행 5일 12월 30일부터", { now });
+  assert.deepEqual([rollover.startDate, rollover.endDate], ["2026-12-30", "2027-01-03"]);
+  const explicitYear = parseTravelConstraints("2027년 10월 3일부터 5일", { now });
+  assert.deepEqual([explicitYear.dateIntent.explicitYear, explicitYear.startDate, explicitYear.endDate], [true, "2027-10-03", "2027-10-07"]);
+});
+
+test("English and Spanish explicit start dates share the same precedence", () => {
+  const starting = parseTravelConstraints("5 days starting October 3", { now });
+  const from = parseTravelConstraints("5 days from October 3", { now });
+  const spanish = parseTravelConstraints("5 días desde el 3 de octubre", { now });
+  assert.deepEqual([starting.startDate, starting.endDate], ["2026-10-03", "2026-10-07"]);
+  assert.deepEqual([from.startDate, from.endDate], ["2026-10-03", "2026-10-07"]);
+  assert.deepEqual([spanish.startDate, spanish.endDate], ["2026-10-03", "2026-10-07"]);
+});
+
 test("explicit month beats stale generated dates and normalizes the exact span", () => {
   const normalized = applyTravelConstraints({
     durationDays: 7, travelerCount: 1,

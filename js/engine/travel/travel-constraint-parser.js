@@ -107,11 +107,47 @@ const parseExplicitMonth = (text) => {
   return null;
 };
 
+const parseExplicitStartDate = (text, now, durationDays) => {
+  const normalized = normalizeConstraintText(text).toLocaleLowerCase();
+  const monthWords = MONTH_NAMES.flatMap(([, names]) => names).map(escapeRegex).join("|");
+  const korean = normalized.match(/(?:(20\d{2})\s*년\s*)?(1[0-2]|[1-9])\s*월\s*(3[01]|[12]\d|[1-9])\s*일\s*부터/u);
+  const english = normalized.match(new RegExp(`\\b(?:starting|from)\\s+(${monthWords})\\s+(3[01]|[12]\\d|[1-9])(?:,?\\s*(20\\d{2}))?\\b`, "iu"));
+  const spanish = normalized.match(new RegExp(`\\bdesde\\s+(?:el\\s+)?(3[01]|[12]\\d|[1-9])\\s+de\\s+(${monthWords})(?:\\s+de\\s+(20\\d{2}))?\\b`, "iu"));
+  let monthIndex; let day; let explicitYear; let label;
+  if (korean) {
+    monthIndex = Number(korean[2]) - 1;
+    day = Number(korean[3]);
+    explicitYear = korean[1] ? Number(korean[1]) : null;
+    label = korean[0];
+  } else if (english) {
+    monthIndex = monthIndexForName(english[1]);
+    day = Number(english[2]);
+    explicitYear = english[3] ? Number(english[3]) : null;
+    label = english[0];
+  } else if (spanish) {
+    monthIndex = monthIndexForName(spanish[2]);
+    day = Number(spanish[1]);
+    explicitYear = spanish[3] ? Number(spanish[3]) : null;
+    label = spanish[0];
+  } else return null;
+  const currentYear = now.getFullYear();
+  const today = new Date(currentYear, now.getMonth(), now.getDate());
+  const currentYearCandidate = new Date(currentYear, monthIndex, day);
+  const year = explicitYear || (currentYearCandidate >= today ? currentYear : currentYear + 1);
+  const start = new Date(year, monthIndex, day);
+  if (start.getFullYear() !== year || start.getMonth() !== monthIndex || start.getDate() !== day) return null;
+  const end = addLocalDays(start, Math.max(1, durationDays || 1) - 1);
+  return {
+    kind: "explicit_start", label, month: monthIndex + 1, day, year,
+    explicitYear: Boolean(explicitYear), startDate: isoDate(start), endDate: isoDate(end), resolvedAt: isoDate(now)
+  };
+};
+
 const parseDuration = (text) => {
   const normalized = normalizeConstraintText(text);
   const match = normalized.match(/\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\s*[- ]?\s*(day|days|night|nights)\b/iu)
     || normalized.match(/\b(\d{1,2}|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s*[- ]?\s*(día|días|dia|dias|noche|noches)\b/iu)
-    || normalized.match(/(\d{1,2}|한|하나|두|둘|세|셋|네|넷|다섯|여섯|일곱)\s*(일|박)/u);
+    || normalized.match(/(\d{1,2}|한|하나|두|둘|세|셋|네|넷|다섯|여섯|일곱)\s*(일|박)(?!\s*부터)/u);
   if (match) {
     const count = numberValue(match[1]);
     const isNights = /night|noche|박/iu.test(match[2]);
@@ -152,6 +188,8 @@ const parseDateIntent = (text, now, durationDays) => {
   const normalized = normalizeConstraintText(text);
   const explicitRange = parseExplicitDateRange(normalized, now);
   if (explicitRange) return { kind: "explicit_range", ...explicitRange, resolvedAt: isoDate(now) };
+  const explicitStart = parseExplicitStartDate(normalized, now, durationDays);
+  if (explicitStart) return explicitStart;
   if (/\bnext\s+(?:calendar\s+)?month\b|다음\s*달|\b(?:el\s+)?próximo\s+mes\b|\bmes\s+que\s+viene\b/iu.test(normalized)) {
     const start = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const end = durationDays
