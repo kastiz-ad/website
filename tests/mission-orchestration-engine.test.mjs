@@ -182,6 +182,44 @@ test("itinerary images use semantic place matches and an honest destination fall
   assert.notEqual(images[0].url, places[0].image.url);
 });
 
+test("itinerary image selection avoids duplicate URLs when semantic alternates exist", () => {
+  const days = [
+    { title: "Shibuya evening", slots: [] },
+    { title: "Shibuya morning", slots: [] }
+  ];
+  const places = [{
+    name: "Shibuya",
+    image: { url: "shibuya-night.jpg", alt: "Shibuya at night", alternates: [{ url: "shibuya-day.jpg", alt: "Shibuya by day" }] }
+  }];
+  assert.deepEqual(resolveSemanticItineraryImages(days, places).map((image) => image.url), ["shibuya-night.jpg", "shibuya-day.jpg"]);
+});
+
+test("semantic relevance outranks uniqueness when no relevant alternate exists", () => {
+  const images = resolveSemanticItineraryImages(
+    [{ title: "Shibuya crossing", slots: [] }],
+    [
+      { name: "Shibuya", image: { url: "shibuya.jpg" } },
+      { name: "Asakusa", image: { url: "asakusa.jpg" } }
+    ],
+    null,
+    { usedImageUrls: ["shibuya.jpg"] }
+  );
+  assert.equal(images[0].url, "shibuya.jpg");
+});
+
+test("an exact place image outranks an unused food image for an itinerary day", () => {
+  const images = resolveSemanticItineraryImages(
+    [{ title: "Asakusa and Senso-ji", slots: [{ title: "Senso-ji temple" }] }],
+    [
+      { name: "Asakusa and Senso-ji", image: { url: "asakusa.jpg" } },
+      { name: "Asakusa soba lunch", imageRole: "food", image: { url: "soba.jpg" } }
+    ],
+    null,
+    { usedImageUrls: ["asakusa.jpg"] }
+  );
+  assert.equal(images[0].url, "asakusa.jpg");
+});
+
 test("restaurant bulk selection shares one state for all, none, partial, and persisted data", () => {
   const visible = ["Sushi A", "Ramen B", "Sushi A", "Tempura C"];
   const selected = setAllRestaurantSelections(visible, true);
@@ -220,7 +258,16 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /setAllRestaurantSelections/);
   assert.match(source, /alpha03SelectionSourceLocation === sourceLocation/);
   assert.match(source, /syncAlpha03RestaurantBulkControl\(\)/);
+  assert.match(source, /alpha03-hero-status/);
+  assert.match(source, /alpha03-budget-summary-card/);
+  assert.match(source, /alpha03-section-heading alpha03-section-heading-with-action/);
+  assert.match(source, /Live fare check required/);
+  assert.match(source, /Estimated per night/);
+  assert.match(source, /timelineImageCandidates = uniqueItems\(\[/);
   assert.match(css, /Founder retest v2: intrinsic two-column budget cards/);
   assert.match(css, /width:min\(100%,860px\)/);
+  assert.match(css, /Founder QA v4: compact hero, horizontal summaries, unified headers, and bounded rails/);
+  assert.match(css, /grid-template-columns:30px max-content minmax\(0,1fr\)/);
+  assert.match(css, /alpha03-section-heading-with-action/);
 });
 

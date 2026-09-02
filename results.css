@@ -6216,6 +6216,42 @@ body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-card-grid>.al
 @media(max-width:1280px){.alpha03-budget-breakdown{grid-template-columns:1fr!important}.alpha03-budget-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:680px){.alpha03-recommendation-metrics{grid-template-columns:minmax(76px,.7fr) minmax(0,1.4fr) minmax(0,1.2fr)!important}.alpha03-recommendation-metrics>span:first-child{min-width:0!important}.alpha03-budget-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-card-grid>.alpha03-visual-card,.alpha03-timeline-strip>.alpha03-timeline-card{flex-basis:min(84vw,330px)!important}.alpha03-food-bulk{font-size:10px}}
 @media(max-width:420px){.alpha03-budget-grid{grid-template-columns:1fr!important}}
+/* Founder QA v4: compact hero, horizontal summaries, unified headers, and bounded rails. */
+body.travel-premium-result-view .alpha03-recommendation-stage{grid-template-columns:minmax(0,.92fr) minmax(360px,1.08fr)!important;align-items:start!important;gap:18px!important;padding:20px!important}
+body.travel-premium-result-view .alpha03-recommendation-copy{align-content:start!important;gap:10px!important;padding:4px 0!important}
+body.travel-premium-result-view .alpha03-recommendation-copy h2{font-size:clamp(32px,3.4vw,48px)!important;line-height:1.02!important}
+body.travel-premium-result-view .alpha03-recommendation-copy>p{font-size:14px!important;line-height:1.4!important}
+.alpha03-hero-stats{grid-template-columns:minmax(68px,.52fr) minmax(188px,1.38fr) minmax(150px,1fr)!important;gap:8px!important;align-items:stretch!important}
+.alpha03-hero-stats>span{display:flex!important;min-width:0!important;min-height:64px!important;padding:10px 12px!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;text-align:center!important}
+.alpha03-hero-stats>span>b{max-width:100%!important;font-size:clamp(12px,1.1vw,16px)!important;line-height:1.2!important;white-space:nowrap!important;word-break:keep-all!important;overflow:visible!important;text-overflow:clip!important}
+.alpha03-hero-stats>span>em{margin-top:3px!important;white-space:nowrap!important}
+.alpha03-hero-stats>span:first-child{flex-direction:row!important;gap:2px!important}
+.alpha03-hero-stats>span:first-child>em{margin-top:0!important;text-transform:none!important}
+.alpha03-hero-status{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;min-height:0!important}
+.alpha03-hero-status .alpha03-primary-action{min-height:36px!important;padding:0 13px!important;font-size:11px!important}
+.alpha03-hero-status .one-free-trust-inline{margin:0!important}
+body.travel-premium-result-view .alpha03-recommendation-map{align-self:start!important}
+body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview,body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview iframe{height:250px!important;min-height:250px!important}
+.alpha03-budget-breakdown{grid-template-columns:1fr!important;gap:12px!important;padding:18px!important}
+.alpha03-budget-breakdown>div:first-child{display:flex!important;align-items:baseline!important;gap:10px!important;min-width:0!important}
+.alpha03-budget-breakdown>div:first-child h3{margin:0!important;font-size:clamp(20px,2vw,27px)!important;line-height:1.15!important;white-space:nowrap!important}
+.alpha03-budget-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.alpha03-budget-grid>.alpha03-budget-summary-card{display:grid!important;grid-template-columns:30px max-content minmax(0,1fr)!important;grid-template-rows:1fr!important;align-items:center!important;gap:10px!important;min-width:0!important;min-height:58px!important;padding:10px 13px!important;overflow:hidden!important}
+.alpha03-budget-grid>.alpha03-budget-summary-card>i{grid-column:1!important;grid-row:1!important;font-size:22px!important;line-height:1!important}
+.alpha03-budget-grid>.alpha03-budget-summary-card>b{grid-column:2!important;grid-row:1!important;font-size:12px!important;line-height:1.2!important;white-space:nowrap!important}
+.alpha03-budget-grid>.alpha03-budget-summary-card>em{grid-column:3!important;grid-row:1!important;min-width:0!important;font-size:11px!important;line-height:1.25!important;text-align:right!important;white-space:nowrap!important;word-break:keep-all!important;overflow:visible!important;text-overflow:clip!important}
+.alpha03-section-heading,.alpha03-preview-group>h4{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:8px 10px!important;margin-bottom:12px!important}
+.alpha03-section-heading>h3,.alpha03-preview-group>h4{width:auto!important;margin:0!important}
+.alpha03-section-heading>.one-free-trust-inline,.alpha03-preview-group>h4>.one-free-trust-inline{margin:0!important;flex:0 0 auto!important}
+.alpha03-section-heading-with-action>.alpha03-food-bulk{margin:0!important;flex:0 0 auto!important}
+body.travel-premium-result-view .alpha03-visual-rail,body.travel-premium-result-view .alpha03-timeline-strip{padding-left:0!important;padding-right:clamp(12px,7vw,80px)!important;scroll-padding-left:0!important}
+body.travel-premium-result-view .alpha03-visual-rail>*:first-child,body.travel-premium-result-view .alpha03-timeline-strip>*:first-child{margin-left:0!important}
+body.travel-premium-result-view .alpha03-option-preview .alpha03-visual-rail{display:flex!important;gap:12px!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important}
+body.travel-premium-result-view .alpha03-option-preview .alpha03-preview-option{flex:0 0 clamp(250px,28vw,330px)!important;min-width:0!important;scroll-snap-align:start!important}
+body.travel-premium-result-view .alpha03-thumb,body.travel-premium-result-view .alpha03-option-photo{aspect-ratio:4/3!important;overflow:hidden!important}
+body.travel-premium-result-view .alpha03-thumb img,body.travel-premium-result-view .alpha03-option-photo img{width:100%!important;height:100%!important;object-fit:cover!important}
+@media(max-width:900px){body.travel-premium-result-view .alpha03-recommendation-stage{grid-template-columns:1fr!important}.alpha03-hero-stats{grid-template-columns:minmax(68px,.5fr) minmax(190px,1.35fr) minmax(150px,1fr)!important}body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview,body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview iframe{height:230px!important;min-height:230px!important}}
+@media(max-width:620px){body.travel-premium-result-view .alpha03-recommendation-stage{padding:12px!important;gap:10px!important}.alpha03-hero-stats{grid-template-columns:1fr!important}.alpha03-hero-stats>span{min-height:48px!important;display:grid!important;grid-template-columns:minmax(0,1fr) max-content!important;text-align:left!important}.alpha03-hero-stats>span>b{text-align:left!important}.alpha03-hero-stats>span>em{margin:0!important;text-align:right!important}.alpha03-hero-stats>span:first-child{display:flex!important;justify-content:flex-start!important}.alpha03-budget-breakdown{padding:12px!important}.alpha03-budget-breakdown>div:first-child{display:block!important}.alpha03-budget-breakdown>div:first-child h3{margin-top:5px!important;white-space:normal!important}.alpha03-budget-grid{grid-template-columns:1fr!important}.alpha03-budget-grid>.alpha03-budget-summary-card{grid-template-columns:28px max-content minmax(0,1fr)!important}.alpha03-budget-grid>.alpha03-budget-summary-card>em{white-space:normal!important}.alpha03-section-heading,.alpha03-preview-group>h4{gap:7px!important}body.travel-premium-result-view .alpha03-option-preview .alpha03-preview-option{flex-basis:min(84vw,310px)!important}}
 /* ONE work-mission experience */
 .mission-grid.is-work-mission-layout { display:block; max-width:1180px; margin-inline:auto; }
 .work-mission-experience { --text-primary:var(--text); --text-secondary:var(--text-muted); --border-color:var(--border); --card-bg:var(--surface); --surface-muted:var(--chip); --page-bg:var(--bg); display:grid; gap:22px; color:var(--text-primary); }
