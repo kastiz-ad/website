@@ -109,3 +109,16 @@ test("partial and unsupported interface languages fall back without blocking res
   assert.equal(localeSection("fr", "missing-section").languageName, LOCALE_RESOURCES.fr.common.languageName);
   assert.equal(localeSection("nl-NL", "results").locale, "en");
 });
+
+test("French schedule modal does not inherit visible English copy", () => {
+  const fr = localeSection("fr", "home");
+  assert.equal(fr.scheduleTitle, "Choisissez les dates et l’horaire");
+  assert.equal(fr.startDate, "Date de début");
+  assert.equal(fr.endDate, "Date de fin");
+  assert.equal(fr.timePreference, "Préférence horaire");
+  assert.equal(fr.travelerCount, "Voyageurs");
+  assert.equal(fr.roomCount, "Chambres");
+  assert.equal(fr.departureAirport, "Aéroport de départ");
+  assert.match(fr.anyTime, /flexible/i);
+  assert.equal(fr.confirmSchedule, "Confirmer et continuer");
+});
