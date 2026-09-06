@@ -8,8 +8,8 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260907-founder-revision-v4";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
-import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v11";
-import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v11";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v12";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v12";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -18,7 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
-import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v11";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v12";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3705,9 +3705,9 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
 
 const createAlpha03OptionPreview = (journey, result, transportationSummary, trustBySection = {}) => {
   const flightPriceCheck = alpha03Copy("Live fare check required", "실시간 운임 확인 필요", "Se requiere verificar la tarifa en vivo", "Vérification du tarif en direct requise");
-  const routeFlightRange = formatRange(result.budget?.flights || result.flights?.[0]?.estimatedPrice);
+  const routeFlightRange = formatRange(result.flights?.[0]?.estimatedPrice);
   const routePriceContext = routeFlightRange
-    ? `${alpha03Copy("Estimated route range", "노선 예상 범위", "Rango estimado de la ruta", "Fourchette estimée de l’itinéraire")} ${routeFlightRange} · ${flightPriceCheck}`
+    ? `${alpha03Copy("Per-traveler route estimate", "1인 노선 예상", "Estimación de ruta por viajero", "Estimation d’itinéraire par voyageur")} ${routeFlightRange} · ${flightPriceCheck}`
     : flightPriceCheck;
   const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
   const destinationCode = String(result.destination?.countryCode || result.countryProfile?.code || result.country || "").toUpperCase();
@@ -6697,12 +6697,16 @@ const updateTravelBudgetFromSelections = () => {
   const selectedHotel = currentResult.hotels?.[selectedOptionIndex("hotel")];
   const selectedFlightPrice = selectedPricedOption("flights");
   const selectedHotelPrice = selectedPricedOption("hotel");
+  const { travelerCount, rooms } = getTravelPartyDetails(currentResult);
+  const perTravelerFlight = selectedFlightPrice
+    ? rangeFromPricedOption(selectedFlightPrice)
+    : normalizeBudgetRange(selectedFlight?.estimatedPrice);
   const flights = cardIncluded("flights")
-    ? (selectedFlightPrice ? rangeFromPricedOption(selectedFlightPrice) : normalizeBudgetRange(selectedFlight?.estimatedPrice, baseline.flights))
+    ? ((perTravelerFlight.min || perTravelerFlight.max) ? scaleBudgetRange(perTravelerFlight, travelerCount) : normalizeBudgetRange(baseline.flights))
     : normalizeBudgetRange();
   const nightlyHotelPrice = selectedHotelPrice ? rangeFromPricedOption(selectedHotelPrice) : selectedHotel?.estimatedNightlyPrice;
   const hotel = cardIncluded("hotel") && nightlyHotelPrice
-    ? scaleBudgetRange(nightlyHotelPrice, getTripNightCount())
+    ? scaleBudgetRange(nightlyHotelPrice, getTripNightCount() * rooms)
     : cardIncluded("hotel") ? normalizeBudgetRange(baseline.hotel) : normalizeBudgetRange();
 
   const restaurantRows = [...missionGrid.querySelectorAll('[data-card-id="restaurants"] .option-row[data-price-min]')];
@@ -7191,9 +7195,9 @@ const buildExecutionSummary = () => {
         <span class="execution-summary-detail">${escapeSummaryText(`${destinationName} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${rooms} ${local("room(s)", "객실", "habitación(es)")} · ${selectedTime}`)}</span>
       </article>
       <div class="execution-summary-grid mission-pass-grid">
-        ${detailCard(local("Outbound", "출발 항공", "Ida"), flight ? `${airlineName} · ${flightCode}` : airlineName, `${schedule.startDate || dateRange} · ${formatRange(flight?.estimatedPrice) || local("Price check needed", "가격 확인 필요", "Precio por confirmar")}`, "✈")}
+        ${detailCard(local("Outbound", "출발 항공", "Ida"), flight ? `${airlineName} · ${flightCode}` : airlineName, `${schedule.startDate || dateRange} · ${local("Per traveler estimate", "1인 예상", "Estimado por viajero")} ${formatRange(flight?.estimatedPrice) || local("Price check needed", "가격 확인 필요", "Precio por confirmar")} · ${local("Check provider live fare", "제공업체 실시간 운임 확인", "Verificar tarifa en vivo del proveedor")}`, "✈")}
         ${isRoundTrip ? detailCard(local("Return", "귀국 항공", "Vuelta"), flight ? `${airlineName} · ${returnFlightCode}` : airlineName, `${schedule.endDate || dateRange} · ${local("Return time requires final provider check", "귀국 시간은 최종 제공업체 확인 필요", "La hora de regreso requiere verificación")}`, "↩") : ""}
-        ${detailCard(local("Stay", "숙소", "Alojamiento"), hotelName, `${dateRange} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice) || local("Final price check needed", "최종 가격 확인 필요", "Precio final por confirmar")}`, "🏨")}
+        ${detailCard(local("Stay", "숙소", "Alojamiento"), hotelName, `${dateRange} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${rooms} ${local("room(s)", "객실", "habitación(es)")} · ${local("Estimated stay total", "숙박 총 예상", "Total estimado de alojamiento")} ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice) || local("Final price check needed", "최종 가격 확인 필요", "Precio final por confirmar")}`, "🏨")}
         ${detailCard(local("Local movement", "현지 이동", "Transporte local"), transferName, local("Review the route and licensed provider before continuing externally.", "외부 사이트로 이동하기 전에 경로와 공식 제공업체를 확인하세요.", "Revisa la ruta y el proveedor autorizado antes de continuar externamente."), "🚕")}
         ${detailCard(local("Dining", "식사", "Comida"), suggestedRestaurantNames.length ? local("Shortlist ready", "후보 준비됨", "Lista preparada") : local("Needs final picks", "최종 후보 필요", "Faltan opciones"), diningDetail, "🍽", "is-restaurant")}
         ${detailCard(local("Budget", "예산", "Presupuesto"), formatRange(totalRange) || local("Flexible", "유동적", "Flexible"), local("Budget updates if you change flight, hotel, dining, or transport.", "항공·숙소·식사·이동을 바꾸면 예산도 함께 업데이트됩니다.", "El presupuesto cambia si modificas vuelos, hotel, comida o transporte."), "₩")}

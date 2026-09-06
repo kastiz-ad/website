@@ -271,10 +271,12 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /Per traveler estimate/);
   assert.match(source, /formatRange\(result\.flights\?\.\[0\]\?\.estimatedPrice\)/);
   assert.match(source, /Number\(perTravelerFlightBudget\.min \|\| 0\) \* travelerCount/);
+  assert.match(source, /scaleBudgetRange\(perTravelerFlight, travelerCount\)/);
+  assert.match(source, /scaleBudgetRange\(nightlyHotelPrice, getTripNightCount\(\) \* rooms\)/);
   assert.match(source, /alpha03-section-heading alpha03-section-heading-with-action/);
   assert.match(source, /Live fare check required/);
-  assert.match(source, /Estimated route range/);
-  assert.match(source, /result\.budget\?\.flights \|\| result\.flights\?\.\[0\]\?\.estimatedPrice/);
+  assert.match(source, /Per-traveler route estimate/);
+  assert.match(source, /Estimated stay total/);
   assert.match(source, /Estimated per night/);
   assert.match(source, /alpha03-applied-change/);
   assert.match(source, /timelineImageCandidates = uniqueItems\(\[/);
