@@ -6,6 +6,8 @@ const homeSource = fs.readFileSync(new URL("../js/pages/home-page.js", import.me
 const resultsSource = fs.readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
 const indexSource = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const scriptSource = fs.readFileSync(new URL("../script.js", import.meta.url), "utf8");
+const resultsHtmlSource = fs.readFileSync(new URL("../results.html", import.meta.url), "utf8");
+const resultsEntrySource = fs.readFileSync(new URL("../results.js", import.meta.url), "utf8");
 
 test("travel missions open the schedule step before starting", () => {
   assert.match(homeSource, /if \(type === "travel"\) \{\s*pendingFollowUp = null;\s*openScheduleModal\(mission\);/);
@@ -22,6 +24,8 @@ test("homepage cache keys expose the current travel constraint flow", () => {
   assert.match(indexSource, /script\.js\?v=20260907-founder-qa-v20/);
   assert.match(scriptSource, /home-page\.js\?v=20260907-founder-qa-v20/);
   assert.match(homeSource, /travel-constraint-parser\.js\?v=20260907-founder-qa-v20/);
+  assert.match(resultsHtmlSource, /results\.js\?v=20260907-founder-qa-v21/);
+  assert.match(resultsEntrySource, /results-page\.js\?v=20260907-founder-qa-v21/);
   assert.match(resultsSource, /preview-destination-intelligence\.js\?v=20260907-card-descriptions-v3/);
   assert.doesNotMatch(resultsSource, /preview-destination-intelligence\.js\?v=20260813-preview-v79-1/);
 });

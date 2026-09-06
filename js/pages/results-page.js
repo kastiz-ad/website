@@ -1532,8 +1532,8 @@ const createApprovalCard = (result) => {
   return createMissionCard({
     id: "approval-protection",
     title: t("approvalProtectionTitle"),
-    label: activeLanguage === "ko" ? "필수" : activeLanguage === "es" ? "Obligatorio" : "Required",
-    value: activeLanguage === "ko" ? "계획 검토 및 승인" : activeLanguage === "es" ? "Revisión y aprobación del plan" : "Plan review and approval",
+    label: activeLanguage === "ko" ? "필수" : activeLanguage === "es" ? "Obligatorio" : activeLanguage === "fr" ? "Obligatoire" : "Required",
+    value: activeLanguage === "ko" ? "계획 검토 및 승인" : activeLanguage === "es" ? "Revisión y aprobación del plan" : activeLanguage === "fr" ? "Vérification et approbation du plan" : "Plan review and approval",
     reason: result.display?.approvalProtection || localize(result.approvalProtection) || t("approvalProtection"),
     options: [],
     wide: true,
@@ -3453,7 +3453,7 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
       <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(resultText(activeLanguage, "itineraryMarkers"))}">
         ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-itinerary-day="${escapeSummaryText(marker.day || "all")}" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
       </div>
-      <p class='alpha03-map-note'>${escapeSummaryText(alpha03Copy("Estimated route — verify hours and availability before using an external provider.", "예상 동선입니다. 외부 제공업체 이용 전 운영 시간과 이용 가능 여부를 확인하세요.", "Ruta estimada: verifica horarios y disponibilidad antes de usar un proveedor externo."))}</p>
+      <p class='alpha03-map-note'>${escapeSummaryText(alpha03Copy("Estimated route — verify hours and availability before using an external provider.", "예상 동선입니다. 외부 제공업체 이용 전 운영 시간과 이용 가능 여부를 확인하세요.", "Ruta estimada: verifica horarios y disponibilidad antes de usar un proveedor externo.", "Itinéraire estimé : vérifiez les horaires et la disponibilité avant d’utiliser un fournisseur externe."))}</p>
     </div>
   `;
 };
@@ -3758,16 +3758,16 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
       : alpha03Copy("Nightly price check required", "1박 요금 확인 필요", "Se requiere verificar el precio por noche", "Prix par nuit à vérifier"))
       + alpha03Copy(" · Representative photo", " · 대표 이미지", " · Imagen representativa", " · Photo représentative")
   })).filter((hotel) => hotel.name && !/live search|search ready|search required|accommodation live/i.test(hotel.name) && !(destinationCode !== "JP" && /ryokan|료칸|旅館/i.test(hotel.name)) && !hotelSeen.has(hotel.name) && hotelSeen.add(hotel.name)).slice(0, 12);  const transfers = [
-    { name: alpha03Copy("Official airport transport + local transit", "공식 공항 교통 + 현지 대중교통", "Transporte oficial del aeropuerto + transporte local"), meta: alpha03Copy("destination-matched route", "목적지 맞춤 동선", "ruta adaptada al destino") },
-    { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar"), meta: alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje") },
-    { name: alpha03Copy("Local rail, metro, bus, or ferry route", "현지 철도·메트로·버스·페리 동선", "Tren, metro, bus o ferry local"), meta: alpha03Copy("multi-stop local route", "현지 다중 이동", "ruta local con varias paradas") },
-    { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar"), meta: alpha03Copy("comfort route", "편한 이동", "ruta cómoda") },
-    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado"), meta: alpha03Copy("higher cost", "높은 비용", "mayor costo") }
+    { name: alpha03Copy("Official airport transport + local transit", "공식 공항 교통 + 현지 대중교통", "Transporte oficial del aeropuerto + transporte local", "Transport officiel depuis l’aéroport + transports locaux"), meta: alpha03Copy("destination-matched route", "목적지 맞춤 동선", "ruta adaptada al destino", "Itinéraire adapté à la destination") },
+    { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar", "Bus de l’aéroport + courte marche"), meta: alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje", "Trajet simple avec bagages") },
+    { name: alpha03Copy("Local rail, metro, bus, or ferry route", "현지 철도·메트로·버스·페리 동선", "Tren, metro, bus o ferry local", "Train, métro, bus ou ferry local"), meta: alpha03Copy("multi-stop local route", "현지 다중 이동", "ruta local con varias paradas", "Itinéraire local à plusieurs étapes") },
+    { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar", "Taxi + marche"), meta: alpha03Copy("comfort route", "편한 이동", "ruta cómoda", "Trajet confortable") },
+    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado", "Transfert privé"), meta: alpha03Copy("higher cost", "높은 비용", "mayor costo", "Coût supérieur") }
   ];
   transfers.push(
-    { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar"), meta: alpha03Copy("regional route", "지역 이동", "ruta regional") },
-    { name: alpha03Copy("Destination transit pass when available", "현지 교통 패스(운영 시)", "Pase local cuando exista"), meta: alpha03Copy("verify local coverage", "현지 적용 범위 확인", "verificar cobertura") },
-    { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo"), meta: alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar") }
+    { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar", "Train + bus local + marche"), meta: alpha03Copy("regional route", "지역 이동", "ruta regional", "Itinéraire régional") },
+    { name: alpha03Copy("Destination transit pass when available", "현지 교통 패스(운영 시)", "Pase local cuando exista", "Pass de transport local si disponible"), meta: alpha03Copy("verify local coverage", "현지 적용 범위 확인", "verificar cobertura", "Vérifier la zone couverte") },
+    { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo", "Taxi de secours en soirée"), meta: alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar", "Solution après le dîner") }
   );
   const groups = (isInvestorRestaurantReservationDemo(result) || isWeekendDatePlan(result)) ? [] : [
     [alpha03Copy("Flights", "항공", "Vuelos", "Vols"), "flights", flights],
@@ -6277,7 +6277,7 @@ const renderPathwayOpportunities = () => {
       local("Every displayed travel option is restricted to the detected destination.", "표시되는 여행 선택지는 감지된 목적지로 제한됩니다.", "Todas las opciones se limitan al destino detectado.")
     ].filter(Boolean),
     confidence: local("Destination locked", "목적지 고정", "Destino fijado"),
-    lead: local("Use Modify to compare destination-appropriate options before approval.", "승인 전에 수정에서 목적지에 맞는 선택지를 비교할 수 있어요.", "Usa Modificar para comparar opciones antes de aprobar."),
+    lead: local("Use Modify to compare destination-appropriate options before approval.", "승인 전에 수정에서 목적지에 맞는 선택지를 비교할 수 있어요.", "Usa Modificar para comparar opciones antes de aprobar.", "Utilisez Modifier pour comparer des options adaptées à la destination avant l’approbation."),
     choices: [recommendedFlight && { text: getFlightName(recommendedFlight), command: local("Compare flight options", "항공편 선택지 비교", "Comparar vuelos") }, recommendedHotel && { text: getHotelName(recommendedHotel), command: local("Compare hotel options", "호텔 선택지 비교", "Comparar hoteles") }].filter(Boolean)
   };
   const review = experienceMission
