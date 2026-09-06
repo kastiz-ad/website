@@ -118,6 +118,14 @@ test("Founder demo chains accessibility and matcha without page refresh architec
   assert.ok(demo.providerRefreshPlan.some((item) => item.scope === "nearby_food_only"));
 });
 
+test("direct Spanish restaurant requests produce a visible restaurant revision", () => {
+  const result = applyMissionEdit(baseJapanMission(), "Añade un restaurante de ramen");
+  assert.equal(result.intent.type, "ADD_RESTAURANT_OPTIONS");
+  assert.equal(result.hasMeaningfulRevision, true);
+  assert.match(result.presentationCandidateName, /restaurant option/i);
+  assert.ok(result.affectedSections.includes("restaurants"));
+});
+
 test("visible revision intents change real result sections and chain from the latest state", () => {
   const restaurants = applyMissionEdit(baseJapanMission(), "Add more restaurants.");
   assert.equal(restaurants.hasMeaningfulRevision, true);

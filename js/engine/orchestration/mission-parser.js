@@ -50,7 +50,7 @@ export const parseMissionEdit = (command = "") => {
   if (/sushi|스시|초밥|寿司/i.test(text)) {
     return { type: "ADD_FOOD_STOP", command: text, entity: entity || "sushi", value: "sushi", changedFields: ["foodPreferences", "restaurants", "dailyPlan"], confidence: 0.93 };
   }
-  if (/add more restaurants|more restaurants|another restaurant|레스토랑.*추가|식당.*추가|más restaurantes|otro restaurante/i.test(text)) {
+  if (/add more restaurants|more restaurants|another restaurant|(?:add|include|find|show me).*restaurants?|레스토랑.*추가|식당.*추가|맛집.*추가|(?:추가|찾아|보여).*(?:레스토랑|식당|맛집)|más restaurantes|otro restaurante|(?:añade|agrega|incluye|busca|muestra).*(?:restaurante|restaurantes)/i.test(text)) {
     return { type: "ADD_RESTAURANT_OPTIONS", command: text, entity: "additional restaurants", value: text, changedFields: ["restaurants"], confidence: 0.9 };
   }
   if (/another hotel|more hotels|hotel option|숙소.*추가|호텔.*추가|otro hotel|más hoteles/i.test(text)) {

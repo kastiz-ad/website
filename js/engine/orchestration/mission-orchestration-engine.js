@@ -1,5 +1,5 @@
 import { MissionStore, MISSION_ORCHESTRATION_VERSION, missionStateChangedFields } from "./mission-store.js";
-import { parseMissionEdit } from "./mission-parser.js?v=20260901-founder-revision-v2";
+import { parseMissionEdit } from "./mission-parser.js?v=20260907-founder-revision-v4";
 import { dependenciesToSections, providerRefreshPlan, resolveDependencies } from "./dependency-engine.js";
 
 const clone = (value) => JSON.parse(JSON.stringify(value ?? null));
