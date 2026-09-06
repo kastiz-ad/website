@@ -311,6 +311,7 @@ test("restaurant and place descriptions follow the selected results language", (
   assert.match(resultsSource, /Option de restaurant adaptée au jour/);
   assert.match(resultsSource, /Lieu recommandé/);
   assert.doesNotMatch(destinationSource, /\|\| "Prepared as a destination-specific preview item\."/);
+  assert.match(destinationSource, /typeof item\.advice === "string"\) return language === "en" \? item\.advice : ""/);
 });
 
 test("travel revisions remain visibly summarized after the experience rerenders", () => {

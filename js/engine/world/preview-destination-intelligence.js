@@ -1157,6 +1157,7 @@ export function localizedProfileText(value, language = "en") {
   return value[language] || value.en || value.ko || value.es || value.fr || "";
 }
 export function previewItemAdvice(item = {}, language = "en") {
+  if (typeof item.advice === "string") return language === "en" ? item.advice : "";
   return localizedProfileText(item.advice, language);
 }
 export function previewItemImage(item = {}) { if (item?.image?.url) return item.image; if (item?.imageUrl) return { url: item.imageUrl, alt: item.imageAlt || item.name || item.label || "Destination photo" }; return null; }
