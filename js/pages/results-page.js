@@ -8,8 +8,8 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260907-founder-revision-v4";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
-import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v14";
-import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v14";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v15";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v15";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -18,7 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
-import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v14";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v15";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3337,6 +3337,10 @@ const getAlpha03ItemAdvice = (item, type, index) => {
   const name = String(item?.name || "").toLowerCase();
   const ko = activeLanguage === "ko";
   const es = activeLanguage === "es";
+  const fr = activeLanguage === "fr";
+  if (fr) return type === "restaurant"
+    ? `Option de restaurant adaptée au jour ${index + 1}. ONE vérifiera le plat conseillé et les disponibilités avant toute action.`
+    : `Lieu recommandé ${index + 1}. ONE l’intègre avec les horaires, le trajet et les options de restauration à proximité.`;
   if (type === "restaurant") {
     if (/tsukiji|toyosu|sushi|스시|초밥/.test(name)) return ko ? "참치, 우니, 계란초밥처럼 신선도가 바로 느껴지는 메뉴를 추천해요. 아침이나 이른 점심이 가장 좋습니다." : es ? "Pide atún, uni o sushi de huevo; mejor temprano." : "Order tuna, uni, or tamago sushi; it is best early before the rush.";
     if (/ramen|라멘|ichiran/.test(name)) return ko ? "진한 국물 라멘을 먹기 좋아요. 매운맛과 면 익힘을 취향대로 맞춰보세요." : es ? "Buen ramen intenso; ajusta picante y textura del fideo." : "Go for rich broth ramen and tune spice/noodle firmness to your taste.";

@@ -304,6 +304,15 @@ test("ONE Free French price and trust labels do not fall back to English", () =>
   assert.match(source, /alpha03Copy\(copy\[0\], copy\[1\], copy\[2\], copy\[3\]\)/);
 });
 
+test("restaurant and place descriptions follow the selected results language", () => {
+  const resultsSource = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  const destinationSource = readFileSync(new URL("../js/engine/world/preview-destination-intelligence.js", import.meta.url), "utf8");
+  assert.match(resultsSource, /const fr = activeLanguage === "fr"/);
+  assert.match(resultsSource, /Option de restaurant adaptée au jour/);
+  assert.match(resultsSource, /Lieu recommandé/);
+  assert.doesNotMatch(destinationSource, /\|\| "Prepared as a destination-specific preview item\."/);
+});
+
 test("travel revisions remain visibly summarized after the experience rerenders", () => {
   const source = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   assert.match(source, /result\.alpha15LastAddition\?\.text/);
