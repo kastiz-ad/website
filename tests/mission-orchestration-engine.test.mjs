@@ -306,6 +306,8 @@ test("ONE Free French price and trust labels do not fall back to English", () =>
   const approvalSource = readFileSync(new URL("../js/ui/approval-information-review.js", import.meta.url), "utf8");
   for (const label of ["Prêt à continuer", "VÉRIFICATION DE L’APPROBATION", "Aucune action n’a encore été exécutée", "Vous gardez le contrôle"]) assert.match(approvalSource, new RegExp(label));
   assert.match(source, /makeRealityButton\.addEventListener[\s\S]*?const local = \(en, ko, es, fr = en\)/);
+  assert.match(source, /replace\(\/\^Comfortable\$\/i, "Confort"\)/);
+  assert.match(source, /replace\(\/\^Estimated\\b\/i, "Estimation"\)/);
   assert.match(source, /alpha03Copy\(copy\[0\], copy\[1\], copy\[2\], copy\[3\]\)/);
 });
 
