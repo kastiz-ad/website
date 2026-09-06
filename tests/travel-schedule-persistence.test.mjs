@@ -19,9 +19,9 @@ test("travel missions open the schedule step before starting", () => {
 });
 
 test("homepage cache keys expose the current travel constraint flow", () => {
-  assert.match(indexSource, /script\.js\?v=20260907-founder-qa-v17/);
-  assert.match(scriptSource, /home-page\.js\?v=20260907-founder-qa-v17/);
-  assert.match(homeSource, /travel-constraint-parser\.js\?v=20260907-founder-qa-v17/);
+  assert.match(indexSource, /script\.js\?v=20260907-founder-qa-v18/);
+  assert.match(scriptSource, /home-page\.js\?v=20260907-founder-qa-v18/);
+  assert.match(homeSource, /travel-constraint-parser\.js\?v=20260907-founder-qa-v18/);
   assert.match(resultsSource, /preview-destination-intelligence\.js\?v=20260907-card-descriptions-v3/);
   assert.doesNotMatch(resultsSource, /preview-destination-intelligence\.js\?v=20260813-preview-v79-1/);
 });
