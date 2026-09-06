@@ -297,6 +297,13 @@ test("user-added restaurant candidates are presented after curated choices", () 
   assert.match(source, /\.concat\(revisionRestaurants\)\.slice\(0, 12\)/);
 });
 
+test("ONE Free French price and trust labels do not fall back to English", () => {
+  const source = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  for (const label of ["Digne de confiance", "Fiable", "Estimé", "Limité", "Expérimental", "Non vérifié"]) assert.match(source, new RegExp(label));
+  for (const label of ["Vols", "Hôtels", "Repas", "Transport", "Estimation par voyageur", "Estimation par nuit", "Selon l’itinéraire", "Tarif en direct à confirmer"]) assert.match(source, new RegExp(label));
+  assert.match(source, /alpha03Copy\(copy\[0\], copy\[1\], copy\[2\], copy\[3\]\)/);
+});
+
 test("travel revisions remain visibly summarized after the experience rerenders", () => {
   const source = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   assert.match(source, /result\.alpha15LastAddition\?\.text/);

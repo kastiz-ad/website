@@ -8,8 +8,8 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260907-founder-revision-v4";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
-import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v13";
-import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v13";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v14";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v14";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -18,7 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
-import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v13";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v14";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3322,12 +3322,12 @@ const getAlpha03HeroTone = (destination = "") => {
 const createAlpha03BudgetItems = (journey, result) => {
   const { tripNights } = calculateTripDayCounts(result);
   const travelers = getTravelPartyDetails(result).travelerCount || 1;
-  const hotelNightLabel = `${tripNights} ${alpha03Copy("nights", "박", "noches")}`;
+  const hotelNightLabel = `${tripNights} ${alpha03Copy("nights", "박", "noches", "nuits")}`;
   return [
-    ["✈️", alpha03Copy("Flights", "항공", "Vuelos"), `${alpha03Copy("Per traveler estimate", "1인 예상", "Estimado por viajero", "Estimation par voyageur")} ${formatRange(result.flights?.[0]?.estimatedPrice) || alpha03Copy("Live fare check required", "실시간 운임 확인 필요", "Tarifa en vivo por confirmar", "Tarif en direct à confirmer")}`],
-    ["🏨", alpha03Copy("Hotels", "숙소", "Hotel"), hotelNightLabel],
-    ["🍽️", alpha03Copy("Food", "식사", "Comida"), alpha03Copy(`${travelers} traveler${travelers > 1 ? "s" : ""}`, `${travelers}명 기준`, `${travelers} viajero${travelers > 1 ? "s" : ""}`)],
-    ["🚕", alpha03Copy("Transport", "이동", "Transporte"), alpha03Copy("Route-based", "동선 기준", "Según ruta")]
+    ["✈️", alpha03Copy("Flights", "항공", "Vuelos", "Vols"), `${alpha03Copy("Per traveler estimate", "1인 예상", "Estimado por viajero", "Estimation par voyageur")} ${formatRange(result.flights?.[0]?.estimatedPrice) || alpha03Copy("Live fare check required", "실시간 운임 확인 필요", "Tarifa en vivo por confirmar", "Tarif en direct à confirmer")}`],
+    ["🏨", alpha03Copy("Hotels", "숙소", "Hotel", "Hôtels"), hotelNightLabel],
+    ["🍽️", alpha03Copy("Food", "식사", "Comida", "Repas"), alpha03Copy(`${travelers} traveler${travelers > 1 ? "s" : ""}`, `${travelers}명 기준`, `${travelers} viajero${travelers > 1 ? "s" : ""}`, `pour ${travelers} voyageur${travelers > 1 ? "s" : ""}`)],
+    ["🚕", alpha03Copy("Transport", "이동", "Transporte", "Transport"), alpha03Copy("Route-based", "동선 기준", "Según ruta", "Selon l’itinéraire")]
   ];
 };
 
@@ -3674,15 +3674,15 @@ const syncAlpha03RestaurantBulkControl = () => {
 };
 const oneFreeTrustLabel = (label) => {
   const labels = {
-    Trusted: ["Trusted", "신뢰 높음", "Confiable"],
-    Reliable: ["Reliable", "신뢰 가능", "Fiable"],
-    Estimated: ["Estimated", "예상", "Estimado"],
-    Limited: ["Limited", "제한적", "Limitado"],
-    Experimental: ["Experimental", "실험적", "Experimental"],
-    Unverified: ["Unverified", "미검증", "Sin verificar"]
+    Trusted: ["Trusted", "신뢰 높음", "Confiable", "Digne de confiance"],
+    Reliable: ["Reliable", "신뢰 가능", "Fiable", "Fiable"],
+    Estimated: ["Estimated", "예상", "Estimado", "Estimé"],
+    Limited: ["Limited", "제한적", "Limitado", "Limité"],
+    Experimental: ["Experimental", "실험적", "Experimental", "Expérimental"],
+    Unverified: ["Unverified", "미검증", "Sin verificar", "Non vérifié"]
   };
-  const copy = labels[label] || [label, label, label];
-  return alpha03Copy(copy[0], copy[1], copy[2]);
+  const copy = labels[label] || [label, label, label, label];
+  return alpha03Copy(copy[0], copy[1], copy[2], copy[3]);
 };
 const createOneFreeTrustMarkup = (trust) => {
   const label = trust?.label || "Unverified";
@@ -3766,18 +3766,18 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo"), meta: alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar") }
   );
   const groups = (isInvestorRestaurantReservationDemo(result) || isWeekendDatePlan(result)) ? [] : [
-    [alpha03Copy("Flights", "항공", "Vuelos"), "flights", flights],
-    [alpha03Copy("Hotels", "숙소", "Hotel"), "hotels", hotels],
-    [alpha03Copy("Transport", "이동", "Transporte"), "transport", transfers]
+    [alpha03Copy("Flights", "항공", "Vuelos", "Vols"), "flights", flights],
+    [alpha03Copy("Hotels", "숙소", "Hotel", "Hôtels"), "hotels", hotels],
+    [alpha03Copy("Transport", "이동", "Transporte", "Transport"), "transport", transfers]
   ];
   if (!groups.length) return "";
   return `
-    <section class="alpha03-option-preview" aria-label="${escapeSummaryText(alpha03Copy("Selectable travel options", "선택 가능한 여행 옵션", "Opciones seleccionables"))}">
+    <section class="alpha03-option-preview" aria-label="${escapeSummaryText(alpha03Copy("Selectable travel options", "선택 가능한 여행 옵션", "Opciones seleccionables", "Options de voyage sélectionnables"))}">
       ${groups.map(([title, key, options]) => `
         <div class="alpha03-preview-group">
           <h4>${escapeSummaryText(title)}${trustBySection[key] ? createOneFreeTrustMarkup(trustBySection[key]) : ""}</h4>
           <div class="alpha03-visual-rail">
-            ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "실시간 검색 준비", "Búsqueda en vivo lista"), meta: alpha03Copy("Prepared", "준비됨", "Preparado") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, (currentResult.alpha03PreviewSelections?.[key] ?? 0) === index)).join("")}
+            ${(options.length ? options : [{ name: alpha03Copy("Live search ready", "실시간 검색 준비", "Búsqueda en vivo lista", "Recherche en direct prête"), meta: alpha03Copy("Prepared", "준비됨", "Preparado", "Préparé") }]).map((option, index) => createAlpha03OptionPreviewCard(key, option, index, (currentResult.alpha03PreviewSelections?.[key] ?? 0) === index)).join("")}
           </div>
         </div>
       `).join("")}
@@ -4040,24 +4040,24 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
       <div class="alpha03-recommendation-copy">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda"))}</span>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda", "Choix ONE"))}</span>
         <h2>${escapeSummaryText(alpha03LocalizedDisplayName(journey.name))}</h2>
         <p>${escapeSummaryText(alpha03LocalizedDisplayName(journey.purpose))}</p>
         <div class="alpha03-recommendation-metrics alpha03-hero-stats">
-          <span><b>${escapeSummaryText(String(tripDays))}</b><em>${escapeSummaryText(alpha03Copy("days", "일", "días"))}</em></span>
-          <span><b>${escapeSummaryText(compactBudget)}</b><em>${escapeSummaryText(alpha03Copy("estimated", "예상", "estimado"))}</em></span>
-          <span><b>${escapeSummaryText(dateText)}</b><em>${escapeSummaryText(alpha03Copy("dates", "날짜", "fechas"))}</em></span>
+          <span><b>${escapeSummaryText(String(tripDays))}</b><em>${escapeSummaryText(alpha03Copy("days", "일", "días", "jours"))}</em></span>
+          <span><b>${escapeSummaryText(compactBudget)}</b><em>${escapeSummaryText(alpha03Copy("estimated", "예상", "estimado", "estimé"))}</em></span>
+          <span><b>${escapeSummaryText(dateText)}</b><em>${escapeSummaryText(alpha03Copy("dates", "날짜", "fechas", "dates"))}</em></span>
         </div>
-        <div class="alpha03-hero-status"><span class="alpha03-primary-action">${escapeSummaryText(alpha03Copy("Live search ready", "실시간 검색 준비 완료", "Búsqueda en vivo lista"))}</span>${createOneFreeTrustMarkup(trustBySection.final)}</div>
+        <div class="alpha03-hero-status"><span class="alpha03-primary-action">${escapeSummaryText(alpha03Copy("Live search ready", "실시간 검색 준비 완료", "Búsqueda en vivo lista", "Recherche en direct prête"))}</span>${createOneFreeTrustMarkup(trustBySection.final)}</div>
       </div>
-      <div class="alpha03-recommendation-map" aria-label="${escapeSummaryText(alpha03Copy("Map preview", "지도 미리보기", "Vista de mapa"))}">
+      <div class="alpha03-recommendation-map" aria-label="${escapeSummaryText(alpha03Copy("Map preview", "지도 미리보기", "Vista de mapa", "Aperçu de la carte"))}">
         ${createAlpha03JourneyMap(days, restaurants, places, profile)}
       </div>
     </section>
 
-    <section class="alpha03-budget-breakdown" aria-label="${escapeSummaryText(alpha03Copy("Budget", "예산", "Presupuesto"))}">
+    <section class="alpha03-budget-breakdown" aria-label="${escapeSummaryText(alpha03Copy("Budget", "예산", "Presupuesto", "Budget"))}">
       <div>
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Budget", "예산", "Presupuesto"))}</span>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Budget", "예산", "Presupuesto", "Budget"))}</span>
         <h3>${escapeSummaryText(compactBudget)}</h3>
       </div>
       <div class="alpha03-budget-grid">
@@ -4070,8 +4070,8 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ${restaurants.length ? `
     <section ${alpha04SectionAttrs(workspace, "restaurants", "alpha03-section")}>
       <div class="alpha03-section-heading alpha03-section-heading-with-action">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "음식", "Comida"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Curated local dining", "엄선한 현지 미식", "Gastronomía local seleccionada"))}</h3>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Food", "음식", "Comida", "Gastronomie"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Curated local dining", "엄선한 현지 미식", "Gastronomía local seleccionada", "Sélection gastronomique locale"))}</h3>
         ${createOneFreeTrustMarkup(trustBySection.restaurants)}
         <button type="button" class="alpha03-food-bulk" data-alpha03-food-bulk data-selection-state="${restaurantBulkState}" aria-pressed="${restaurantBulkState === "all"}">${restaurantBulkState === "all" ? "✓" : "+"} ${escapeSummaryText(alpha03RestaurantBulkLabel(restaurantBulkState, selectedRestaurantCount, restaurants.length))}</button>
       </div>
@@ -4084,8 +4084,8 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ${highlightPlaces.length ? `
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
-        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares"))}</span>
-        <h3>${escapeSummaryText(alpha03Copy("Destination highlights", "주요 명소와 추천 장소", "Lugares destacados del destino"))}</h3>
+        <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("Places", "장소", "Lugares", "Lieux"))}</span>
+        <h3>${escapeSummaryText(alpha03Copy("Destination highlights", "주요 명소와 추천 장소", "Lugares destacados del destino", "Temps forts de la destination"))}</h3>
         ${createOneFreeTrustMarkup(trustBySection.places)}
       </div>
       <div class="alpha03-card-grid alpha03-visual-rail">

@@ -118,7 +118,7 @@ test("Trust Index uses one star and exposes click explanations in three language
   assert.match(markupSource, /<details class="one-free-trust-inline">/);
   assert.match(markupSource, /★ \$\{score\}/);
   assert.doesNotMatch(markupSource, /★\s*★|★★★★★/);
-  assert.match(source, /Unverified: \["Unverified", "미검증", "Sin verificar"\]/);
+  assert.match(source, /Unverified: \["Unverified", "미검증", "Sin verificar", "Non vérifié"\]/);
 });
 
 test("upgrade surface promises Free, Plus and Pro without enabling execution", async () => {
