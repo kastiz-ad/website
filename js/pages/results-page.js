@@ -7932,7 +7932,7 @@ makeRealityButton.addEventListener("click", () => {
   const hotel = currentResult?.hotels?.find?.((item) => item.recommended) || currentResult?.hotels?.[0];
   const experienceMission = isExperienceMission(currentResult, currentResult?.missionContext);
   const experience = currentExperienceReview?.generatedExperience?.onePick;
-  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const local = (en, ko, es, fr = en) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : activeLanguage === "fr" ? fr : en;
   const journey = isV231TravelPreparationFlow() ? getV231SelectedJourney() : null;
   const medicalMission = isInvestorMedicalAppointmentDemo(currentResult);
   const restaurantMission = isInvestorRestaurantReservationDemo(currentResult);
@@ -7955,7 +7955,7 @@ makeRealityButton.addEventListener("click", () => {
     ? [
         { label: local("Mission", "미션", "Misión", "Mission"), value: approvalMissionName() },
         { label: local("Selected journey", "선택한 여행", "Viaje elegido", "Voyage sélectionné"), value: journey.name },
-        { label: local("Journey style", "여행 스타일", "Estilo de viaje", "Style du voyage"), value: `${journey.duration} · ${journey.comfort} · ${journey.budget}` },
+        { label: local("Journey style", "여행 스타일", "Estilo de viaje", "Style du voyage"), value: alpha03LocalizedDisplayName(`${journey.duration} · ${journey.comfort} · ${journey.budget}`) },
         { label: local("Approved scope", "승인 범위", "Alcance aprobado", "Portée approuvée"), value: local("Prepare search and comparison only", "검색과 비교 준비까지만 승인", "Solo preparar búsqueda y comparación", "Préparer uniquement la recherche et la comparaison") },
         { label: local("Not approved", "승인되지 않은 것", "No aprobado", "Non approuvé"), value: local("No booking, payment, ticketing, submission, or provider contact", "예약, 결제, 발권, 제출, 제공업체 연락 없음", "Sin reserva, pago, emisión, envío ni contacto con proveedores", "Aucune réservation, aucun paiement, billet, envoi ni contact avec un fournisseur") }
       ]
