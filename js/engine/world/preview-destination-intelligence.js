@@ -1158,7 +1158,8 @@ export function localizedProfileText(value, language = "en") {
 }
 export function previewItemAdvice(item = {}, language = "en") {
   if (typeof item.advice === "string") return language === "en" ? item.advice : "";
-  return localizedProfileText(item.advice, language);
+  if (!item.advice || typeof item.advice !== "object") return "";
+  return item.advice[language] || (language === "en" ? item.advice.en || "" : "");
 }
 export function previewItemImage(item = {}) { if (item?.image?.url) return item.image; if (item?.imageUrl) return { url: item.imageUrl, alt: item.imageAlt || item.name || item.label || "Destination photo" }; return null; }
 export function osmEmbedUrlForProfile(profile) {

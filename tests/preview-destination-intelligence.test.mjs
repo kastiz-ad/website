@@ -66,6 +66,12 @@ test("supported preview destinations provide real image URLs and item advice", (
   }
 });
 
+test("preview advice never falls back to English for a selected non-English locale", () => {
+  assert.equal(previewItemAdvice({ advice: "English only" }, "fr"), "");
+  assert.equal(previewItemAdvice({ advice: { en: "English only" } }, "fr"), "");
+  assert.equal(previewItemAdvice({ advice: { en: "English", fr: "Français" } }, "fr"), "Français");
+});
+
 test("preview map markers and OSM embed are generated from destination coordinates", () => {
   const tokyo = resolvePreviewDestination("Tokyo")?.profile;
   const url = osmEmbedUrlForProfile(tokyo);
@@ -86,10 +92,10 @@ test("results page is wired for rich preview images, map and approval flow", asy
   assert.ok(text.includes("data-alpha03-map=\"osm\""));
 });
 
-test("French and unsupported UI languages fall back without blocking results", () => {
+test("French and unsupported UI languages let the results layer provide localized fallback copy", () => {
   const paris = resolvePreviewDestination("organise un voyage \u00e0 Paris")?.profile;
   assert.equal(paris.country, "France");
   assert.equal(profileForResult({ mission: "voyage \u00e0 Paris" })?.country, "France");
-  assert.ok(previewItemAdvice(paris.places[0], "de").length > 8);
+  assert.equal(previewItemAdvice(paris.places[0], "de"), "");
   assert.ok(paris.places.some((place) => place.name.includes("Musee") || place.name.includes("Ile")));
 });
