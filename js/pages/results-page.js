@@ -8,8 +8,8 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260907-founder-revision-v4";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
-import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v12";
-import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v12";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v13";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v13";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -18,7 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
-import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v12";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v13";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3717,7 +3717,12 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
   }));
   const flightSeen = new Set();
   const flights = [
-    ...(result.flights || []).map((flight) => ({ name: getFlightName(flight), meta: formatRange(flight.estimatedPrice) || flightPriceCheck })),
+    ...(result.flights || []).map((flight) => ({
+      name: getFlightName(flight),
+      meta: formatRange(flight.estimatedPrice)
+        ? `${alpha03Copy("Per-traveler route estimate", "1인 노선 예상", "Estimación de ruta por viajero", "Estimation d’itinéraire par voyageur")} ${formatRange(flight.estimatedPrice)} · ${flightPriceCheck}`
+        : flightPriceCheck
+    })),
     ...destinationAirlines,
     { name: firstFlightName + " · Economy", meta: `${alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica", "tarif pratique")} · ${routePriceContext}` },
     { name: firstFlightName + " · Business", meta: `${alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad", "option confort")} · ${routePriceContext}` },

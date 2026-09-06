@@ -276,6 +276,7 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /alpha03-section-heading alpha03-section-heading-with-action/);
   assert.match(source, /Live fare check required/);
   assert.match(source, /Per-traveler route estimate/);
+  assert.match(source, /formatRange\(flight\.estimatedPrice\).*Per-traveler route estimate|Per-traveler route estimate[\s\S]*formatRange\(flight\.estimatedPrice\)/);
   assert.match(source, /Estimated stay total/);
   assert.match(source, /Estimated per night/);
   assert.match(source, /alpha03-applied-change/);
