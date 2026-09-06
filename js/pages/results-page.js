@@ -1,7 +1,7 @@
 import { renderSafeMedicalAppointmentDemo } from "./medical-appointment-demo.js?v=20260811-medical-ui-v3";
 import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMissionType } from "../engine/approval/mission-specific-approval.js?v=20260811-mission-specific-approval-v1";
 import { trackEvent } from "../analytics.js";
-import { openApprovalInformationReview } from "../ui/approval-information-review.js";
+import { openApprovalInformationReview } from "../ui/approval-information-review.js?v=20260907-fr-approval-v1";
 import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work-mission-experience.js?v=20260818-work-missions-v3";
 import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260819-trust-index-v2";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
@@ -2887,7 +2887,7 @@ const buildSpecificCityJourneys = (result, destination, duration) => {
   }
   const key = `${destination || ""} ${result.rawInput || result.mission || ""}`.toLowerCase();
   const seed = `${result.missionSeed || result.id || result.rawInput || ""}-${result.schedule?.startDate || ""}`;
-  const local = (en, ko, es) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : en;
+  const local = (en, ko, es, fr = en) => activeLanguage === "ko" ? ko : activeLanguage === "es" ? es : activeLanguage === "fr" ? fr : en;
   const specific = /new york|nyc|뉴욕/.test(key)
     ? [
         ["NYC first-timer essentials", "뉴욕 핵심 일정", "Nueva York esencial", "Manhattan icons, Brooklyn, food, shopping, and night views without forcing every famous place into one day.", "맨해튼 대표 명소, 브루클린, 음식, 쇼핑, 야경을 날짜별로 나눠 무리 없이 보는 구성입니다.", ["Statue of Liberty", "Broadway", "Central Park", "Brooklyn"]],
@@ -7953,11 +7953,11 @@ makeRealityButton.addEventListener("click", () => {
         ]
     : journey
     ? [
-        { label: local("Mission", "미션", "Misión"), value: approvalMissionName() },
-        { label: local("Selected journey", "선택한 여행", "Viaje elegido"), value: journey.name },
-        { label: local("Journey style", "여행 스타일", "Estilo de viaje"), value: `${journey.duration} · ${journey.comfort} · ${journey.budget}` },
-        { label: local("Approved scope", "승인 범위", "Alcance aprobado"), value: local("Prepare search and comparison only", "검색과 비교 준비까지만 승인", "Solo preparar búsqueda y comparación") },
-        { label: local("Not approved", "승인되지 않은 것", "No aprobado"), value: local("No booking, payment, ticketing, submission, or provider contact", "예약, 결제, 발권, 제출, 제공업체 연락 없음", "Sin reserva, pago, emisión, envío ni contacto con proveedores") }
+        { label: local("Mission", "미션", "Misión", "Mission"), value: approvalMissionName() },
+        { label: local("Selected journey", "선택한 여행", "Viaje elegido", "Voyage sélectionné"), value: journey.name },
+        { label: local("Journey style", "여행 스타일", "Estilo de viaje", "Style du voyage"), value: `${journey.duration} · ${journey.comfort} · ${journey.budget}` },
+        { label: local("Approved scope", "승인 범위", "Alcance aprobado", "Portée approuvée"), value: local("Prepare search and comparison only", "검색과 비교 준비까지만 승인", "Solo preparar búsqueda y comparación", "Préparer uniquement la recherche et la comparaison") },
+        { label: local("Not approved", "승인되지 않은 것", "No aprobado", "Non approuvé"), value: local("No booking, payment, ticketing, submission, or provider contact", "예약, 결제, 발권, 제출, 제공업체 연락 없음", "Sin reserva, pago, emisión, envío ni contacto con proveedores", "Aucune réservation, aucun paiement, billet, envoi ni contact avec un fournisseur") }
       ]
     : experienceMission && experience
     ? [

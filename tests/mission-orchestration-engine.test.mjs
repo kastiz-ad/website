@@ -303,6 +303,8 @@ test("ONE Free French price and trust labels do not fall back to English", () =>
   for (const label of ["Vols", "Hôtels", "Repas", "Transport", "Estimation par voyageur", "Estimation par nuit", "Selon l’itinéraire", "Tarif en direct à confirmer"]) assert.match(source, new RegExp(label));
   for (const label of ["Utilisez Modifier", "Obligatoire", "Vérification et approbation du plan", "Transport officiel depuis l’aéroport", "Itinéraire adapté à la destination", "Train, métro, bus ou ferry local"]) assert.match(source, new RegExp(label));
   assert.match(readFileSync(new URL("../results.html", import.meta.url), "utf8"), /data-i18n-aria="revisionSend"/);
+  const approvalSource = readFileSync(new URL("../js/ui/approval-information-review.js", import.meta.url), "utf8");
+  for (const label of ["Prêt à continuer", "VÉRIFICATION DE L’APPROBATION", "Aucune action n’a encore été exécutée", "Vous gardez le contrôle"]) assert.match(approvalSource, new RegExp(label));
   assert.match(source, /alpha03Copy\(copy\[0\], copy\[1\], copy\[2\], copy\[3\]\)/);
 });
 
