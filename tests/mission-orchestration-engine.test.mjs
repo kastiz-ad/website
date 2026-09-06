@@ -262,12 +262,25 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /alpha03-budget-summary-card/);
   assert.match(source, /alpha03-section-heading alpha03-section-heading-with-action/);
   assert.match(source, /Live fare check required/);
+  assert.match(source, /Estimated route range/);
+  assert.match(source, /result\.budget\?\.flights \|\| result\.flights\?\.\[0\]\?\.estimatedPrice/);
   assert.match(source, /Estimated per night/);
+  assert.match(source, /alpha03-applied-change/);
   assert.match(source, /timelineImageCandidates = uniqueItems\(\[/);
   assert.match(css, /Founder retest v2: intrinsic two-column budget cards/);
   assert.match(css, /width:min\(100%,860px\)/);
   assert.match(css, /Founder QA v4: compact hero, horizontal summaries, unified headers, and bounded rails/);
   assert.match(css, /grid-template-columns:30px max-content minmax\(0,1fr\)/);
   assert.match(css, /alpha03-section-heading-with-action/);
+  assert.match(css, /Founder QA v5: readable summaries, price context, and visible persisted revisions/);
+  assert.match(css, /\.alpha03-preview-option strong\{font-size:15px!important/);
+});
+
+test("travel revisions remain visibly summarized after the experience rerenders", () => {
+  const source = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(source, /result\.alpha15LastAddition\?\.text/);
+  assert.match(source, /Added to your results/);
+  assert.match(source, /The affected result sections were updated and saved/);
+  assert.match(source, /sessionStorage\.setItem\(STORAGE_KEYS\.results, JSON\.stringify\(currentResult\)\)/);
 });
 

@@ -8,8 +8,8 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260902-founder-revision-presentation-v3";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
-import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260903-founder-qa-v7";
-import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260903-founder-qa-v7";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v8";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v8";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -18,7 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
-import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260903-founder-qa-v7";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v8";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3700,19 +3700,23 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
 
 const createAlpha03OptionPreview = (journey, result, transportationSummary, trustBySection = {}) => {
   const flightPriceCheck = alpha03Copy("Live fare check required", "실시간 운임 확인 필요", "Se requiere verificar la tarifa en vivo", "Vérification du tarif en direct requise");
+  const routeFlightRange = formatRange(result.budget?.flights || result.flights?.[0]?.estimatedPrice);
+  const routePriceContext = routeFlightRange
+    ? `${alpha03Copy("Estimated route range", "노선 예상 범위", "Rango estimado de la ruta", "Fourchette estimée de l’itinéraire")} ${routeFlightRange} · ${flightPriceCheck}`
+    : flightPriceCheck;
   const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
   const destinationCode = String(result.destination?.countryCode || result.countryProfile?.code || result.country || "").toUpperCase();
   const destinationAirlines = (airlineProfilesByCountry[destinationCode] || airlineProfilesByContinent[result.destination?.continent || result.countryProfile?.continent] || []).map(([en, ko]) => ({
     name: activeLanguage === "ko" ? ko : en,
-    meta: `${alpha03Copy("Route and schedule verification required", "노선·일정 확인 필요", "Verificar ruta y horario", "Itinéraire et horaires à vérifier")} · ${flightPriceCheck}`
+    meta: `${alpha03Copy("Route and schedule verification required", "노선·일정 확인 필요", "Verificar ruta y horario", "Itinéraire et horaires à vérifier")} · ${routePriceContext}`
   }));
   const flightSeen = new Set();
   const flights = [
     ...(result.flights || []).map((flight) => ({ name: getFlightName(flight), meta: formatRange(flight.estimatedPrice) || flightPriceCheck })),
     ...destinationAirlines,
-    { name: firstFlightName + " · Economy", meta: `${alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica", "tarif pratique")} · ${flightPriceCheck}` },
-    { name: firstFlightName + " · Business", meta: `${alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad", "option confort")} · ${flightPriceCheck}` },
-    { name: firstFlightName + " · First", meta: `${alpha03Copy("premium cabin check", "프리미엄 좌석 확인", "cabina premium", "cabine premium")} · ${flightPriceCheck}` }
+    { name: firstFlightName + " · Economy", meta: `${alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica", "tarif pratique")} · ${routePriceContext}` },
+    { name: firstFlightName + " · Business", meta: `${alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad", "option confort")} · ${routePriceContext}` },
+    { name: firstFlightName + " · First", meta: `${alpha03Copy("premium cabin check", "프리미엄 좌석 확인", "cabina premium", "cabine premium")} · ${routePriceContext}` }
   ].filter((option) => option.name && !flightSeen.has(option.name) && flightSeen.add(option.name)).slice(0, 12);
 
   const requestedHotelDestination = new URLSearchParams(location.search).get("destination")
@@ -3893,6 +3897,12 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     ...picturePlaces,
     ...restaurants.filter((item) => previewItemImage(item)).map((item) => ({ ...item, imageRole: "food" }))
   ]);
+  const latestVisibleChange = result.alpha15LastAddition?.text ? `
+    <section class="alpha03-applied-change" aria-label="${escapeSummaryText(alpha03Copy("Applied mission change", "적용된 미션 변경", "Cambio aplicado a la misión", "Modification appliquée à la mission"))}">
+      <span>✓ ${escapeSummaryText(alpha03Copy("Added to your results", "결과에 추가됨", "Añadido a tus resultados", "Ajouté à vos résultats"))}</span>
+      <strong>${escapeSummaryText(result.alpha15LastAddition.text)}</strong>
+      <p>${escapeSummaryText(result.alpha15LastAddition.summary || alpha03Copy("The affected result sections were updated and saved.", "영향받은 결과 섹션이 업데이트되고 저장되었습니다.", "Las secciones afectadas se actualizaron y guardaron.", "Les sections concernées ont été mises à jour et enregistrées."))}</p>
+    </section>` : "";
   const highlightPlaces = uniqueItems([
     ...picturePlaces,
     ...(profile.hero?.url ? [{ name: `${profile.city || destination} skyline`, image: profile.hero, category: "destination" }] : [])
@@ -4044,6 +4054,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         ${budgetItems.map(([icon, label, value]) => `<span class="alpha03-budget-summary-card"><i>${escapeSummaryText(icon)}</i><b>${escapeSummaryText(label)}</b><em>${escapeSummaryText(value)}</em></span>`).join("")}
       </div>
     </section>
+    ${latestVisibleChange}
 
     <div class="alpha03-visual-pair-grid">
     ${restaurants.length ? `
