@@ -1,6 +1,6 @@
 const clean = (value) => String(value ?? "").trim();
 
-const localized = (locale, en, ko, es) => locale === "ko" ? ko : locale === "es" ? es : en;
+const localized = (locale, en, ko, es, fr = en) => locale === "ko" ? ko : locale === "es" ? es : locale === "fr" ? fr : en;
 
 const absoluteSearchUrl = (base, query) => {
   const url = new URL(base);
@@ -16,7 +16,7 @@ export function buildOneFreeProviderHandoff({ destination, origin = "", dates = 
   if (!city) {
     return {
       state: "unavailable",
-      message: localized(locale, "External links are unavailable until a destination is confirmed.", "목적지를 확인하기 전에는 외부 링크를 만들 수 없습니다.", "Los enlaces externos no están disponibles hasta confirmar el destino."),
+      message: localized(locale, "External links are unavailable until a destination is confirmed.", "목적지를 확인하기 전에는 외부 링크를 만들 수 없습니다.", "Los enlaces externos no están disponibles hasta confirmar el destino.", "Les liens externes ne sont disponibles qu’après confirmation de la destination."),
       links: []
     };
   }
@@ -36,16 +36,16 @@ export function buildOneFreeProviderHandoff({ destination, origin = "", dates = 
 
   return {
     state: "available",
-    message: localized(locale, "Open a provider search and complete any booking yourself.", "외부 제공업체 검색을 열고 예약은 사용자가 직접 완료하세요.", "Abre la búsqueda del proveedor y completa cualquier reserva por tu cuenta."),
+    message: localized(locale, "Open a provider search and complete any booking yourself.", "외부 제공업체 검색을 열고 예약은 사용자가 직접 완료하세요.", "Abre la búsqueda del proveedor y completa cualquier reserva por tu cuenta.", "Ouvrez une recherche chez un fournisseur et effectuez vous-même toute réservation."),
     links: [
-      link("flight-selected", "flights", localized(locale, "Search this flight option", "이 항공편 후보 검색", "Buscar esta opción de vuelo"), flightName || localized(locale, "No exact flight selected", "정확한 항공편 미선택", "Sin vuelo exacto seleccionado"), "https://www.google.com/travel/flights", flightQuery, ["origin", "destination", "dates", "travelers", flightName && "selection"].filter(Boolean)),
-      link("flights-all", "flights", localized(locale, "See all flights", "모든 항공편 보기", "Ver todos los vuelos"), localized(locale, "Provider may ask you to confirm route and dates", "제공업체에서 노선과 날짜를 다시 확인할 수 있습니다", "El proveedor puede pedir confirmar ruta y fechas"), "https://www.google.com/travel/flights", broadFlightQuery, ["origin", "destination", "dates", "travelers"]),
-      link("hotel-selected", "hotels", localized(locale, "Search this hotel", "이 숙소 검색", "Buscar este hotel"), hotelName || localized(locale, "No exact hotel selected", "정확한 숙소 미선택", "Sin hotel exacto seleccionado"), "https://www.google.com/travel/hotels", hotelQuery, ["destination", "dates", "guests", hotelName && "selection"].filter(Boolean)),
-      link("hotels-all", "hotels", localized(locale, "See all hotels", "모든 숙소 보기", "Ver todos los hoteles"), localized(locale, `Hotels in ${city}`, `${city} 숙소`, `Hoteles en ${city}`), "https://www.google.com/travel/hotels", broadHotelQuery, ["destination", "dates", "guests"]),
-      restaurants[0] && link("restaurant-selected", "restaurants", localized(locale, "Search this restaurant option", "이 레스토랑 후보 검색", "Buscar esta opción de restaurante"), restaurants[0], "https://www.google.com/maps/search/", diningQuery, ["destination", "selection"]),
-      link("restaurants-all", "restaurants", localized(locale, "See all restaurants", "모든 레스토랑 보기", "Ver todos los restaurantes"), localized(locale, `Restaurants in ${city}`, `${city} 레스토랑`, `Restaurantes en ${city}`), "https://www.google.com/maps/search/", `restaurants ${city}`, ["destination", "category"]),
-      places[0] && link("place-selected", "places", localized(locale, "Search this place", "이 장소 검색", "Buscar este lugar"), places[0], "https://www.google.com/maps/search/", placesQuery, ["destination", "selection"]),
-      link("places-all", "places", localized(locale, "See more places", "더 많은 장소 보기", "Ver más lugares"), localized(locale, `Things to do in ${city}`, `${city} 추천 장소`, `Qué hacer en ${city}`), "https://www.google.com/maps/search/", `things to do ${city}`, ["destination", "category"])
+      link("flight-selected", "flights", localized(locale, "Search this flight option", "이 항공편 후보 검색", "Buscar esta opción de vuelo", "Rechercher cette option de vol"), flightName || localized(locale, "No exact flight selected", "정확한 항공편 미선택", "Sin vuelo exacto seleccionado", "Aucun vol précis sélectionné"), "https://www.google.com/travel/flights", flightQuery, ["origin", "destination", "dates", "travelers", flightName && "selection"].filter(Boolean)),
+      link("flights-all", "flights", localized(locale, "See all flights", "모든 항공편 보기", "Ver todos los vuelos", "Voir tous les vols"), localized(locale, "Provider may ask you to confirm route and dates", "제공업체에서 노선과 날짜를 다시 확인할 수 있습니다", "El proveedor puede pedir confirmar ruta y fechas", "Le fournisseur peut vous demander de confirmer l’itinéraire et les dates"), "https://www.google.com/travel/flights", broadFlightQuery, ["origin", "destination", "dates", "travelers"]),
+      link("hotel-selected", "hotels", localized(locale, "Search this hotel", "이 숙소 검색", "Buscar este hotel", "Rechercher cet hôtel"), hotelName || localized(locale, "No exact hotel selected", "정확한 숙소 미선택", "Sin hotel exacto seleccionado", "Aucun hôtel précis sélectionné"), "https://www.google.com/travel/hotels", hotelQuery, ["destination", "dates", "guests", hotelName && "selection"].filter(Boolean)),
+      link("hotels-all", "hotels", localized(locale, "See all hotels", "모든 숙소 보기", "Ver todos los hoteles", "Voir tous les hôtels"), localized(locale, `Hotels in ${city}`, `${city} 숙소`, `Hoteles en ${city}`, `Hôtels à ${city}`), "https://www.google.com/travel/hotels", broadHotelQuery, ["destination", "dates", "guests"]),
+      restaurants[0] && link("restaurant-selected", "restaurants", localized(locale, "Search this restaurant option", "이 레스토랑 후보 검색", "Buscar esta opción de restaurante", "Rechercher ce restaurant"), restaurants[0], "https://www.google.com/maps/search/", diningQuery, ["destination", "selection"]),
+      link("restaurants-all", "restaurants", localized(locale, "See all restaurants", "모든 레스토랑 보기", "Ver todos los restaurantes", "Voir tous les restaurants"), localized(locale, `Restaurants in ${city}`, `${city} 레스토랑`, `Restaurantes en ${city}`, `Restaurants à ${city}`), "https://www.google.com/maps/search/", `restaurants ${city}`, ["destination", "category"]),
+      places[0] && link("place-selected", "places", localized(locale, "Search this place", "이 장소 검색", "Buscar este lugar", "Rechercher ce lieu"), places[0], "https://www.google.com/maps/search/", placesQuery, ["destination", "selection"]),
+      link("places-all", "places", localized(locale, "See more places", "더 많은 장소 보기", "Ver más lugares", "Voir plus de lieux"), localized(locale, `Things to do in ${city}`, `${city} 추천 장소`, `Qué hacer en ${city}`, `À voir et à faire à ${city}`), "https://www.google.com/maps/search/", `things to do ${city}`, ["destination", "category"])
     ].filter(Boolean)
   };
 }

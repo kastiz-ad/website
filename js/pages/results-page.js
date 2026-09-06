@@ -3,7 +3,7 @@ import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMiss
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js?v=20260907-fr-approval-v1";
 import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work-mission-experience.js?v=20260818-work-missions-v3";
-import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260819-trust-index-v2";
+import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260907-fr-handoff-v1";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260907-founder-revision-v4";
@@ -7055,24 +7055,24 @@ const buildExecutionSummary = () => {
   const { rooms } = getTravelPartyDetails(currentResult);
   const dateRange = schedule.startDate && schedule.endDate
     ? `${schedule.startDate} → ${schedule.endDate}`
-    : local("Dates can be confirmed before final provider check", "최종 제공업체 확인 전 날짜를 다시 확인할 수 있습니다", "Las fechas se pueden confirmar antes de la verificación final");
+    : local("Dates can be confirmed before final provider check", "최종 제공업체 확인 전 날짜를 다시 확인할 수 있습니다", "Las fechas se pueden confirmar antes de la verificación final", "Les dates peuvent être confirmées avant la vérification finale du fournisseur");
   const timeLabels = {
-    any: local("Time to be confirmed", "시간 확인 필요", "Hora por confirmar"),
-    morning: local("Morning", "오전", "Mañana"),
-    afternoon: local("Afternoon", "오후", "Tarde"),
-    evening: local("Evening", "저녁", "Noche")
+    any: local("Time to be confirmed", "시간 확인 필요", "Hora por confirmar", "Horaire à confirmer"),
+    morning: local("Morning", "오전", "Mañana", "Matin"),
+    afternoon: local("Afternoon", "오후", "Tarde", "Après-midi"),
+    evening: local("Evening", "저녁", "Noche", "Soir")
   };
   const selectedTime = timeLabels[schedule.timePreference] || timeLabels.any;
   const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "American Airlines": "AA", "Avianca": "AV", "Aeromexico": "AM", "Copa Airlines": "CM", "Iberia": "IB", "LATAM Airlines": "LA", Lufthansa: "LH", "Air France": "AF", KLM: "KL", Emirates: "EK", "Qatar Airways": "QR", "Turkish Airlines": "TK" };
-  const airlineName = alpha03SelectionLabels.flights?.name || (flight ? getFlightName(flight) : local("Flight search criteria ready", "항공편 검색 조건 준비됨", "Criterios de vuelo listos"));
-  const flightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
-  const returnFlightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria");
+  const airlineName = alpha03SelectionLabels.flights?.name || (flight ? getFlightName(flight) : local("Flight search criteria ready", "항공편 검색 조건 준비됨", "Criterios de vuelo listos", "Critères de recherche de vol prêts"));
+  const flightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria", "Vérification du fournisseur requise");
+  const returnFlightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria", "Vérification du fournisseur requise");
   const isRoundTrip = currentResult.tripType !== "one_way";
   const destinationName = activeLanguage === "ko"
     ? currentResult.destination?.cityKo || currentResult.destination?.countryKo || currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE"
     : currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE";
-  const hotelName = alpha03SelectionLabels.hotels?.name || (hotel ? getHotelName(hotel) : local("Stay search criteria ready", "숙소 검색 조건 준비됨", "Criterios de alojamiento listos"));
-  const transferName = alpha03SelectionLabels.transport?.name || localize(transfer) || local("Local transfer criteria ready", "현지 이동 조건 준비됨", "Criterios de transporte listos");
+  const hotelName = alpha03SelectionLabels.hotels?.name || (hotel ? getHotelName(hotel) : local("Stay search criteria ready", "숙소 검색 조건 준비됨", "Criterios de alojamiento listos", "Critères de recherche d’hébergement prêts"));
+  const transferName = alpha03SelectionLabels.transport?.name || localize(transfer) || local("Local transfer criteria ready", "현지 이동 조건 준비됨", "Criterios de transporte listos", "Critères de transport local prêts");
   const totalRange = currentResult.budget?.estimatedTotal || {};
   const foodRange = currentResult.budget?.food || {};
   const transportRange = currentResult.budget?.transport || {};
@@ -7113,7 +7113,8 @@ const buildExecutionSummary = () => {
     completionSubtitle.textContent = local(
       "Your plan is ready. Use the manual provider links when you are ready to finish the booking yourself.",
       "계획이 준비되었습니다. 준비가 되면 외부 제공업체 링크를 열어 사용자가 직접 예약을 완료하세요.",
-      "Tu plan está listo. Usa los enlaces externos cuando quieras completar la reserva por tu cuenta."
+      "Tu plan está listo. Usa los enlaces externos cuando quieras completar la reserva por tu cuenta.",
+      "Votre plan est prêt. Utilisez les liens externes lorsque vous souhaitez effectuer vous-même la réservation."
     );
   }
 
@@ -7126,7 +7127,7 @@ const buildExecutionSummary = () => {
     </article>`;
   const diningDetail = suggestedRestaurantNames.length
     ? suggestedRestaurantNames.join(" · ")
-    : local("ONE will refresh restaurant options before any reservation step.", "예약 단계 전 레스토랑 후보를 다시 확인합니다.", "ONE actualizará opciones de restaurantes antes de reservar.");
+    : local("ONE will refresh restaurant options before any reservation step.", "예약 단계 전 레스토랑 후보를 다시 확인합니다.", "ONE actualizará opciones de restaurantes antes de reservar.", "ONE actualisera les options de restaurants avant toute étape de réservation.");
   const handoff = buildOneFreeProviderHandoff({
     destination: currentResult.destination,
     origin: currentResult.originAirport || currentResult.followUp?.answers?.originAirport || currentResult.followUp?.answers?.origin || "",
@@ -7174,46 +7175,46 @@ const buildExecutionSummary = () => {
   const handoffMarkup = `
     <article class="execution-summary-item is-wide one-free-handoff">
       <div class="one-free-handoff-head">
-        <div><span class="execution-summary-label">${escapeSummaryText(local("Manual provider handoff", "외부 제공업체로 직접 이동", "Acceso manual a proveedores"))}</span><span class="execution-summary-detail">${escapeSummaryText(handoff.message)}</span></div>
+        <div><span class="execution-summary-label">${escapeSummaryText(local("Manual provider handoff", "외부 제공업체로 직접 이동", "Acceso manual a proveedores", "Accès manuel aux fournisseurs"))}</span><span class="execution-summary-detail">${escapeSummaryText(handoff.message)}</span></div>
         ${createOneFreeTrustMarkup(resultTrust.final)}
       </div>
-      <div class="one-free-provider-links">${handoff.links.length ? handoff.links.map((link) => `<a href="${escapeSummaryText(link.url)}" target="_blank" rel="noopener noreferrer" data-provider-link="${escapeSummaryText(link.id)}" data-provider-kind="${escapeSummaryText(link.kind)}"><strong>${escapeSummaryText(link.label)}</strong><span>${escapeSummaryText(link.detail)}</span><small>${escapeSummaryText(local("Search context is sent; verify all fields on the provider site", "검색 조건을 전달하지만 제공업체 사이트에서 모든 항목을 확인하세요", "Se envía el contexto; verifica todos los campos en el proveedor"))}</small></a>`).join("") : `<p>${escapeSummaryText(handoff.message)}</p>`}</div>
+      <div class="one-free-provider-links">${handoff.links.length ? handoff.links.map((link) => `<a href="${escapeSummaryText(link.url)}" target="_blank" rel="noopener noreferrer" data-provider-link="${escapeSummaryText(link.id)}" data-provider-kind="${escapeSummaryText(link.kind)}"><strong>${escapeSummaryText(link.label)}</strong><span>${escapeSummaryText(link.detail)}</span><small>${escapeSummaryText(local("Search context is sent; verify all fields on the provider site", "검색 조건을 전달하지만 제공업체 사이트에서 모든 항목을 확인하세요", "Se envía el contexto; verifica todos los campos en el proveedor", "Le contexte de recherche est transmis ; vérifiez tous les champs sur le site du fournisseur"))}</small></a>`).join("") : `<p>${escapeSummaryText(handoff.message)}</p>`}</div>
       <div class="one-free-save-row">
-        <button type="button" data-save-one-free-trip data-reference="${escapeSummaryText(reference)}">${escapeSummaryText(local("Save trip", "여행 저장", "Guardar viaje"))}</button>
-        <a href="${escapeSummaryText(portableUrl)}" data-copy-one-free-trip>${escapeSummaryText(local("Open shareable trip", "공유용 여행 열기", "Abrir viaje para compartir"))}</a>
-        <span data-one-free-save-status role="status">${escapeSummaryText(local("Not saved yet", "아직 저장되지 않음", "Aún no guardado"))}</span>
+        <button type="button" data-save-one-free-trip data-reference="${escapeSummaryText(reference)}">${escapeSummaryText(local("Save trip", "여행 저장", "Guardar viaje", "Enregistrer le voyage"))}</button>
+        <a href="${escapeSummaryText(portableUrl)}" data-copy-one-free-trip>${escapeSummaryText(local("Open shareable trip", "공유용 여행 열기", "Abrir viaje para compartir", "Ouvrir le voyage partageable"))}</a>
+        <span data-one-free-save-status role="status">${escapeSummaryText(local("Not saved yet", "아직 저장되지 않음", "Aún no guardado", "Pas encore enregistré"))}</span>
       </div>
-      <p class="one-free-manual-notice">${escapeSummaryText(local("ONE Free does not book, reserve, purchase, charge, submit, or contact a provider. You review the external site and complete any action yourself.", "ONE Free는 예약, 구매, 결제, 제출 또는 제공업체 연락을 실행하지 않습니다. 외부 사이트에서 내용을 확인하고 사용자가 직접 완료합니다.", "ONE Free no reserva, compra, cobra, envía ni contacta proveedores. Revisa el sitio externo y completa cualquier acción por tu cuenta."))}</p>
+      <p class="one-free-manual-notice">${escapeSummaryText(local("ONE Free does not book, reserve, purchase, charge, submit, or contact a provider. You review the external site and complete any action yourself.", "ONE Free는 예약, 구매, 결제, 제출 또는 제공업체 연락을 실행하지 않습니다. 외부 사이트에서 내용을 확인하고 사용자가 직접 완료합니다.", "ONE Free no reserva, compra, cobra, envía ni contacta proveedores. Revisa el sitio externo y completa cualquier acción por tu cuenta.", "ONE Free ne réserve pas, n’achète pas, ne facture pas, n’envoie rien et ne contacte aucun fournisseur. Vérifiez le site externe et effectuez vous-même toute action."))}</p>
     </article>`;
   const nextChecks = [
-    local("Confirm live provider availability and final prices", "실시간 제공업체 가능 여부와 최종 가격 확인", "Confirmar disponibilidad y precios finales"),
-    local("Show exact terms before booking or payment", "예약·결제 전 정확한 조건 표시", "Mostrar condiciones exactas antes de reservar o pagar"),
-    local("Review the external provider before continuing", "외부 제공업체에서 조건을 다시 확인", "Revisar el proveedor externo antes de continuar")
+    local("Confirm live provider availability and final prices", "실시간 제공업체 가능 여부와 최종 가격 확인", "Confirmar disponibilidad y precios finales", "Confirmer la disponibilité et les prix définitifs auprès du fournisseur"),
+    local("Show exact terms before booking or payment", "예약·결제 전 정확한 조건 표시", "Mostrar condiciones exactas antes de reservar o pagar", "Afficher les conditions exactes avant toute réservation ou tout paiement"),
+    local("Review the external provider before continuing", "외부 제공업체에서 조건을 다시 확인", "Revisar el proveedor externo antes de continuar", "Vérifier le fournisseur externe avant de continuer")
   ];
 
   executionSummary.innerHTML = `
-    <section class="mission-pass-summary" aria-label="${escapeSummaryText(local("Prepared trip summary", "준비된 여행 요약", "Resumen del viaje preparado"))}">
+    <section class="mission-pass-summary" aria-label="${escapeSummaryText(local("Prepared trip summary", "준비된 여행 요약", "Resumen del viaje preparado", "Résumé du voyage préparé"))}">
       <div class="execution-summary-head mission-pass-head">
-        <span class="execution-summary-status">${escapeSummaryText(local("Plan ready · Nothing booked yet", "계획 준비 완료 · 아직 예약 아님", "Plan listo · Nada reservado"))}</span>
-        <h4>${escapeSummaryText(local("Your trip summary", "여행 요약", "Resumen de tu viaje"))}</h4>
-        <p>${escapeSummaryText(local("Useful details are organized here. Open an external provider when ready and complete any booking or payment yourself.", "필요한 정보를 정리했습니다. 준비되면 외부 제공업체를 열고 예약이나 결제는 사용자가 직접 완료하세요.", "Aquí está lo necesario. Cuando quieras, abre un proveedor externo y completa tú mismo cualquier reserva o pago."))}</p>
+        <span class="execution-summary-status">${escapeSummaryText(local("Plan ready · Nothing booked yet", "계획 준비 완료 · 아직 예약 아님", "Plan listo · Nada reservado", "Plan prêt · Aucune réservation effectuée"))}</span>
+        <h4>${escapeSummaryText(local("Your trip summary", "여행 요약", "Resumen de tu viaje", "Résumé de votre voyage"))}</h4>
+        <p>${escapeSummaryText(local("Useful details are organized here. Open an external provider when ready and complete any booking or payment yourself.", "필요한 정보를 정리했습니다. 준비되면 외부 제공업체를 열고 예약이나 결제는 사용자가 직접 완료하세요.", "Aquí está lo necesario. Cuando quieras, abre un proveedor externo y completa tú mismo cualquier reserva o pago.", "Les informations utiles sont regroupées ici. Lorsque vous êtes prêt, ouvrez un fournisseur externe et effectuez vous-même toute réservation ou tout paiement."))}</p>
       </div>
       <article class="execution-summary-item is-wide is-schedule mission-pass-route">
-        <span class="execution-summary-label">${escapeSummaryText(local("Trip window", "여행 일정", "Fechas del viaje"))}</span>
+        <span class="execution-summary-label">${escapeSummaryText(local("Trip window", "여행 일정", "Fechas del viaje", "Dates du voyage"))}</span>
         <span class="execution-summary-value schedule-summary-dates"><strong>${escapeSummaryText(schedule.startDate || "—")}</strong><i aria-hidden="true">→</i><strong>${escapeSummaryText(schedule.endDate || "—")}</strong></span>
-        <span class="execution-summary-detail">${escapeSummaryText(`${destinationName} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${rooms} ${local("room(s)", "객실", "habitación(es)")} · ${selectedTime}`)}</span>
+        <span class="execution-summary-detail">${escapeSummaryText(`${destinationName} · ${tripNights || 0} ${local("nights", "박", "noches", "nuits")} · ${rooms} ${local("room(s)", "객실", "habitación(es)", "chambre(s)")} · ${selectedTime}`)}</span>
       </article>
       <div class="execution-summary-grid mission-pass-grid">
-        ${detailCard(local("Outbound", "출발 항공", "Ida"), flight ? `${airlineName} · ${flightCode}` : airlineName, `${schedule.startDate || dateRange} · ${local("Per traveler estimate", "1인 예상", "Estimado por viajero")} ${formatRange(flight?.estimatedPrice) || local("Price check needed", "가격 확인 필요", "Precio por confirmar")} · ${local("Check provider live fare", "제공업체 실시간 운임 확인", "Verificar tarifa en vivo del proveedor")}`, "✈")}
-        ${isRoundTrip ? detailCard(local("Return", "귀국 항공", "Vuelta"), flight ? `${airlineName} · ${returnFlightCode}` : airlineName, `${schedule.endDate || dateRange} · ${local("Return time requires final provider check", "귀국 시간은 최종 제공업체 확인 필요", "La hora de regreso requiere verificación")}`, "↩") : ""}
-        ${detailCard(local("Stay", "숙소", "Alojamiento"), hotelName, `${dateRange} · ${tripNights || 0} ${local("nights", "박", "noches")} · ${rooms} ${local("room(s)", "객실", "habitación(es)")} · ${local("Estimated stay total", "숙박 총 예상", "Total estimado de alojamiento")} ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice) || local("Final price check needed", "최종 가격 확인 필요", "Precio final por confirmar")}`, "🏨")}
-        ${detailCard(local("Local movement", "현지 이동", "Transporte local"), transferName, local("Review the route and licensed provider before continuing externally.", "외부 사이트로 이동하기 전에 경로와 공식 제공업체를 확인하세요.", "Revisa la ruta y el proveedor autorizado antes de continuar externamente."), "🚕")}
-        ${detailCard(local("Dining", "식사", "Comida"), suggestedRestaurantNames.length ? local("Shortlist ready", "후보 준비됨", "Lista preparada") : local("Needs final picks", "최종 후보 필요", "Faltan opciones"), diningDetail, "🍽", "is-restaurant")}
-        ${detailCard(local("Budget", "예산", "Presupuesto"), formatRange(totalRange) || local("Flexible", "유동적", "Flexible"), local("Budget updates if you change flight, hotel, dining, or transport.", "항공·숙소·식사·이동을 바꾸면 예산도 함께 업데이트됩니다.", "El presupuesto cambia si modificas vuelos, hotel, comida o transporte."), "₩")}
+        ${detailCard(local("Outbound", "출발 항공", "Ida", "Aller"), flight ? `${airlineName} · ${flightCode}` : airlineName, `${schedule.startDate || dateRange} · ${local("Per traveler estimate", "1인 예상", "Estimado por viajero", "Estimation par voyageur")} ${formatRange(flight?.estimatedPrice) || local("Price check needed", "가격 확인 필요", "Precio por confirmar", "Prix à vérifier")} · ${local("Check provider live fare", "제공업체 실시간 운임 확인", "Verificar tarifa en vivo del proveedor", "Vérifier le tarif en direct du fournisseur")}`, "✈")}
+        ${isRoundTrip ? detailCard(local("Return", "귀국 항공", "Vuelta", "Retour"), flight ? `${airlineName} · ${returnFlightCode}` : airlineName, `${schedule.endDate || dateRange} · ${local("Return time requires final provider check", "귀국 시간은 최종 제공업체 확인 필요", "La hora de regreso requiere verificación", "L’heure de retour doit être confirmée auprès du fournisseur")}`, "↩") : ""}
+        ${detailCard(local("Stay", "숙소", "Alojamiento", "Séjour"), hotelName, `${dateRange} · ${tripNights || 0} ${local("nights", "박", "noches", "nuits")} · ${rooms} ${local("room(s)", "객실", "habitación(es)", "chambre(s)")} · ${local("Estimated stay total", "숙박 총 예상", "Total estimado de alojamiento", "Estimation totale du séjour")} ${formatRange(currentResult.budget?.hotel || hotel?.estimatedNightlyPrice) || local("Final price check needed", "최종 가격 확인 필요", "Precio final por confirmar", "Prix final à vérifier")}`, "🏨")}
+        ${detailCard(local("Local movement", "현지 이동", "Transporte local", "Déplacements locaux"), transferName, local("Review the route and licensed provider before continuing externally.", "외부 사이트로 이동하기 전에 경로와 공식 제공업체를 확인하세요.", "Revisa la ruta y el proveedor autorizado antes de continuar externamente.", "Vérifiez l’itinéraire et le fournisseur agréé avant de continuer sur un site externe."), "🚕")}
+        ${detailCard(local("Dining", "식사", "Comida", "Repas"), suggestedRestaurantNames.length ? local("Shortlist ready", "후보 준비됨", "Lista preparada", "Sélection prête") : local("Needs final picks", "최종 후보 필요", "Faltan opciones", "Sélection à finaliser"), diningDetail, "🍽", "is-restaurant")}
+        ${detailCard(local("Budget", "예산", "Presupuesto", "Budget"), formatRange(totalRange) || local("Flexible", "유동적", "Flexible", "Flexible"), local("Budget updates if you change flight, hotel, dining, or transport.", "항공·숙소·식사·이동을 바꾸면 예산도 함께 업데이트됩니다.", "El presupuesto cambia si modificas vuelos, hotel, comida o transporte.", "Le budget est mis à jour si vous modifiez le vol, l’hôtel, les repas ou le transport."), "₩")}
         ${handoffMarkup}
       </div>
       <article class="execution-summary-item is-wide mission-pass-next">
-        <span class="execution-summary-label">${escapeSummaryText(local("Before opening an external provider", "외부 제공업체로 이동하기 전", "Antes de abrir un proveedor externo"))}</span>
+        <span class="execution-summary-label">${escapeSummaryText(local("Before opening an external provider", "외부 제공업체로 이동하기 전", "Antes de abrir un proveedor externo", "Avant d’ouvrir un fournisseur externe"))}</span>
         <ul>${nextChecks.map((item) => `<li>${escapeSummaryText(item)}</li>`).join("")}</ul>
       </article>
       <a class="all-in-slogan" href="index.html" aria-label="${escapeSummaryText(local("Return home", "홈으로 돌아가기", "Volver al inicio"))}"><span>All in</span><span class="all-in-one" aria-label="ONE"><img src="assets/one-final-circle.png?v=20260713-20" alt=""><strong>NE</strong></span></a>
@@ -7227,7 +7228,7 @@ const runApprovalSequence = () => {
   makeRealityButton.disabled = true;
   bottomActions.hidden = true;
   approvalPanel.hidden = false;
-  if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Approval received. Preparing the next step safely.", "승인을 받았습니다. 다음 단계를 안전하게 준비합니다.", "Aprobación recibida. Preparando el siguiente paso con seguridad.");
+  if (missionLifecycleLive) missionLifecycleLive.textContent = completeMissionLocal("Approval received. Preparing the next step safely.", "승인을 받았습니다. 다음 단계를 안전하게 준비합니다.", "Aprobación recibida. Preparando el siguiente paso con seguridad.", "Approbation reçue. Préparation sécurisée de l’étape suivante.");
   document.querySelector('[data-lifecycle-step="approval"]')?.classList.replace("is-next", "is-current");
   approvalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -7244,7 +7245,9 @@ const runApprovalSequence = () => {
 
           if (finalTitle) {
             const missionType = resolveApprovalMissionType(currentResult || {});
-            const truthfulConfirmation = APPROVAL_DEMO_CONFIRMATIONS[missionType]?.[activeLanguage] || APPROVAL_DEMO_CONFIRMATIONS[missionType]?.en;
+            const truthfulConfirmation = missionType === "travel" && activeLanguage === "fr"
+              ? "Votre plan est prêt. Aucune réservation ni aucun paiement n’a été effectué."
+              : APPROVAL_DEMO_CONFIRMATIONS[missionType]?.[activeLanguage] || APPROVAL_DEMO_CONFIRMATIONS[missionType]?.en;
             finalTitle.textContent = truthfulConfirmation || localize(currentResult?.finalMessage) || t("finalMessage");
           }
 
@@ -7277,11 +7280,11 @@ executionSummary?.addEventListener("click", (event) => {
     const saved = savePrototypeMission(saveButton.dataset.reference);
     saveButton.disabled = saved;
     saveButton.textContent = saved
-      ? completeMissionLocal("Saved", "저장됨", "Guardado")
-      : completeMissionLocal("Try again", "다시 시도", "Reintentar");
+      ? completeMissionLocal("Saved", "저장됨", "Guardado", "Enregistré")
+      : completeMissionLocal("Try again", "다시 시도", "Reintentar", "Réessayer");
     if (status) status.textContent = saved
-      ? completeMissionLocal("Saved on this device", "이 기기에 저장됨", "Guardado en este dispositivo")
-      : completeMissionLocal("Could not save on this device", "이 기기에 저장할 수 없습니다", "No se pudo guardar en este dispositivo");
+      ? completeMissionLocal("Saved on this device", "이 기기에 저장됨", "Guardado en este dispositivo", "Enregistré sur cet appareil")
+      : completeMissionLocal("Could not save on this device", "이 기기에 저장할 수 없습니다", "No se pudo guardar en este dispositivo", "Impossible d’enregistrer sur cet appareil");
     return;
   }
   const providerLink = event.target.closest("[data-provider-link]");
@@ -8028,7 +8031,9 @@ if (/^ONE-DEMO-[A-Z0-9]{8}$/.test(requestedReference || "")) {
   const finalTitle = completionMessage.querySelector("h3");
   if (finalTitle) {
     const missionType = resolveApprovalMissionType(currentResult || {});
-    const truthfulConfirmation = APPROVAL_DEMO_CONFIRMATIONS[missionType]?.[activeLanguage] || APPROVAL_DEMO_CONFIRMATIONS[missionType]?.en;
+    const truthfulConfirmation = missionType === "travel" && activeLanguage === "fr"
+      ? "Votre plan est prêt. Aucune réservation ni aucun paiement n’a été effectué."
+      : APPROVAL_DEMO_CONFIRMATIONS[missionType]?.[activeLanguage] || APPROVAL_DEMO_CONFIRMATIONS[missionType]?.en;
     finalTitle.textContent = truthfulConfirmation || localize(currentResult?.finalMessage) || t("finalMessage");
   }
   completionMessage.hidden = false;

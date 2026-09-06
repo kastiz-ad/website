@@ -27,6 +27,14 @@ test("provider handoff separates selected options from broad searches and labels
   assert.deepEqual(handoff.links.find((link) => link.id === "flights-all").transferred, ["origin", "destination", "dates", "travelers"]);
 });
 
+test("French provider handoff localizes every manual action and warning", () => {
+  const handoff = buildOneFreeProviderHandoff({ destination: "Paris", origin: "ICN", dates: { startDate: "2026-10-10", endDate: "2026-10-14" }, travelers: 1, selections: { flight: "Air France", hotel: "Hôtel Fabric", restaurants: ["Le Jules Verne"], places: ["Louvre"] }, locale: "fr" });
+  assert.equal(handoff.message, "Ouvrez une recherche chez un fournisseur et effectuez vous-même toute réservation.");
+  assert.deepEqual(handoff.links.map((link) => link.label), ["Rechercher cette option de vol", "Voir tous les vols", "Rechercher cet hôtel", "Voir tous les hôtels", "Rechercher ce restaurant", "Voir tous les restaurants", "Rechercher ce lieu", "Voir plus de lieux"]);
+  const visible = JSON.stringify(handoff);
+  for (const english of ["Search this flight option", "See all flights", "Search this hotel", "See all hotels", "See all restaurants", "See more places"]) assert.doesNotMatch(visible, new RegExp(english));
+});
+
 test("provider handoff omits fake selected actions when no restaurant or place was selected", () => {
   const handoff = buildOneFreeProviderHandoff({ destination: "Tokyo", dates: { startDate: "2026-10-01", endDate: "2026-10-03" }, travelers: 2 });
   assert.equal(handoff.links.some((link) => link.id === "restaurant-selected"), false);
