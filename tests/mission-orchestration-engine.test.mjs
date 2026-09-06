@@ -268,6 +268,7 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(source, /syncAlpha03RestaurantBulkControl\(\)/);
   assert.match(source, /alpha03-hero-status/);
   assert.match(source, /alpha03-budget-summary-card/);
+  assert.match(source, /formatRange\(result\.budget\?\.flights \|\| result\.flights\?\.\[0\]\?\.estimatedPrice\)/);
   assert.match(source, /alpha03-section-heading alpha03-section-heading-with-action/);
   assert.match(source, /Live fare check required/);
   assert.match(source, /Estimated route range/);
@@ -281,7 +282,14 @@ test("Results page is wired to Mission Orchestration, undo and changed-section r
   assert.match(css, /grid-template-columns:30px max-content minmax\(0,1fr\)/);
   assert.match(css, /alpha03-section-heading-with-action/);
   assert.match(css, /Founder QA v5: readable summaries, price context, and visible persisted revisions/);
+  assert.match(css, /Founder QA v6: bounded multilingual summaries and accurate flight budget labeling/);
   assert.match(css, /\.alpha03-preview-option strong\{font-size:15px!important/);
+});
+
+test("user-added restaurant candidates are presented after curated choices", () => {
+  const source = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(source, /revision: \[\]/);
+  assert.match(source, /\.concat\(revisionRestaurants\)\.slice\(0, 12\)/);
 });
 
 test("travel revisions remain visibly summarized after the experience rerenders", () => {

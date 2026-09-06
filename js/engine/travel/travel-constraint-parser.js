@@ -177,9 +177,9 @@ const parseTravelers = (text) => {
   if (/\b(?:solo|alone|by myself|viajo solo|viajo sola)\b|혼자|나홀로/iu.test(normalized)) return 1;
   const match = normalized.match(/\b(?:a\s+)?family\s+of\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)\b/iu)
     || normalized.match(/\bfamilia\s+de\s+(\d{1,2}|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\b/iu)
-    || normalized.match(/(?:\bfor\s+|\bpara\s+)(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|adults?|personas?|viajeros?|adultos?)\b/iu)
+    || normalized.match(/(?:\bfor\s+|\bpara\s+)(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|passengers?|adults?|personas?|viajeros?|pasajeros?|adultos?)\b/iu)
     || normalized.match(/(?:\bfor\s+|\bpara\s+)(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)(?=\s*(?:$|[.,!?]))/iu)
-    || normalized.match(/\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|adults?|personas?|viajeros?|adultos?)\b/iu)
+    || normalized.match(/\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez)\s+(?:people|persons?|travelers?|travellers?|passengers?|adults?|personas?|viajeros?|pasajeros?|adultos?)\b/iu)
     || normalized.match(/(\d{1,2}|한|하나|두|둘|세|셋|네|넷|다섯|여섯|일곱)\s*명/u);
   return match ? clampInteger(numberValue(match[1]), 1, 12) : null;
 };

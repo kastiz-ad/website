@@ -6271,6 +6271,13 @@ body.travel-premium-result-view .alpha03-thumb img,body.travel-premium-result-vi
 .alpha03-applied-change strong{font-size:18px;line-height:1.3}
 .alpha03-applied-change p{margin:0;font-size:14px;line-height:1.45;color:var(--text-muted)}
 @media(max-width:620px){.alpha03-hero-stats>span>b{font-size:17px!important}.alpha03-hero-stats>span>em{font-size:12px!important}.alpha03-budget-grid>.alpha03-budget-summary-card>b{font-size:14px!important}.alpha03-budget-grid>.alpha03-budget-summary-card>em{font-size:13px!important}.alpha03-preview-option strong{font-size:14px!important}.alpha03-preview-option em{font-size:13px!important}.revision-command .card-title{font-size:23px!important}.revision-command .revision-lead{font-size:15px!important}}
+/* Founder QA v6: bounded multilingual summaries and accurate flight budget labeling. */
+.alpha03-hero-stats>span{overflow:hidden!important}
+.alpha03-hero-stats>span>b{white-space:normal!important;word-break:keep-all!important;overflow-wrap:normal!important;text-wrap:balance!important}
+.alpha03-budget-grid>.alpha03-budget-summary-card{grid-template-columns:32px minmax(58px,max-content) minmax(0,1fr)!important;overflow:hidden!important}
+.alpha03-budget-grid>.alpha03-budget-summary-card>em{white-space:normal!important;word-break:keep-all!important;overflow-wrap:normal!important;overflow:hidden!important;text-align:right!important}
+@media(max-width:760px){.alpha03-budget-grid{grid-template-columns:1fr!important}.alpha03-budget-grid>.alpha03-budget-summary-card{min-height:64px!important}}
+@media(max-width:420px){.alpha03-budget-grid>.alpha03-budget-summary-card{grid-template-columns:28px minmax(52px,max-content) minmax(0,1fr)!important;gap:8px!important}.alpha03-budget-grid>.alpha03-budget-summary-card>em{font-size:12px!important}.alpha03-hero-stats>span>b{text-wrap:pretty!important}}
 /* ONE work-mission experience */
 .mission-grid.is-work-mission-layout { display:block; max-width:1180px; margin-inline:auto; }
 .work-mission-experience { --text-primary:var(--text); --text-secondary:var(--text-muted); --border-color:var(--border); --card-bg:var(--surface); --surface-muted:var(--chip); --page-bg:var(--bg); display:grid; gap:22px; color:var(--text-primary); }

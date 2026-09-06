@@ -14,6 +14,14 @@ test("extracts English duration, travelers, and a runtime-relative next-month ra
   assert.equal(parsed.endDate, "2026-09-03");
 });
 
+test("mixed Korean-English LA prompt preserves passenger count and explicit date range", () => {
+  const parsed = parseTravelConstraints("LA 여행 oct 20-28th 2 passengers", { now });
+  assert.equal(parsed.travelerCount, 2);
+  assert.equal(parsed.startDate, "2026-10-20");
+  assert.equal(parsed.endDate, "2026-10-28");
+  assert.equal(parsed.durationDays, 9);
+});
+
 test("resolves generic explicit calendar months with duration-safe local dates", () => {
   const october = parseTravelConstraints("Plan a 3-day trip to Tokyo for 2 people in October.", { now });
   assert.deepEqual([october.dateIntent.kind, october.dateIntent.month, october.dateIntent.year, october.startDate, october.endDate], ["explicit_month", 10, 2026, "2026-10-01", "2026-10-03"]);

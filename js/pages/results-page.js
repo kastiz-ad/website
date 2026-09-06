@@ -8,8 +8,8 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260907-founder-revision-v4";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
-import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v9";
-import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v9";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v10";
+import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v10";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
 import { buildContextualExperienceIntelligence as buildExperienceIntelligence } from "../engine/context/context-experience-intelligence.js?v=20260722-context-v2";
@@ -18,7 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
-import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v9";
+import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v10";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3319,7 +3319,7 @@ const createAlpha03BudgetItems = (journey, result) => {
   const travelers = getTravelPartyDetails(result).travelerCount || 1;
   const hotelNightLabel = `${tripNights} ${alpha03Copy("nights", "박", "noches")}`;
   return [
-    ["✈️", alpha03Copy("Flights", "항공", "Vuelos"), journey.budget],
+    ["✈️", alpha03Copy("Flights", "항공", "Vuelos"), `${alpha03Copy("Estimated", "예상", "Estimado", "Estimé")} ${formatRange(result.budget?.flights || result.flights?.[0]?.estimatedPrice) || alpha03Copy("Live fare check required", "실시간 운임 확인 필요", "Tarifa en vivo por confirmar", "Tarif en direct à confirmer")}`],
     ["🏨", alpha03Copy("Hotels", "숙소", "Hotel"), hotelNightLabel],
     ["🍽️", alpha03Copy("Food", "식사", "Comida"), alpha03Copy(`${travelers} traveler${travelers > 1 ? "s" : ""}`, `${travelers}명 기준`, `${travelers} viajero${travelers > 1 ? "s" : ""}`)],
     ["🚕", alpha03Copy("Transport", "이동", "Transporte"), alpha03Copy("Route-based", "동선 기준", "Según ruta")]
@@ -3878,12 +3878,12 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   }).filter(Boolean);
   const revisionRestaurants = (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source === "user_revision" || item?.revisionCandidate);
   restaurants = prioritizeRevisionCandidates({
-    revision: revisionRestaurants,
+    revision: [],
     selected: resultRestaurantItems,
-    curated: restaurants,
+    curated: restaurants.filter((item) => !revisionRestaurants.some((revision) => String(revision?.name || "").toLowerCase() === String(item?.name || "").toLowerCase())),
     fallback: (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source !== "user_revision" && !item?.revisionCandidate),
-    limit: 12
-  });
+    limit: Math.max(0, 12 - revisionRestaurants.length)
+  }).concat(revisionRestaurants).slice(0, 12);
   let days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
   const placeImageSeeds = [profile.hero?.url, ...places.map((item) => previewItemImage(item)?.url)].filter(Boolean);
   const itineraryPlaceItems = days.flatMap((day) => day.slots || []).map((slot, index) => {
