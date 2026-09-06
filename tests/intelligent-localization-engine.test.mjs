@@ -119,6 +119,11 @@ test("French schedule modal does not inherit visible English copy", () => {
   assert.equal(fr.travelerCount, "Voyageurs");
   assert.equal(fr.roomCount, "Chambres");
   assert.equal(fr.departureAirport, "Aéroport de départ");
+  assert.equal(fr.outgoingDate, "Date de départ");
+  assert.equal(fr.returningDate, "Date de retour");
+  assert.equal(fr.time, "Horaire");
+  assert.equal(fr.travelDetails, "Détails du voyage");
+  assert.equal(fr.close, "Fermer");
   assert.match(fr.anyTime, /flexible/i);
   assert.equal(fr.confirmSchedule, "Confirmer et continuer");
 });

@@ -11,7 +11,7 @@ import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-preview-v79";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
 import { buildMissionBriefing, createWorkMissionFoundation } from "../engine/work-mission-foundation.js?v=20260818-work-missions-v2";
-import { applyTravelConstraints, parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
+import { applyTravelConstraints, parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v19";
 
 const root = document.documentElement;
 const body = document.body;
@@ -2094,12 +2094,13 @@ const updateScheduleSummary = () => {
   const finalEnd = scheduleEndDate.value;
   if (scheduleStartDateValue) scheduleStartDateValue.textContent = start;
   if (scheduleEndDateValue) scheduleEndDateValue.textContent = finalEnd;
-  const startLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${start}T00:00:00`));
-  const endLabel = new Intl.DateTimeFormat(activeLanguage === "ko" ? "ko-KR" : "en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${finalEnd}T00:00:00`));
+  const dateLocale = activeLanguage === "ko" ? "ko-KR" : activeLanguage === "es" ? "es-ES" : activeLanguage === "fr" ? "fr-FR" : "en-US";
+  const startLabel = new Intl.DateTimeFormat(dateLocale, { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${start}T00:00:00`));
+  const endLabel = new Intl.DateTimeFormat(dateLocale, { weekday: "short", year: "numeric", month: "short", day: "numeric" }).format(new Date(`${finalEnd}T00:00:00`));
   const timeLabel = scheduleTimePreference.options[scheduleTimePreference.selectedIndex]?.textContent || "";
-  const outgoingLabel = activeLanguage === "ko" ? "출국 날짜" : "Outgoing date";
-  const returningLabel = activeLanguage === "ko" ? "귀국 날짜" : "Returning date";
-  const timeHeading = activeLanguage === "ko" ? "시간" : "Time";
+  const outgoingLabel = getTranslation("outgoingDate");
+  const returningLabel = getTranslation("returningDate");
+  const timeHeading = getTranslation("time");
   const details = collectScheduleDetails();
   scheduleSummary.innerHTML = `
     <span class="schedule-summary-row"><strong>${outgoingLabel}</strong><span>${startLabel}</span></span>

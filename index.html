@@ -180,7 +180,7 @@
   </dialog>
 
   <dialog class="schedule-modal" id="scheduleModal" aria-labelledby="scheduleModalTitle">
-    <button class="schedule-modal-close" id="scheduleModalClose" type="button" aria-label="Close">&times;</button>
+    <button class="schedule-modal-close" id="scheduleModalClose" type="button" aria-label="Close" data-i18n-aria="close">&times;</button>
     <p class="login-modal-kicker">KASTIZ ONE</p>
     <h2 id="scheduleModalTitle" data-i18n="scheduleTitle">Choose dates and time</h2>
     <p class="schedule-help" data-i18n="scheduleHelp">Select the required date range. Time is optional.</p>
@@ -197,7 +197,7 @@
           <option value="evening" data-i18n="evening">Evening ? 17:00?22:00</option>
         </select>
       </label>
-      <div class="schedule-trip-details" aria-label="Travel details">
+      <div class="schedule-trip-details" aria-label="Travel details" data-i18n-aria="travelDetails">
         <label><span data-i18n="travelerCount">Travelers</span>
           <select id="scheduleTravelerCount">
             <option value="1">1</option>
@@ -229,6 +229,6 @@
   </dialog>
 
   <!-- compatibility lineage: script.js?v=20260813-preview-v79 -->
-  <script type="module" src="script.js?v=20260907-founder-qa-v18"></script>
+  <script type="module" src="script.js?v=20260907-founder-qa-v19"></script>
 </body>
 </html>
