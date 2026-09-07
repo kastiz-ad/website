@@ -18,6 +18,7 @@ import { missionMemoryEnabled, readMissionMemories } from "../profile/mission-me
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/world-intelligence/world-intelligence-foundation-v24.js?v=20260727-v24";
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
+import { buildGlobalItinerary } from "../engine/itinerary/global-itinerary-transport-engine.js?v=20260908-global-itinerary-transport-phase-d-v1";
 import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult } from "../engine/world/canonical-destination-identity.js";
@@ -2135,6 +2136,7 @@ function adaptTravelResultToDestination(result) {
     min: budgetParts.reduce((sum, range) => sum + Number(range.min || 0), 0),
     max: budgetParts.reduce((sum, range) => sum + Number(range.max || 0), 0)
   };
+  const globalItinerary = buildGlobalItinerary({ identity: destinationIdentity, entities: placeResolution.entities, restaurants: restaurantResolution.entities, durationDays: tripDays, transportEvidence: result.transportEvidence || {}, airport: result.arrivalAirport || null });
 
   return {
     ...result,
@@ -2146,6 +2148,7 @@ function adaptTravelResultToDestination(result) {
     restaurants,
     places: placeResolution.entities,
     entityResolution: { restaurants: restaurantResolution.status, places: placeResolution.status },
+    globalItinerary,
     durationDays: tripDays,
     travelerCount,
     travelers: travelerCount,
@@ -7176,13 +7179,13 @@ const buildExecutionSummary = () => {
       missingProviders: finalPlaceItems.length ? 0 : 1
     },
     transport: {
-      sourceStates: currentResult.airportTransfer ? [currentResult.airportTransfer.sourceState || "estimated"] : [],
-      signals: { providerConfirmed: currentResult.airportTransfer?.sourceState === "verified_live" },
-      missingProviders: currentResult.airportTransfer ? 0 : 1
+      sourceStates: currentResult.globalItinerary?.transport?.recommendations?.map((item) => item.evidenceLevel) || (currentResult.airportTransfer ? [currentResult.airportTransfer.sourceState || "estimated"] : []),
+      signals: { providerConfirmed: currentResult.globalItinerary?.transport?.recommendations?.some((item) => item.evidenceLevel === "destination_supported") || currentResult.airportTransfer?.sourceState === "verified_live", destinationBound: currentResult.globalItinerary?.transport?.destinationKey === currentResult.destinationIdentity?.key },
+      missingProviders: currentResult.globalItinerary?.transport?.recommendations?.some((item) => item.evidenceLevel === "destination_supported") ? 0 : 1
     },
     itinerary: {
       components: ["destination", "places", "restaurants", "transport"],
-      scheduleFeasible: Boolean(schedule.startDate && schedule.endDate)
+      scheduleFeasible: Boolean(schedule.startDate && schedule.endDate && currentResult.globalItinerary?.days?.length === Number(currentResult.durationDays || currentResult.schedule?.durationDays || 0))
     }
   }, { localizedContent: ["en", "ko", "es"].includes(activeLanguage) });
   const handoffMarkup = `
