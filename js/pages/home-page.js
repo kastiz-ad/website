@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
-import { classifyMission } from "../engine/mission-classification.js?v=20260720-korean-date-fix";
-import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260722-mobile-country-fallback-1";
+import { classifyMission, destinationAwareMissionType } from "../engine/mission-classification.js?v=20260908-global-travel-routing-v1";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260908-global-travel-routing-v1";
 import { dedupePreviewDestinations, previewTravelIntent, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-chevron-fix";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
@@ -2173,7 +2173,7 @@ missionForm.addEventListener("submit", async (event) => {
     return;
   }
   let type = classifyMission(mission);
-  if (previewTravelIntent(mission)) type = "travel";
+  type = destinationAwareMissionType(type, { resolvedDestination: previewTravelIntent(mission) });
   pendingDestinationMatches = [];
   const previewDestination = resolvePreviewDestination(mission)?.profile;
   pendingDetectedDestination = previewDestination ? {
@@ -2187,7 +2187,10 @@ missionForm.addEventListener("submit", async (event) => {
     longitude: previewDestination.longitude,
     identitySource: "verified_catalog",
     identityConfidence: 0.92
-  } : resolveWorldDestination(mission);
+  } : (() => {
+    const resolved = resolveWorldDestination(mission);
+    return resolved?.placeType === "country" ? null : resolved;
+  })();
   if (type === "travel" || type === "general_mission") {
     const knownAmbiguityMatches = missionAmbiguityMatches(mission);
     const destinationMatches = knownAmbiguityMatches.length
@@ -2214,7 +2217,7 @@ missionForm.addEventListener("submit", async (event) => {
         identityConfidence: Number(detected.confidence) || 0.96
       };
     }
-    if (destinationMatches.length) type = "travel";
+    type = destinationAwareMissionType(type, { resolvedDestination: destinationMatches.length > 0 });
   }
   const startOneFirstPass = () => {
     pendingFollowUp = {

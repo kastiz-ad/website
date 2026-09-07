@@ -106,7 +106,7 @@ assert.match(results, /liveHotelNames, \.\.\.\(profile\.hotels \|\| \[\]\), \.\.
 assert.match(results, /liveRestaurantPlaces/);
 assert.match(results, /providerSource: entity\.provenance\?\.provider \|\| entity\.provenance\?\.source \|\| "ONE destination search"/);
 assert.match(indexHtml, /script\.js\?v=20260813-preview-v79/);
-assert.match(indexHtml, /script\.js\?v=20260908-global-destination-phase-b-v1/);
+assert.match(indexHtml, /script\.js\?v=20260908-global-travel-routing-v1/);
 assert.match(indexHtml, /style\.css\?v=20260908-home-cleanup-v1/);
 assert.match(homeCss, /mission-followup-date-field \{ width: min\(100%, 230px\)/);
 assert.match(homeCss, /max-height: calc\(100dvh - 24px\); margin: auto; border-radius: 24px/);

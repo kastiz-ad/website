@@ -241,6 +241,17 @@ const findDestinationMatch = (value, language) => {
       return normalizeDestinationLookup(candidate) === normalized || normalizeDestinationLookup(cityLabel(candidate, language)) === normalized || candidate === aliasCity;
     });
     if (city) return { item, city };
+    const countryLabels = [item.country, item.countryKo, item.countryEs, ...(item.aliases || [])]
+      .map(normalizeDestinationLookup)
+      .filter(Boolean);
+    const qualifiedCity = item.cities.find((candidate) => {
+      const cityLabels = [candidate, cityLabel(candidate, language), CITY_NAMES_KO[candidate]]
+        .map(normalizeDestinationLookup)
+        .filter(Boolean);
+      return cityLabels.some((cityName) => countryLabels.some((countryName) =>
+        normalized === `${cityName} ${countryName}` || normalized === `${countryName} ${cityName}`));
+    });
+    if (qualifiedCity) return { item, city: qualifiedCity };
   }
   const country = TRAVEL_DESTINATION_CHOICES.find((item) => item.aliases.some((alias) => normalizeDestinationLookup(alias) === normalized));
   return country ? { item: country, city: country.cities[0] } : null;
@@ -312,6 +323,29 @@ const searchWorldwideDestinations = async (value, language) => {
   if (query.length < 2) return [];
   try {
     const normalizedQuery = normalizeDestinationLookup(query).replaceAll(" ", "");
+    const sharedAmbiguous = ambiguousWorldDestinationMatches(query);
+    if (sharedAmbiguous.length > 1) {
+      return decidePlaceResolution(query, sharedAmbiguous).candidates.slice(0, 12);
+    }
+    if (local) {
+      const item = TRAVEL_DESTINATION_CHOICES.find((candidate) => candidate.country === local.country);
+      return [{
+        country: local.country,
+        countryKo: item?.countryKo || "",
+        countryEs: item?.countryEs || "",
+        code: local.code,
+        city: local.city,
+        state: "",
+        continent: local.continent,
+        currency: item?.currency || "",
+        latitude: undefined,
+        longitude: undefined,
+        aliases: [...(item?.aliases || []), cityLabel(local.city, language), CITY_NAMES_KO[local.city], query].filter(Boolean),
+        placeType: "city",
+        importance: 0.75,
+        description: ["Destination", local.country].join(" · ")
+      }];
+    }
     const countryAliases = { 필리핀: "PH", 콩고: "CG", 콩고공화국: "CG", 민주콩고: "CD", 콩고민주공화국: "CD", 남아프리카: "ZA", 남아공: "ZA", 캄보디아: "KH", 말라시아: "MY", 말레이시아: "MY", 대만: "TW", 타이완: "TW", 파푸아뉴기니: "PG", 엘살바도르: "SV", 살바도르: "SV" };
     const countries = await loadWorldwideCountries();
     const exactCountry = countries.find((item) => item.code === countryAliases[normalizedQuery]
@@ -319,10 +353,6 @@ const searchWorldwideDestinations = async (value, language) => {
       || normalizeDestinationLookup(item.countryKo).replaceAll(" ", "") === normalizedQuery
       || normalizeDestinationLookup(item.countryEs).replaceAll(" ", "") === normalizedQuery);
     const candidates = [];
-    const sharedAmbiguous = ambiguousWorldDestinationMatches(query);
-    if (sharedAmbiguous.length > 1) {
-      return decidePlaceResolution(query, sharedAmbiguous).candidates.slice(0, 12);
-    }
     const sharedResolved = resolveWorldDestination(query);
     if (sharedResolved) candidates.push({
       country: sharedResolved.country,
@@ -465,9 +495,12 @@ export const detectWorldwideTravelDestination = async (value, language = "en") =
     const exact = matches.filter((item) => [item.city, item.country, item.countryKo, item.countryEs, ...(item.aliases || [])]
       .filter(Boolean)
       .some((candidate) => [normalized, ambiguityKey].includes(normalizeDestinationLookup(candidate).replaceAll(" ", "")))
-      || [item.city, item.country, item.countryKo, item.countryEs]
+      || [item.country, item.countryKo, item.countryEs, ...(item.aliases || [])]
         .filter(Boolean)
-        .some((_, index, values) => index > 0 && normalizeDestinationLookup(`${values[0]} ${values[index]}`).replaceAll(" ", "") === normalized));
+        .some((countryLabel) => [
+          normalizeDestinationLookup(`${item.city} ${countryLabel}`).replaceAll(" ", ""),
+          normalizeDestinationLookup(`${countryLabel} ${item.city}`).replaceAll(" ", "")
+        ].includes(normalized)));
     if (exact.length) {
       const countryQuery = exact.some((item) => [item.country, item.countryKo, item.countryEs]
         .filter(Boolean)
