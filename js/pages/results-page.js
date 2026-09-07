@@ -7064,15 +7064,20 @@ const buildExecutionSummary = () => {
   };
   const selectedTime = timeLabels[schedule.timePreference] || timeLabels.any;
   const codes = { "Korean Air": "KE", "Asiana Airlines": "OZ", "Japan Airlines": "JL", "Delta Air Lines": "DL", "United Airlines": "UA", "American Airlines": "AA", "Avianca": "AV", "Aeromexico": "AM", "Copa Airlines": "CM", "Iberia": "IB", "LATAM Airlines": "LA", Lufthansa: "LH", "Air France": "AF", KLM: "KL", Emirates: "EK", "Qatar Airways": "QR", "Turkish Airlines": "TK" };
-  const airlineName = alpha03SelectionLabels.flights?.name || (flight ? getFlightName(flight) : local("Flight search criteria ready", "항공편 검색 조건 준비됨", "Criterios de vuelo listos", "Critères de recherche de vol prêts"));
+  let airlineName = alpha03SelectionLabels.flights?.name || (flight ? getFlightName(flight) : local("Flight search criteria ready", "항공편 검색 조건 준비됨", "Criterios de vuelo listos", "Critères de recherche de vol prêts"));
   const flightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria", "Vérification du fournisseur requise");
   const returnFlightCode = flight ? `${codes[airlineName] || codes[flight?.provider] || "ONE"}-${(flightIndex + 1) * 101 + 1}` : local("Provider check needed", "제공업체 확인 필요", "Verificación de proveedor necesaria", "Vérification du fournisseur requise");
   const isRoundTrip = currentResult.tripType !== "one_way";
   const destinationName = activeLanguage === "ko"
     ? currentResult.destination?.cityKo || currentResult.destination?.countryKo || currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE"
     : currentResult.destination?.city || currentResult.destination?.country || currentResult.title || currentResult.mission || "ONE";
-  const hotelName = alpha03SelectionLabels.hotels?.name || (hotel ? getHotelName(hotel) : local("Stay search criteria ready", "숙소 검색 조건 준비됨", "Criterios de alojamiento listos", "Critères de recherche d’hébergement prêts"));
-  const transferName = alpha03SelectionLabels.transport?.name || localize(transfer) || local("Local transfer criteria ready", "현지 이동 조건 준비됨", "Criterios de transporte listos", "Critères de transport local prêts");
+  let hotelName = alpha03SelectionLabels.hotels?.name || (hotel ? getHotelName(hotel) : local("Stay search criteria ready", "숙소 검색 조건 준비됨", "Criterios de alojamiento listos", "Critères de recherche d’hébergement prêts"));
+  let transferName = alpha03SelectionLabels.transport?.name || localize(transfer) || local("Local transfer criteria ready", "현지 이동 조건 준비됨", "Criterios de transporte listos", "Critères de transport local prêts");
+  if (activeLanguage === "fr") {
+    if (/^Airline route verification required$/i.test(airlineName)) airlineName = "Vérification de l’itinéraire aérien requise";
+    if (/(?:verified-provider search|accommodation live search)$/i.test(hotelName)) hotelName = `Recherche d’hébergement à ${destinationName}`;
+    if (/^Official airport rail, bus, taxi, or licensed transfer serving /i.test(transferName)) transferName = `Train, bus, taxi ou transfert agréé depuis l’aéroport vers ${destinationName}`;
+  }
   const totalRange = currentResult.budget?.estimatedTotal || {};
   const foodRange = currentResult.budget?.food || {};
   const transportRange = currentResult.budget?.transport || {};

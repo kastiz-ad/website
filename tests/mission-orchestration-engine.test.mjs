@@ -308,6 +308,8 @@ test("ONE Free French price and trust labels do not fall back to English", () =>
   assert.match(source, /makeRealityButton\.addEventListener[\s\S]*?const local = \(en, ko, es, fr = en\)/);
   assert.match(source, /replace\(\/\^Comfortable\$\/i, "Confort"\)/);
   assert.match(source, /replace\(\/\^Estimated\\b\/i, "Estimation"\)/);
+  assert.match(source, /Vérification de l’itinéraire aérien requise/);
+  assert.match(source, /Recherche d’hébergement à/);
   assert.match(source, /alpha03Copy\(copy\[0\], copy\[1\], copy\[2\], copy\[3\]\)/);
 });
 
