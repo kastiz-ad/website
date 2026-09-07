@@ -3,6 +3,8 @@ import { trackEvent } from "../analytics.js";
 import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { normalizeResultLocale, resolveResultLocale } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
+import { createCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
+import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 
@@ -357,7 +359,11 @@ const fetchLocalPlaces = async (mission) => {
       });
     }
     const scopedItems = enforceGeographicScope(items, geographicScope);
-    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: scopedItems.length > 0, requiresKey: false, requiresPartnerAccess: false, items: scopedItems, geographicScope, attribution: "© OpenStreetMap contributors", error: null };
+    const destinationIdentity = mission.destinationIdentity || createCanonicalDestinationIdentity(mission.destination || {}, { source: "provider_geocoder", provider: "OpenStreetMap" });
+    const restaurantResolution = resolveDestinationEntities({ identity: destinationIdentity, candidates: scopedItems.filter((item) => item.kind === "restaurant"), kind: "restaurant", locale: mission.language, includeFallback: false });
+    const placeResolution = resolveDestinationEntities({ identity: destinationIdentity, candidates: scopedItems.filter((item) => item.kind === "place"), kind: "place", locale: mission.language, includeFallback: false });
+    const normalizedItems = [...restaurantResolution.entities, ...placeResolution.entities, ...scopedItems.filter((item) => item.kind === "hotel")];
+    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: normalizedItems.length > 0, requiresKey: false, requiresPartnerAccess: false, items: normalizedItems, geographicScope, destinationIdentity, entityResolution: { restaurants: restaurantResolution.status, places: placeResolution.status }, attribution: "© OpenStreetMap contributors", error: null };
   } catch (error) {
     return fallbackProvider("OpenStreetMap Overpass", "local_places", "Public hotel, restaurant and transport names could not be loaded; prototype fallbacks are shown.", error.message);
   }

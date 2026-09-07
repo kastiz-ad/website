@@ -6,7 +6,7 @@ import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work
 import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260907-fr-handoff-v1";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
-import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260907-founder-revision-v4";
+import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-destination-phase-b-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v18";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
@@ -20,6 +20,8 @@ import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/wo
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
 import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
+import { destinationIdentityFromMissionResult } from "../engine/world/canonical-destination-identity.js";
+import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -1937,6 +1939,7 @@ function adaptTravelResultToDestination(result) {
   const worldHotelNames = worldHotels.map((item) => item.name).filter(Boolean);
   const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, TRAVEL_OPTION_TARGETS.hotels);
   const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, TRAVEL_OPTION_TARGETS.restaurants);
+  const destinationIdentity = destinationIdentityFromMissionResult(result);
   const regionalFareRanges = {
     KR: [[90000, 220000], [100000, 250000], [70000, 190000], [120000, 280000]],
     CN: [[280000, 620000], [300000, 680000], [220000, 520000], [340000, 740000]],
@@ -2070,34 +2073,34 @@ function adaptTravelResultToDestination(result) {
     curated: generatedHotels,
     limit: TRAVEL_OPTION_TARGETS.hotels
   });
-  const liveRestaurantCandidates = liveRestaurantPlaces.map((place, index) => [
-    place.label,
-    null,
-    [30000, 22000, 45000, 18000, 35000, 25000, 28000, 42000, 52000, 16000, 38000, 47000][index] || 25000,
-    [75000, 60000, 110000, 50000, 85000, 65000, 70000, 95000, 130000, 42000, 90000, 120000][index] || 65000,
-    place.cuisine,
-    place.source
-  ]);
+  const liveRestaurantCandidates = liveRestaurantPlaces.map((place, index) => ({ ...place, name: place.label, estimatedMin: [30000, 22000, 45000, 18000, 35000, 25000, 28000, 42000, 52000, 16000, 38000, 47000][index] || 25000, estimatedMax: [75000, 60000, 110000, 50000, 85000, 65000, 70000, 95000, 130000, 42000, 90000, 120000][index] || 65000 }));
   const curatedRestaurantCandidates = restaurantProfileForCity(city, result).filter((item) => !/destination cuisine fallback/i.test(String(item?.[5] || "")));
-  const restaurantCandidates = uniqueRestaurantCandidates(liveRestaurantCandidates.length ? liveRestaurantCandidates : curatedRestaurantCandidates).slice(0, TRAVEL_OPTION_TARGETS.restaurants);
-  const restaurants = restaurantCandidates.map(([name, rating, min, max, cuisine, source], index) => ({
+  const curatedEntities = curatedRestaurantCandidates.map(([name, rating, min, max, cuisine]) => ({ name, rating, estimatedMin: min, estimatedMax: max, cuisine, source: "verified_curated_override", city: destinationIdentity.city, countryCode: destinationIdentity.countryCode, latitude: destinationIdentity.latitude, longitude: destinationIdentity.longitude, geographicVerified: true }));
+  const restaurantResolution = resolveDestinationEntities({ identity: destinationIdentity, candidates: liveRestaurantCandidates.length ? liveRestaurantCandidates : curatedEntities, kind: "restaurant", category: "local restaurants", locale: activeLanguage });
+  const restaurants = restaurantResolution.entities.slice(0, TRAVEL_OPTION_TARGETS.restaurants).map((entity, index) => {
+    const name = entity.name;
+    const min = Number(entity.estimatedMin) || 25000;
+    const max = Number(entity.estimatedMax) || 65000;
+    return ({
     ...(result.restaurants?.[index] || {}),
-    id: `restaurant-${profileCode}-${index + 1}`,
+    ...entity,
+    id: entity.id || `restaurant-${profileCode}-${index + 1}`,
     type: name,
     typeKo: localizedVenueNames[name] || name,
     venueName: name,
     venueNameKo: localizedVenueNames[name] || name,
-    rating,
-    cuisine: cuisine || "",
-    providerSource: source || "ONE World Intelligence estimate",
-    sourceState: worldRestaurants[index]?.sourceState || (source ? "cached_public" : "estimated"),
+    rating: entity.rating ?? null,
+    cuisine: entity.cuisine || "",
+    providerSource: entity.provenance?.provider || entity.provenance?.source || "ONE destination search",
+    sourceState: entity.sourceState,
     sourceMetadata: worldRestaurants[index]?.sourceMetadata || null,
-    livePlaceName: Boolean(liveRestaurantPlaces.length),
+    livePlaceName: entity.namedEntity && Boolean(liveRestaurantPlaces.length),
     estimatedPrice: { currency: "KRW", min, max },
     recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,
     recommendationKo: `${cityKo} 일정에 맞춘 프로토타입 식당 옵션입니다. 가격과 예약 가능 여부는 제공업체 최종 확인이 필요합니다.`,
     editable: true
-  }));
+  }); });
+  const placeResolution = resolveDestinationEntities({ identity: destinationIdentity, candidates: (livePlaces?.items || []).filter((item) => item.kind === "place"), kind: "place", category: "local attractions", locale: activeLanguage });
   const perTravelerFlightBudget = flights[0]?.estimatedPrice || result.budget?.flights;
   const flightsBudget = perTravelerFlightBudget ? {
     currency: perTravelerFlightBudget.currency || "KRW",
@@ -2137,9 +2140,12 @@ function adaptTravelResultToDestination(result) {
     ...result,
     worldIntelligence,
     v24WorldIntelligence: true,
+    destinationIdentity,
     flights,
     hotels,
     restaurants,
+    places: placeResolution.entities,
+    entityResolution: { restaurants: restaurantResolution.status, places: placeResolution.status },
     durationDays: tripDays,
     travelerCount,
     travelers: travelerCount,

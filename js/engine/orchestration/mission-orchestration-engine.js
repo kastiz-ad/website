@@ -1,6 +1,8 @@
 import { MissionStore, MISSION_ORCHESTRATION_VERSION, missionStateChangedFields } from "./mission-store.js";
 import { parseMissionEdit } from "./mission-parser.js?v=20260907-founder-revision-v4";
 import { dependenciesToSections, providerRefreshPlan, resolveDependencies } from "./dependency-engine.js";
+import { destinationIdentityFromMissionResult } from "../world/canonical-destination-identity.js";
+import { createEntitySearchFallback } from "../world/global-entity-resolver.js";
 
 const clone = (value) => JSON.parse(JSON.stringify(value ?? null));
 
@@ -37,59 +39,20 @@ const destinationLabel = (missionState = {}) => {
   return destination.city || destination.country || "destination";
 };
 
-const makeRestaurantInjection = (kind, destination) => {
-  if (kind === "matcha") {
-    return {
-      icon: "🍵",
-      name: /japan|tokyo|kyoto|osaka|일본|도쿄|교토|오사카/i.test(destination) ? "Saryo Tsujiri matcha ice cream stop" : `${destination} matcha dessert café`,
-      tags: ["matcha", "dessert", "afternoon"],
-      source: "provider_search_ready",
-      providerEvidence: { sourceState: "missing_api_key", provider: "google-places", query: `matcha dessert near ${destination}` }
-    };
-  }
-  if (kind === "sushi") {
-    return {
-      icon: "🍣",
-      name: /japan|tokyo|kyoto|osaka|일본|도쿄|교토|오사카/i.test(destination) ? "Tsukiji / Toyosu sushi counter" : `${destination} sushi counter`,
-      tags: ["sushi", "food", "reservation check"],
-      source: "provider_search_ready",
-      providerEvidence: { sourceState: "missing_api_key", provider: "google-places", query: `sushi near ${destination}` }
-    };
-  }
-  if (kind === "vegetarian") {
-    return {
-      icon: "🥗",
-      name: `${destination} vegetarian restaurant shortlist`,
-      tags: ["vegetarian", "diet fit"],
-      source: "provider_search_ready",
-      providerEvidence: { sourceState: "missing_api_key", provider: "google-places", query: `vegetarian restaurants near ${destination}` }
-    };
-  }
-  return null;
+const makeRestaurantInjection = (kind, destinationIdentity, language = "en") => {
+  const categories = { matcha: "matcha dessert café", sushi: "sushi restaurant", vegetarian: "vegetarian restaurant", additional: "another restaurant" };
+  const fallback = createEntitySearchFallback({ identity: destinationIdentity, kind: "restaurant", category: categories[kind] || "restaurant", locale: language });
+  return fallback ? { ...fallback, icon: kind === "matcha" ? "🍵" : kind === "sushi" ? "🍣" : kind === "vegetarian" ? "🥗" : "🍽️", tags: [kind, "live search required"], source: "generic_fallback", providerEvidence: { sourceState: "setup_required", provider: "provider-search", query: fallback.providerHandoff.query } } : null;
 };
 
-const makePlaceInjection = (kind, destination) => {
-  if (kind === "shopping") {
-    return {
-      icon: "🛍️",
-      name: /japan|tokyo|일본|도쿄/i.test(destination) ? "Ginza / Harajuku shopping block" : `${destination} shopping district`,
-      tags: ["shopping", "user requested"],
-      source: "provider_search_ready"
-    };
-  }
-  if (kind === "disney") {
-    return {
-      icon: "🎢",
-      name: /japan|tokyo|일본|도쿄/i.test(destination) ? "Tokyo Disney Resort" : `${destination} Disney stop`,
-      tags: ["theme park", "moved by user"],
-      source: "provider_search_ready"
-    };
-  }
-  return null;
+const makePlaceInjection = (kind, destinationIdentity, language = "en") => {
+  const fallback = createEntitySearchFallback({ identity: destinationIdentity, kind: "place", category: kind === "shopping" ? "shopping district" : "theme park", locale: language });
+  return fallback ? { ...fallback, icon: kind === "shopping" ? "🛍️" : "🎢", tags: [kind, "user requested", "live search required"], source: "generic_fallback" } : null;
 };
 
 const updateLegacyResult = (result, state, intent, dependencies, sections, beforeResult) => {
   const destination = destinationLabel(state);
+  const destinationIdentity = destinationIdentityFromMissionResult(result);
   const next = {
     ...result,
     missionState: state,
@@ -133,12 +96,12 @@ const updateLegacyResult = (result, state, intent, dependencies, sections, befor
 
   if (intent.type === "ADD_FOOD_STOP") {
     const kind = /matcha|말차|green tea/i.test(intent.command) ? "matcha" : "sushi";
-    const restaurant = makeRestaurantInjection(kind, destination);
+    const restaurant = makeRestaurantInjection(kind, destinationIdentity, result.language);
     if (restaurant) next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, restaurant);
   }
   if (intent.type === "ADD_RESTAURANT_OPTIONS") {
-    const name = numberedRevisionName(next.orchestrationInjections.restaurants, `Additional ${destination} restaurant option`);
-    next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, { name, tags: ["user requested", "live verification needed"], source: "user_revision", revisionCandidate: true });
+    const restaurant = makeRestaurantInjection("additional", destinationIdentity, result.language);
+    if (restaurant) next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, restaurant);
   }
   if (intent.type === "ADD_SHIBUYA_PLACE") {
     next.orchestrationInjections.places = prependUniqueByName(next.orchestrationInjections.places, { name: "Shibuya nearby attraction candidate · live search needed", tags: ["Shibuya", "user requested"], source: "provider_search_ready" });
@@ -151,7 +114,7 @@ const updateLegacyResult = (result, state, intent, dependencies, sections, befor
     next.flights = prependUniqueByName(next.flights || [], { name: `Lower-fare ${destination} flight search · live price check needed`, sourceState: "estimated" });
   }
   if (intent.type === "ADD_FOOD_CONSTRAINT" && /vegetarian|vegan|채식|비건/i.test(intent.command)) {
-    const restaurant = makeRestaurantInjection("vegetarian", destination);
+    const restaurant = makeRestaurantInjection("vegetarian", destinationIdentity, result.language);
     if (restaurant) next.orchestrationInjections.restaurants = prependUniqueByName(next.orchestrationInjections.restaurants, restaurant);
   }
   if (intent.type === "ADD_FOOD_CONSTRAINT" && /seafood|해산물|생선|mariscos/i.test(intent.command)) {
@@ -160,11 +123,11 @@ const updateLegacyResult = (result, state, intent, dependencies, sections, befor
     ));
   }
   if (intent.type === "ADD_INTEREST" && /shopping|쇼핑|compras/i.test(intent.command)) {
-    const place = makePlaceInjection("shopping", destination);
+    const place = makePlaceInjection("shopping", destinationIdentity, result.language);
     if (place) next.orchestrationInjections.places = prependUniqueByName(next.orchestrationInjections.places, place);
   }
   if (intent.type === "MOVE_PLACE") {
-    const place = makePlaceInjection("disney", destination);
+    const place = makePlaceInjection("disney", destinationIdentity, result.language);
     if (place) next.orchestrationInjections.places = prependUniqueByName(next.orchestrationInjections.places, place);
     next.orchestrationTimelinePins = { ...(next.orchestrationTimelinePins || {}), Disney: intent.value?.day || 3 };
   }
@@ -233,17 +196,18 @@ export const applyMissionEdit = (currentResult = {}, command = "", options = {})
   const beforeResult = clone(currentResult);
   const store = new MissionStore(currentResult);
   const intent = parseMissionEdit(command);
+  const destinationIdentity = destinationIdentityFromMissionResult(currentResult);
   const updated = store.update((state) => {
     if (intent.type === "ADD_FOOD_STOP") {
       state.foodPreferences = uniquePush(state.foodPreferences, intent.value);
-      const restaurant = makeRestaurantInjection(/matcha|말차|green tea/i.test(intent.command) ? "matcha" : "sushi", destinationLabel(state));
+      const restaurant = makeRestaurantInjection(/matcha|말차|green tea/i.test(intent.command) ? "matcha" : "sushi", destinationIdentity, options.language);
       if (restaurant) state.restaurants = prependUniqueByName(state.restaurants, restaurant);
     }
     if (intent.type === "ADD_FOOD_CONSTRAINT") {
       state.foodPreferences = uniquePush(state.foodPreferences, intent.entity);
       state.hardConstraints = uniquePush(state.hardConstraints, intent.entity);
       if (/vegetarian|vegan|채식|비건/i.test(intent.command)) {
-        const restaurant = makeRestaurantInjection("vegetarian", destinationLabel(state));
+        const restaurant = makeRestaurantInjection("vegetarian", destinationIdentity, options.language);
         if (restaurant) state.restaurants = prependUniqueByName(state.restaurants, restaurant);
       }
       if (/seafood|해산물|생선|mariscos/i.test(intent.command)) {
@@ -271,11 +235,11 @@ export const applyMissionEdit = (currentResult = {}, command = "", options = {})
     }
     if (intent.type === "ADD_INTEREST") {
       state.interests = uniquePush(state.interests, intent.value);
-      const place = makePlaceInjection(intent.value, destinationLabel(state));
+      const place = makePlaceInjection(intent.value, destinationIdentity, options.language);
       if (place) state.places = prependUniqueByName(state.places, place);
     }
     if (intent.type === "MOVE_PLACE") {
-      const place = makePlaceInjection("disney", destinationLabel(state));
+      const place = makePlaceInjection("disney", destinationIdentity, options.language);
       if (place) state.places = prependUniqueByName(state.places, place);
       state.dailyPlan = [...(state.dailyPlan || []), { day: intent.value.day, title: `Move ${intent.value.place} to Day ${intent.value.day}`, type: "schedule-change" }];
     }
@@ -304,7 +268,7 @@ export const applyMissionEdit = (currentResult = {}, command = "", options = {})
     summary: mission.missionOrchestration.summary,
     hasMeaningfulRevision,
     presentationCandidateName: intent.type === "ADD_RESTAURANT_OPTIONS"
-      ? mission.orchestrationInjections?.restaurants?.find((item) => item?.source === "user_revision")?.name || ""
+      ? mission.orchestrationInjections?.restaurants?.find((item) => ["generic_fallback", "provider", "verified_curated_override"].includes(item?.source || item?.provenance?.source))?.name || ""
       : intent.type === "ADD_HOTEL_OPTION"
         ? mission.hotels?.find((item) => item?.source === "user_revision")?.name || ""
         : "",

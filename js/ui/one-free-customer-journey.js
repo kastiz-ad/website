@@ -73,6 +73,7 @@ const normalizeTrustState = (state) => {
   if (value === "verified_live" || value === "live") return value;
   if (/verified/.test(value)) return "verified";
   if (/curated/.test(value)) return "curated";
+  if (value === "provider" || /provider_entity|geographic_lookup/.test(value)) return "cached_public";
   if (/cached_public|openstreetmap|public place|public_source/.test(value)) return "cached_public";
   if (value === "public") return "public";
   if (/estimated|requires_live_search/.test(value)) return "estimated";

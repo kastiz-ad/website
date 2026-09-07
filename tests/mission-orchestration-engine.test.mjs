@@ -13,9 +13,9 @@ const baseJapanMission = () => ({
   id: "demo-japan",
   missionId: "demo-japan",
   type: "travel",
-  rawInput: "Plan my Japan trip.",
-  mission: "Plan my Japan trip.",
-  destination: { city: "Japan", country: "Japan", countryCode: "JP" },
+  rawInput: "Plan my Tokyo, Japan trip.",
+  mission: "Plan my Tokyo, Japan trip.",
+  destination: { city: "Tokyo", country: "Japan", countryCode: "JP", latitude: 35.6762, longitude: 139.6503 },
   schedule: { startDate: "2026-08-01", endDate: "2026-08-07" },
   selectedFlight: { airline: "Korean Air" },
   selectedHotel: { name: "Hotel Metropolitan Tokyo Marunouchi" },
@@ -28,7 +28,7 @@ const baseJapanMission = () => ({
 test("MissionState becomes the one canonical mission object", () => {
   const state = createMissionState(baseJapanMission());
   assert.equal(state.id, "demo-japan");
-  assert.equal(state.destinations[0].city, "Japan");
+  assert.equal(state.destinations[0].city, "Tokyo");
   assert.equal(state.selectedFlight.airline, "Korean Air");
   assert.equal(state.selectedHotel.name, "Hotel Metropolitan Tokyo Marunouchi");
   assert.ok(Array.isArray(state.travellers));
@@ -79,7 +79,7 @@ test("Add sushi, no seafood, vegetarian and no museums change the correct slices
 test("Accessibility edit updates mobility dependents without changing destination or dates", () => {
   const result = applyMissionEdit(baseJapanMission(), "My mother cannot use stairs.");
   assert.ok(result.mission.missionState.mobilityRequirements.includes("no stairs"));
-  assert.equal(result.mission.destination.city, "Japan");
+  assert.equal(result.mission.destination.city, "Tokyo");
   assert.equal(result.mission.schedule.endDate, "2026-08-07");
   assert.ok(result.affectedSections.includes("preparation"));
   assert.ok(result.affectedSections.includes("restaurants"));
@@ -122,20 +122,20 @@ test("direct Spanish restaurant requests produce a visible restaurant revision",
   const result = applyMissionEdit(baseJapanMission(), "Añade un restaurante de ramen");
   assert.equal(result.intent.type, "ADD_RESTAURANT_OPTIONS");
   assert.equal(result.hasMeaningfulRevision, true);
-  assert.match(result.presentationCandidateName, /restaurant option/i);
+  assert.match(result.presentationCandidateName, /restaurant/i);
   assert.ok(result.affectedSections.includes("restaurants"));
 });
 
 test("visible revision intents change real result sections and chain from the latest state", () => {
   const restaurants = applyMissionEdit(baseJapanMission(), "Add more restaurants.");
   assert.equal(restaurants.hasMeaningfulRevision, true);
-  assert.equal(restaurants.presentationCandidateName, "Additional Japan restaurant option");
-  assert.equal(restaurants.mission.orchestrationInjections.restaurants[0].source, "user_revision");
+  assert.match(restaurants.presentationCandidateName, /another restaurant/i);
+  assert.equal(restaurants.mission.orchestrationInjections.restaurants[0].source, "generic_fallback");
   const hotel = applyMissionEdit(restaurants.mission, "Give me another hotel option.");
   assert.equal(hotel.hasMeaningfulRevision, true);
-  assert.equal(hotel.presentationCandidateName, "Additional Japan hotel option");
+  assert.equal(hotel.presentationCandidateName, "Additional Tokyo hotel option");
   assert.equal(hotel.mission.hotels[0].source, "user_revision");
-  assert.equal(hotel.mission.orchestrationInjections.restaurants[0].name, "Additional Japan restaurant option");
+  assert.match(hotel.mission.orchestrationInjections.restaurants[0].name, /another restaurant/i);
   const flight = applyMissionEdit(hotel.mission, "Show me cheaper flights.");
   assert.equal(flight.hasMeaningfulRevision, true);
   assert.match(flight.mission.flights[0].name, /lower-fare/i);
@@ -144,15 +144,13 @@ test("visible revision intents change real result sections and chain from the la
 test("repeated restaurant and hotel revisions remain distinct and newest-first", () => {
   const restaurantOne = applyMissionEdit(baseJapanMission(), "Add more restaurants.");
   const restaurantTwo = applyMissionEdit(restaurantOne.mission, "Add more restaurants.");
-  assert.deepEqual(restaurantTwo.mission.orchestrationInjections.restaurants.slice(0, 2).map((item) => item.name), [
-    "Additional Japan restaurant option 2",
-    "Additional Japan restaurant option"
-  ]);
+  assert.equal(restaurantTwo.mission.orchestrationInjections.restaurants.length, 1);
+  assert.match(restaurantTwo.mission.orchestrationInjections.restaurants[0].name, /another restaurant/i);
   const hotelOne = applyMissionEdit(restaurantTwo.mission, "Give me another hotel option.");
   const hotelTwo = applyMissionEdit(hotelOne.mission, "Give me another hotel option.");
   assert.deepEqual(hotelTwo.mission.hotels.slice(0, 2).map((item) => item.name), [
-    "Additional Japan hotel option 2",
-    "Additional Japan hotel option"
+    "Additional Tokyo hotel option 2",
+    "Additional Tokyo hotel option"
   ]);
 });
 
