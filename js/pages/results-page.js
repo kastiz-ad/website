@@ -3,7 +3,7 @@ import { APPROVAL_DEMO_CONFIRMATIONS, buildApprovalContract, resolveApprovalMiss
 import { trackEvent } from "../analytics.js";
 import { openApprovalInformationReview } from "../ui/approval-information-review.js?v=20260907-fr-approval-v1";
 import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work-mission-experience.js?v=20260818-work-missions-v3";
-import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260907-fr-handoff-v1";
+import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260908-global-trust-phase-f-v1";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";

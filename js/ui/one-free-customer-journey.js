@@ -100,9 +100,10 @@ const explanationFor = (label) => {
 };
 
 export function oneFreeTrustIndex({ sourceStates = [], signals = {}, imageScopes = [], missingImages = 0, missingProviders = 0, localizedContent = true } = {}) {
+  const provenance = createProvenanceTrace({ sourceStates, imageScopes });
   const states = sourceStates.map(normalizeTrustState).filter(Boolean);
   const scoredStates = states.map((state) => ONE_TRUST_STATE_SCORES[state]).filter(Number.isFinite);
-  if (!scoredStates.length) return { score: null, label: "Unverified", explanation: explanationFor("Unverified"), states };
+  if (!scoredStates.length) return { score: null, label: "Unverified", explanation: explanationFor("Unverified"), states, provenance };
 
   let score = scoredStates.reduce((total, value) => total + value, 0) / scoredStates.length;
   const signalValues = Object.values(signals).filter((value) => typeof value === "boolean");
@@ -121,7 +122,7 @@ export function oneFreeTrustIndex({ sourceStates = [], signals = {}, imageScopes
   if (hasPrototype) score = Math.min(score, 2);
   score = Math.max(1, Math.min(5, Math.round(score * 10) / 10));
   const label = labelForScore(score);
-  return { score, label, explanation: explanationFor(label), states };
+  return { score, label, explanation: explanationFor(label), states, provenance };
 }
 
 export function oneFreeTrustProfile(sections = {}, options = {}) {
@@ -160,3 +161,4 @@ export function createDeviceTripRecord({ reference, result, savedAt = new Date()
   if (!clean(reference) || !result || typeof result !== "object") throw new TypeError("reference and result are required");
   return { reference: clean(reference), savedAt, storage: "device", result };
 }
+import { createProvenanceTrace } from "../engine/trust/global-trust-provenance.js?v=20260908-global-trust-phase-f-v1";
