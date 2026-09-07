@@ -6,7 +6,7 @@ import { isWorkMissionExperience, renderWorkMissionExperience } from "../ui/work
 import { buildOneFreeProviderHandoff, createDeviceTripRecord, oneFreeTrustProfile } from "../ui/one-free-customer-journey.js?v=20260907-fr-handoff-v1";
 import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
-import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-destination-phase-b-v1";
+import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";

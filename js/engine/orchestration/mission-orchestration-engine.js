@@ -3,6 +3,7 @@ import { parseMissionEdit } from "./mission-parser.js?v=20260907-founder-revisio
 import { dependenciesToSections, providerRefreshPlan, resolveDependencies } from "./dependency-engine.js";
 import { destinationIdentityFromMissionResult } from "../world/canonical-destination-identity.js";
 import { createEntitySearchFallback } from "../world/global-entity-resolver.js";
+import { finalizeModifiedMission } from "./global-modify-state-isolation.js";
 
 const clone = (value) => JSON.parse(JSON.stringify(value ?? null));
 
@@ -255,7 +256,8 @@ export const applyMissionEdit = (currentResult = {}, command = "", options = {})
   const changedFields = missionStateChangedFields(updated.before, updated.after);
   const dependencies = resolveDependencies(changedFields.length ? changedFields : intent.changedFields);
   const sections = dependenciesToSections(dependencies);
-  const mission = updateLegacyResult(currentResult, updated.after, { ...intent, changedFields: changedFields.length ? changedFields : intent.changedFields }, dependencies, sections, beforeResult);
+  const legacyMission = updateLegacyResult(currentResult, updated.after, { ...intent, changedFields: changedFields.length ? changedFields : intent.changedFields }, dependencies, sections, beforeResult);
+  const mission = finalizeModifiedMission({ before: currentResult, after: legacyMission, explicitDestinationIdentity: options.explicitDestinationIdentity || null, changedFields: changedFields.length ? changedFields : intent.changedFields }).mission;
   const visibleIntent = intent.type !== "NOOP" && (intent.type !== "ADD_INTEREST" || /shopping|쇼핑|compras/i.test(intent.command));
   const hasMeaningfulRevision = visibleIntent && (changedFields.length > 0 || ["ADD_RESTAURANT_OPTIONS", "ADD_HOTEL_OPTION", "ADD_LOWER_FARE_FLIGHT", "ADD_SHIBUYA_PLACE"].includes(intent.type));
   return {
