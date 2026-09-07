@@ -1,4 +1,5 @@
 import { detectMissionLanguage, makeFallbackWorldDestination, normalizeResolvedDestination, resolveWorldDestination } from "../world/world-intelligence-engine.js";
+import { createCanonicalDestinationIdentity } from "../world/canonical-destination-identity.js";
 
 const text = (value) => String(value || "").normalize("NFKC").trim();
 
@@ -134,6 +135,11 @@ export function buildMissionContext(rawInput, options = {}) {
   const purpose = infer(source, PURPOSES, "general");
   const origin = findLocation(options.currentLocation) || LOCATIONS[0];
   const destination = resolveDestination(`${source} ${text(options.destination)}`, options, origin);
+  const destinationIdentity = createCanonicalDestinationIdentity(destination, {
+    source: options.destinationSource || (options.resolvedDestination ? "provider_geocoder" : "parsed_text"),
+    provider: options.destinationProvider,
+    confidence: destination.confidence
+  });
   const durationDays = inferDuration(source, options);
   const distanceClass = classifyDistance({ origin, destination, durationDays, source });
   const scope = ["INTERNATIONAL", "LONG_TERM"].includes(distanceClass) ? "international" : ["DOMESTIC", "WEEKEND"].includes(distanceClass) ? "domestic" : "local";
@@ -142,7 +148,8 @@ export function buildMissionContext(rawInput, options = {}) {
   const context = {
     version: "WORLD_INTELLIGENCE_ENGINE_V10", language, interfaceLanguage, missionLanguage,
     origin: Object.freeze({ id: origin.id, city: origin.city, country: origin.country }),
-    destination: Object.freeze({ id: destination.id, city: destination.city, country: destination.countryCode || destination.country, countryName: destination.country || "", countryCode: destination.countryCode || destination.country, continent: destination.continent || "", currency: destination.currency || "", state: destination.state || "", district: destination.district || "", neighborhood: destination.neighborhood || "", specified: destination.specified, confidence: destination.confidence }),
+    destination: Object.freeze({ ...destinationIdentity, countryName: destinationIdentity.country, country: destinationIdentity.countryCode || destinationIdentity.country, continent: destination.continent || "", currency: destination.currency || "", district: destination.district || "", neighborhood: destination.neighborhood || "", specified: destination.specified }),
+    destinationIdentity,
     relationship, relationshipProfile: Object.freeze(relationshipProfile(relationship.value)), purpose, durationDays,
     availableTime: text(options.availableTime) || (durationDays === 1 ? "one-day" : `${durationDays}-days`), season: text(options.season) || "current", weather: text(options.weather) || "check-current",
     budget: options.budget || null, distanceClass, scope, transport: Object.freeze([...destination.transport]),

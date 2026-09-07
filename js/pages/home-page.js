@@ -7,6 +7,7 @@ import { isPresentationMode } from "../engine/demo-missions.js";
 import { getProfileForMission } from "../profile/profile-memory-engine.js";
 import { OFFICIAL_LOCALES, localeSection, normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { ambiguousWorldDestinationMatches, detectMissionLanguage, resolveWorldDestination } from "../engine/world/world-intelligence-engine.js";
+import { createCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
 import { createHOSKernel } from "../engine/kernel/hos-kernel-v16.js?v=20260726-v21-1";
 import { mountInvestorDemoHome } from "../engine/demo/investor-demo-mode.js?v=20260813-preview-v79";
 import { shouldShowInvestorPanel } from "../config/investor-visibility.js?v=20260812-ai-modes-preview-v1";
@@ -1646,6 +1647,12 @@ const saveMission = (mission, schedule = null) => {
       };
       payload.exchangeRate = { ...payload.exchangeRate, to: selectedDestination.destinationCurrency || "USD" };
     }
+    payload.destinationIdentity = createCanonicalDestinationIdentity(payload.destination, {
+      source: pendingDetectedDestination?.identitySource || "parsed_text",
+      provider: pendingDetectedDestination?.identityProvider,
+      confidence: pendingDetectedDestination?.identityConfidence
+    });
+    payload.destination = { ...payload.destination, ...payload.destinationIdentity };
   }
   payload.presentationMode = isPresentationMode();
   const profileContext = getProfileForMission(payload.type);
@@ -1695,7 +1702,9 @@ const startSeoulWeekendDateMission = (mission) => {
     continent: "Asia",
     currency: "KRW",
     latitude: 37.5665,
-    longitude: 126.978
+    longitude: 126.978,
+    identitySource: "verified_catalog",
+    identityConfidence: 0.92
   };
   const savedMission = saveMission(canonicalMission, null);
   trackEvent("mission_started", {
@@ -1810,7 +1819,9 @@ const openDestinationChoice = (mission, schedule) => {
       currency: place.currency,
       state: place.state,
       latitude: place.latitude,
-      longitude: place.longitude
+      longitude: place.longitude,
+      identitySource: "user_selected",
+      identityConfidence: 1
     };
     pendingDestinationMatches = [];
     dialog.close();
@@ -2173,7 +2184,9 @@ missionForm.addEventListener("submit", async (event) => {
     continent: previewDestination.continent,
     currency: previewDestination.currency,
     latitude: previewDestination.latitude,
-    longitude: previewDestination.longitude
+    longitude: previewDestination.longitude,
+    identitySource: "verified_catalog",
+    identityConfidence: 0.92
   } : resolveWorldDestination(mission);
   if (type === "travel" || type === "general_mission") {
     const knownAmbiguityMatches = missionAmbiguityMatches(mission);
@@ -2195,7 +2208,10 @@ missionForm.addEventListener("submit", async (event) => {
         currency: detected.currency,
         state: detected.state,
         latitude: detected.latitude,
-        longitude: detected.longitude
+        longitude: detected.longitude,
+        identitySource: "provider_geocoder",
+        identityProvider: detected.source || "worldwide_geocoder",
+        identityConfidence: Number(detected.confidence) || 0.96
       };
     }
     if (destinationMatches.length) type = "travel";
