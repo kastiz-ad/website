@@ -32,10 +32,6 @@ const imageUploadInput = document.getElementById("imageUploadInput");
 const aiModeButton = document.getElementById("aiModeButton");
 const aiModeMenu = document.getElementById("aiModeMenu");
 const missionToolStatus = document.getElementById("missionToolStatus");
-const savedTripsPanel = document.getElementById("savedTripsPanel");
-const savedTripsTitle = document.getElementById("savedTripsTitle");
-const savedTripsEyebrow = document.getElementById("savedTripsEyebrow");
-const savedTripsList = document.getElementById("savedTripsList");
 const oneLogoText = document.querySelector(".one-logo-text");
 const loginButton = document.getElementById("loginButton");
 const loginModal = document.getElementById("loginModal");
@@ -699,7 +695,6 @@ const setLanguage = (language) => {
   updateLanguageControls();
   updateLocation();
   resetMissionRotator();
-  renderSavedTrips();
   sessionStorage.setItem("kastiz-one-current-language-selection", activeLanguage);
   document.dispatchEvent(new CustomEvent("kastiz:language-changed", { detail: { language: activeLanguage } }));
 };
@@ -1686,32 +1681,6 @@ const isSeoulWeekendDateRequest = (mission = "") => {
   if (!isWeekendDate) return false;
   const destination = resolvePreviewDestination(text)?.profile;
   return !destination || destination.id === "seoul" || /(?:seoul|서울)/i.test(text);
-};
-
-savedTripsList?.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-saved-trip-reference]");
-  if (!button) return;
-  reopenPrototypeMission(button.dataset.savedTripReference);
-});
-
-const renderSavedTrips = () => {
-  if (!savedTripsPanel || !savedTripsList) return;
-  let archive = [];
-  try { archive = JSON.parse(localStorage.getItem(PROTOTYPE_MISSION_ARCHIVE_KEY) || "[]"); } catch {}
-  const records = Array.isArray(archive) ? archive.filter((item) => item?.reference && item?.result?.type).slice(0, 3) : [];
-  savedTripsPanel.hidden = records.length === 0;
-  if (!records.length) return;
-  savedTripsTitle.textContent = activeLanguage === "ko" ? "저장한 여행" : activeLanguage === "es" ? "Viajes guardados" : "Saved trips";
-  savedTripsEyebrow.textContent = activeLanguage === "ko" ? "이 기기에 저장됨" : activeLanguage === "es" ? "Guardado en este dispositivo" : "Saved on this device";
-  savedTripsList.innerHTML = records.map((record) => {
-    const result = record.result || {};
-    const destination = activeLanguage === "ko"
-      ? result.destination?.cityKo || result.destination?.countryKo || result.destination?.city || result.destination?.country
-      : result.destination?.city || result.destination?.country;
-    const title = destination || result.display?.title || result.mission || (activeLanguage === "ko" ? "저장된 미션" : activeLanguage === "es" ? "Misión guardada" : "Saved mission");
-    const date = record.savedAt ? new Date(record.savedAt).toLocaleDateString(activeLanguage === "ko" ? "ko-KR" : activeLanguage === "es" ? "es-ES" : "en-US") : "";
-    return `<button type="button" data-saved-trip-reference="${String(record.reference).replace(/[^A-Z0-9-]/gi, "")}"><strong>${title.replace(/[<>]/g, "")}</strong><span>${date}</span><small>${activeLanguage === "ko" ? "계속 보기" : activeLanguage === "es" ? "Continuar" : "Continue trip"}</small></button>`;
-  }).join("");
 };
 
 const startSeoulWeekendDateMission = (mission) => {
