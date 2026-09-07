@@ -99,7 +99,7 @@ const explanationFor = (label) => {
   return { en: "There is not enough trustworthy evidence to calculate a score.", ko: "신뢰 점수를 계산할 충분한 근거가 없습니다.", es: "No hay evidencia confiable suficiente para calcular una puntuación." };
 };
 
-export function oneFreeTrustIndex({ sourceStates = [], signals = {}, missingImages = 0, missingProviders = 0, localizedContent = true } = {}) {
+export function oneFreeTrustIndex({ sourceStates = [], signals = {}, imageScopes = [], missingImages = 0, missingProviders = 0, localizedContent = true } = {}) {
   const states = sourceStates.map(normalizeTrustState).filter(Boolean);
   const scoredStates = states.map((state) => ONE_TRUST_STATE_SCORES[state]).filter(Number.isFinite);
   if (!scoredStates.length) return { score: null, label: "Unverified", explanation: explanationFor("Unverified"), states };
@@ -109,6 +109,8 @@ export function oneFreeTrustIndex({ sourceStates = [], signals = {}, missingImag
   score += signalValues.filter(Boolean).length * 0.08;
   score -= signalValues.filter((value) => !value).length * 0.14;
   score -= Math.min(1.2, Math.max(0, missingImages) * 0.15 + Math.max(0, missingProviders) * 0.35);
+  const contextualImages = imageScopes.filter((scope) => ["DESTINATION", "CATEGORY_CONTEXT"].includes(scope)).length;
+  score -= Math.min(0.6, contextualImages * 0.12);
   if (!localizedContent) score -= 0.25;
 
   const hasEstimated = states.some((state) => ["cached_public", "public", "estimated"].includes(state));

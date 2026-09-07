@@ -8,7 +8,7 @@ import { OFFICIAL_LOCALES, localeSection } from "../i18n/locale-registry.js";
 import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, resolveResultLocale, resultText } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-destination-phase-b-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
-import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260907-founder-qa-v18";
+import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -21,7 +21,7 @@ import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itine
 import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult } from "../engine/world/canonical-destination-identity.js";
-import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js";
+import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -7164,12 +7164,14 @@ const buildExecutionSummary = () => {
     },
     restaurants: {
       sourceStates: (currentResult.restaurants || []).map((item) => item.sourceState || item.providerSource || "estimated"),
+      imageScopes: (currentResult.restaurants || []).map((item) => item.imageScope || item.image?.imageScope || "NONE"),
       signals: { realIdentity: suggestedRestaurantNames.length > 0, liveDetails: (currentResult.restaurants || []).some((item) => item.openingHoursState === "verified_live") },
       missingImages: (currentResult.restaurants || []).filter((item) => !item.image && !item.imageUrl).length,
       missingProviders: currentResult.restaurants?.length ? 0 : 1
     },
     places: {
       sourceStates: finalPlaceItems.map((item) => item.sourceState || item.providerSource || "estimated"),
+      imageScopes: finalPlaceItems.map((item) => item.imageScope || item.image?.imageScope || "NONE"),
       signals: { destinationMatch: Boolean(currentResult.destination?.city) },
       missingProviders: finalPlaceItems.length ? 0 : 1
     },

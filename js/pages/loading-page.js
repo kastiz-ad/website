@@ -4,7 +4,7 @@ import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { normalizeResultLocale, resolveResultLocale } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
 import { createCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
-import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js";
+import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
 

@@ -12,6 +12,8 @@ const imagesFor = (item) => {
   return [primary, ...alternates].filter((image) => image?.url);
 };
 
+const requiredTokenMatch = (placeTokens) => Math.max(1, Math.ceil(new Set(placeTokens).size * 0.5));
+
 export const resolveSemanticItineraryImages = (days = [], places = [], destinationFallback = null, options = {}) => {
   const used = new Set(options.usedImageUrls || []);
   const fallbacks = (Array.isArray(destinationFallback) ? destinationFallback : [destinationFallback]).filter((image) => image?.url);
@@ -21,18 +23,18 @@ export const resolveSemanticItineraryImages = (days = [], places = [], destinati
     const ranked = places.flatMap((place) => {
       const placeTokens = tokens([place?.name, place?.title, ...(place?.semanticAliases || [])].filter(Boolean).join(" "));
       const score = placeTokens.reduce((total, token) => total + (dayTokens.has(token) ? 1 : 0), 0);
-      return imagesFor(place).map((image) => ({ place, image, score, priority: place?.imageRole === "food" ? 0 : 1, used: used.has(image.url) }));
-    }).filter((candidate) => candidate.image?.url && candidate.score > 0)
+      return imagesFor(place).map((image) => ({ place, image, score, required: requiredTokenMatch(placeTokens), priority: place?.imageRole === "food" ? 0 : 1, used: used.has(image.url) }));
+    }).filter((candidate) => candidate.image?.url && candidate.score >= candidate.required)
       .sort((a, b) => b.priority - a.priority || b.score - a.score || Number(a.used) - Number(b.used));
     const best = ranked[0];
     if (best) {
       used.add(best.image.url);
-      return { ...best.image, match: "semantic", sourceName: best.place.name || best.place.title || "" };
+      return { ...best.image, match: "semantic", imageScope: best.place.imageScope || "EXACT_ENTITY", sourceName: best.place.name || best.place.title || "", provenance: best.image.provenance || { source: best.place.source || "curated", matchedEntity: best.place.name || best.place.title || "" } };
     }
     const fallback = fallbacks.find((image) => !used.has(image.url)) || fallbacks[0];
     if (fallback?.url) {
       used.add(fallback.url);
-      return { ...fallback, match: "destination_fallback" };
+      return { ...fallback, match: "destination_fallback", imageScope: "DESTINATION", provenance: fallback.provenance || { source: "destination_context" } };
     }
     return null;
   });

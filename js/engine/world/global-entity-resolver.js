@@ -1,4 +1,5 @@
 import { createCanonicalDestinationIdentity } from "./canonical-destination-identity.js";
+import { resolveEntityImage } from "./global-image-truth-engine.js";
 
 const clean = (value) => String(value || "").normalize("NFKC").trim();
 const normalized = (value) => clean(value).toLocaleLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -86,7 +87,9 @@ export function resolveDestinationEntities({ identity, candidates = [], kind = "
     if (seen.has(key)) { rejected.push({ candidate, reason: "duplicate" }); continue; }
     seen.add(key);
     const nearby = locality === "nearby";
-    accepted.push(Object.freeze({ ...candidate, id: clean(candidate.id) || key, name, label: name, kind, entityType: kind === "restaurant" ? ENTITY_TYPES.restaurant : nearby ? ENTITY_TYPES.nearbyExcursion : candidate.entityType || (/neighbou?rhood|district|quarter/i.test(candidate.value || candidate.category) ? ENTITY_TYPES.neighborhood : ENTITY_TYPES.exactPoi), namedEntity: true, destinationIdentity: canonical, destinationKey: canonical.key, actualLocality: clean(candidate.city || candidate.locality), relationshipToDestination: nearby ? "nearby_excursion" : "inside_destination", provenance: Object.freeze({ source: proof.source, provider: clean(candidate.source || candidate.provider), providerId: clean(candidate.providerId || candidate.entityId || candidate.osmId) }), sourceState: proof.source, evidenceLevel: proof.level, confidence: proof.confidence, image: candidate.image || (candidate.imageUrl ? { url: candidate.imageUrl, alt: candidate.imageAlt || name, evidence: "entity_source" } : null) }));
+    const entity = { ...candidate, id: clean(candidate.id) || key, name, label: name, kind, entityType: kind === "restaurant" ? ENTITY_TYPES.restaurant : nearby ? ENTITY_TYPES.nearbyExcursion : candidate.entityType || (/neighbou?rhood|district|quarter/i.test(candidate.value || candidate.category) ? ENTITY_TYPES.neighborhood : ENTITY_TYPES.exactPoi), namedEntity: true, destinationIdentity: canonical, destinationKey: canonical.key, actualLocality: clean(candidate.city || candidate.locality), relationshipToDestination: nearby ? "nearby_excursion" : "inside_destination", provenance: Object.freeze({ source: proof.source, provider: clean(candidate.source || candidate.provider), providerId: clean(candidate.providerId || candidate.entityId || candidate.osmId) }), sourceState: proof.source, evidenceLevel: proof.level, confidence: proof.confidence };
+    const imageResolution = resolveEntityImage({ entity, destination: canonical, candidates: candidate.imageUrl ? [{ url: candidate.imageUrl, alt: candidate.imageAlt || name, entityId: entity.provenance.providerId || entity.id, entityName: name, destinationKey: canonical.key, countryCode: canonical.countryCode, latitude: candidate.latitude, longitude: candidate.longitude, source: candidate.source, attribution: candidate.attribution }] : [] });
+    accepted.push(Object.freeze({ ...entity, image: imageResolution.image, imageScope: imageResolution.imageScope, imageCacheKey: imageResolution.cacheKey }));
   }
   if (!accepted.length && includeFallback) {
     const fallback = createEntitySearchFallback({ identity: canonical, kind, category, locale });

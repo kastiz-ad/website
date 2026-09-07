@@ -1,2 +1,2 @@
 // compatibility lineage: loading-page.js?v=20260813-mobile-flow-v78
-import "./js/pages/loading-page.js?v=20260908-global-destination-phase-b-v1";
+import "./js/pages/loading-page.js?v=20260908-global-image-truth-phase-c-v1";
