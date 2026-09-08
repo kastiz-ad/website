@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-premium-travel-ui-v1";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-premium-travel-ui-v4";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3859,6 +3859,8 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const baseProfile = getAlpha03DestinationProfile(destination);
   const livePlaceProvider = findLiveProvider(result, "local_places");
   const liveItems = Array.isArray(livePlaceProvider?.items) ? livePlaceProvider.items : [];
+  const destinationInfoProvider = (result?.providerResults || []).find((provider) => provider.category === "destination_info" && provider.items?.some((item) => item?.imageUrl));
+  const destinationInfo = Array.isArray(destinationInfoProvider?.items) ? destinationInfoProvider.items.find((item) => item?.imageUrl) : null;
   const liveRestaurants = liveItems.filter((item) => item.kind === "restaurant").map((item) => ({ name: item.label, tags: [item.cuisine || "local", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, latitude: item.latitude, longitude: item.longitude }));
   const resultRestaurants = (result.restaurants || []).filter((item) => item.livePlaceName || /openstreetmap/i.test(String(item.providerSource || ""))).map((item) => ({ name: item.venueName || item.type, tags: [item.cuisine || "local", "public place data"], source: item.providerSource || "OpenStreetMap" }));
   const livePlaces = liveItems.filter((item) => item.kind === "place").map((item) => ({ name: item.label, tags: [item.value || "attraction", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, latitude: item.latitude, longitude: item.longitude }));
@@ -3869,7 +3871,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const sameProfileCity = String(baseProfile.city || "").localeCompare(String(canonicalDestination.city || result.destination?.city || ""), undefined, { sensitivity: "base" }) === 0;
   const canonicalLatitude = firstFiniteCoordinate(result.destinationIdentity?.latitude, result.destination?.latitude, catalogDestination?.latitude, sameProfileCity ? baseProfile.latitude : undefined);
   const canonicalLongitude = firstFiniteCoordinate(result.destinationIdentity?.longitude, result.destination?.longitude, catalogDestination?.longitude, sameProfileCity ? baseProfile.longitude : undefined);
-  const profile = { ...baseProfile, id: canonicalDestination.id || baseProfile.id || String(destination).toLowerCase().replace(/\W+/g, "_"), key: canonicalDestination.key || canonicalDestination.destinationKey || catalogDestination?.key || baseProfile.key || baseProfile.id || "", city: canonicalDestination.city || result.destination?.city || baseProfile.city || destination, country: canonicalDestination.country || result.destination?.country || baseProfile.country || result.countryProfile?.name || "", countryCode: canonicalDestination.countryCode || result.destination?.countryCode || catalogDestination?.countryCode || baseProfile.countryCode || result.countryProfile?.code || "", latitude: canonicalLatitude, longitude: canonicalLongitude, restaurants: uniqueItems([...liveRestaurants, ...resultRestaurants, ...(baseProfile.restaurants || [])]), places: uniqueItems([...livePlaces, ...(baseProfile.places || [])]) };
+  const destinationHero = destinationInfo?.imageUrl
+    ? { url: destinationInfo.imageUrl, alt: destinationInfo.imageAlt || destinationInfo.label || destination, source: destinationInfo.source || destinationInfoProvider?.provider || "Wikipedia", attribution: destinationInfo.attribution || "" }
+    : baseProfile.hero;
+  const profile = { ...baseProfile, id: canonicalDestination.id || baseProfile.id || String(destination).toLowerCase().replace(/\W+/g, "_"), key: canonicalDestination.key || canonicalDestination.destinationKey || catalogDestination?.key || baseProfile.key || baseProfile.id || "", city: canonicalDestination.city || result.destination?.city || baseProfile.city || destination, country: canonicalDestination.country || result.destination?.country || baseProfile.country || result.countryProfile?.name || "", countryCode: canonicalDestination.countryCode || result.destination?.countryCode || catalogDestination?.countryCode || baseProfile.countryCode || result.countryProfile?.code || "", latitude: canonicalLatitude, longitude: canonicalLongitude, hero: destinationHero, restaurants: uniqueItems([...liveRestaurants, ...resultRestaurants, ...(baseProfile.restaurants || [])]), places: uniqueItems([...livePlaces, ...(baseProfile.places || [])]) };
   const workspace = result.alpha04Workspace || null;
   const { tripDays } = calculateTripDayCounts(result);
   const { travelerCount } = getTravelPartyDetails(result);

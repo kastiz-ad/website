@@ -378,16 +378,44 @@ const fetchWikipediaInfo = async (mission) => {
 
   try {
     const wikiLanguage = mission?.language === "ko" ? "ko" : "en";
-    const data = await fetchJson(`https://${wikiLanguage}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
+    let data = null;
+    try {
+      data = await fetchJson(`https://${wikiLanguage}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`);
+    } catch {
+      data = null;
+    }
+    let destinationImage = data?.originalimage?.source || data?.thumbnail?.source || "";
+    let destinationImageTitle = data?.title || topic;
+    let destinationImagePage = data?.content_urls?.desktop?.page || "";
+    const latitude = Number(mission?.destination?.latitude);
+    const longitude = Number(mission?.destination?.longitude);
+    if (!destinationImage && Number.isFinite(latitude) && Number.isFinite(longitude)) {
+      const nearby = await fetchJson(`https://en.wikipedia.org/w/api.php?action=query&generator=geosearch&ggsprimary=all&ggsnamespace=0&ggsradius=10000&ggslimit=20&ggscoord=${latitude}%7C${longitude}&prop=pageimages%7Cdescription&piprop=original%7Cthumbnail&pithumbsize=1600&format=json&origin=*`);
+      const pages = Object.values(nearby?.query?.pages || {}).filter((page) => page?.original?.source || page?.thumbnail?.source);
+      const normalizedTopic = String(topic).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const selected = pages.find((page) => String(page.title || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(normalizedTopic)) || pages[0];
+      if (selected) {
+        destinationImage = selected.original?.source || selected.thumbnail?.source || "";
+        destinationImageTitle = selected.title || destinationImageTitle;
+        destinationImagePage = `https://en.wikipedia.org/?curid=${selected.pageid}`;
+      }
+    }
 
     return {
       provider: "Wikipedia",
       category: "destination_info",
       sourceStatus: "free_live_api",
-      liveData: Boolean(data?.extract),
+      liveData: Boolean(data?.extract || destinationImage),
       requiresKey: false,
       requiresPartnerAccess: false,
-      items: [{ label: data?.title || topic, value: data?.extract || "Public information unavailable" }],
+      items: [{
+        label: data?.title || topic,
+        value: data?.extract || "Public information unavailable",
+        imageUrl: destinationImage,
+        imageAlt: destinationImageTitle,
+        source: "Wikipedia",
+        attribution: destinationImagePage
+      }],
       error: null
     };
   } catch (error) {
@@ -544,7 +572,7 @@ const enrichMission = async (mission) => {
   }
 
   // Every mission can benefit from free public background knowledge.
-  providerRequests.push(() => fetchWikipediaInfo(mission));
+  providerRequests.push(() => fetchWikipediaInfo(preparedMission));
 
   const providerResults = await Promise.all(providerRequests.map((request) => request()));
 
