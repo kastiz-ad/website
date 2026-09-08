@@ -3469,15 +3469,16 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   const itinerary = currentResult?.realisticItinerary;
   const markers = itinerary?.curated ? mapMarkersForItinerary(itinerary, [selectedProfile.latitude, selectedProfile.longitude]) : buildPreviewMapMarkers(selectedProfile, restaurants, places);
   const mapUrl = osmEmbedUrlForProfile(selectedProfile, markers);
-  const destinationLabel = [selectedProfile.city, selectedProfile.state || selectedProfile.region, selectedProfile.country].filter(Boolean).join(", ");
-  const externalMapUrl = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(selectedProfile.latitude)}&mlon=${encodeURIComponent(selectedProfile.longitude)}#map=12/${encodeURIComponent(selectedProfile.latitude)}/${encodeURIComponent(selectedProfile.longitude)}`;
+  const destinationLabel = [...new Set([selectedProfile.city, selectedProfile.state || selectedProfile.region, selectedProfile.country].filter(Boolean))].join(", ");
+  const hasMapCenter = Number.isFinite(Number(selectedProfile.latitude)) && Number.isFinite(Number(selectedProfile.longitude));
+  const externalMapUrl = hasMapCenter ? `https://www.openstreetmap.org/?mlat=${encodeURIComponent(selectedProfile.latitude)}&mlon=${encodeURIComponent(selectedProfile.longitude)}#map=12/${encodeURIComponent(selectedProfile.latitude)}/${encodeURIComponent(selectedProfile.longitude)}` : "";
   return `
     <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" data-map-destination-key="${escapeSummaryText(selectedProfile.key || selectedProfile.destinationKey || selectedProfile.id || "")}" data-map-center="${escapeSummaryText(`${selectedProfile.latitude},${selectedProfile.longitude}`)}" aria-label="${escapeSummaryText(resultText(activeLanguage, "mapPreview"))}">
       <iframe src="${escapeSummaryText(mapUrl)}" title="${escapeSummaryText(`${selectedProfile.city} itinerary map`)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(resultText(activeLanguage, "itineraryMarkers"))}">
         ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-itinerary-day="${escapeSummaryText(marker.day || "all")}" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
       </div>
-      <div class="alpha03-map-destination"><span>⌖ ${escapeSummaryText(destinationLabel)}</span><a href="${escapeSummaryText(externalMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeSummaryText(alpha03Copy("View map", "지도 보기", "Ver mapa", "Voir la carte"))}</a></div>
+      <div class="alpha03-map-destination"><span>⌖ ${escapeSummaryText(destinationLabel)}</span>${externalMapUrl ? `<a href="${escapeSummaryText(externalMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeSummaryText(alpha03Copy("View map", "지도 보기", "Ver mapa", "Voir la carte"))}</a>` : ""}</div>
     </div>
   `;
 };

@@ -65,6 +65,7 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /data-map-destination-key=/);
   assert.match(page, /data-map-center=/);
   assert.match(page, /alpha03-map-destination/);
+  assert.match(page, /const hasMapCenter = Number\.isFinite/);
   assert.match(page, /alpha03-itinerary-visual-summary/);
   assert.match(page, /alpha03-itinerary-details/);
   assert.match(page, /data-itinerary-jump=/);
