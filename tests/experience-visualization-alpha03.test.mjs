@@ -26,17 +26,17 @@ test("ALPHA-03 renders experience before logistics without a new engine", () => 
   const experienceIndex = travelDetailSource.indexOf("alpha03-recommendation-stage");
   const mapIndex = travelDetailSource.indexOf("createAlpha03JourneyMap");
   const restaurantIndex = travelDetailSource.indexOf('alpha03Copy("Food"', mapIndex);
-  const placesIndex = travelDetailSource.indexOf('alpha03Copy("Places"', restaurantIndex);
-  const dayIndex = travelDetailSource.indexOf("createAlpha03TimelineHtml(days", placesIndex);
+  const dayIndex = travelDetailSource.indexOf("createAlpha03TimelineHtml(days", restaurantIndex);
+  const placesIndex = travelDetailSource.indexOf('alpha03Copy("Places"', dayIndex);
   const optionIndex = travelDetailSource.indexOf("createAlpha03OptionPreview");
   const prepIndex = travelDetailSource.indexOf("alpha03-preparation-details");
 
   assert.ok(experienceIndex >= 0);
   assert.ok(mapIndex >= 0);
   assert.ok(restaurantIndex > mapIndex);
-  assert.ok(placesIndex > restaurantIndex);
-  assert.ok(dayIndex > placesIndex);
-  assert.ok(optionIndex > dayIndex);
+  assert.ok(dayIndex > restaurantIndex);
+  assert.ok(placesIndex > dayIndex);
+  assert.ok(optionIndex > placesIndex);
   assert.ok(prepIndex > optionIndex);
 });
 

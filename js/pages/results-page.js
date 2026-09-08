@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-premium-travel-ui-v5";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-approved-travel-dashboard-v6";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3451,13 +3451,12 @@ const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) =
     : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
   const isFood = type === "restaurant";
   const selected = isFood && (currentResult?.alpha03FoodSelections || []).includes(item.name);
-  const restaurantScores = [4.7, 4.5, 4.4, 4.4, 4.6];
-  const displayScore = Number(item.rating || item.stars) || restaurantScores[index % restaurantScores.length];
+  const displayScore = Number(item.rating || item.stars);
   const tag = isFood ? "button" : "article";
   return `
   <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}</div>
-    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood ? `<span class="alpha03-card-score" data-rating-state="estimated" title="${escapeSummaryText(alpha03Copy("Estimated match score", "예상 매치 점수", "Puntuación estimada", "Score estimé"))}">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
+    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood && Number.isFinite(displayScore) ? `<span class="alpha03-card-score">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
     ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true">${selected ? "♥" : "♡"}</span>` : ""}
   </${tag}>
 `;
@@ -3470,13 +3469,15 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   const itinerary = currentResult?.realisticItinerary;
   const markers = itinerary?.curated ? mapMarkersForItinerary(itinerary, [selectedProfile.latitude, selectedProfile.longitude]) : buildPreviewMapMarkers(selectedProfile, restaurants, places);
   const mapUrl = osmEmbedUrlForProfile(selectedProfile, markers);
+  const destinationLabel = [selectedProfile.city, selectedProfile.state || selectedProfile.region, selectedProfile.country].filter(Boolean).join(", ");
+  const externalMapUrl = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(selectedProfile.latitude)}&mlon=${encodeURIComponent(selectedProfile.longitude)}#map=12/${encodeURIComponent(selectedProfile.latitude)}/${encodeURIComponent(selectedProfile.longitude)}`;
   return `
     <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" data-map-destination-key="${escapeSummaryText(selectedProfile.key || selectedProfile.destinationKey || selectedProfile.id || "")}" data-map-center="${escapeSummaryText(`${selectedProfile.latitude},${selectedProfile.longitude}`)}" aria-label="${escapeSummaryText(resultText(activeLanguage, "mapPreview"))}">
       <iframe src="${escapeSummaryText(mapUrl)}" title="${escapeSummaryText(`${selectedProfile.city} itinerary map`)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(resultText(activeLanguage, "itineraryMarkers"))}">
         ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-itinerary-day="${escapeSummaryText(marker.day || "all")}" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
       </div>
-      <p class='alpha03-map-note'>${escapeSummaryText(alpha03Copy("Estimated route — verify hours and availability before using an external provider.", "예상 동선입니다. 외부 제공업체 이용 전 운영 시간과 이용 가능 여부를 확인하세요.", "Ruta estimada: verifica horarios y disponibilidad antes de usar un proveedor externo.", "Itinéraire estimé : vérifiez les horaires et la disponibilité avant d’utiliser un fournisseur externe."))}</p>
+      <div class="alpha03-map-destination"><span>⌖ ${escapeSummaryText(destinationLabel)}</span><a href="${escapeSummaryText(externalMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeSummaryText(alpha03Copy("View map", "지도 보기", "Ver mapa", "Voir la carte"))}</a></div>
     </div>
   `;
 };
@@ -3815,26 +3816,37 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
 const createAlpha03TimelineHtml = (days, places = [], trust = null, destinationFallback = null, usedImageUrls = []) => {
   const dayImages = resolveSemanticItineraryImages(days, places, destinationFallback, { usedImageUrls });
   return `
-  <section class="alpha03-section alpha03-timeline-redesign">
+  <section class="alpha03-section alpha03-itinerary-visual-summary">
     <div class="alpha03-section-heading">
       <span class="v23-eyebrow">${escapeSummaryText(resultText(activeLanguage, "timeline"))}</span>
       <h3>${escapeSummaryText(resultText(activeLanguage, "timelineTitle"))}</h3>
       ${trust ? createOneFreeTrustMarkup(trust) : ""}
+      <button type="button" class="alpha03-view-full-itinerary" data-view-full-itinerary>${escapeSummaryText(alpha03Copy("View full itinerary →", "전체 일정 보기 →", "Ver itinerario completo →", "Voir l’itinéraire complet →"))}</button>
     </div>
-    <div class="alpha03-timeline-strip">
+    <div class="alpha03-itinerary-visual-rail">
       ${days.map((day, dayIndex) => {
-        const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
         const dayImage = dayImages[dayIndex];
         return `
-          <article class="alpha03-timeline-card" tabindex="0" data-itinerary-day="${escapeSummaryText(day.day.replace(/\D/g, ""))}">
-            ${dayImage?.url ? `<img class="alpha03-timeline-photo" data-image-match="${dayImage.match}" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : ""}
-            <span>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</span>
-            <strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong>
-            ${day.theme ? `<em class="realistic-day-theme">${escapeSummaryText(alpha03LocalizedDisplayName(day.theme))}</em>` : ""}
-            ${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(alpha03LocalizedDisplayName(label))}</b><p>${escapeSummaryText(alpha03LocalizedDisplayName(value))}</p></div>`).join("")}
-            ${day.weatherAlternative ? `<p class="realistic-weather-alternative">${escapeSummaryText(alpha03LocalizedDisplayName(day.weatherAlternative))}</p>` : ""}
-          </article>
+          <button type="button" class="alpha03-itinerary-visual-card" data-itinerary-jump="${dayIndex + 1}">
+            <span class="alpha03-itinerary-visual-photo${dayImage?.url ? " has-image" : " is-fallback"}">${dayImage?.url ? `<img data-image-match="${dayImage.match}" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : `<span aria-hidden="true">📍</span>`}</span>
+            <span class="alpha03-itinerary-visual-copy"><b>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</b><strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong></span>
+          </button>
         `;
+      }).join("")}
+    </div>
+  </section>
+  <section class="alpha03-section alpha03-itinerary-details" data-full-itinerary>
+    <div class="alpha03-section-heading"><h3>${escapeSummaryText(alpha03Copy("Full day-by-day plan", "전체 일자별 일정", "Plan completo día por día", "Programme détaillé jour par jour"))}</h3></div>
+    <div class="alpha03-itinerary-detail-list">
+      ${days.map((day, dayIndex) => {
+        const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
+        return `<article class="alpha03-itinerary-detail-card" id="itinerary-detail-day-${dayIndex + 1}" tabindex="-1" data-itinerary-day="${dayIndex + 1}">
+          <span>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</span>
+          <strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong>
+          ${day.theme ? `<em>${escapeSummaryText(alpha03LocalizedDisplayName(day.theme))}</em>` : ""}
+          <div class="alpha03-itinerary-detail-slots">${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(alpha03LocalizedDisplayName(label))}</b><p>${escapeSummaryText(alpha03LocalizedDisplayName(value))}</p></div>`).join("")}</div>
+          ${day.weatherAlternative ? `<p class="realistic-weather-alternative">${escapeSummaryText(alpha03LocalizedDisplayName(day.weatherAlternative))}</p>` : ""}
+        </article>`;
       }).join("")}
     </div>
   </section>
@@ -3849,12 +3861,13 @@ const emphasizeItineraryDay = (day = "") => {
   });
 };
 document.addEventListener("pointerover", (event) => {
-  const card = event.target.closest?.(".alpha03-timeline-card[data-itinerary-day]");
-  if (card) emphasizeItineraryDay(card.dataset.itineraryDay);
+  const card = event.target.closest?.("[data-itinerary-day], [data-itinerary-jump]");
+  const day = card?.dataset.itineraryDay || card?.dataset.itineraryJump;
+  if (day) emphasizeItineraryDay(day);
 });
 document.addEventListener("focusin", (event) => {
-  const card = event.target.closest?.(".alpha03-timeline-card[data-itinerary-day]");
-  emphasizeItineraryDay(card?.dataset.itineraryDay || "");
+  const card = event.target.closest?.("[data-itinerary-day], [data-itinerary-jump]");
+  emphasizeItineraryDay(card?.dataset.itineraryDay || card?.dataset.itineraryJump || "");
 });
 const createAlpha03ExperienceHtml = (journey, result) => {
   const destination = getTravelDestinationLabel(result);
@@ -3873,10 +3886,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const sameProfileCity = String(baseProfile.city || "").localeCompare(String(canonicalDestination.city || result.destination?.city || ""), undefined, { sensitivity: "base" }) === 0;
   const canonicalLatitude = firstFiniteCoordinate(result.destinationIdentity?.latitude, result.destination?.latitude, catalogDestination?.latitude, sameProfileCity ? baseProfile.latitude : undefined);
   const canonicalLongitude = firstFiniteCoordinate(result.destinationIdentity?.longitude, result.destination?.longitude, catalogDestination?.longitude, sameProfileCity ? baseProfile.longitude : undefined);
-  const isApprovedMedellinHero = /medell[ií]n|메데인/i.test([canonicalDestination.city, result.destination?.city, destination].filter(Boolean).join(" "));
-  const destinationHero = isApprovedMedellinHero
-    ? { url: "assets/medellin-city-hero-v1.png", alt: "Medellín city view from El Poblado", source: "Founder-approved destination visual" }
-    : destinationInfo?.imageUrl
+  const destinationHero = destinationInfo?.imageUrl
     ? { url: destinationInfo.imageUrl, alt: destinationInfo.imageAlt || destinationInfo.label || destination, source: destinationInfo.source || destinationInfoProvider?.provider || "Wikipedia", attribution: destinationInfo.attribution || "" }
     : baseProfile.hero;
   const destinationVisualPlaces = (destinationInfo?.imageAlternates || []).map((image) => ({ name: image.alt || `${destination} highlight`, category: "destination", image, source: image.source || "Wikipedia", latitude: image.latitude, longitude: image.longitude }));
@@ -4129,6 +4139,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     </section>
     ` : profile.fallbackNote ? `<section class="alpha03-section"><p>${escapeSummaryText(profile.fallbackNote)}</p></section>` : ""}
 
+    </div>
+
+    ${createAlpha03TimelineHtml(days, timelineImageCandidates, trustBySection.itinerary, profile.hero, usedImageUrls)}
+
     ${highlightPlaces.length ? `
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
       <div class="alpha03-section-heading">
@@ -4141,9 +4155,6 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       </div>
     </section>
     ` : ""}
-    </div>
-
-    ${createAlpha03TimelineHtml(days, timelineImageCandidates, trustBySection.itinerary, profile.hero, usedImageUrls)}
 
     ${createAlpha03OptionPreview(journey, result, transportationSummary, trustBySection)}
 
@@ -7340,6 +7351,17 @@ executionSummary?.addEventListener("click", (event) => {
   }
   const providerLink = event.target.closest("[data-provider-link]");
   if (providerLink) trackEvent("provider_link_clicked", { provider_type: providerLink.dataset.providerLink, mission_type: currentResult?.type, page: "results" });
+});
+document.addEventListener("click", (event) => {
+  const trigger = event.target.closest?.("[data-itinerary-jump]");
+  const fullTrigger = event.target.closest?.("[data-view-full-itinerary]");
+  const target = trigger
+    ? document.getElementById(`itinerary-detail-day-${trigger.dataset.itineraryJump}`)
+    : fullTrigger ? document.querySelector("[data-full-itinerary]") : null;
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    target.focus?.({ preventScroll: true });
+  }
 });
 
 const applySimulatedModification = (cardId, card, button) => {

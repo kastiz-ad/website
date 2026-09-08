@@ -103,7 +103,7 @@ test("results bootstrap preserves a matching stored Travel mission before URL fa
     results.indexOf("storedResultMatchesRoute(parsed, params)") < results.indexOf("const manualScenario = getManualScenarioResult()"),
     "matching same-flow storage must be considered before manual URL reconstruction"
   );
-  const version = /20260909-premium-travel-ui-v5/;
+  const version = /20260909-approved-travel-dashboard-v6/;
   assert.match(resultsHtml, version);
   assert.match(resultsEntry, version);
 });
