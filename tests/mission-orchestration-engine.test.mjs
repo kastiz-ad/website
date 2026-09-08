@@ -200,7 +200,7 @@ test("itinerary image selection avoids duplicate URLs when semantic alternates e
   assert.deepEqual(resolveSemanticItineraryImages(days, places).map((image) => image.url), ["shibuya-night.jpg", "shibuya-day.jpg"]);
 });
 
-test("semantic relevance outranks uniqueness when no relevant alternate exists", () => {
+test("image uniqueness outranks semantic reuse when no truthful alternate exists", () => {
   const images = resolveSemanticItineraryImages(
     [{ title: "Shibuya crossing", slots: [] }],
     [
@@ -210,10 +210,10 @@ test("semantic relevance outranks uniqueness when no relevant alternate exists",
     null,
     { usedImageUrls: ["shibuya.jpg"] }
   );
-  assert.equal(images[0].url, "shibuya.jpg");
+  assert.equal(images[0], null);
 });
 
-test("an exact place image outranks an unused food image for an itinerary day", () => {
+test("a used exact place image is not replaced by a weak food match", () => {
   const images = resolveSemanticItineraryImages(
     [{ title: "Asakusa and Senso-ji", slots: [{ title: "Senso-ji temple" }] }],
     [
@@ -223,7 +223,7 @@ test("an exact place image outranks an unused food image for an itinerary day", 
     null,
     { usedImageUrls: ["asakusa.jpg"] }
   );
-  assert.equal(images[0].url, "asakusa.jpg");
+  assert.equal(images[0], null);
 });
 
 test("restaurant bulk selection shares one state for all, none, partial, and persisted data", () => {

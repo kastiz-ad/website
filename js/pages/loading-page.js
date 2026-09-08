@@ -151,7 +151,9 @@ const getCoordinates = async (mission) => {
     return { latitude: mission.destination.latitude, longitude: mission.destination.longitude };
   }
 
-  if (mission?.countryProfile?.latitude && mission?.countryProfile?.longitude) {
+  const destinationCity = String(mission?.destination?.city || "").trim().toLocaleLowerCase();
+  const profileAnchor = String(mission?.countryProfile?.capital || mission?.countryProfile?.name || "").trim().toLocaleLowerCase();
+  if (mission?.countryProfile?.latitude && mission?.countryProfile?.longitude && (!destinationCity || destinationCity === profileAnchor)) {
     return { latitude: mission.countryProfile.latitude, longitude: mission.countryProfile.longitude };
   }
 
@@ -495,17 +497,33 @@ const buildPrototypeProviderResults = (mission) => {
 
 const enrichMission = async (mission) => {
   const type = mission.type || "general_mission";
+  let preparedMission = mission;
+  if (type === "travel") {
+    const coordinates = await getCoordinates(mission);
+    if (coordinates) {
+      const destination = { ...(mission.destination || {}), ...coordinates };
+      preparedMission = {
+        ...mission,
+        destination,
+        destinationIdentity: createCanonicalDestinationIdentity(destination, {
+          source: mission.destinationIdentity?.provenance?.source || "provider_geocoder",
+          provider: mission.destinationIdentity?.provenance?.provider || "Open-Meteo/Nominatim",
+          confidence: mission.destinationIdentity?.confidence || 0.96
+        })
+      };
+    }
+  }
   const providerRequests = [];
 
   if (type === "travel") {
     providerRequests.push(
-      () => fetchWeather(mission),
-      () => fetchCurrency(mission),
-      () => fetchCountryInfo(mission),
-      () => fetchMapInfo(mission),
-      () => fetchLocalPlaces(mission),
-      () => fetchOfficialTravelAdvice(mission),
-      () => Promise.resolve(buildTravelResourceLinks(mission))
+      () => fetchWeather(preparedMission),
+      () => fetchCurrency(preparedMission),
+      () => fetchCountryInfo(preparedMission),
+      () => fetchMapInfo(preparedMission),
+      () => fetchLocalPlaces(preparedMission),
+      () => fetchOfficialTravelAdvice(preparedMission),
+      () => Promise.resolve(buildTravelResourceLinks(preparedMission))
     );
   }
 
@@ -549,7 +567,7 @@ const enrichMission = async (mission) => {
   providerResults.push(...buildPrototypeProviderResults(mission));
 
   return {
-    ...mission,
+    ...preparedMission,
     status: "mission_ready",
     providerResults,
     placeIntelligence: { fallback: fallbackPlan, blankResultsAllowed: false },

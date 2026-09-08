@@ -9,6 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-premium-travel-ui-v1";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -21,7 +22,7 @@ import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itine
 import { buildGlobalItinerary } from "../engine/itinerary/global-itinerary-transport-engine.js?v=20260908-global-release-readiness-phase-g-v1";
 import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
-import { destinationIdentityFromMissionResult } from "../engine/world/canonical-destination-identity.js";
+import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
 import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
@@ -3443,8 +3444,8 @@ const alpha03LocalizedDisplayName = (value = "") => {
  .reduce((output, entry) => output.replace(entry[0], entry[languageIndex]), protectedNewYorker)
     .replace(/__THE_NEW_YORKER_HOTEL__/g, 'The New Yorker, A Wyndham Hotel');
 };
-const createAlpha03VisualCard = (item, type, index) => {
-  const image = previewItemImage(item);
+const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) => {
+  const image = assignedImage === undefined ? previewItemImage(item) : assignedImage;
   const imageMarkup = image?.url
     ? `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>${type === "restaurant" ? "🍽️" : "📍"}</b></span><img src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
     : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
@@ -3453,7 +3454,7 @@ const createAlpha03VisualCard = (item, type, index) => {
   const tag = isFood ? "button" : "article";
   return `
   <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
-    <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}">${imageMarkup}</div>
+    <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}</div>
     <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p></div>
     ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true">${selected ? "✓" : "+"}</span>` : ""}
   </${tag}>
@@ -3468,7 +3469,7 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
   const markers = itinerary?.curated ? mapMarkersForItinerary(itinerary, [selectedProfile.latitude, selectedProfile.longitude]) : buildPreviewMapMarkers(selectedProfile, restaurants, places);
   const mapUrl = osmEmbedUrlForProfile(selectedProfile, markers);
   return `
-    <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" aria-label="${escapeSummaryText(resultText(activeLanguage, "mapPreview"))}">
+    <div class="alpha03-map-canvas is-osm-preview" data-alpha03-map="osm" data-map-provider="openstreetmap" data-map-destination-key="${escapeSummaryText(selectedProfile.key || selectedProfile.destinationKey || selectedProfile.id || "")}" data-map-center="${escapeSummaryText(`${selectedProfile.latitude},${selectedProfile.longitude}`)}" aria-label="${escapeSummaryText(resultText(activeLanguage, "mapPreview"))}">
       <iframe src="${escapeSummaryText(mapUrl)}" title="${escapeSummaryText(`${selectedProfile.city} itinerary map`)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       <div class="alpha03-map-marker-layer" aria-label="${escapeSummaryText(resultText(activeLanguage, "itineraryMarkers"))}">
         ${markers.map((marker) => `<button type="button" class="alpha03-map-pin alpha03-map-marker is-${escapeSummaryText(marker.type)}" style="--x:${marker.x}%;--y:${marker.y}%" data-itinerary-day="${escapeSummaryText(marker.day || "all")}" data-marker-label="${escapeSummaryText(marker.label)}" aria-label="${escapeSummaryText(marker.label)}"><span></span></button>`).join("")}
@@ -3862,7 +3863,13 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const resultRestaurants = (result.restaurants || []).filter((item) => item.livePlaceName || /openstreetmap/i.test(String(item.providerSource || ""))).map((item) => ({ name: item.venueName || item.type, tags: [item.cuisine || "local", "public place data"], source: item.providerSource || "OpenStreetMap" }));
   const livePlaces = liveItems.filter((item) => item.kind === "place").map((item) => ({ name: item.label, tags: [item.value || "attraction", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, latitude: item.latitude, longitude: item.longitude }));
   const uniqueItems = (items) => { const seen = new Set(); return items.filter((item) => { const key = String(item?.name || "").trim().toLowerCase(); if (!key || seen.has(key)) return false; seen.add(key); return true; }); };
-  const profile = { ...baseProfile, id: baseProfile.id || result.destination?.id || String(destination).toLowerCase().replace(/\W+/g, "_"), city: baseProfile.city || result.destination?.city || destination, country: baseProfile.country || result.destination?.country || result.countryProfile?.name || "", latitude: Number(baseProfile.latitude ?? result.destination?.latitude ?? result.countryProfile?.latitude), longitude: Number(baseProfile.longitude ?? result.destination?.longitude ?? result.countryProfile?.longitude), restaurants: uniqueItems([...liveRestaurants, ...resultRestaurants, ...(baseProfile.restaurants || [])]), places: uniqueItems([...livePlaces, ...(baseProfile.places || [])]) };
+  const canonicalDestination = result.destinationIdentity || result.destination || {};
+  const firstFiniteCoordinate = (...values) => values.map(Number).find(Number.isFinite);
+  const catalogDestination = resolveCanonicalDestinationIdentity([canonicalDestination.city, canonicalDestination.state || canonicalDestination.region, canonicalDestination.country].filter(Boolean).join(" ")).identity;
+  const sameProfileCity = String(baseProfile.city || "").localeCompare(String(canonicalDestination.city || result.destination?.city || ""), undefined, { sensitivity: "base" }) === 0;
+  const canonicalLatitude = firstFiniteCoordinate(result.destinationIdentity?.latitude, result.destination?.latitude, catalogDestination?.latitude, sameProfileCity ? baseProfile.latitude : undefined);
+  const canonicalLongitude = firstFiniteCoordinate(result.destinationIdentity?.longitude, result.destination?.longitude, catalogDestination?.longitude, sameProfileCity ? baseProfile.longitude : undefined);
+  const profile = { ...baseProfile, id: canonicalDestination.id || baseProfile.id || String(destination).toLowerCase().replace(/\W+/g, "_"), key: canonicalDestination.key || canonicalDestination.destinationKey || catalogDestination?.key || baseProfile.key || baseProfile.id || "", city: canonicalDestination.city || result.destination?.city || baseProfile.city || destination, country: canonicalDestination.country || result.destination?.country || baseProfile.country || result.countryProfile?.name || "", countryCode: canonicalDestination.countryCode || result.destination?.countryCode || catalogDestination?.countryCode || baseProfile.countryCode || result.countryProfile?.code || "", latitude: canonicalLatitude, longitude: canonicalLongitude, restaurants: uniqueItems([...liveRestaurants, ...resultRestaurants, ...(baseProfile.restaurants || [])]), places: uniqueItems([...livePlaces, ...(baseProfile.places || [])]) };
   const workspace = result.alpha04Workspace || null;
   const { tripDays } = calculateTripDayCounts(result);
   const { travelerCount } = getTravelPartyDetails(result);
@@ -4061,9 +4068,15 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       scheduleFeasible
     }
   }, { localizedContent });
+  const usedVisualImages = new Set();
+  const heroImage = allocateUniqueTravelImages(profile.hero?.url ? [{ image: profile.hero }] : [], { used: usedVisualImages })[0] || null;
+  const restaurantImages = allocateUniqueTravelImages(restaurants, { used: usedVisualImages });
+  const placeImages = allocateUniqueTravelImages(highlightPlaces, { used: usedVisualImages });
+  const usedImageUrls = [heroImage, ...restaurantImages, ...placeImages].filter(Boolean).map((image) => image.url);
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
       <div class="alpha03-recommendation-copy">
+        ${heroImage?.url ? `<div class="alpha03-hero-photo" data-image-identity="${escapeSummaryText(normalizedImageIdentity(heroImage))}"><img src="${escapeSummaryText(heroImage.url)}" alt="${escapeSummaryText(heroImage.alt || `${profile.city} destination`)}" width="900" height="520"></div>` : `<div class="alpha03-hero-photo is-fallback" aria-hidden="true"></div>`}
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda", "Choix ONE"))}</span>
         <h2>${escapeSummaryText(alpha03LocalizedDisplayName(journey.name))}</h2>
         <p>${escapeSummaryText(alpha03LocalizedDisplayName(journey.purpose))}</p>
@@ -4100,7 +4113,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         <button type="button" class="alpha03-food-bulk" data-alpha03-food-bulk data-selection-state="${restaurantBulkState}" aria-pressed="${restaurantBulkState === "all"}">${restaurantBulkState === "all" ? "✓" : "+"} ${escapeSummaryText(alpha03RestaurantBulkLabel(restaurantBulkState, selectedRestaurantCount, restaurants.length))}</button>
       </div>
       <div class="alpha03-card-grid is-restaurants alpha03-visual-rail">
-        ${restaurants.map((item, index) => createAlpha03VisualCard(item, "restaurant", index)).join("")}
+        ${restaurants.map((item, index) => createAlpha03VisualCard(item, "restaurant", index, restaurantImages[index])).join("")}
       </div>
     </section>
     ` : profile.fallbackNote ? `<section class="alpha03-section"><p>${escapeSummaryText(profile.fallbackNote)}</p></section>` : ""}
@@ -4113,13 +4126,13 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         ${createOneFreeTrustMarkup(trustBySection.places)}
       </div>
       <div class="alpha03-card-grid alpha03-visual-rail">
-        ${highlightPlaces.map((item, index) => createAlpha03VisualCard(item, "place", index)).join("")}
+        ${highlightPlaces.map((item, index) => createAlpha03VisualCard(item, "place", index, placeImages[index])).join("")}
       </div>
     </section>
     ` : ""}
     </div>
 
-    ${createAlpha03TimelineHtml(days, timelineImageCandidates, trustBySection.itinerary, profile.hero, highlightPlaces.map((item) => previewItemImage(item)?.url).filter(Boolean))}
+    ${createAlpha03TimelineHtml(days, timelineImageCandidates, trustBySection.itinerary, profile.hero, usedImageUrls)}
 
     ${createAlpha03OptionPreview(journey, result, transportationSummary, trustBySection)}
 

@@ -6278,6 +6278,38 @@ body.travel-premium-result-view .alpha03-thumb img,body.travel-premium-result-vi
 .alpha03-budget-grid>.alpha03-budget-summary-card>em{white-space:normal!important;word-break:keep-all!important;overflow-wrap:normal!important;overflow:hidden!important;text-align:right!important}
 @media(max-width:760px){.alpha03-budget-grid{grid-template-columns:1fr!important}.alpha03-budget-grid>.alpha03-budget-summary-card{min-height:64px!important}}
 @media(max-width:420px){.alpha03-budget-grid>.alpha03-budget-summary-card{grid-template-columns:28px minmax(52px,max-content) minmax(0,1fr)!important;gap:8px!important}.alpha03-budget-grid>.alpha03-budget-summary-card>em{font-size:12px!important}.alpha03-hero-stats>span>b{text-wrap:pretty!important}}
+
+/* Premium Travel results v1: founder-approved visual hierarchy. */
+body.travel-premium-result-view{--travel-bg:#101214;--travel-card:#1a1d20;--travel-card-2:#22262a;--travel-line:rgba(255,255,255,.11);--travel-text:#f5f3ed;--travel-muted:#aaaeb3;background:var(--travel-bg)!important;color:var(--travel-text)!important}
+body.travel-premium-result-view .results-shell{background:radial-gradient(circle at 18% 8%,rgba(155,126,55,.12),transparent 30rem),var(--travel-bg)!important}
+body.travel-premium-result-view .mission-layout{max-width:1280px!important;padding-top:18px!important}
+body.travel-premium-result-view .mission-hero,body.travel-premium-result-view .mission-timeline,body.travel-premium-result-view .mission-lifecycle-panel,body.travel-premium-result-view .mission-understood{display:none!important}
+body.travel-premium-result-view .mission-grid{gap:18px!important}
+body.travel-premium-result-view .alpha03-recommendation-stage,body.travel-premium-result-view .alpha03-budget-breakdown,body.travel-premium-result-view .alpha03-section,body.travel-premium-result-view .alpha03-option-preview,body.travel-premium-result-view .revision-command,body.travel-premium-result-view [data-card-id="approval-protection"]{border:1px solid var(--travel-line)!important;background:var(--travel-card)!important;box-shadow:0 22px 65px rgba(0,0,0,.24)!important;color:var(--travel-text)!important}
+body.travel-premium-result-view .alpha03-recommendation-stage{border-radius:30px!important;overflow:hidden!important}
+body.travel-premium-result-view .alpha03-recommendation-copy{position:relative!important;min-height:390px!important;padding:26px!important;border-radius:22px!important;overflow:hidden!important;isolation:isolate!important;justify-content:end!important}
+.alpha03-hero-photo{position:absolute;inset:0;z-index:-2;background:linear-gradient(135deg,#2c3035,#151719)}
+.alpha03-hero-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,14,.08) 10%,rgba(10,12,14,.93) 90%)}
+.alpha03-hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.alpha03-hero-photo.is-fallback{background:radial-gradient(circle at 30% 20%,#3b4650,#171a1d 66%)}
+body.travel-premium-result-view .alpha03-recommendation-copy h2{max-width:780px!important;color:#fff!important;text-shadow:0 3px 22px rgba(0,0,0,.65)!important}
+body.travel-premium-result-view .alpha03-recommendation-copy>p,body.travel-premium-result-view .alpha03-recommendation-copy>.v23-eyebrow{color:rgba(255,255,255,.82)!important;text-shadow:0 2px 12px rgba(0,0,0,.7)!important}
+body.travel-premium-result-view .alpha03-hero-stats>span{border-color:rgba(255,255,255,.14)!important;background:rgba(10,12,14,.7)!important;color:#fff!important;backdrop-filter:blur(14px)}
+body.travel-premium-result-view .alpha03-hero-stats>span>em{color:#bfc3c7!important}
+body.travel-premium-result-view .alpha03-recommendation-map{padding:0!important;border-radius:22px!important;overflow:hidden!important;background:var(--travel-card-2)!important}
+body.travel-premium-result-view .alpha03-map-canvas.is-osm-preview,body.travel-premium-result-view .alpha03-map-canvas.is-osm-preview iframe{height:390px!important;min-height:390px!important}
+body.travel-premium-result-view .alpha03-budget-breakdown{border-radius:24px!important}
+body.travel-premium-result-view .alpha03-budget-summary-card,body.travel-premium-result-view .alpha03-visual-card,body.travel-premium-result-view .alpha03-timeline-card,body.travel-premium-result-view .alpha03-preview-option{border-color:var(--travel-line)!important;background:var(--travel-card-2)!important;color:var(--travel-text)!important}
+body.travel-premium-result-view .alpha03-budget-summary-card em,body.travel-premium-result-view .alpha03-visual-card p,body.travel-premium-result-view .alpha03-day-slot p,body.travel-premium-result-view .revision-lead{color:var(--travel-muted)!important}
+body.travel-premium-result-view .alpha03-section{padding:20px!important;border-radius:24px!important;overflow:hidden!important}
+body.travel-premium-result-view .alpha03-thumb.is-fallback,body.travel-premium-result-view .alpha03-hero-photo.is-fallback{background:linear-gradient(145deg,#30363c,#191c1f)!important}
+body.travel-premium-result-view .alpha03-timeline-card{border-radius:20px!important;overflow:hidden!important;padding:10px!important}
+body.travel-premium-result-view .alpha03-timeline-card>strong{font-size:20px!important;line-height:1.2!important}
+body.travel-premium-result-view .revision-command{padding:18px!important;border-radius:22px!important}
+body.travel-premium-result-view .revision-command .card-title{font-size:clamp(20px,2vw,26px)!important}
+body.travel-premium-result-view #additionalServiceInput{background:var(--travel-card-2)!important;color:var(--travel-text)!important;border-color:var(--travel-line)!important}
+@media(max-width:900px){body.travel-premium-result-view .alpha03-recommendation-copy{min-height:330px!important}body.travel-premium-result-view .alpha03-map-canvas.is-osm-preview,body.travel-premium-result-view .alpha03-map-canvas.is-osm-preview iframe{height:280px!important;min-height:280px!important}}
+@media(max-width:620px){body.travel-premium-result-view .mission-layout{padding-inline:10px!important}body.travel-premium-result-view .alpha03-recommendation-stage{border-radius:22px!important}body.travel-premium-result-view .alpha03-recommendation-copy{min-height:360px!important;padding:18px!important}body.travel-premium-result-view .alpha03-recommendation-copy h2{font-size:clamp(31px,11vw,44px)!important}body.travel-premium-result-view .alpha03-section{padding:14px!important}.alpha03-hero-photo::after{background:linear-gradient(180deg,rgba(10,12,14,.04),rgba(10,12,14,.96) 84%)}}
 /* ONE work-mission experience */
 .mission-grid.is-work-mission-layout { display:block; max-width:1180px; margin-inline:auto; }
 .work-mission-experience { --text-primary:var(--text); --text-secondary:var(--text-muted); --border-color:var(--border); --card-bg:var(--surface); --surface-muted:var(--chip); --page-bg:var(--bg); display:grid; gap:22px; color:var(--text-primary); }

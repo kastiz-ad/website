@@ -327,25 +327,6 @@ const searchWorldwideDestinations = async (value, language) => {
     if (sharedAmbiguous.length > 1) {
       return decidePlaceResolution(query, sharedAmbiguous).candidates.slice(0, 12);
     }
-    if (local) {
-      const item = TRAVEL_DESTINATION_CHOICES.find((candidate) => candidate.country === local.country);
-      return [{
-        country: local.country,
-        countryKo: item?.countryKo || "",
-        countryEs: item?.countryEs || "",
-        code: local.code,
-        city: local.city,
-        state: "",
-        continent: local.continent,
-        currency: item?.currency || "",
-        latitude: undefined,
-        longitude: undefined,
-        aliases: [...(item?.aliases || []), cityLabel(local.city, language), CITY_NAMES_KO[local.city], query].filter(Boolean),
-        placeType: "city",
-        importance: 0.75,
-        description: ["Destination", local.country].join(" · ")
-      }];
-    }
     const countryAliases = { 필리핀: "PH", 콩고: "CG", 콩고공화국: "CG", 민주콩고: "CD", 콩고민주공화국: "CD", 남아프리카: "ZA", 남아공: "ZA", 캄보디아: "KH", 말라시아: "MY", 말레이시아: "MY", 대만: "TW", 타이완: "TW", 파푸아뉴기니: "PG", 엘살바도르: "SV", 살바도르: "SV" };
     const countries = await loadWorldwideCountries();
     const exactCountry = countries.find((item) => item.code === countryAliases[normalizedQuery]
@@ -464,7 +445,11 @@ const searchWorldwideDestinations = async (value, language) => {
     });
     const uniqueCandidates = candidates
       .filter((item) => item.city && item.country)
-      .filter((item, index, all) => all.findIndex((candidate) => destinationCandidateKey(candidate) === destinationCandidateKey(item)) === index);
+      .filter((item, index, all) => all.findIndex((candidate) => destinationCandidateKey(candidate) === destinationCandidateKey(item)) === index)
+      .filter((item, index, all) => Number.isFinite(Number(item.latitude)) || !all.some((candidate) =>
+        Number.isFinite(Number(candidate.latitude))
+        && normalizeDestinationLookup(candidate.city) === normalizeDestinationLookup(item.city)
+        && String(candidate.code || "").toUpperCase() === String(item.code || "").toUpperCase()));
     return decidePlaceResolution(query, uniqueCandidates).candidates.slice(0, 12);
   } catch {
     return local ? [{ ...local, state: "" }] : [];
@@ -509,6 +494,20 @@ export const detectWorldwideTravelDestination = async (value, language = "en") =
       const capital = exact.find((item) => normalizeDestinationLookup(item.city).replaceAll(" ", "") !== normalized && !(item.aliases || []).length);
       return capital ? [capital, ...exact.filter((item) => item !== capital)] : exact;
     }
+    const catalogMatch = findDestinationMatch(query, language);
+    if (catalogMatch) return [{
+      country: catalogMatch.item.country,
+      countryKo: catalogMatch.item.countryKo || "",
+      countryEs: catalogMatch.item.countryEs || "",
+      code: TRAVEL_COUNTRY_CODES[catalogMatch.item.country] || "",
+      city: catalogMatch.city,
+      continent: CONTINENT_BY_COUNTRY[catalogMatch.item.country] || "",
+      currency: catalogMatch.item.currency || "",
+      latitude: undefined,
+      longitude: undefined,
+      placeType: "city",
+      importance: 0.75
+    }];
   }
   return [];
 };

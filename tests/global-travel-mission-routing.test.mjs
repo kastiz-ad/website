@@ -7,6 +7,7 @@ import { resolveCanonicalDestinationIdentity } from "../js/engine/world/canonica
 
 globalThis.addEventListener = () => {};
 globalThis.localStorage = { getItem: (key) => key === "kastiz-one-consent" ? '{"necessary":true,"analytics":false}' : null, setItem: () => {} };
+globalThis.fetch = async () => ({ ok: false, json: async () => ({}) });
 const { detectWorldwideTravelDestination } = await import("../js/ui/mission-followup.js");
 
 const routedType = async (mission) => {
@@ -102,7 +103,7 @@ test("results bootstrap preserves a matching stored Travel mission before URL fa
     results.indexOf("storedResultMatchesRoute(parsed, params)") < results.indexOf("const manualScenario = getManualScenarioResult()"),
     "matching same-flow storage must be considered before manual URL reconstruction"
   );
-  const version = /20260909-global-travel-results-routing-v1/;
+  const version = /20260909-premium-travel-ui-v1/;
   assert.match(resultsHtml, version);
   assert.match(resultsEntry, version);
 });
