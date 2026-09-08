@@ -387,6 +387,7 @@ const fetchWikipediaInfo = async (mission) => {
     let destinationImage = data?.originalimage?.source || data?.thumbnail?.source || "";
     let destinationImageTitle = data?.title || topic;
     let destinationImagePage = data?.content_urls?.desktop?.page || "";
+    let destinationImageAlternates = [];
     const latitude = Number(mission?.destination?.latitude);
     const longitude = Number(mission?.destination?.longitude);
     if (!destinationImage && Number.isFinite(latitude) && Number.isFinite(longitude)) {
@@ -394,6 +395,14 @@ const fetchWikipediaInfo = async (mission) => {
       const pages = Object.values(nearby?.query?.pages || {}).filter((page) => page?.original?.source || page?.thumbnail?.source);
       const normalizedTopic = String(topic).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
       const selected = pages.find((page) => String(page.title || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(normalizedTopic)) || pages[0];
+      destinationImageAlternates = pages.map((page) => ({
+        url: page.original?.source || page.thumbnail?.source || "",
+        alt: page.title || topic,
+        source: "Wikipedia",
+        attribution: `https://en.wikipedia.org/?curid=${page.pageid}`,
+        latitude,
+        longitude
+      })).filter((image, index, images) => image.url && images.findIndex((candidate) => candidate.url === image.url) === index);
       if (selected) {
         destinationImage = selected.original?.source || selected.thumbnail?.source || "";
         destinationImageTitle = selected.title || destinationImageTitle;
@@ -413,6 +422,7 @@ const fetchWikipediaInfo = async (mission) => {
         value: data?.extract || "Public information unavailable",
         imageUrl: destinationImage,
         imageAlt: destinationImageTitle,
+        imageAlternates: destinationImageAlternates.filter((image) => image.url !== destinationImage),
         source: "Wikipedia",
         attribution: destinationImagePage
       }],

@@ -57,7 +57,9 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(loading, /fetchWikipediaInfo\(preparedMission\)/);
   assert.match(loading, /let destinationImage = data\?\.originalimage\?\.source \|\| data\?\.thumbnail\?\.source/);
   assert.match(loading, /generator=geosearch/);
+  assert.match(loading, /imageAlternates: destinationImageAlternates/);
   assert.match(page, /const destinationHero = destinationInfo\?\.imageUrl/);
+  assert.match(page, /const destinationVisualPlaces = \(destinationInfo\?\.imageAlternates/);
   assert.match(page, /data-map-destination-key=/);
   assert.match(page, /data-map-center=/);
   assert.match(page, /allocateUniqueTravelImages\(restaurants/);
