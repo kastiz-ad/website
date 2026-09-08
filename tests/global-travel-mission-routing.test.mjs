@@ -89,3 +89,20 @@ test("homepage cache chain deploys the destination-aware routing fix", async () 
   assert.match(entry, version);
   assert.match(home, version);
 });
+
+test("results bootstrap preserves a matching stored Travel mission before URL fallback reconstruction", async () => {
+  const [resultsHtml, resultsEntry, results] = await Promise.all([
+    readFile(new URL("../results.html", import.meta.url), "utf8"),
+    readFile(new URL("../results.js", import.meta.url), "utf8"),
+    readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8")
+  ]);
+  assert.match(results, /const storedResultMatchesRoute/);
+  assert.match(results, /storedResultMatchesRoute\(parsed, params\) \|\| !hasExplicitPreviewMission/);
+  assert.ok(
+    results.indexOf("storedResultMatchesRoute(parsed, params)") < results.indexOf("const manualScenario = getManualScenarioResult()"),
+    "matching same-flow storage must be considered before manual URL reconstruction"
+  );
+  const version = /20260909-global-travel-results-routing-v1/;
+  assert.match(resultsHtml, version);
+  assert.match(resultsEntry, version);
+});

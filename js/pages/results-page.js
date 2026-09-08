@@ -497,6 +497,16 @@ const createReleasePreviewTravelFallback = (params = new URLSearchParams()) => {
 
 const isExplicitInterviewPreparation = (value = "") => /interview|mock interview|면접|모의 면접|entrevista/i.test(String(value));
 
+const normalizeRouteMission = (value = "") => String(value).replace(/\s+/g, " ").trim().toLocaleLowerCase();
+
+const storedResultMatchesRoute = (stored, params = new URLSearchParams()) => {
+  if (!stored?.type) return false;
+  const routeMission = params.get("mission") || params.get("q") || "";
+  if (!routeMission) return false;
+  const storedMission = stored.rawInput || stored.originalMission || stored.mission || "";
+  return normalizeRouteMission(routeMission) === normalizeRouteMission(storedMission);
+};
+
 const getStoredResult = () => {
   const params = new URLSearchParams(window.location.search);
   const releasePreviewFallback = shouldUseReleasePreviewTravelFallback(params);
@@ -510,8 +520,6 @@ const getStoredResult = () => {
     )) return revised;
   } catch {}
   if (releasePreviewFallback && hasExplicitPreviewMission) return createReleasePreviewTravelFallback(params);
-  const manualScenario = getManualScenarioResult();
-  if (manualScenario) return manualScenario;
   const sharedResult = getPortableSharedResult();
   if (sharedResult) return sharedResult;
   try {
@@ -520,7 +528,7 @@ const getStoredResult = () => {
     const missionRaw = sessionStorage.getItem(STORAGE_KEYS.mission);
     const parsed = JSON.parse(resultsRaw || travelRaw || missionRaw);
 
-    if (parsed?.type) {
+    if (parsed?.type && (storedResultMatchesRoute(parsed, params) || !hasExplicitPreviewMission)) {
       const explicitPrompt = params.get("mission") || params.get("q") || parsed.rawInput || parsed.mission || "";
       if (isExplicitInterviewPreparation(explicitPrompt)) {
         return { ...parsed, type: "interview", missionType: "interview", domain: "work", missionCategory: "work" };
@@ -528,6 +536,9 @@ const getStoredResult = () => {
       return parsed;
     }
   } catch {}
+
+  const manualScenario = getManualScenarioResult();
+  if (manualScenario) return manualScenario;
 
   if (releasePreviewFallback) return createReleasePreviewTravelFallback(params);
   return null;
