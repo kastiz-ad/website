@@ -58,8 +58,12 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(loading, /let destinationImage = data\?\.originalimage\?\.source \|\| data\?\.thumbnail\?\.source/);
   assert.match(loading, /generator=geosearch/);
   assert.match(loading, /imageAlternates: destinationImageAlternates/);
-  assert.match(page, /const destinationHero = destinationInfo\?\.imageUrl/);
+  assert.match(page, /const destinationHero = isApprovedMedellinHero/);
+  assert.match(page, /: destinationInfo\?\.imageUrl/);
   assert.match(page, /const destinationVisualPlaces = \(destinationInfo\?\.imageAlternates/);
+  assert.match(page, /assets\/medellin-city-hero-v1\.png/);
+  assert.match(page, /data-rating-state="estimated"/);
+  assert.match(page, /selected \? "♥" : "♡"/);
   assert.match(page, /data-map-destination-key=/);
   assert.match(page, /data-map-center=/);
   assert.match(page, /allocateUniqueTravelImages\(restaurants/);
@@ -70,6 +74,8 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(css, /grid-template-columns:minmax\(0,3fr\) minmax\(320px,1\.08fr\)/);
   assert.match(css, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.match(css, /alpha03-timeline-card \.alpha03-day-slot\{display:grid!important/);
+  assert.match(css, /width:calc\(100vw - 12px\)/);
+  assert.match(css, /alpha03-card-score/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260909-premium-travel-ui-v4/);
+  assert.match(html, /20260909-premium-travel-ui-v5/);
 });

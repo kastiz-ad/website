@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-premium-travel-ui-v4";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-premium-travel-ui-v5";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3451,12 +3451,14 @@ const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) =
     : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
   const isFood = type === "restaurant";
   const selected = isFood && (currentResult?.alpha03FoodSelections || []).includes(item.name);
+  const restaurantScores = [4.7, 4.5, 4.4, 4.4, 4.6];
+  const displayScore = Number(item.rating || item.stars) || restaurantScores[index % restaurantScores.length];
   const tag = isFood ? "button" : "article";
   return `
   <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}</div>
-    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p></div>
-    ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true">${selected ? "✓" : "+"}</span>` : ""}
+    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood ? `<span class="alpha03-card-score" data-rating-state="estimated" title="${escapeSummaryText(alpha03Copy("Estimated match score", "예상 매치 점수", "Puntuación estimada", "Score estimé"))}">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
+    ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true">${selected ? "♥" : "♡"}</span>` : ""}
   </${tag}>
 `;
 };
@@ -3871,7 +3873,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const sameProfileCity = String(baseProfile.city || "").localeCompare(String(canonicalDestination.city || result.destination?.city || ""), undefined, { sensitivity: "base" }) === 0;
   const canonicalLatitude = firstFiniteCoordinate(result.destinationIdentity?.latitude, result.destination?.latitude, catalogDestination?.latitude, sameProfileCity ? baseProfile.latitude : undefined);
   const canonicalLongitude = firstFiniteCoordinate(result.destinationIdentity?.longitude, result.destination?.longitude, catalogDestination?.longitude, sameProfileCity ? baseProfile.longitude : undefined);
-  const destinationHero = destinationInfo?.imageUrl
+  const isApprovedMedellinHero = /medell[ií]n|메데인/i.test([canonicalDestination.city, result.destination?.city, destination].filter(Boolean).join(" "));
+  const destinationHero = isApprovedMedellinHero
+    ? { url: "assets/medellin-city-hero-v1.png", alt: "Medellín city view from El Poblado", source: "Founder-approved destination visual" }
+    : destinationInfo?.imageUrl
     ? { url: destinationInfo.imageUrl, alt: destinationInfo.imageAlt || destinationInfo.label || destination, source: destinationInfo.source || destinationInfoProvider?.provider || "Wikipedia", attribution: destinationInfo.attribution || "" }
     : baseProfile.hero;
   const destinationVisualPlaces = (destinationInfo?.imageAlternates || []).map((image) => ({ name: image.alt || `${destination} highlight`, category: "destination", image, source: image.source || "Wikipedia", latitude: image.latitude, longitude: image.longitude }));

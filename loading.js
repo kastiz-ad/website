@@ -1,2 +1,2 @@
 // compatibility lineage: loading-page.js?v=20260813-mobile-flow-v78
-import "./js/pages/loading-page.js?v=20260909-premium-travel-ui-v4";
+import "./js/pages/loading-page.js?v=20260909-premium-travel-ui-v5";
