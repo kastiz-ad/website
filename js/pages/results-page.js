@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-travel-media-pricing-v7";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-approved-dashboard-v8";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3487,6 +3487,7 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
 
 const WORLD_CITY_VISUAL_PACKS = Object.freeze([
   { match:/\bmedell[ií]n\b|메데인/i,
+    city:"Medellín", country:"Colombia", region:"Antioquia", countryCode:"CO", latitude:6.2442, longitude:-75.5812,
     hero:["Medellín skyline and Aburrá Valley","https://cloud.tui.com/tuiat/images/fileadmin/tuicom/2000x470-Teaser_Hero/kolumbien/kolumbien-medellin-luftbild-skyline-stadt-landschaft.jpg"],
     foods:[
       ["El Cielo","https://houseofcoco.net/wp-content/uploads/2024/01/rsz_duf_2680_v_ok.jpg"],
@@ -3980,6 +3981,12 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   if (worldCityVisualPack) {
     restaurants = [...worldCityVisualPack.foods];
     places = [...worldCityVisualPack.places];
+    profile.city = worldCityVisualPack.city || profile.city;
+    profile.country = worldCityVisualPack.country || profile.country;
+    profile.region = worldCityVisualPack.region || profile.region;
+    profile.countryCode = worldCityVisualPack.countryCode || profile.countryCode;
+    profile.latitude = Number.isFinite(Number(worldCityVisualPack.latitude)) ? Number(worldCityVisualPack.latitude) : profile.latitude;
+    profile.longitude = Number.isFinite(Number(worldCityVisualPack.longitude)) ? Number(worldCityVisualPack.longitude) : profile.longitude;
     if (!profile.hero?.url && worldCityVisualPack.hero?.[1]) {
       profile.hero = { url: worldCityVisualPack.hero[1], alt: worldCityVisualPack.hero[0], source: "destination_visual_pack" };
     }
@@ -4170,7 +4177,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       <div class="alpha03-recommendation-copy">
         ${heroImage?.url ? `<div class="alpha03-hero-photo" data-image-identity="${escapeSummaryText(normalizedImageIdentity(heroImage))}"><img src="${escapeSummaryText(heroImage.url)}" alt="${escapeSummaryText(heroImage.alt || `${profile.city} destination`)}" width="900" height="520"></div>` : `<div class="alpha03-hero-photo is-fallback" aria-hidden="true"></div>`}
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda", "Choix ONE"))}</span>
-        <h2>${escapeSummaryText(alpha03LocalizedDisplayName(journey.name))}</h2>
+        <h2 class="alpha03-destination-title"><span>${escapeSummaryText(alpha03LocalizedDisplayName(profile.city || destination))}</span>${profile.country ? `<span>${escapeSummaryText(alpha03LocalizedDisplayName(profile.country))}</span>` : ""}</h2>
         <p>${escapeSummaryText(alpha03LocalizedDisplayName(journey.purpose))}</p>
         <div class="alpha03-recommendation-metrics alpha03-hero-stats">
           <span><b>${escapeSummaryText(String(tripDays))}</b><em>${escapeSummaryText(alpha03Copy("days", "일", "días", "jours"))}</em></span>

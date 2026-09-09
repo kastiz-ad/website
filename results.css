@@ -6407,6 +6407,27 @@ body.travel-premium-result-view .alpha03-itinerary-visual-copy b{font-size:12px}
 body.travel-premium-result-view .alpha03-itinerary-visual-copy strong{font-size:12px;line-height:1.3}
 body.travel-premium-result-view .alpha03-itinerary-detail-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 body.travel-premium-result-view .alpha03-itinerary-detail-card{min-width:0;padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:#202529;color:#f6f6f3;scroll-margin-top:100px}
+
+/* Founder reference geometry v4: remove legacy wrappers and reproduce the cinematic dashboard. */
+body.travel-premium-result-view .travel-package-card.v23-travel-experience{padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+body.travel-premium-result-view .v23-selected-journey{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;gap:14px!important}
+body.travel-premium-result-view .mission-grid{gap:14px!important}
+body.travel-premium-result-view .alpha03-recommendation-stage{grid-template-columns:minmax(0,3fr) minmax(300px,1fr)!important;min-height:360px!important;height:360px!important;gap:12px!important;border-radius:22px!important}
+body.travel-premium-result-view .alpha03-recommendation-copy{min-height:360px!important;height:360px!important;padding:20px!important}
+body.travel-premium-result-view .alpha03-recommendation-map{min-height:360px!important;height:360px!important}
+body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview,body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview iframe{height:360px!important;min-height:360px!important}
+body.travel-premium-result-view .alpha03-destination-title{display:grid!important;gap:0!important;max-width:580px!important;font-size:clamp(44px,4.25vw,66px)!important;line-height:.88!important}
+body.travel-premium-result-view .alpha03-destination-title>span{display:block}
+body.travel-premium-result-view .alpha03-hero-stats{grid-template-columns:112px minmax(210px,290px) minmax(190px,240px)!important;max-width:670px!important}
+body.travel-premium-result-view .alpha03-hero-stats>span{min-height:70px!important;padding:11px 15px!important}
+body.travel-premium-result-view .alpha03-budget-breakdown{padding:14px!important;gap:10px!important}
+body.travel-premium-result-view .alpha03-budget-grid>.alpha03-budget-summary-card{min-height:76px!important;padding:12px!important}
+body.travel-premium-result-view .alpha03-visual-pair-grid .alpha03-card-grid>.alpha03-visual-card{min-height:220px!important}
+body.travel-premium-result-view .alpha03-visual-card>div:last-of-type{min-height:64px!important;padding:10px 66px 12px 12px!important}
+body.travel-premium-result-view .alpha03-visual-card strong{font-size:15px!important}
+body.travel-premium-result-view .alpha03-visual-card p{font-size:12px!important;margin-top:4px!important}
+@media(max-width:980px){body.travel-premium-result-view .alpha03-recommendation-stage{height:auto!important;grid-template-columns:1fr!important}body.travel-premium-result-view .alpha03-recommendation-copy{height:auto!important;min-height:420px!important}body.travel-premium-result-view .alpha03-recommendation-map{height:280px!important;min-height:280px!important}body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview,body.travel-premium-result-view .alpha03-recommendation-map .alpha03-map-canvas.is-osm-preview iframe{height:280px!important;min-height:280px!important}}
+@media(max-width:620px){body.travel-premium-result-view .alpha03-recommendation-copy{min-height:450px!important}body.travel-premium-result-view .alpha03-destination-title{font-size:clamp(36px,11.5vw,48px)!important}body.travel-premium-result-view .alpha03-hero-stats{grid-template-columns:1fr!important;max-width:none!important}}
 body.travel-premium-result-view .alpha03-itinerary-detail-card>span{display:block;color:var(--travel-gold);font-size:12px;font-weight:850;text-transform:uppercase}
 body.travel-premium-result-view .alpha03-itinerary-detail-card>strong{display:block;margin-top:5px;font-size:18px;line-height:1.25}
 body.travel-premium-result-view .alpha03-itinerary-detail-card>em{display:block;margin-top:5px;color:var(--travel-muted);font-size:12px;font-style:normal}
