@@ -6437,6 +6437,18 @@ body.travel-premium-result-view .alpha03-itinerary-detail-card .alpha03-day-slot
 body.travel-premium-result-view .alpha03-itinerary-detail-card .alpha03-day-slot p{color:var(--travel-muted)}
 @media(min-width:1180px){body.travel-premium-result-view .alpha03-itinerary-visual-rail{grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-flow:row;overflow:visible}}
 @media(max-width:760px){body.travel-premium-result-view .alpha03-itinerary-visual-summary .alpha03-section-heading{display:grid!important;grid-template-columns:1fr auto!important}.alpha03-itinerary-visual-summary .v23-eyebrow{grid-column:1}.alpha03-itinerary-visual-summary .alpha03-section-heading h3{grid-column:1}.alpha03-itinerary-visual-summary .one-free-trust{grid-column:1}.alpha03-view-full-itinerary{grid-column:2;grid-row:1/4}.alpha03-itinerary-visual-rail{grid-auto-columns:min(70vw,260px)!important}.alpha03-itinerary-detail-list{grid-template-columns:1fr!important}.alpha03-itinerary-detail-card .alpha03-day-slot{grid-template-columns:1fr!important;gap:3px!important}}
+
+/* Approved dashboard: keep post-plan controls visually secondary and compact. */
+body.travel-premium-result-view #additionalServicesForm{width:min(100%,1080px)!important;min-height:0!important;margin:18px auto!important;padding:18px 20px!important;border-radius:18px!important}
+body.travel-premium-result-view #additionalServicesForm .card-top{margin:0!important}
+body.travel-premium-result-view #additionalServicesForm .card-title{font-size:clamp(18px,2vw,24px)!important}
+body.travel-premium-result-view #additionalServicesForm .revision-lead{margin:6px 0 12px!important}
+body.travel-premium-result-view #additionalServicesForm textarea{min-height:54px!important;height:54px!important}
+body.travel-premium-result-view [data-card-id="approval-protection"]{min-height:0!important;margin:14px 0!important;padding:18px 24px!important;border-radius:18px!important}
+body.travel-premium-result-view [data-card-id="approval-protection"] .card-top{margin-bottom:4px!important}
+body.travel-premium-result-view [data-card-id="approval-protection"] .reason{margin:6px auto 0!important;max-width:900px!important}
+body.travel-premium-result-view #bottomActions{min-height:0!important;margin:18px auto 28px!important;padding:12px!important}
+body.travel-premium-result-view #bottomActions .primary-action{min-height:58px!important;padding:10px 30px!important}
 /* ONE work-mission experience */
 .mission-grid.is-work-mission-layout { display:block; max-width:1180px; margin-inline:auto; }
 .work-mission-experience { --text-primary:var(--text); --text-secondary:var(--text-muted); --border-color:var(--border); --card-bg:var(--surface); --surface-muted:var(--chip); --page-bg:var(--bg); display:grid; gap:22px; color:var(--text-primary); }
