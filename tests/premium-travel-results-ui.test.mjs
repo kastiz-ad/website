@@ -61,7 +61,13 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /const destinationHero = destinationInfo\?\.imageUrl/);
   assert.match(page, /const destinationVisualPlaces = \(destinationInfo\?\.imageAlternates/);
   assert.doesNotMatch(page, /medellin-city-hero-v1|restaurantScores/);
-  assert.match(page, /selected \? "♥" : "♡"/);
+  assert.match(page, /alpha03-food-select-mark[\s\S]*<svg viewBox="0 0 24 24"/);
+  assert.doesNotMatch(page, /ownImage \|\| "https:\/\/images\.unsplash\.com\/photo-1517248135467/);
+  assert.match(page, /scaleEstimate\(routeFlightEstimate, 2\.2, 3\.2\)/);
+  assert.match(page, /scaleEstimate\(routeFlightEstimate, 4, 6\)/);
+  assert.match(page, /transportEstimate\(2\.2, 3\.5\)/);
+  assert.match(page, /itineraryImages = resolveSemanticItineraryImages/);
+  assert.match(loading, /if \(Number\.isFinite\(latitude\) && Number\.isFinite\(longitude\)\)/);
   assert.match(page, /data-map-destination-key=/);
   assert.match(page, /data-map-center=/);
   assert.match(page, /alpha03-map-destination/);
@@ -83,5 +89,15 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(css, /alpha03-itinerary-visual-rail/);
   assert.match(css, /alpha03-itinerary-detail-list/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260909-approved-travel-dashboard-v6/);
+  assert.match(html, /20260909-travel-media-pricing-v7/);
+});
+
+test("Medellín cards use distinct destination-specific media instead of global stock", async () => {
+  const page = await readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(page, /match:\/\\bmedell\[ií\]n\\b\|메데인\/i/);
+  for (const venue of ["El Cielo", "Carmen", "Alambique", "OCI.Mde", "Lucia"]) {
+    assert.ok(page.includes(`["${venue}","https:`), `${venue} must have a destination-specific image`);
+  }
+  assert.match(page, /"medellín": \["Diez Hotel Categoría Colombia", "574 Hotel", "Living by Armoniko", "Landmark Hotel Medellín"/);
+  assert.match(page, /if \(!profile\.hero\?\.url && worldCityVisualPack\.hero\?\.\[1\]\)/);
 });

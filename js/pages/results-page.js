@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-approved-travel-dashboard-v6";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260909-travel-media-pricing-v7";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -1617,6 +1617,8 @@ const destinationPrototypeProfiles = {
   }
 };
 const destinationHotelsByCity = Object.freeze({
+  "medellín": ["Diez Hotel Categoría Colombia", "574 Hotel", "Living by Armoniko", "Landmark Hotel Medellín", "Hotel Poblado Plaza", "Sites Hotel", "The Charlee Hotel", "Novotel Medellín El Tesoro"],
+  "medellin": ["Diez Hotel Categoría Colombia", "574 Hotel", "Living by Armoniko", "Landmark Hotel Medellín", "Hotel Poblado Plaza", "Sites Hotel", "The Charlee Hotel", "Novotel Medellín El Tesoro"],
   "new york city": ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square", "The New Yorker, A Wyndham Hotel", "Arlo Midtown", "Moxy NYC Times Square", "citizenM New York Times Square", "The Dominick", "Hotel Beacon"],
   "new york": ["Lotte New York Palace", "Hilton New York Midtown", "Hyatt Grand Central New York", "Pod Times Square", "The New Yorker, A Wyndham Hotel", "Arlo Midtown", "Moxy NYC Times Square", "citizenM New York Times Square", "The Dominick", "Hotel Beacon"],
   "los angeles": ["The Hollywood Roosevelt", "Omni Los Angeles Hotel at California Plaza", "The Hoxton Downtown LA", "InterContinental Los Angeles Downtown", "citizenM Los Angeles Downtown", "Freehand Los Angeles", "The LINE LA", "Hotel June West LA", "Shutters on the Beach", "The Beverly Hills Hotel"],
@@ -3455,9 +3457,9 @@ const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) =
   const tag = isFood ? "button" : "article";
   return `
   <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
-    <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}</div>
+    <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}${item.contextualImage ? `<small class="alpha03-context-image-label">${escapeSummaryText(alpha03Copy("Area photo", "지역 사진", "Foto de la zona", "Photo du quartier"))}</small>` : ""}</div>
     <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood && Number.isFinite(displayScore) ? `<span class="alpha03-card-score">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
-    ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true">${selected ? "♥" : "♡"}</span>` : ""}
+    ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 20.4 4.2 13A5.2 5.2 0 0 1 11.6 5.7L12 6l.4-.3A5.2 5.2 0 0 1 19.8 13Z"/></svg></span>` : ""}
   </${tag}>
 `;
 };
@@ -3484,6 +3486,23 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
 };
 
 const WORLD_CITY_VISUAL_PACKS = Object.freeze([
+  { match:/\bmedell[ií]n\b|메데인/i,
+    hero:["Medellín skyline and Aburrá Valley","https://cloud.tui.com/tuiat/images/fileadmin/tuicom/2000x470-Teaser_Hero/kolumbien/kolumbien-medellin-luftbild-skyline-stadt-landschaft.jpg"],
+    foods:[
+      ["El Cielo","https://houseofcoco.net/wp-content/uploads/2024/01/rsz_duf_2680_v_ok.jpg"],
+      ["Carmen","https://images.squarespace-cdn.com/content/v1/66a7208542dcf606bb6f18ce/5591f620-9a44-46ab-92d0-33aa95a30cf2/CARMEN%2BRESTAURANTE.jpeg?format=1500w"],
+      ["Alambique","https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2e/7f/4c/86/caption.jpg?h=800&s=1&w=1400"],
+      ["OCI.Mde","https://images.squarespace-cdn.com/content/v1/56c1dde2cf80a13c7c1a7ceb/1558930226137-A8N2QWULKDS5UW6FVLT8/Web_6.jpg"],
+      ["Lucia","https://s3.amazonaws.com/fathom_media/photos/1-medellin-lucia-restaurant.jpg.1200x800_q85_crop.jpg"]
+    ], places:[
+      ["El Poblado and Medellín skyline","https://blog.properati.com.co/wp-content/uploads/2021/09/medellin-el-poblado-scaled.jpeg"],
+      ["Comuna 13 and local culture","https://images.myguide-cdn.com/colombia/companies/medellin-comuna-13-cable-cars-and-botero-statues-tour/large/medellin-comuna-13-cable-cars-and-botero-statues-tour-3037136.jpg"],
+      ["Plaza Botero","https://travelsofyum.com/wp-content/uploads/2013/07/dsc00288-1024x683.jpg"],
+      ["Medellín Metro and city center","https://cdn.tripspoint.com/uploads/photos/6919/medellin-metro-tour_F54Ie.jpeg"],
+      ["Palacio de la Cultura Rafael Uribe Uribe","https://medellinguru.com/wp-content/uploads/2017/09/IMG_1946.jpg"],
+      ["Botero Square and central Medellín","https://theoccasionaltraveller.com/wp-content/uploads/2020/03/Colombia-Medellin-Botero-Square-View.jpg"],
+      ["Medellín mountain sunset","https://www.medellin.travel/wp-content/uploads/elementor/thumbs/Botero_0008_5-ox16d8ve3nnws6e3x9cv3jqv3n40uc96k54m4rn57k.jpg"]
+    ]},
   { match:/\bmadrid\b|마드리드/i, foods:[
     ["Madrid churros and chocolate","https://images.unsplash.com/photo-1624371414361-e670edf4898d?auto=format&fit=crop&w=900&q=82"],
     ["Jamón ibérico and manchego","https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=82"],
@@ -3642,7 +3661,7 @@ const alpha03FoodImageForName = (name = "", ownImage = "") => {
     [/pastrami|deli|sandwich|subway/, "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=82"],
     [/cheesecake|dessert|cake/, "https://images.unsplash.com/photo-1524351199678-941a58a3df50?auto=format&fit=crop&w=900&q=82"]
   ];
-  return rules.find(([pattern]) => pattern.test(text))?.[1] || ownImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=82";
+  return rules.find(([pattern]) => pattern.test(text))?.[1] || ownImage || "";
 };
 const alpha03TravelOptionImages = Object.freeze({
   flights: ["https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1540339832862-474599807836?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=900&q=82"],
@@ -3669,7 +3688,18 @@ const alpha03TravelOptionImages = Object.freeze({
   transport: ["https://images.unsplash.com/photo-1516939884455-1445c8652f83?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1515569067071-ec3b51335dd0?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&w=900&q=82"]
 });
 const alpha03OptionImage = (group, option, index) => {
+  const evidencedImage = option?.image?.url || option?.imageUrl || option?.images?.find?.((item) => item?.url)?.url || "";
+  if (evidencedImage) return evidencedImage;
   const name = String(option?.name || "").toLowerCase();
+  const medellinHotelImages = {
+    "diez hotel categoría colombia": "https://static.wixstatic.com/media/f05047_dc176743c5d34044892a125fe67e2de4~mv2.jpg/v1/fill/w_725,h_483,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/f05047_dc176743c5d34044892a125fe67e2de4~mv2.jpg",
+    "diez hotel categoria colombia": "https://static.wixstatic.com/media/f05047_dc176743c5d34044892a125fe67e2de4~mv2.jpg/v1/fill/w_725,h_483,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/f05047_dc176743c5d34044892a125fe67e2de4~mv2.jpg",
+    "574 hotel": "https://574hotel.com/images/HERO.jpg",
+    "living by armoniko": "https://content.skyscnr.com/available/2201718906/2201718906_WxH.jpg",
+    "landmark hotel medellín": "https://waybird.imgix.net/lodge_images/images/000/134/663/original/image-medellin-landmark-hotel-20.jpeg?auto=format&crop=fill&fit=crop&h=720&q=70&w=1200",
+    "landmark hotel medellin": "https://waybird.imgix.net/lodge_images/images/000/134/663/original/image-medellin-landmark-hotel-20.jpeg?auto=format&crop=fill&fit=crop&h=720&q=70&w=1200"
+  };
+  if (group === "hotels" && medellinHotelImages[name]) return medellinHotelImages[name];
   if (group === "flights") {
     if (/first/.test(name)) return alpha03TravelOptionImages.first[0];
     if (/business/.test(name)) return alpha03TravelOptionImages.business[index % alpha03TravelOptionImages.business.length];
@@ -3677,9 +3707,9 @@ const alpha03OptionImage = (group, option, index) => {
     const airlineKey = /korean(?:\s+air(?:lines)?)?|대한항공/.test(name) ? "korean" : /asiana|아시아나항공/.test(name) ? "asiana" : /vietnam(?:\s+airlines?)?|베트남항공/.test(name) ? "vietnam" : /latam|라탐항공/.test(name) ? "latam" : /avianca|아비앙카항공/.test(name) ? "avianca" : /iberia|이베리아항공/.test(name) ? "iberia" : /lufthansa|루프트한자/.test(name) ? "lufthansa" : /air\s*france|에어프랑스/.test(name) ? "airfrance" : /\bklm\b|네덜란드항공/.test(name) ? "klm" : /japan airlines|일본항공|\bjal\b/.test(name) ? "jal" : /american|아메리칸항공/.test(name) ? "american" : /united|유나이티드항공/.test(name) ? "united" : /delta|델타항공/.test(name) ? "delta" : /jeju|제주항공/.test(name) ? "jeju" : "";
     if (airlineKey) return alpha03TravelOptionImages.airlines[airlineKey];
   }
-  if (group === "hotels" && /airbnb|serviced apartment|apartment/i.test(name)) return "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=82";
   const isJapaneseStay = group === "hotels" && /ryokan|료칸|旅館|hoshinoya|yuen|shigetsu/i.test(name);
-  const pool = isJapaneseStay ? alpha03TravelOptionImages.ryokan : alpha03TravelOptionImages[group] || alpha03TravelOptionImages.hotels;
+  if (group === "hotels") return isJapaneseStay ? alpha03TravelOptionImages.ryokan[index % alpha03TravelOptionImages.ryokan.length] : "";
+  const pool = alpha03TravelOptionImages[group] || [];
   return pool[index % pool.length];
 };
 
@@ -3724,7 +3754,7 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
   const isAirlineBrand = group === "flights" && !/economy|business|first/i.test(String(option?.name || "")) && /korean|대한항공|asiana|아시아나항공|vietnam|베트남항공|latam|라탐항공|avianca|아비앙카항공|iberia|이베리아항공|lufthansa|루프트한자|air\s*france|에어프랑스|\bklm\b|네덜란드항공/i.test(String(option?.name || ""));
   return `
   <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}${isAirlineBrand ? " is-airline-brand" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" data-preview-name="${escapeSummaryText(option.name)}" data-preview-meta="${escapeSummaryText(option.meta)}" aria-pressed="${selected ? "true" : "false"}">
-    <span class="alpha03-option-photo"><img src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false"></span>
+    <span class="alpha03-option-photo${image ? " has-image" : " is-fallback"}">${image ? `<img src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false">` : `<span aria-hidden="true">${group === "hotels" ? "🏨" : group === "transport" ? "🚕" : "✈️"}</span>`}</span>
     <span class="alpha03-preview-check" aria-hidden="true">${selected ? "✓" : "+"}</span>
     <strong>${escapeSummaryText(alpha03LocalizedDisplayName(option.name))}</strong>
     <em>${escapeSummaryText(option.meta)}</em>
@@ -3738,6 +3768,13 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
   const routePriceContext = routeFlightRange
     ? `${alpha03Copy("Per-traveler route estimate", "1인 노선 예상", "Estimación de ruta por viajero", "Estimation d’itinéraire par voyageur")} ${routeFlightRange} · ${flightPriceCheck}`
     : flightPriceCheck;
+  const scaleEstimate = (range, minimumFactor, maximumFactor = minimumFactor) => range && Number.isFinite(Number(range.min)) && Number.isFinite(Number(range.max)) ? {
+    currency: range.currency || "KRW",
+    min: Math.round(Number(range.min) * minimumFactor / 10000) * 10000,
+    max: Math.round(Number(range.max) * maximumFactor / 10000) * 10000
+  } : null;
+  const cabinPriceContext = (label, range) => `${label} · ${range ? `${alpha03Copy("Estimated per traveler", "1인 예상", "Estimado por viajero", "Estimation par voyageur")} ${formatRange(range)} · ` : ""}${flightPriceCheck}`;
+  const routeFlightEstimate = result.flights?.[0]?.estimatedPrice;
   const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
   const destinationCode = String(result.destination?.countryCode || result.countryProfile?.code || result.country || "").toUpperCase();
   const destinationAirlines = (airlineProfilesByCountry[destinationCode] || airlineProfilesByContinent[result.destination?.continent || result.countryProfile?.continent] || []).map(([en, ko]) => ({
@@ -3753,9 +3790,9 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
         : flightPriceCheck
     })),
     ...destinationAirlines,
-    { name: firstFlightName + " · Economy", meta: `${alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica", "tarif pratique")} · ${routePriceContext}` },
-    { name: firstFlightName + " · Business", meta: `${alpha03Copy("comfort upgrade check", "편안한 좌석 확인", "mejora de comodidad", "option confort")} · ${routePriceContext}` },
-    { name: firstFlightName + " · First", meta: `${alpha03Copy("premium cabin check", "프리미엄 좌석 확인", "cabina premium", "cabine premium")} · ${routePriceContext}` }
+    { name: firstFlightName + " · Economy", meta: cabinPriceContext(alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica", "tarif pratique"), routeFlightEstimate) },
+    { name: firstFlightName + " · Business", meta: cabinPriceContext(alpha03Copy("comfort cabin estimate", "비즈니스석 예상", "estimación de cabina business", "estimation cabine affaires"), scaleEstimate(routeFlightEstimate, 2.2, 3.2)) },
+    { name: firstFlightName + " · First", meta: cabinPriceContext(alpha03Copy("first-class cabin estimate", "일등석 예상", "estimación de primera clase", "estimation première classe"), scaleEstimate(routeFlightEstimate, 4, 6)) }
   ].filter((option) => option.name && !flightSeen.has(option.name) && flightSeen.add(option.name)).slice(0, 12);
 
   const requestedHotelDestination = new URLSearchParams(location.search).get("destination")
@@ -3776,23 +3813,33 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     limit: 12
   });
   const hotelSeen = new Set();
-  const hotels = hotelSource.map((hotel) => ({
+  const destinationContextImages = ((result.providerResults || []).find((provider) => provider.category === "destination_info")?.items?.[0]?.imageAlternates || []).slice(17);
+  const hotels = hotelSource.map((hotel, index) => {
+    const image = hotel.image || hotel.images?.[0] || (hotel.imageUrl ? { url: hotel.imageUrl, alt: getHotelName(hotel) } : destinationContextImages[index] || null);
+    return ({
     name: getHotelName(hotel),
+    image,
     meta: (hotel.estimatedNightlyPrice
       ? `${alpha03Copy("Estimated per night", "1박 예상", "Estimado por noche", "Estimation par nuit")} ${formatRange(hotel.estimatedNightlyPrice)}`
       : alpha03Copy("Nightly price check required", "1박 요금 확인 필요", "Se requiere verificar el precio por noche", "Prix par nuit à vérifier"))
-      + alpha03Copy(" · Representative photo", " · 대표 이미지", " · Imagen representativa", " · Photo représentative")
-  })).filter((hotel) => hotel.name && !/live search|search ready|search required|accommodation live/i.test(hotel.name) && !(destinationCode !== "JP" && /ryokan|료칸|旅館/i.test(hotel.name)) && !hotelSeen.has(hotel.name) && hotelSeen.add(hotel.name)).slice(0, 12);  const transfers = [
-    { name: alpha03Copy("Official airport transport + local transit", "공식 공항 교통 + 현지 대중교통", "Transporte oficial del aeropuerto + transporte local", "Transport officiel depuis l’aéroport + transports locaux"), meta: alpha03Copy("destination-matched route", "목적지 맞춤 동선", "ruta adaptada al destino", "Itinéraire adapté à la destination") },
-    { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar", "Bus de l’aéroport + courte marche"), meta: alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje", "Trajet simple avec bagages") },
-    { name: alpha03Copy("Local rail, metro, bus, or ferry route", "현지 철도·메트로·버스·페리 동선", "Tren, metro, bus o ferry local", "Train, métro, bus ou ferry local"), meta: alpha03Copy("multi-stop local route", "현지 다중 이동", "ruta local con varias paradas", "Itinéraire local à plusieurs étapes") },
-    { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar", "Taxi + marche"), meta: alpha03Copy("comfort route", "편한 이동", "ruta cómoda", "Trajet confortable") },
-    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado", "Transfert privé"), meta: alpha03Copy("higher cost", "높은 비용", "mayor costo", "Coût supérieur") }
+      + (image ? alpha03Copy(" · Area/representative photo", " · 지역/대표 이미지", " · Foto de zona/representativa", " · Photo de zone/représentative") : "")
+  }); }).filter((hotel) => hotel.name && !/live search|search ready|search required|accommodation live/i.test(hotel.name) && !(destinationCode !== "JP" && /ryokan|료칸|旅館/i.test(hotel.name)) && !hotelSeen.has(hotel.name) && hotelSeen.add(hotel.name)).slice(0, 12);
+  const transportBudget = result.budget?.transport;
+  const transportEstimate = (factorMin, factorMax = factorMin) => {
+    const range = scaleEstimate(transportBudget, factorMin, factorMax);
+    return range ? `${alpha03Copy("Estimated trip total", "여행 전체 예상", "Total estimado del viaje", "Total estimé du voyage")} ${formatRange(range)} · ` : "";
+  };
+  const transfers = [
+    { name: alpha03Copy("Official airport transport + local transit", "공식 공항 교통 + 현지 대중교통", "Transporte oficial del aeropuerto + transporte local", "Transport officiel depuis l’aéroport + transports locaux"), meta: `${transportEstimate(1, 1.25)}${alpha03Copy("destination-matched route", "목적지 맞춤 동선", "ruta adaptada al destino", "Itinéraire adapté à la destination")}` },
+    { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar", "Bus de l’aéroport + courte marche"), meta: `${transportEstimate(.65, .9)}${alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje", "Trajet simple avec bagages")}` },
+    { name: alpha03Copy("Local rail, metro, bus, or ferry route", "현지 철도·메트로·버스·페리 동선", "Tren, metro, bus o ferry local", "Train, métro, bus ou ferry local"), meta: `${transportEstimate(.55, .8)}${alpha03Copy("multi-stop local route", "현지 다중 이동", "ruta local con varias paradas", "Itinéraire local à plusieurs étapes")}` },
+    { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar", "Taxi + marche"), meta: `${transportEstimate(1.3, 1.8)}${alpha03Copy("comfort route", "편한 이동", "ruta cómoda", "Trajet confortable")}` },
+    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado", "Transfert privé"), meta: `${transportEstimate(2.2, 3.5)}${alpha03Copy("higher cost", "높은 비용", "mayor costo", "Coût supérieur")}` }
   ];
   transfers.push(
-    { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar", "Train + bus local + marche"), meta: alpha03Copy("regional route", "지역 이동", "ruta regional", "Itinéraire régional") },
-    { name: alpha03Copy("Destination transit pass when available", "현지 교통 패스(운영 시)", "Pase local cuando exista", "Pass de transport local si disponible"), meta: alpha03Copy("verify local coverage", "현지 적용 범위 확인", "verificar cobertura", "Vérifier la zone couverte") },
-    { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo", "Taxi de secours en soirée"), meta: alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar", "Solution après le dîner") }
+    { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar", "Train + bus local + marche"), meta: `${transportEstimate(.7, 1)}${alpha03Copy("regional route", "지역 이동", "ruta regional", "Itinéraire régional")}` },
+    { name: alpha03Copy("Destination transit pass when available", "현지 교통 패스(운영 시)", "Pase local cuando exista", "Pass de transport local si disponible"), meta: `${transportEstimate(.45, .7)}${alpha03Copy("verify local coverage", "현지 적용 범위 확인", "verificar cobertura", "Vérifier la zone couverte")}` },
+    { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo", "Taxi de secours en soirée"), meta: `${transportEstimate(.3, .55)}${alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar", "Solution après le dîner")}` }
   );
   const groups = (isInvestorRestaurantReservationDemo(result) || isWeekendDatePlan(result)) ? [] : [
     [alpha03Copy("Flights", "항공", "Vuelos", "Vols"), "flights", flights],
@@ -3814,13 +3861,19 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
   `;
 };
 
-const createAlpha03TimelineHtml = (days, places = [], trust = null, destinationFallback = null, usedImageUrls = []) => {
-  const dayImages = resolveSemanticItineraryImages(days, places, destinationFallback, { usedImageUrls });
+const createAlpha03TimelineHtml = (days, places = [], trust = null, destinationFallback = null, usedImageUrls = [], resolvedImages = null) => {
+  const dayImages = resolvedImages || resolveSemanticItineraryImages(days, places, destinationFallback, { usedImageUrls });
+  const itineraryHeading = alpha03Copy(
+    `Your ${days.length}-day itinerary`,
+    `${days.length}일 여행 일정`,
+    `Tu itinerario de ${days.length} días`,
+    `Votre itinéraire de ${days.length} jours`
+  );
   return `
   <section class="alpha03-section alpha03-itinerary-visual-summary">
     <div class="alpha03-section-heading">
       <span class="v23-eyebrow">${escapeSummaryText(resultText(activeLanguage, "timeline"))}</span>
-      <h3>${escapeSummaryText(resultText(activeLanguage, "timelineTitle"))}</h3>
+      <h3>${escapeSummaryText(itineraryHeading)}</h3>
       ${trust ? createOneFreeTrustMarkup(trust) : ""}
       <button type="button" class="alpha03-view-full-itinerary" data-view-full-itinerary>${escapeSummaryText(alpha03Copy("View full itinerary →", "전체 일정 보기 →", "Ver itinerario completo →", "Voir l’itinéraire complet →"))}</button>
     </div>
@@ -3924,7 +3977,13 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     result.countryProfile?.name, result.countryProfile?.nameKo
   ].filter(Boolean).join(" ");
   const worldCityVisualPack = WORLD_CITY_VISUAL_PACKS.find((pack) => pack.match.test(destinationSearchText));
-  if (worldCityVisualPack) { restaurants = [...worldCityVisualPack.foods]; places = [...worldCityVisualPack.places]; }
+  if (worldCityVisualPack) {
+    restaurants = [...worldCityVisualPack.foods];
+    places = [...worldCityVisualPack.places];
+    if (!profile.hero?.url && worldCityVisualPack.hero?.[1]) {
+      profile.hero = { url: worldCityVisualPack.hero[1], alt: worldCityVisualPack.hero[0], source: "destination_visual_pack" };
+    }
+  }
   const isTokyoGallery = /\b(?:tokyo|japan)\b|東京|日本|도쿄|일본/i.test(String(destination || ""));
   if (!worldCityVisualPack && isTokyoGallery) restaurants = uniqueItems([...(result.orchestrationInjections?.restaurants || []), ...TOKYO_FOOD_VISUALS]);
   const isNewYorkGallery = /\b(new york(?: city)?|nyc)\b|뉴욕/i.test(String(destination || ""));
@@ -3936,8 +3995,9 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const restaurantImageSeeds = restaurants.map((item) => previewItemImage(item)?.url).filter(Boolean);
   const resultRestaurantItems = (result.restaurants || []).map((item, index) => {
     const name = getRestaurantName(item);
-    const imageUrl = alpha03FoodImageForName(name);
-    return name ? { name, category: "food", image: imageUrl ? { url: imageUrl, alt: name } : null } : null;
+    const ownImage = previewItemImage(item);
+    const imageUrl = alpha03FoodImageForName(name, ownImage?.url || item.imageUrl || "");
+    return name ? { ...item, name, category: "food", image: imageUrl ? { ...(ownImage || {}), url: imageUrl, alt: ownImage?.alt || item.imageAlt || name } : null } : null;
   }).filter(Boolean);
   const revisionRestaurants = (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source === "user_revision" || item?.revisionCandidate);
   restaurants = prioritizeRevisionCandidates({
@@ -3947,6 +4007,9 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     fallback: (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source !== "user_revision" && !item?.revisionCandidate),
     limit: Math.max(0, 12 - revisionRestaurants.length)
   }).concat(revisionRestaurants).slice(0, 12);
+  restaurants = restaurants.map((item, index) => previewItemImage(item) || !destinationVisualPlaces[index]
+    ? item
+    : { ...item, image: destinationVisualPlaces[index].image, contextualImage: true });
   let days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
   const placeImageSeeds = [profile.hero?.url, ...places.map((item) => previewItemImage(item)?.url)].filter(Boolean);
   const itineraryPlaceItems = days.flatMap((day) => day.slots || []).map((slot, index) => {
@@ -4093,8 +4156,15 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const usedVisualImages = new Set();
   const heroImage = allocateUniqueTravelImages(profile.hero?.url ? [{ image: profile.hero }] : [], { used: usedVisualImages })[0] || null;
   const restaurantImages = allocateUniqueTravelImages(restaurants, { used: usedVisualImages });
+  const itineraryFallbackImages = [
+    ...destinationVisualPlaces.map((item) => item.image).filter((image) => image?.url),
+    profile.hero
+  ].filter((image) => image?.url);
+  const itineraryUsedUrls = [heroImage, ...restaurantImages].filter(Boolean).map((image) => image.url);
+  const itineraryImages = resolveSemanticItineraryImages(days, timelineImageCandidates, itineraryFallbackImages, { usedImageUrls: itineraryUsedUrls });
+  itineraryImages.filter(Boolean).forEach((image) => usedVisualImages.add(normalizedImageIdentity(image)));
   const placeImages = allocateUniqueTravelImages(highlightPlaces, { used: usedVisualImages });
-  const usedImageUrls = [heroImage, ...restaurantImages, ...placeImages].filter(Boolean).map((image) => image.url);
+  const usedImageUrls = [heroImage, ...restaurantImages, ...itineraryImages, ...placeImages].filter(Boolean).map((image) => image.url);
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
       <div class="alpha03-recommendation-copy">
@@ -4142,7 +4212,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
 
     </div>
 
-    ${createAlpha03TimelineHtml(days, timelineImageCandidates, trustBySection.itinerary, profile.hero, usedImageUrls)}
+    ${createAlpha03TimelineHtml(days, timelineImageCandidates, trustBySection.itinerary, itineraryFallbackImages, usedImageUrls, itineraryImages)}
 
     ${highlightPlaces.length ? `
     <section ${alpha04SectionAttrs(workspace, "places", "alpha03-section")}>
