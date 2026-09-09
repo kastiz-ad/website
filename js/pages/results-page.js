@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-approved-dashboard-v9";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-approved-dashboard-v10";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3987,7 +3987,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     profile.countryCode = worldCityVisualPack.countryCode || profile.countryCode;
     profile.latitude = Number.isFinite(Number(worldCityVisualPack.latitude)) ? Number(worldCityVisualPack.latitude) : profile.latitude;
     profile.longitude = Number.isFinite(Number(worldCityVisualPack.longitude)) ? Number(worldCityVisualPack.longitude) : profile.longitude;
-    if (!profile.hero?.url && worldCityVisualPack.hero?.[1]) {
+    if (worldCityVisualPack.hero?.[1]) {
       profile.hero = { url: worldCityVisualPack.hero[1], alt: worldCityVisualPack.hero[0], source: "destination_visual_pack" };
     }
   }
