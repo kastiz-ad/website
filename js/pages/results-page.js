@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-approved-dashboard-v8";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-approved-dashboard-v9";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3488,7 +3488,7 @@ const createAlpha03JourneyMap = (days, restaurants, places, profile = null) => {
 const WORLD_CITY_VISUAL_PACKS = Object.freeze([
   { match:/\bmedell[ií]n\b|메데인/i,
     city:"Medellín", country:"Colombia", region:"Antioquia", countryCode:"CO", latitude:6.2442, longitude:-75.5812,
-    hero:["Medellín skyline and Aburrá Valley","https://cloud.tui.com/tuiat/images/fileadmin/tuicom/2000x470-Teaser_Hero/kolumbien/kolumbien-medellin-luftbild-skyline-stadt-landschaft.jpg"],
+    hero:["Medellín skyline and Aburrá Valley","/assets/medellin-hero-v1.png"],
     foods:[
       ["El Cielo","https://houseofcoco.net/wp-content/uploads/2024/01/rsz_duf_2680_v_ok.jpg"],
       ["Carmen","https://images.squarespace-cdn.com/content/v1/66a7208542dcf606bb6f18ce/5591f620-9a44-46ab-92d0-33aa95a30cf2/CARMEN%2BRESTAURANTE.jpeg?format=1500w"],
