@@ -63,8 +63,9 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.doesNotMatch(page, /medellin-city-hero-v1|restaurantScores/);
   assert.match(page, /alpha03-food-select-mark[\s\S]*<svg viewBox="0 0 24 24"/);
   assert.doesNotMatch(page, /ownImage \|\| "https:\/\/images\.unsplash\.com\/photo-1517248135467/);
-  assert.match(page, /scaleEstimate\(routeFlightEstimate, 2\.2, 3\.2\)/);
-  assert.match(page, /scaleEstimate\(routeFlightEstimate, 4, 6\)/);
+  assert.doesNotMatch(page, /firstFlightName \+ " · Economy"/);
+  assert.doesNotMatch(page, /firstFlightName \+ " · Business"/);
+  assert.doesNotMatch(page, /firstFlightName \+ " · First"/);
   assert.match(page, /transportEstimate\(2\.2, 3\.5\)/);
   assert.match(page, /itineraryImages = resolveSemanticItineraryImages/);
   assert.match(loading, /if \(Number\.isFinite\(latitude\) && Number\.isFinite\(longitude\)\)/);
@@ -73,11 +74,12 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /alpha03-map-destination/);
   assert.match(page, /const hasMapCenter = Number\.isFinite/);
   assert.match(page, /alpha03-itinerary-visual-summary/);
-  assert.match(page, /alpha03-itinerary-details/);
-  assert.match(page, /data-itinerary-jump=/);
+  assert.match(page, /alpha03-itinerary-complete-card/);
+  assert.doesNotMatch(page, /class="alpha03-section alpha03-itinerary-details"/);
+  assert.match(page, /data-itinerary-day=/);
   assert.match(page, /data-full-itinerary/);
   assert.match(page, /allocateUniqueTravelImages\(restaurants/);
-  assert.match(page, /allocateUniqueTravelImages\(highlightPlaces/);
+  assert.match(page, /allocateUniqueTravelImages\(orderedHighlightPlaces/);
   assert.match(page, /createOneFreeTrustMarkup/);
   assert.match(page, /createAlpha03OptionPreview/);
   assert.match(css, /Premium Travel results v2/);
@@ -87,9 +89,12 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(css, /width:calc\(100vw - 12px\)/);
   assert.match(css, /alpha03-card-score/);
   assert.match(css, /alpha03-itinerary-visual-rail/);
-  assert.match(css, /alpha03-itinerary-detail-list/);
+  assert.match(css, /grid-auto-columns:minmax\(340px,390px\)/);
+  assert.match(css, /height:205px!important/);
+  assert.match(page, /data-safe-travel-image/);
+  assert.match(page, /has-image-error/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260910-approved-dashboard-v12/);
+  assert.match(html, /20260910-founder-refinements-v15/);
 });
 
 test("Medellín cards use distinct destination-specific media instead of global stock", async () => {

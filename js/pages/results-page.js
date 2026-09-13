@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-approved-dashboard-v12";
+import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-founder-refinements-v15";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3449,7 +3449,7 @@ const alpha03LocalizedDisplayName = (value = "") => {
 const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) => {
   const image = assignedImage === undefined ? previewItemImage(item) : assignedImage;
   const imageMarkup = image?.url
-    ? `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>${type === "restaurant" ? "🍽️" : "📍"}</b></span><img src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
+    ? `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>${type === "restaurant" ? "🍽️" : "📍"}</b></span><img data-safe-travel-image src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
     : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
   const isFood = type === "restaurant";
   const selected = isFood && (currentResult?.alpha03FoodSelections || []).includes(item.name);
@@ -3494,7 +3494,9 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
       ["Carmen","https://images.squarespace-cdn.com/content/v1/66a7208542dcf606bb6f18ce/5591f620-9a44-46ab-92d0-33aa95a30cf2/CARMEN%2BRESTAURANTE.jpeg?format=1500w"],
       ["Alambique","https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2e/7f/4c/86/caption.jpg?h=800&s=1&w=1400"],
       ["OCI.Mde","https://images.squarespace-cdn.com/content/v1/56c1dde2cf80a13c7c1a7ceb/1558930226137-A8N2QWULKDS5UW6FVLT8/Web_6.jpg"],
-      ["Lucia","https://s3.amazonaws.com/fathom_media/photos/1-medellin-lucia-restaurant.jpg.1200x800_q85_crop.jpg"]
+      ["Lucia","https://s3.amazonaws.com/fathom_media/photos/1-medellin-lucia-restaurant.jpg.1200x800_q85_crop.jpg"],
+      ["Hatoviejo","https://vivirenelpoblado.com/wp-content/uploads/Hatoviejo-Exterior-3.jpg"],
+      ["El Rancherito","https://localtoursmedellin.com/wp-content/uploads/2023/06/restaurant-el-rancherito_6_11zon.webp"]
     ], places:[
       ["El Poblado and Medellín skyline","https://blog.properati.com.co/wp-content/uploads/2021/09/medellin-el-poblado-scaled.jpeg"],
       ["Comuna 13 and local culture","https://images.myguide-cdn.com/colombia/companies/medellin-comuna-13-cable-cars-and-botero-statues-tour/large/medellin-comuna-13-cable-cars-and-botero-statues-tour-3037136.jpg"],
@@ -3502,7 +3504,11 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
       ["Medellín Metro and city center","https://cdn.tripspoint.com/uploads/photos/6919/medellin-metro-tour_F54Ie.jpeg"],
       ["Palacio de la Cultura Rafael Uribe Uribe","https://medellinguru.com/wp-content/uploads/2017/09/IMG_1946.jpg"],
       ["Botero Square and central Medellín","https://theoccasionaltraveller.com/wp-content/uploads/2020/03/Colombia-Medellin-Botero-Square-View.jpg"],
-      ["Medellín mountain sunset","https://www.medellin.travel/wp-content/uploads/elementor/thumbs/Botero_0008_5-ox16d8ve3nnws6e3x9cv3jqv3n40uc96k54m4rn57k.jpg"]
+      ["Medellín mountain sunset","https://www.medellin.travel/wp-content/uploads/elementor/thumbs/Botero_0008_5-ox16d8ve3nnws6e3x9cv3jqv3n40uc96k54m4rn57k.jpg"],
+      ["Jardín Botánico de Medellín","https://cloudfront-us-east-1.images.arcpublishing.com/semana/P3R6XRRG5JHJDALI57A6EXP4XU.jpg"],
+      ["Parque Arví","https://media.viajando.travel/p/c5847e8b3d4b8c88cff2909a3185fb5c/adjuntos/236/imagenes/000/533/0000533777/1200x0/smart/medellinarvijpg.jpg"],
+      ["Pueblito Paisa","https://cloudfront-us-east-1.images.arcpublishing.com/infobae/DT7P5RHXEBD6RFWZPI5T7MI4GE.jpg"],
+      ["Medellín cultural and nature route","https://www.teleantioquia.co/wp-content/uploads/2024/08/portada-3.png"]
     ]},
   { match:/\bmadrid\b|마드리드/i, foods:[
     ["Madrid churros and chocolate","https://images.unsplash.com/photo-1624371414361-e670edf4898d?auto=format&fit=crop&w=900&q=82"],
@@ -3755,7 +3761,7 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
   const isAirlineBrand = group === "flights" && !/economy|business|first/i.test(String(option?.name || "")) && /korean|대한항공|asiana|아시아나항공|vietnam|베트남항공|latam|라탐항공|avianca|아비앙카항공|iberia|이베리아항공|lufthansa|루프트한자|air\s*france|에어프랑스|\bklm\b|네덜란드항공/i.test(String(option?.name || ""));
   return `
   <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}${isAirlineBrand ? " is-airline-brand" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" data-preview-name="${escapeSummaryText(option.name)}" data-preview-meta="${escapeSummaryText(option.meta)}" aria-pressed="${selected ? "true" : "false"}">
-    <span class="alpha03-option-photo${image ? " has-image" : " is-fallback"}">${image ? `<img src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false">` : `<span aria-hidden="true">${group === "hotels" ? "🏨" : group === "transport" ? "🚕" : "✈️"}</span>`}</span>
+    <span class="alpha03-option-photo${image ? " has-image" : " is-fallback"}">${image ? `<img data-safe-travel-image src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false">` : `<span aria-hidden="true">${group === "hotels" ? "🏨" : group === "transport" ? "🚕" : "✈️"}</span>`}</span>
     <span class="alpha03-preview-check" aria-hidden="true">${selected ? "✓" : "+"}</span>
     <strong>${escapeSummaryText(alpha03LocalizedDisplayName(option.name))}</strong>
     <em>${escapeSummaryText(option.meta)}</em>
@@ -3774,9 +3780,6 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     min: Math.round(Number(range.min) * minimumFactor / 10000) * 10000,
     max: Math.round(Number(range.max) * maximumFactor / 10000) * 10000
   } : null;
-  const cabinPriceContext = (label, range) => `${label} · ${range ? `${alpha03Copy("Estimated per traveler", "1인 예상", "Estimado por viajero", "Estimation par voyageur")} ${formatRange(range)} · ` : ""}${flightPriceCheck}`;
-  const routeFlightEstimate = result.flights?.[0]?.estimatedPrice;
-  const firstFlightName = result.flights?.[0] ? getFlightName(result.flights[0]) : alpha03Copy("Live flight search", "실시간 항공 검색", "Búsqueda de vuelos");
   const destinationCode = String(result.destination?.countryCode || result.countryProfile?.code || result.country || "").toUpperCase();
   const destinationAirlines = (airlineProfilesByCountry[destinationCode] || airlineProfilesByContinent[result.destination?.continent || result.countryProfile?.continent] || []).map(([en, ko]) => ({
     name: activeLanguage === "ko" ? ko : en,
@@ -3791,9 +3794,6 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
         : flightPriceCheck
     })),
     ...destinationAirlines,
-    { name: firstFlightName + " · Economy", meta: cabinPriceContext(alpha03Copy("lowest practical fare", "실속 좌석", "tarifa práctica", "tarif pratique"), routeFlightEstimate) },
-    { name: firstFlightName + " · Business", meta: cabinPriceContext(alpha03Copy("comfort cabin estimate", "비즈니스석 예상", "estimación de cabina business", "estimation cabine affaires"), scaleEstimate(routeFlightEstimate, 2.2, 3.2)) },
-    { name: firstFlightName + " · First", meta: cabinPriceContext(alpha03Copy("first-class cabin estimate", "일등석 예상", "estimación de primera clase", "estimation première classe"), scaleEstimate(routeFlightEstimate, 4, 6)) }
   ].filter((option) => option.name && !flightSeen.has(option.name) && flightSeen.add(option.name)).slice(0, 12);
 
   const requestedHotelDestination = new URLSearchParams(location.search).get("destination")
@@ -3878,30 +3878,18 @@ const createAlpha03TimelineHtml = (days, places = [], trust = null, destinationF
       ${trust ? createOneFreeTrustMarkup(trust) : ""}
       <button type="button" class="alpha03-view-full-itinerary" data-view-full-itinerary>${escapeSummaryText(alpha03Copy("View full itinerary →", "전체 일정 보기 →", "Ver itinerario completo →", "Voir l’itinéraire complet →"))}</button>
     </div>
-    <div class="alpha03-itinerary-visual-rail">
+    <div class="alpha03-itinerary-visual-rail" data-full-itinerary>
       ${days.map((day, dayIndex) => {
         const dayImage = dayImages[dayIndex];
-        return `
-          <button type="button" class="alpha03-itinerary-visual-card" data-itinerary-jump="${dayIndex + 1}">
-            <span class="alpha03-itinerary-visual-photo${dayImage?.url ? " has-image" : " is-fallback"}">${dayImage?.url ? `<img data-image-match="${dayImage.match}" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : `<span aria-hidden="true">📍</span>`}</span>
-            <span class="alpha03-itinerary-visual-copy"><b>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</b><strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong></span>
-          </button>
-        `;
-      }).join("")}
-    </div>
-  </section>
-  <section class="alpha03-section alpha03-itinerary-details" data-full-itinerary>
-    <div class="alpha03-section-heading"><h3>${escapeSummaryText(alpha03Copy("Full day-by-day plan", "전체 일자별 일정", "Plan completo día por día", "Programme détaillé jour par jour"))}</h3></div>
-    <div class="alpha03-itinerary-detail-list">
-      ${days.map((day, dayIndex) => {
         const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
-        return `<article class="alpha03-itinerary-detail-card" id="itinerary-detail-day-${dayIndex + 1}" tabindex="-1" data-itinerary-day="${dayIndex + 1}">
-          <span>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</span>
-          <strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong>
-          ${day.theme ? `<em>${escapeSummaryText(alpha03LocalizedDisplayName(day.theme))}</em>` : ""}
-          <div class="alpha03-itinerary-detail-slots">${slots.map(([icon, label, value]) => `<div class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(alpha03LocalizedDisplayName(label))}</b><p>${escapeSummaryText(alpha03LocalizedDisplayName(value))}</p></div>`).join("")}</div>
-          ${day.weatherAlternative ? `<p class="realistic-weather-alternative">${escapeSummaryText(alpha03LocalizedDisplayName(day.weatherAlternative))}</p>` : ""}
-        </article>`;
+        return `
+          <article class="alpha03-itinerary-visual-card alpha03-itinerary-complete-card" id="itinerary-detail-day-${dayIndex + 1}" tabindex="0" data-itinerary-day="${dayIndex + 1}">
+            <span class="alpha03-itinerary-visual-photo${dayImage?.url ? " has-image" : " is-fallback"}">${dayImage?.url ? `<img data-safe-travel-image data-image-match="${dayImage.match}" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : `<span aria-hidden="true">📍</span>`}</span>
+            <span class="alpha03-itinerary-visual-copy"><b>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</b><strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong>${day.theme ? `<em>${escapeSummaryText(alpha03LocalizedDisplayName(day.theme))}</em>` : ""}</span>
+            <span class="alpha03-itinerary-detail-slots">${slots.map(([icon, label, value]) => `<span class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(alpha03LocalizedDisplayName(label))}</b><p>${escapeSummaryText(alpha03LocalizedDisplayName(value))}</p></span>`).join("")}</span>
+            ${day.weatherAlternative ? `<span class="realistic-weather-alternative">${escapeSummaryText(alpha03LocalizedDisplayName(day.weatherAlternative))}</span>` : ""}
+          </article>
+        `;
       }).join("")}
     </div>
   </section>
@@ -3915,6 +3903,22 @@ const emphasizeItineraryDay = (day = "") => {
     marker.classList.toggle("is-muted", Boolean(day) && !matches);
   });
 };
+document.addEventListener("error", (event) => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || !image.matches("img[data-safe-travel-image]")) return;
+  const frame = image.parentElement;
+  if (!frame) return;
+  image.remove();
+  frame.classList.remove("has-image");
+  frame.classList.add("is-fallback", "has-image-error");
+  if (!frame.querySelector(".alpha03-safe-image-fallback")) {
+    const fallback = document.createElement("span");
+    fallback.className = "alpha03-safe-image-fallback";
+    fallback.setAttribute("aria-hidden", "true");
+    fallback.textContent = frame.classList.contains("alpha03-option-photo") ? "◌" : "📍";
+    frame.appendChild(fallback);
+  }
+}, true);
 document.addEventListener("pointerover", (event) => {
   const card = event.target.closest?.("[data-itinerary-day], [data-itinerary-jump]");
   const day = card?.dataset.itineraryDay || card?.dataset.itineraryJump;
@@ -4170,17 +4174,22 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const itineraryUsedUrls = [heroImage, ...restaurantImages].filter(Boolean).map((image) => image.url);
   const itineraryImages = resolveSemanticItineraryImages(days, timelineImageCandidates, itineraryFallbackImages, { usedImageUrls: itineraryUsedUrls });
   itineraryImages.filter(Boolean).forEach((image) => usedVisualImages.add(normalizedImageIdentity(image)));
-  const placeImages = allocateUniqueTravelImages(highlightPlaces, { used: usedVisualImages });
+  const highlightPlacesWithFreshImages = highlightPlaces.filter((item) => {
+    const identity = normalizedImageIdentity(previewItemImage(item) || {});
+    return identity && !usedVisualImages.has(identity);
+  });
+  const orderedHighlightPlaces = uniqueItems([...highlightPlacesWithFreshImages, ...highlightPlaces]);
+  const placeImages = allocateUniqueTravelImages(orderedHighlightPlaces, { used: usedVisualImages });
   const usedImageUrls = [heroImage, ...restaurantImages, ...itineraryImages, ...placeImages].filter(Boolean).map((image) => image.url);
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>
       <div class="alpha03-recommendation-copy">
-        ${heroImage?.url ? `<div class="alpha03-hero-photo" data-image-identity="${escapeSummaryText(normalizedImageIdentity(heroImage))}"><img src="${escapeSummaryText(heroImage.url)}" alt="${escapeSummaryText(heroImage.alt || `${profile.city} destination`)}" width="900" height="520"></div>` : `<div class="alpha03-hero-photo is-fallback" aria-hidden="true"></div>`}
+        ${heroImage?.url ? `<div class="alpha03-hero-photo" data-image-identity="${escapeSummaryText(normalizedImageIdentity(heroImage))}"><img data-safe-travel-image src="${escapeSummaryText(heroImage.url)}" alt="${escapeSummaryText(heroImage.alt || `${profile.city} destination`)}" width="900" height="520"></div>` : `<div class="alpha03-hero-photo is-fallback" aria-hidden="true"></div>`}
         <span class="v23-eyebrow">${escapeSummaryText(alpha03Copy("ONE Pick", "ONE 추천", "ONE recomienda", "Choix ONE"))}</span>
         <h2 class="alpha03-destination-title"><span>${escapeSummaryText(alpha03LocalizedDisplayName(profile.city || destination))}</span>${profile.country ? `<span>${escapeSummaryText(alpha03LocalizedDisplayName(profile.country))}</span>` : ""}</h2>
         <p>${escapeSummaryText(alpha03LocalizedDisplayName(journey.purpose))}</p>
         <div class="alpha03-recommendation-metrics alpha03-hero-stats">
-          <span><b>${escapeSummaryText(String(tripDays))}</b><em>${escapeSummaryText(alpha03Copy("days", "일", "días", "jours"))}</em></span>
+          <span><b>${escapeSummaryText(`${tripDays} ${alpha03Copy("days", "일", "días", "jours")}`)}</b><em>${escapeSummaryText(alpha03Copy("Duration", "여행 기간", "Duración", "Durée"))}</em></span>
           <span><b>${escapeSummaryText(compactBudget)}</b><em>${escapeSummaryText(alpha03Copy("estimated", "예상", "estimado", "estimé"))}</em></span>
           <span><b>${escapeSummaryText(dateText)}</b><em>${escapeSummaryText(alpha03Copy("dates", "날짜", "fechas", "dates"))}</em></span>
         </div>
@@ -4229,7 +4238,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
         ${createOneFreeTrustMarkup(trustBySection.places)}
       </div>
       <div class="alpha03-card-grid alpha03-visual-rail">
-        ${highlightPlaces.map((item, index) => createAlpha03VisualCard(item, "place", index, placeImages[index])).join("")}
+        ${orderedHighlightPlaces.map((item, index) => createAlpha03VisualCard(item, "place", index, placeImages[index])).join("")}
       </div>
     </section>
     ` : ""}

@@ -64,16 +64,16 @@ test("rich travel renderer still includes populated result sections", () => {
     /buildPreviewMapMarkers\(/,
     /osmEmbedUrlForProfile\(/,
     /alpha03-map-pin/,
-    /<img src="\$\{escapeSummaryText\(image\.url\)\}"/,
+    /<img data-safe-travel-image src="\$\{escapeSummaryText\(image\.url\)\}"/,
     /openApprovalInformationReview\(/
   ];
   for (const pattern of requiredPatterns) assert.match(resultsPage, pattern);
 });
 
 test("public assets use the release cache buster for the rich preview fix", () => {
-  assert.match(resultsHtml, /results\.css\?v=20260910-approved-dashboard-v12/);
-  assert.match(resultsHtml, /results\.js\?v=20260910-approved-dashboard-v12/);
-  assert.match(resultsJs, /results-page\.js\?v=20260910-approved-dashboard-v12/);
+  assert.match(resultsHtml, /results\.css\?v=20260910-founder-refinements-v15/);
+  assert.match(resultsHtml, /results\.js\?v=20260910-founder-refinements-v15/);
+  assert.match(resultsJs, /results-page\.js\?v=20260910-founder-refinements-v15/);
   assert.match(homepageHtml, /style\.css\?v=20260908-home-cleanup-v1/);
   assert.match(homepageHtml, /script\.js\?v=20260813-preview-v79/);
 });
