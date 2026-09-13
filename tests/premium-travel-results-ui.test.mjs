@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../js/ui/travel-image-allocation.js";
+import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, normalizedImageIdentity } from "../js/ui/travel-image-allocation.js";
 import { osmEmbedUrlForProfile } from "../js/engine/world/preview-destination-intelligence.js";
 import { resolveSemanticItineraryImages } from "../js/ui/semantic-itinerary-image.js";
 
@@ -25,6 +25,25 @@ test("URL transformations cannot disguise a duplicate image", () => {
     normalizedImageIdentity({ url: "https://images.example/photo.jpg?w=300&q=50" }),
     normalizedImageIdentity({ url: "https://images.example/photo.jpg?w=1200&q=90" })
   );
+});
+
+test("later cards retain rotating destination candidate pools without first-N exhaustion", () => {
+  const pool = Array.from({ length: 8 }, (_, index) => ({ url: `https://images.example/destination-${index + 1}.jpg`, sourceId: `destination-${index + 1}` }));
+  const items = attachImageCandidatePool(Array.from({ length: 8 }, (_, index) => ({ name: `Item ${index + 1}` })), pool);
+  const assigned = allocateUniqueTravelImages(items);
+  assert.equal(assigned.length, 8);
+  assert.equal(assigned.every(Boolean), true);
+  assert.equal(new Set(assigned.map(normalizedImageIdentity)).size, 8);
+  assert.equal(items[7].imageStatus, "context");
+  assert.equal(items[7].images.length, 8);
+});
+
+test("section allocation reuses truthful context only after global alternates are exhausted", () => {
+  const pool = [{ url: "https://images.example/a.jpg" }, { url: "https://images.example/b.jpg" }];
+  const items = attachImageCandidatePool([{ name: "A" }, { name: "B" }], pool);
+  const assigned = allocateSectionTravelImages(items, { globalUsed: new Set(pool.map(normalizedImageIdentity)) });
+  assert.deepEqual(assigned.map((image) => image.url), pool.map((image) => image.url));
+  assert.equal(new Set(assigned.map(normalizedImageIdentity)).size, 2);
 });
 
 test("itinerary never repeats a semantic or destination fallback image", () => {
@@ -57,6 +76,7 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(loading, /fetchWikipediaInfo\(preparedMission\)/);
   assert.match(loading, /let destinationImage = data\?\.originalimage\?\.source \|\| data\?\.thumbnail\?\.source/);
   assert.match(loading, /generator=geosearch/);
+  assert.match(loading, /ggslimit=50/);
   assert.match(loading, /imageAlternates: destinationImageAlternates/);
   assert.match(page, /const destinationHero = destinationInfo\?\.imageUrl/);
   assert.match(page, /const destinationVisualPlaces = \(destinationInfo\?\.imageAlternates/);
@@ -84,7 +104,8 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /data-itinerary-day=/);
   assert.match(page, /data-full-itinerary/);
   assert.match(page, /allocateUniqueTravelImages\(restaurants/);
-  assert.match(page, /allocateUniqueTravelImages\(orderedHighlightPlaces/);
+  assert.match(page, /allocateSectionTravelImages\(orderedHighlightPlaces/);
+  assert.match(page, /attachImageCandidatePool\(hotelSource, destinationContextImages/);
   assert.match(page, /createOneFreeTrustMarkup/);
   assert.match(page, /createAlpha03OptionPreview/);
   assert.match(css, /Premium Travel results v2/);
@@ -102,7 +123,7 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /alpha03DragRail/);
   assert.match(css, /touch-action:pan-y/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260914-founder-content-v18/);
+  assert.match(html, /20260914-global-media-v19/);
 });
 
 test("Medellín cards use distinct destination-specific media instead of global stock", async () => {

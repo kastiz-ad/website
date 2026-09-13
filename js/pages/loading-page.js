@@ -392,7 +392,7 @@ const fetchWikipediaInfo = async (mission) => {
     const latitude = Number(mission?.destination?.latitude ?? resolvedCoordinates?.latitude);
     const longitude = Number(mission?.destination?.longitude ?? resolvedCoordinates?.longitude);
     if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-      const nearby = await fetchJson(`https://en.wikipedia.org/w/api.php?action=query&generator=geosearch&ggsprimary=all&ggsnamespace=0&ggsradius=10000&ggslimit=20&ggscoord=${latitude}%7C${longitude}&prop=pageimages%7Cdescription&piprop=original%7Cthumbnail&pithumbsize=1600&format=json&origin=*`);
+      const nearby = await fetchJson(`https://en.wikipedia.org/w/api.php?action=query&generator=geosearch&ggsprimary=all&ggsnamespace=0&ggsradius=10000&ggslimit=50&ggscoord=${latitude}%7C${longitude}&prop=pageimages%7Cdescription&piprop=original%7Cthumbnail&pithumbsize=1600&format=json&origin=*`);
       const pages = Object.values(nearby?.query?.pages || {}).filter((page) => page?.original?.source || page?.thumbnail?.source);
       const normalizedTopic = String(topic).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
       const selected = pages.find((page) => String(page.title || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(normalizedTopic)) || pages[0];

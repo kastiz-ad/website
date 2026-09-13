@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, imageCandidatesForItem, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260914-founder-content-v18";
+import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, imageCandidatesForItem, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260914-global-media-v19";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3698,8 +3698,6 @@ const alpha03TravelOptionImages = Object.freeze({
 });
 const alpha03OptionImage = (group, option, index) => {
   if (option?.searchAction) return "";
-  const evidencedImage = option?.image?.url || option?.imageUrl || option?.images?.find?.((item) => item?.url)?.url || "";
-  if (evidencedImage) return evidencedImage;
   const name = String(option?.name || "").toLowerCase();
   const medellinHotelImages = {
     "diez hotel categoría colombia": "https://static.wixstatic.com/media/f05047_dc176743c5d34044892a125fe67e2de4~mv2.jpg/v1/fill/w_725,h_483,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/f05047_dc176743c5d34044892a125fe67e2de4~mv2.jpg",
@@ -3710,6 +3708,8 @@ const alpha03OptionImage = (group, option, index) => {
     "landmark hotel medellin": "https://waybird.imgix.net/lodge_images/images/000/134/663/original/image-medellin-landmark-hotel-20.jpeg?auto=format&crop=fill&fit=crop&h=720&q=70&w=1200"
   };
   if (group === "hotels" && medellinHotelImages[name]) return medellinHotelImages[name];
+  const evidencedImage = option?.image?.url || option?.imageUrl || option?.images?.find?.((item) => item?.url)?.url || "";
+  if (evidencedImage) return evidencedImage;
   if (group === "flights") {
     if (/first/.test(name)) return alpha03TravelOptionImages.first[0];
     if (/business/.test(name)) return alpha03TravelOptionImages.business[index % alpha03TravelOptionImages.business.length];
@@ -3815,9 +3815,10 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     limit: 12
   }), ...destinationHotelOptions, ...hotelFallbackOptions];
   const hotelSeen = new Set();
-  const destinationContextImages = ((result.providerResults || []).find((provider) => provider.category === "destination_info")?.items?.[0]?.imageAlternates || []).slice(17);
-  const hotels = hotelSource.map((hotel, index) => {
-    const image = hotel.image || hotel.images?.[0] || (hotel.imageUrl ? { url: hotel.imageUrl, alt: getHotelName(hotel) } : destinationContextImages[index] || null);
+  const destinationContextImages = ((result.providerResults || []).find((provider) => provider.category === "destination_info")?.items?.[0]?.imageAlternates || []);
+  const enrichedHotelSource = attachImageCandidatePool(hotelSource, destinationContextImages, { scope: "DESTINATION" });
+  const hotels = enrichedHotelSource.map((hotel) => {
+    const image = hotel.image || hotel.images?.[0] || (hotel.imageUrl ? { url: hotel.imageUrl, alt: getHotelName(hotel) } : null);
     return ({
     name: getHotelName(hotel),
     image,
@@ -4069,10 +4070,10 @@ const createAlpha03ExperienceHtml = (journey, result) => {
       <strong>${escapeSummaryText(result.alpha15LastAddition.text)}</strong>
       <p>${escapeSummaryText(result.alpha15LastAddition.summary || alpha03Copy("The affected result sections were updated and saved.", "영향받은 결과 섹션이 업데이트되고 저장되었습니다.", "Las secciones afectadas se actualizaron y guardaron.", "Les sections concernées ont été mises à jour et enregistrées."))}</p>
     </section>` : "";
-  const highlightPlaces = uniqueItems([
+  const highlightPlaces = attachImageCandidatePool(uniqueItems([
     ...picturePlaces,
     ...(profile.hero?.url ? [{ name: `${profile.city || destination} skyline`, image: profile.hero, category: "destination" }] : [])
-  ]).slice(0, 12);
+  ]).slice(0, 12), destinationVisualPlaces.map((item) => item.image).filter(Boolean), { scope: "DESTINATION" });
   if (isInvestorRestaurantReservationDemo(result)) {
     days = [
       {
@@ -4208,7 +4209,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     return identity && !usedVisualImages.has(identity);
   });
   const orderedHighlightPlaces = uniqueItems([...highlightPlacesWithFreshImages, ...highlightPlaces]);
-  const placeImages = allocateUniqueTravelImages(orderedHighlightPlaces, { used: usedVisualImages });
+  const placeImages = allocateSectionTravelImages(orderedHighlightPlaces, { globalUsed: usedVisualImages });
   const usedImageUrls = [heroImage, ...restaurantImages, ...itineraryImages, ...placeImages].filter(Boolean).map((image) => image.url);
   return `
     <section ${alpha04SectionAttrs(workspace, "journey", `alpha03-recommendation-stage ${hero.className}`)}>

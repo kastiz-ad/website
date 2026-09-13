@@ -23,6 +23,23 @@ export const imageCandidatesForItem = (item = {}) => {
   return [primary, ...alternates].filter((image) => image?.url);
 };
 
+export const attachImageCandidatePool = (items = [], pool = [], options = {}) => {
+  const candidates = pool.filter((image) => image?.url);
+  const scope = options.scope || "DESTINATION";
+  return items.map((item, index) => {
+    const own = imageCandidatesForItem(item);
+    const rotated = candidates.length
+      ? [...candidates.slice(index % candidates.length), ...candidates.slice(0, index % candidates.length)]
+      : [];
+    const images = [...own, ...rotated.map((image) => ({ ...image, imageScope: image.imageScope || scope }))]
+      .filter((image, position, all) => {
+        const identity = normalizedImageIdentity(image);
+        return identity && all.findIndex((candidate) => normalizedImageIdentity(candidate) === identity) === position;
+      });
+    return { ...item, image: images[0] || null, images, contextualImage: !own.length && Boolean(images.length), imageStatus: own.length ? "exact" : images.length ? "context" : "no_safe_candidate" };
+  });
+};
+
 export const allocateUniqueTravelImages = (items = [], options = {}) => {
   const used = options.used instanceof Set ? options.used : new Set(options.used || []);
   return items.map((item) => {
@@ -32,5 +49,23 @@ export const allocateUniqueTravelImages = (items = [], options = {}) => {
     }) || null;
     if (image) used.add(normalizedImageIdentity(image));
     return image;
+  });
+};
+
+export const allocateSectionTravelImages = (items = [], options = {}) => {
+  const globalUsed = options.globalUsed instanceof Set ? options.globalUsed : new Set(options.globalUsed || []);
+  const sectionUsed = options.sectionUsed instanceof Set ? options.sectionUsed : new Set(options.sectionUsed || []);
+  return items.map((item) => {
+    const candidates = imageCandidatesForItem(item);
+    const preferred = candidates.find((candidate) => {
+      const identity = normalizedImageIdentity(candidate);
+      return identity && !globalUsed.has(identity) && !sectionUsed.has(identity);
+    });
+    const contextualReuse = preferred || candidates.find((candidate) => {
+      const identity = normalizedImageIdentity(candidate);
+      return identity && !sectionUsed.has(identity);
+    }) || null;
+    if (contextualReuse) sectionUsed.add(normalizedImageIdentity(contextualReuse));
+    return contextualReuse;
   });
 };
