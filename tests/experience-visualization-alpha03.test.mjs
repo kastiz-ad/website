@@ -79,12 +79,13 @@ test("ALPHA-03 cache key is active in result entry files", () => {
   assert.match(resultsEntry, /20260730-universal-execution/);
 });
 
-test("ALPHA-03 keeps map pins clean and transport choices top-aligned", () => {
+test("ALPHA-03 keeps map pins clean and truthful transport choices top-aligned", () => {
   assert.match(journeyMapSource, /class="alpha03-map-pin/);
   assert.doesNotMatch(journeyMapSource, /<b>/);
-  assert.match(resultsPageSource, /Train \+ local bus \+ walk/);
-  assert.match(resultsPageSource, /Destination transit pass when available/);
-  assert.match(resultsPageSource, /Late-night taxi backup/);
+  assert.match(resultsPageSource, /Official airport transfer/);
+  assert.match(resultsPageSource, /Official local public transit/);
+  assert.match(resultsPageSource, /Licensed taxi or ride service/);
+  assert.match(resultsPageSource, /Round-trip airport transfer search/);
   assert.match(resultsCss, /alpha03-option-preview[\s\S]*align-items:\s*start/);
   assert.match(resultsCss, /alpha03-preview-group > div[\s\S]*align-content:\s*start/);
 });

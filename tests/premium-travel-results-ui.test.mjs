@@ -66,7 +66,12 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.doesNotMatch(page, /firstFlightName \+ " · Economy"/);
   assert.doesNotMatch(page, /firstFlightName \+ " · Business"/);
   assert.doesNotMatch(page, /firstFlightName \+ " · First"/);
-  assert.match(page, /transportEstimate\(2\.2, 3\.5\)/);
+  assert.match(page, /One-way airport transfer/);
+  assert.match(page, /Local transit per ride\/day/);
+  assert.match(page, /Current destination fare check required/);
+  assert.doesNotMatch(page, /Local rail, metro, bus, or ferry route/);
+  assert.match(page, /flightSearchActions/);
+  assert.match(page, /Manual live search/);
   assert.match(page, /itineraryImages = resolveSemanticItineraryImages/);
   assert.match(loading, /if \(Number\.isFinite\(latitude\) && Number\.isFinite\(longitude\)\)/);
   assert.match(page, /data-map-destination-key=/);
@@ -93,14 +98,17 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(css, /height:205px!important/);
   assert.match(page, /data-safe-travel-image/);
   assert.match(page, /has-image-error/);
+  assert.match(page, /data-image-fallbacks/);
+  assert.match(page, /alpha03DragRail/);
+  assert.match(css, /touch-action:pan-y/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260910-founder-refinements-v15/);
+  assert.match(html, /20260914-founder-content-v18/);
 });
 
 test("Medellín cards use distinct destination-specific media instead of global stock", async () => {
   const page = await readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   assert.match(page, /match:\/\\bmedell\[ií\]n\\b\|메데인\/i/);
-  for (const venue of ["El Cielo", "Carmen", "Alambique", "OCI.Mde", "Lucia"]) {
+  for (const venue of ["El Cielo", "Carmen", "Alambique", "OCI.Mde", "Lucia", "Hatoviejo", "El Rancherito"]) {
     assert.ok(page.includes(`["${venue}","https:`), `${venue} must have a destination-specific image`);
   }
   assert.match(page, /"medellín": \["Diez Hotel Categoría Colombia", "574 Hotel", "Living by Armoniko", "Landmark Hotel Medellín"/);

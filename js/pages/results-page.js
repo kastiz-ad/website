@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateUniqueTravelImages, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260910-founder-refinements-v15";
+import { allocateUniqueTravelImages, imageCandidatesForItem, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260914-founder-content-v18";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3387,7 +3387,7 @@ const getAlpha03ItemAdvice = (item, type, index) => {
   if (/teamlab|팀랩/.test(name)) return ko ? "몰입형 전시라 사진과 기억에 남기 좋아요. 비 오는 날 대안으로도 안정적입니다." : es ? "Experiencia inmersiva, buena para fotos y lluvia." : "A memorable immersive stop and a reliable rainy-day option.";
   if (/fushimi|shrine|torii|신사|사찰/.test(name)) return ko ? "붉은 도리이 길처럼 사진 포인트가 강해요. 오전에 가면 훨씬 여유롭습니다." : es ? "Los torii son perfectos para fotos; mejor por la mañana." : "The torii gates are the photo moment; mornings feel much calmer.";
   if (/aquarium|수족관|아쿠아리움/.test(name)) return ko ? "실내에서 오래 머물기 좋아요. 해파리·대형 수조 구역을 중심으로 보면 만족도가 높습니다." : es ? "Buen plan interior; busca medusas y tanques grandes." : "A strong indoor stop; jellyfish and large-tank zones are usually the highlights.";
-  if (/shibuya|시부야|sky/.test(name)) return ko ? "스크램블 교차로와 전망을 같이 묶으면 도쿄 느낌이 바로 납니다." : es ? "Combina el cruce y una vista para sentir Tokio." : "Pair the scramble crossing with a skyline view for the Tokyo feeling.";
+  if (/shibuya|시부야|(?:^|\s)sky(?:\s|$)/.test(name)) return ko ? "스크램블 교차로와 전망을 같이 묶으면 도쿄 느낌이 바로 납니다." : es ? "Combina el cruce y una vista para sentir Tokio." : "Pair the scramble crossing with a skyline view for the Tokyo feeling.";
   if (/nara|deer|사슴/.test(name)) return ko ? "사슴공원과 사찰 산책을 같이 잡으면 하루 여행으로 기억에 남습니다." : es ? "Ciervos y templos juntos hacen una excursión memorable." : "Deer park plus temple walking makes it a memorable day trip.";
   if (/hakone|onsen|후지|온천/.test(name)) return ko ? "온천과 후지산 전망을 같이 노리면 휴식감이 큽니다. 이동 시간은 넉넉히 잡아야 해요." : es ? "Onsen y vistas al Fuji; deja margen de traslado." : "Onsen plus Fuji views can be special; leave generous transfer time.";
   if (/statue|liberty|ellis/.test(name)) return ko ? "뉴욕 첫 방문이면 상징성이 가장 강해요. 페리 시간까지 묶어서 보는 게 좋습니다." : es ? "Icono de Nueva York; conviene planear ferry y tiempo juntos." : "The most iconic first-visit stop; plan ferry timing with it.";
@@ -3448,8 +3448,10 @@ const alpha03LocalizedDisplayName = (value = "") => {
 };
 const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) => {
   const image = assignedImage === undefined ? previewItemImage(item) : assignedImage;
+  const fallbackImages = imageCandidatesForItem(item).filter((candidate) => normalizedImageIdentity(candidate) !== normalizedImageIdentity(image || {}));
+  const fallbackAttribute = fallbackImages.length ? ` data-image-fallbacks="${escapeSummaryText(encodeURIComponent(JSON.stringify(fallbackImages)))}"` : "";
   const imageMarkup = image?.url
-    ? `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>${type === "restaurant" ? "🍽️" : "📍"}</b></span><img data-safe-travel-image src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
+    ? `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>${type === "restaurant" ? "🍽️" : "📍"}</b></span><img data-safe-travel-image${fallbackAttribute} src="${escapeSummaryText(image.url)}" alt="${escapeSummaryText(image.alt || item.name)}" loading="lazy" width="320" height="220">`
     : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
   const isFood = type === "restaurant";
   const selected = isFood && (currentResult?.alpha03FoodSelections || []).includes(item.name);
@@ -3496,7 +3498,7 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
       ["OCI.Mde","https://images.squarespace-cdn.com/content/v1/56c1dde2cf80a13c7c1a7ceb/1558930226137-A8N2QWULKDS5UW6FVLT8/Web_6.jpg"],
       ["Lucia","https://s3.amazonaws.com/fathom_media/photos/1-medellin-lucia-restaurant.jpg.1200x800_q85_crop.jpg"],
       ["Hatoviejo","https://vivirenelpoblado.com/wp-content/uploads/Hatoviejo-Exterior-3.jpg"],
-      ["El Rancherito","https://localtoursmedellin.com/wp-content/uploads/2023/06/restaurant-el-rancherito_6_11zon.webp"]
+      ["El Rancherito","https://degusta-pictures-hd.b-cdn.net/10_2354_r_0.jpg?v=2500"]
     ], places:[
       ["El Poblado and Medellín skyline","https://blog.properati.com.co/wp-content/uploads/2021/09/medellin-el-poblado-scaled.jpeg"],
       ["Comuna 13 and local culture","https://images.myguide-cdn.com/colombia/companies/medellin-comuna-13-cable-cars-and-botero-statues-tour/large/medellin-comuna-13-cable-cars-and-botero-statues-tour-3037136.jpg"],
@@ -3506,8 +3508,8 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
       ["Botero Square and central Medellín","https://theoccasionaltraveller.com/wp-content/uploads/2020/03/Colombia-Medellin-Botero-Square-View.jpg"],
       ["Medellín mountain sunset","https://www.medellin.travel/wp-content/uploads/elementor/thumbs/Botero_0008_5-ox16d8ve3nnws6e3x9cv3jqv3n40uc96k54m4rn57k.jpg"],
       ["Jardín Botánico de Medellín","https://cloudfront-us-east-1.images.arcpublishing.com/semana/P3R6XRRG5JHJDALI57A6EXP4XU.jpg"],
-      ["Parque Arví","https://media.viajando.travel/p/c5847e8b3d4b8c88cff2909a3185fb5c/adjuntos/236/imagenes/000/533/0000533777/1200x0/smart/medellinarvijpg.jpg"],
-      ["Pueblito Paisa","https://cloudfront-us-east-1.images.arcpublishing.com/infobae/DT7P5RHXEBD6RFWZPI5T7MI4GE.jpg"],
+      ["Parque Arví","https://www.touropia.com/gfx/b/2023/05/parque_arvi-768x512.jpg"],
+      ["Pueblito Paisa","https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Pueblito_Paisa-Medellin.JPG/1920px-Pueblito_Paisa-Medellin.JPG"],
       ["Medellín cultural and nature route","https://www.teleantioquia.co/wp-content/uploads/2024/08/portada-3.png"]
     ]},
   { match:/\bmadrid\b|마드리드/i, foods:[
@@ -3609,7 +3611,7 @@ const WORLD_CITY_VISUAL_PACKS = Object.freeze([
 ].map((pack) => Object.freeze({
   ...pack,
   foods: Object.freeze(pack.foods.map(([name,url]) => ({name,category:"food",image:{url,alt:name},advice:{en:"Match this meal to the nearest neighborhood day and verify the menu before approval.",ko:"가장 가까운 동네 일정과 묶고 승인 전 메뉴를 확인하세요."}}))),
-  places: Object.freeze(pack.places.map(([name,url]) => ({name,category:"attraction",image:{url,alt:name},advice:{en:"Use this as a neighborhood anchor and keep nearby food and rest on the same route.",ko:"이곳을 동네 핵심 장소로 두고 식사와 휴식을 같은 동선에 묶으세요."}})))
+  places: Object.freeze(pack.places.map(([name,url], index) => ({name,category:"attraction",image:{url,alt:name},advice:{en:/metro|station|city center/i.test(name)?"A practical city-center and transit anchor for linking nearby stops.":/garden|park|nature|arv[ií]/i.test(name)?"A greener, slower part of the route that balances denser city days.":/skyline|sunset|view/i.test(name)?"A destination view best paired with the closest neighborhood on the same day.":/plaza|palacio|museum|culture|botero/i.test(name)?"A focused arts and civic-area stop that fits the central-city itinerary.":`A distinct ${index===0?"opening":"local"} experience within this destination’s day plan.`,ko:/metro|station|city center/i.test(name)?"주변 명소를 연결하기 좋은 도심 교통 거점입니다.":/garden|park|nature|arv[ií]/i.test(name)?"도시 중심 일정 사이에 여유를 더하는 녹지 중심 코스입니다.":/skyline|sunset|view/i.test(name)?"가장 가까운 동네 일정과 묶기 좋은 목적지 전망 포인트입니다.":/plaza|palacio|museum|culture|botero/i.test(name)?"도심 일정에 넣기 좋은 예술·문화 중심 장소입니다.":"하루 동선에 넣을 수 있는 이 목적지만의 현지 경험입니다."}})))
 })));
 const NEW_YORK_FOOD_VISUALS = Object.freeze([
   { name:"Classic New York pizza slice", image:{url:"https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=82",alt:"New York style pizza"}, advice:{en:"Foldable street slice near the day's neighborhood route.",ko:"당일 동선 가까이에서 즐기는 뉴욕식 피자 한 조각"} },
@@ -3695,6 +3697,7 @@ const alpha03TravelOptionImages = Object.freeze({
   transport: ["https://images.unsplash.com/photo-1516939884455-1445c8652f83?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1515569067071-ec3b51335dd0?auto=format&fit=crop&w=900&q=82","https://images.unsplash.com/photo-1556122071-e404eaedb77f?auto=format&fit=crop&w=900&q=82"]
 });
 const alpha03OptionImage = (group, option, index) => {
+  if (option?.searchAction) return "";
   const evidencedImage = option?.image?.url || option?.imageUrl || option?.images?.find?.((item) => item?.url)?.url || "";
   if (evidencedImage) return evidencedImage;
   const name = String(option?.name || "").toLowerCase();
@@ -3758,10 +3761,12 @@ const createOneFreeTrustMarkup = (trust) => {
 };
 const createAlpha03OptionPreviewCard = (group, option, index, selected = false) => {
   const image = alpha03OptionImage(group, option, index);
+  const optionFallbacks = imageCandidatesForItem(option).filter((candidate) => normalizedImageIdentity(candidate) !== normalizedImageIdentity({ url: image }));
+  const fallbackAttribute = optionFallbacks.length ? ` data-image-fallbacks="${escapeSummaryText(encodeURIComponent(JSON.stringify(optionFallbacks)))}"` : "";
   const isAirlineBrand = group === "flights" && !/economy|business|first/i.test(String(option?.name || "")) && /korean|대한항공|asiana|아시아나항공|vietnam|베트남항공|latam|라탐항공|avianca|아비앙카항공|iberia|이베리아항공|lufthansa|루프트한자|air\s*france|에어프랑스|\bklm\b|네덜란드항공/i.test(String(option?.name || ""));
   return `
   <button class="alpha03-preview-option alpha03-picture-option${selected ? " is-selected" : ""}${isAirlineBrand ? " is-airline-brand" : ""}" type="button" data-preview-group="${escapeSummaryText(group)}" data-preview-index="${index}" data-preview-name="${escapeSummaryText(option.name)}" data-preview-meta="${escapeSummaryText(option.meta)}" aria-pressed="${selected ? "true" : "false"}">
-    <span class="alpha03-option-photo${image ? " has-image" : " is-fallback"}">${image ? `<img data-safe-travel-image src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false">` : `<span aria-hidden="true">${group === "hotels" ? "🏨" : group === "transport" ? "🚕" : "✈️"}</span>`}</span>
+    <span class="alpha03-option-photo${image ? " has-image" : " is-fallback"}">${image ? `<img data-safe-travel-image${fallbackAttribute} src="${escapeSummaryText(image)}" alt="" loading="lazy" draggable="false">` : `<span aria-hidden="true">${group === "hotels" ? "🏨" : group === "transport" ? "🚕" : "✈️"}</span>`}</span>
     <span class="alpha03-preview-check" aria-hidden="true">${selected ? "✓" : "+"}</span>
     <strong>${escapeSummaryText(alpha03LocalizedDisplayName(option.name))}</strong>
     <em>${escapeSummaryText(option.meta)}</em>
@@ -3771,30 +3776,25 @@ const createAlpha03OptionPreviewCard = (group, option, index, selected = false) 
 
 const createAlpha03OptionPreview = (journey, result, transportationSummary, trustBySection = {}) => {
   const flightPriceCheck = alpha03Copy("Live fare check required", "실시간 운임 확인 필요", "Se requiere verificar la tarifa en vivo", "Vérification du tarif en direct requise");
-  const routeFlightRange = formatRange(result.flights?.[0]?.estimatedPrice);
-  const routePriceContext = routeFlightRange
-    ? `${alpha03Copy("Per-traveler route estimate", "1인 노선 예상", "Estimación de ruta por viajero", "Estimation d’itinéraire par voyageur")} ${routeFlightRange} · ${flightPriceCheck}`
-    : flightPriceCheck;
-  const scaleEstimate = (range, minimumFactor, maximumFactor = minimumFactor) => range && Number.isFinite(Number(range.min)) && Number.isFinite(Number(range.max)) ? {
-    currency: range.currency || "KRW",
-    min: Math.round(Number(range.min) * minimumFactor / 10000) * 10000,
-    max: Math.round(Number(range.max) * maximumFactor / 10000) * 10000
-  } : null;
   const destinationCode = String(result.destination?.countryCode || result.countryProfile?.code || result.country || "").toUpperCase();
-  const destinationAirlines = (airlineProfilesByCountry[destinationCode] || airlineProfilesByContinent[result.destination?.continent || result.countryProfile?.continent] || []).map(([en, ko]) => ({
-    name: activeLanguage === "ko" ? ko : en,
-    meta: `${alpha03Copy("Route and schedule verification required", "노선·일정 확인 필요", "Verificar ruta y horario", "Itinéraire et horaires à vérifier")} · ${routePriceContext}`
-  }));
   const flightSeen = new Set();
-  const flights = [
-    ...(result.flights || []).map((flight) => ({
+  const evidencedFlights = (result.flights || []).filter((flight) => /verified_live|cached_public|provider/i.test(String(flight?.sourceState || flight?.liveStatus || flight?.source || "")) && !/verification required|search required/i.test(getFlightName(flight))).map((flight) => ({
       name: getFlightName(flight),
       meta: formatRange(flight.estimatedPrice)
         ? `${alpha03Copy("Per-traveler route estimate", "1인 노선 예상", "Estimación de ruta por viajero", "Estimation d’itinéraire par voyageur")} ${formatRange(flight.estimatedPrice)} · ${flightPriceCheck}`
-        : flightPriceCheck
-    })),
-    ...destinationAirlines,
-  ].filter((option) => option.name && !flightSeen.has(option.name) && flightSeen.add(option.name)).slice(0, 12);
+        : flightPriceCheck,
+      image: flight.image || flight.images?.[0] || null
+    }));
+  const { originAirport } = getTravelPartyDetails(result);
+  const destinationLabel = getTravelDestinationLabel(result);
+  const flightSearchActions = [
+    alpha03Copy(`Search all flights ${originAirport} → ${destinationLabel}`, `${originAirport} → ${destinationLabel} 전체 항공편 검색`, `Buscar todos los vuelos ${originAirport} → ${destinationLabel}`, `Rechercher tous les vols ${originAirport} → ${destinationLabel}`),
+    alpha03Copy("Compare flexible dates", "유연한 날짜 비교", "Comparar fechas flexibles", "Comparer les dates flexibles"),
+    alpha03Copy("Compare lowest-fare routes", "최저 운임 노선 비교", "Comparar rutas de menor tarifa", "Comparer les itinéraires les moins chers"),
+    alpha03Copy("Review connection options", "경유 옵션 검토", "Revisar opciones de conexión", "Examiner les options de correspondance")
+  ].map((name) => ({ name, searchAction: true, meta: alpha03Copy("Manual live search · carrier, connections, and fare verified before approval", "수동 실시간 검색 · 승인 전 항공사·경유·운임 확인", "Búsqueda manual en vivo · aerolínea, conexiones y tarifa antes de aprobar", "Recherche manuelle en direct · transporteur, correspondances et tarif vérifiés avant approbation") }));
+  const flights = (evidencedFlights.length ? evidencedFlights : flightSearchActions)
+    .filter((option) => option.name && !flightSeen.has(option.name) && flightSeen.add(option.name)).slice(0, 12);
 
   const requestedHotelDestination = new URLSearchParams(location.search).get("destination")
     || result.destination?.city
@@ -3806,13 +3806,14 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     || (isNewYorkHotelDestination ? destinationPrototypeProfiles.US.hotels : []);
   const destinationHotelOptions = destinationHotelNames.map((name) => ({ name, representativeStay: true }));
   const resultHotels = result.hotels || [];
-  const hotelSource = prioritizeRevisionCandidates({
+  const hotelFallbackOptions = [{ name: requestedHotelDestination + " Airbnb-style apartment", representativeStay: true }, { name: requestedHotelDestination + " serviced apartment", representativeStay: true }];
+  const hotelSource = [...prioritizeRevisionCandidates({
     revision: resultHotels.filter((hotel) => hotel?.source === "user_revision" || hotel?.revisionCandidate),
     selected: resultHotels.filter((hotel) => hotel?.source !== "user_revision" && !hotel?.revisionCandidate),
     curated: destinationHotelOptions,
-    fallback: [{ name: requestedHotelDestination + " Airbnb-style apartment", representativeStay: true }, { name: requestedHotelDestination + " serviced apartment", representativeStay: true }],
+    fallback: hotelFallbackOptions,
     limit: 12
-  });
+  }), ...destinationHotelOptions, ...hotelFallbackOptions];
   const hotelSeen = new Set();
   const destinationContextImages = ((result.providerResults || []).find((provider) => provider.category === "destination_info")?.items?.[0]?.imageAlternates || []).slice(17);
   const hotels = hotelSource.map((hotel, index) => {
@@ -3825,23 +3826,14 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
       : alpha03Copy("Nightly price check required", "1박 요금 확인 필요", "Se requiere verificar el precio por noche", "Prix par nuit à vérifier"))
       + (image ? alpha03Copy(" · Area/representative photo", " · 지역/대표 이미지", " · Foto de zona/representativa", " · Photo de zone/représentative") : "")
   }); }).filter((hotel) => hotel.name && !/live search|search ready|search required|accommodation live/i.test(hotel.name) && !(destinationCode !== "JP" && /ryokan|료칸|旅館/i.test(hotel.name)) && !hotelSeen.has(hotel.name) && hotelSeen.add(hotel.name)).slice(0, 12);
-  const transportBudget = result.budget?.transport;
-  const transportEstimate = (factorMin, factorMax = factorMin) => {
-    const range = scaleEstimate(transportBudget, factorMin, factorMax);
-    return range ? `${alpha03Copy("Estimated trip total", "여행 전체 예상", "Total estimado del viaje", "Total estimé du voyage")} ${formatRange(range)} · ` : "";
-  };
+  const fareUnavailable = alpha03Copy("Current destination fare check required", "현재 목적지 요금 확인 필요", "Se requiere verificar la tarifa actual del destino", "Vérification du tarif actuel à destination requise");
+  const isMedellin = /medell[ií]n/i.test(String(destinationLabel));
   const transfers = [
-    { name: alpha03Copy("Official airport transport + local transit", "공식 공항 교통 + 현지 대중교통", "Transporte oficial del aeropuerto + transporte local", "Transport officiel depuis l’aéroport + transports locaux"), meta: `${transportEstimate(1, 1.25)}${alpha03Copy("destination-matched route", "목적지 맞춤 동선", "ruta adaptada al destino", "Itinéraire adapté à la destination")}` },
-    { name: alpha03Copy("Airport bus + short walk", "공항버스 + 짧은 도보", "Bus aeropuerto + caminar", "Bus de l’aéroport + courte marche"), meta: `${transportEstimate(.65, .9)}${alpha03Copy("simple luggage route", "짐 있을 때 편한 동선", "con equipaje", "Trajet simple avec bagages")}` },
-    { name: alpha03Copy("Local rail, metro, bus, or ferry route", "현지 철도·메트로·버스·페리 동선", "Tren, metro, bus o ferry local", "Train, métro, bus ou ferry local"), meta: `${transportEstimate(.55, .8)}${alpha03Copy("multi-stop local route", "현지 다중 이동", "ruta local con varias paradas", "Itinéraire local à plusieurs étapes")}` },
-    { name: alpha03Copy("Taxi + walk", "택시 + 도보", "Taxi + caminar", "Taxi + marche"), meta: `${transportEstimate(1.3, 1.8)}${alpha03Copy("comfort route", "편한 이동", "ruta cómoda", "Trajet confortable")}` },
-    { name: alpha03Copy("Private transfer", "전용 이동", "Traslado privado", "Transfert privé"), meta: `${transportEstimate(2.2, 3.5)}${alpha03Copy("higher cost", "높은 비용", "mayor costo", "Coût supérieur")}` }
+    { name: alpha03Copy("Official airport transfer", "공식 공항 이동", "Traslado oficial del aeropuerto", "Transfert officiel depuis l’aéroport"), meta: `${alpha03Copy("One-way airport transfer", "공항 편도 이동", "Traslado de aeropuerto de ida", "Transfert aéroport aller simple")} · ${fareUnavailable}` },
+    ...(isMedellin ? [{ name: alpha03Copy("Medellín Metro + integrated bus", "메데인 메트로 + 연계 버스", "Metro de Medellín + bus integrado", "Métro de Medellín + bus intégré"), meta: `${alpha03Copy("Local transit per ride/day", "현지 대중교통 1회/1일 기준", "Transporte local por viaje/día", "Transport local par trajet/jour")} · ${fareUnavailable}` }] : [{ name: alpha03Copy("Official local public transit", "공식 현지 대중교통", "Transporte público local oficial", "Transports publics locaux officiels"), meta: `${alpha03Copy("Local transit per ride/day", "현지 대중교통 1회/1일 기준", "Transporte local por viaje/día", "Transport local par trajet/jour")} · ${fareUnavailable}` }]),
+    { name: alpha03Copy("Licensed taxi or ride service", "허가 택시 또는 호출 이동", "Taxi autorizado o servicio de transporte", "Taxi agréé ou service de voiture"), meta: `${alpha03Copy("Point-to-point fare", "구간별 요금", "Tarifa por trayecto", "Tarif point à point")} · ${fareUnavailable}` },
+    { name: alpha03Copy("Round-trip airport transfer search", "공항 왕복 이동 검색", "Buscar traslado de aeropuerto ida y vuelta", "Rechercher un transfert aéroport aller-retour"), meta: `${alpha03Copy("Round-trip airport transfer", "공항 왕복 이동", "Traslado de aeropuerto ida y vuelta", "Transfert aéroport aller-retour")} · ${fareUnavailable}` }
   ];
-  transfers.push(
-    { name: alpha03Copy("Train + local bus + walk", "열차 + 현지 버스 + 도보", "Tren + bus local + caminar", "Train + bus local + marche"), meta: `${transportEstimate(.7, 1)}${alpha03Copy("regional route", "지역 이동", "ruta regional", "Itinéraire régional")}` },
-    { name: alpha03Copy("Destination transit pass when available", "현지 교통 패스(운영 시)", "Pase local cuando exista", "Pass de transport local si disponible"), meta: `${transportEstimate(.45, .7)}${alpha03Copy("verify local coverage", "현지 적용 범위 확인", "verificar cobertura", "Vérifier la zone couverte")}` },
-    { name: alpha03Copy("Late-night taxi backup", "야간 택시 대안", "Taxi nocturno alternativo", "Taxi de secours en soirée"), meta: `${transportEstimate(.3, .55)}${alpha03Copy("after dinner backup", "저녁 후 대안", "después de cenar", "Solution après le dîner")}` }
-  );
   const groups = (isInvestorRestaurantReservationDemo(result) || isWeekendDatePlan(result)) ? [] : [
     [alpha03Copy("Flights", "항공", "Vuelos", "Vols"), "flights", flights],
     [alpha03Copy("Hotels", "숙소", "Hotel", "Hôtels"), "hotels", hotels],
@@ -3884,7 +3876,7 @@ const createAlpha03TimelineHtml = (days, places = [], trust = null, destinationF
         const slots = Array.isArray(day.slots) && day.slots.length ? day.slots : [];
         return `
           <article class="alpha03-itinerary-visual-card alpha03-itinerary-complete-card" id="itinerary-detail-day-${dayIndex + 1}" tabindex="0" data-itinerary-day="${dayIndex + 1}">
-            <span class="alpha03-itinerary-visual-photo${dayImage?.url ? " has-image" : " is-fallback"}">${dayImage?.url ? `<img data-safe-travel-image data-image-match="${dayImage.match}" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360">` : `<span aria-hidden="true">📍</span>`}</span>
+            <span class="alpha03-itinerary-visual-photo${dayImage?.url ? " has-image" : " is-fallback"}">${dayImage?.url ? `<img data-safe-travel-image data-image-match="${dayImage.match}" src="${escapeSummaryText(dayImage.url)}" alt="${escapeSummaryText(dayImage.alt || day.title)}" loading="lazy" width="640" height="360" draggable="false">` : `<span aria-hidden="true">📍</span>`}</span>
             <span class="alpha03-itinerary-visual-copy"><b>${escapeSummaryText(alpha03LocalizedDisplayName(day.day))}</b><strong>${escapeSummaryText(alpha03LocalizedDisplayName(day.title))}</strong>${day.theme ? `<em>${escapeSummaryText(alpha03LocalizedDisplayName(day.theme))}</em>` : ""}</span>
             <span class="alpha03-itinerary-detail-slots">${slots.map(([icon, label, value]) => `<span class="alpha03-day-slot"><b><i aria-hidden="true">${escapeSummaryText(icon)}</i>${escapeSummaryText(alpha03LocalizedDisplayName(label))}</b><p>${escapeSummaryText(alpha03LocalizedDisplayName(value))}</p></span>`).join("")}</span>
             ${day.weatherAlternative ? `<span class="realistic-weather-alternative">${escapeSummaryText(alpha03LocalizedDisplayName(day.weatherAlternative))}</span>` : ""}
@@ -3908,6 +3900,17 @@ document.addEventListener("error", (event) => {
   if (!(image instanceof HTMLImageElement) || !image.matches("img[data-safe-travel-image]")) return;
   const frame = image.parentElement;
   if (!frame) return;
+  let fallbacks = [];
+  try { fallbacks = JSON.parse(decodeURIComponent(image.dataset.imageFallbacks || "[]")); } catch { fallbacks = []; }
+  const used = new Set([...document.querySelectorAll("img[data-safe-travel-image]")].filter((candidate) => candidate !== image).map((candidate) => normalizedImageIdentity({ url: candidate.currentSrc || candidate.src })).filter(Boolean));
+  const nextIndex = fallbacks.findIndex((candidate) => candidate?.url && !used.has(normalizedImageIdentity(candidate)));
+  if (nextIndex >= 0) {
+    const [next] = fallbacks.splice(nextIndex, 1);
+    image.dataset.imageFallbacks = encodeURIComponent(JSON.stringify(fallbacks));
+    image.alt = next.alt || image.alt;
+    image.src = next.url;
+    return;
+  }
   image.remove();
   frame.classList.remove("has-image");
   frame.classList.add("is-fallback", "has-image-error");
@@ -3919,6 +3922,32 @@ document.addEventListener("error", (event) => {
     frame.appendChild(fallback);
   }
 }, true);
+let alpha03DragRail = null;
+document.addEventListener("pointerdown", (event) => {
+  const rail = event.target.closest?.(".alpha03-itinerary-visual-rail");
+  if (!rail || event.target.closest?.("button,a,input,textarea,select")) return;
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+  alpha03DragRail = { rail, pointerId: event.pointerId, startX: event.clientX, startScroll: rail.scrollLeft, moved: false };
+  rail.classList.add("is-dragging");
+  rail.setPointerCapture?.(event.pointerId);
+});
+document.addEventListener("pointermove", (event) => {
+  if (!alpha03DragRail || alpha03DragRail.pointerId !== event.pointerId) return;
+  const distance = event.clientX - alpha03DragRail.startX;
+  if (Math.abs(distance) > 5) alpha03DragRail.moved = true;
+  if (alpha03DragRail.moved) {
+    event.preventDefault();
+    alpha03DragRail.rail.scrollLeft = alpha03DragRail.startScroll - distance;
+  }
+});
+const stopAlpha03RailDrag = (event) => {
+  if (!alpha03DragRail || alpha03DragRail.pointerId !== event.pointerId) return;
+  alpha03DragRail.rail.classList.remove("is-dragging");
+  alpha03DragRail.rail.releasePointerCapture?.(event.pointerId);
+  alpha03DragRail = null;
+};
+document.addEventListener("pointerup", stopAlpha03RailDrag);
+document.addEventListener("pointercancel", stopAlpha03RailDrag);
 document.addEventListener("pointerover", (event) => {
   const card = event.target.closest?.("[data-itinerary-day], [data-itinerary-jump]");
   const day = card?.dataset.itineraryDay || card?.dataset.itineraryJump;
@@ -4043,7 +4072,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const highlightPlaces = uniqueItems([
     ...picturePlaces,
     ...(profile.hero?.url ? [{ name: `${profile.city || destination} skyline`, image: profile.hero, category: "destination" }] : [])
-  ]).slice(0, 8);
+  ]).slice(0, 12);
   if (isInvestorRestaurantReservationDemo(result)) {
     days = [
       {
