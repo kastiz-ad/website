@@ -44,6 +44,16 @@ const candidateMatchesDestination = (candidate = {}, mission = {}, distance = nu
   return destinationTokens.some((token) => context.includes(token));
 };
 
+const candidateMatchesEntityKind = (item = {}, candidate = {}) => {
+  if (item?.kind !== "restaurant") return true;
+  const context = normalizeMediaName([
+    candidate?.title,
+    candidate?.description,
+    candidate?.extract
+  ].filter(Boolean).join(" "));
+  return /\b(restaurant|restaurante|ristorante|cafe|café|bistro|brasserie|pizzeria|grill|dining|eatery|food|cuisine|kitchen|bar)\b/.test(context);
+};
+
 const pageImageCandidate = (page = {}) => {
   const imageInfo = page.imageinfo?.[0] || {};
   const url = page.original?.source || page.thumbnail?.source || imageInfo.thumburl || imageInfo.url || "";
@@ -71,6 +81,7 @@ export const selectExactEntityMedia = (item = {}, pages = [], mission = {}) => {
   const destinationLon = Number(mission?.destination?.longitude);
   const matches = pages.filter((candidate) => {
     if (!mediaTitleMatchesEntity(name, candidate?.title)) return false;
+    if (!candidateMatchesEntityKind(item, candidate)) return false;
     const coordinates = candidate?.coordinates?.[0];
     const distance = distanceKm(destinationLat, destinationLon, coordinates?.lat, coordinates?.lon);
     return candidateMatchesDestination(candidate, mission, distance);

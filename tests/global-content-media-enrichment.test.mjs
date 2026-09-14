@@ -58,6 +58,17 @@ test("exact-name media without coordinates is accepted when destination context 
   assert.equal(item.imageStatus, "EXACT_LOADED");
 });
 
+test("same-name destination media is rejected when it is not a restaurant", () => {
+  const item = selectExactEntityMedia({ label: "Guadalupe", kind: "restaurant" }, [{
+    pageid: 7,
+    title: "Catedral de Medellín - Nuestra Señora de Guadalupe",
+    description: "Cathedral in Medellín, Colombia",
+    thumbnail: { source: "https://img.example/guadalupe-cathedral.jpg" }
+  }], mission);
+  assert.equal(item.imageUrl, undefined);
+  assert.equal(item.imageStatus, "NO_SAFE_IMAGE");
+});
+
 test("lookup failure exits loading state for every card", async () => {
   const enriched = await enrichNamedEntityMedia([{ label: "A" }, { label: "B" }, { label: "C" }], mission, async () => { throw new Error("offline"); });
   assert.deepEqual(enriched.map((item) => item.imageStatus), ["SOURCE_BLOCKED", "SOURCE_BLOCKED", "SOURCE_BLOCKED"]);
