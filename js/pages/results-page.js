@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, imageCandidatesForItem, normalizedImageIdentity } from "../ui/travel-image-allocation.js?v=20260914-global-media-v19";
+import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, imageCandidatesForItem, normalizedImageIdentity, selectNextTravelImageCandidate } from "../ui/travel-image-allocation.js?v=20260915-global-dining-media-v21";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -3405,8 +3405,6 @@ const getAlpha03ItemAdvice = (item, type, index) => {
       : `Highlight ${index + 1}; ONE connects it with timing, photos, and nearby food.`;
 };
 
-document.addEventListener("error", (event) => { if (event.target?.matches?.(".alpha03-thumb.has-image img")) event.target.hidden = true; }, true);
-
 const alpha03LocalizedDisplayName = (value = "") => {
   const source = String(value || "");
   if (activeLanguage === "en") return source;
@@ -3461,7 +3459,7 @@ const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) =
   const displayScore = Number(item.rating || item.stars);
   const tag = isFood ? "button" : "article";
   return `
-  <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
+  <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" data-media-status="${escapeSummaryText(item.imageStatus || (image?.url ? "EXACT_LOADED" : "NO_SAFE_IMAGE"))}" data-image-candidate-count="${imageCandidatesForItem(item).length}" data-entity-key="${escapeSummaryText(item.id || item.providerId || item.name || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}${item.contextualImage ? `<small class="alpha03-context-image-label">${escapeSummaryText(alpha03Copy("Area photo", "지역 사진", "Foto de la zona", "Photo du quartier"))}</small>` : ""}</div>
     <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood && Number.isFinite(displayScore) ? `<span class="alpha03-card-score">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
     ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 20.4 4.2 13A5.2 5.2 0 0 1 11.6 5.7L12 6l.4-.3A5.2 5.2 0 0 1 19.8 13Z"/></svg></span>` : ""}
@@ -3906,17 +3904,21 @@ document.addEventListener("error", (event) => {
   let fallbacks = [];
   try { fallbacks = JSON.parse(decodeURIComponent(image.dataset.imageFallbacks || "[]")); } catch { fallbacks = []; }
   const used = new Set([...document.querySelectorAll("img[data-safe-travel-image]")].filter((candidate) => candidate !== image).map((candidate) => normalizedImageIdentity({ url: candidate.currentSrc || candidate.src })).filter(Boolean));
-  const nextIndex = fallbacks.findIndex((candidate) => candidate?.url && !used.has(normalizedImageIdentity(candidate)));
+  const nextCandidate = selectNextTravelImageCandidate(fallbacks, used);
+  const nextIndex = nextCandidate ? fallbacks.findIndex((candidate) => normalizedImageIdentity(candidate) === normalizedImageIdentity(nextCandidate)) : -1;
   if (nextIndex >= 0) {
     const [next] = fallbacks.splice(nextIndex, 1);
     image.dataset.imageFallbacks = encodeURIComponent(JSON.stringify(fallbacks));
     image.alt = next.alt || image.alt;
+    image.hidden = false;
     image.src = next.url;
+    frame.closest("[data-media-status]")?.setAttribute("data-media-status", "ALTERNATE_LOADED");
     return;
   }
   image.remove();
   frame.classList.remove("has-image");
   frame.classList.add("is-fallback", "has-image-error");
+  frame.closest("[data-media-status]")?.setAttribute("data-media-status", "NO_SAFE_IMAGE");
   if (!frame.querySelector(".alpha03-safe-image-fallback")) {
     const fallback = document.createElement("span");
     fallback.className = "alpha03-safe-image-fallback";
@@ -3967,7 +3969,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const liveItems = Array.isArray(livePlaceProvider?.items) ? livePlaceProvider.items : [];
   const destinationInfoProvider = (result?.providerResults || []).find((provider) => provider.category === "destination_info" && provider.items?.some((item) => item?.imageUrl));
   const destinationInfo = Array.isArray(destinationInfoProvider?.items) ? destinationInfoProvider.items.find((item) => item?.imageUrl) : null;
-  const liveRestaurants = liveItems.filter((item) => item.kind === "restaurant").map((item) => ({ name: item.label, tags: [item.cuisine || "local", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, latitude: item.latitude, longitude: item.longitude }));
+  const liveRestaurants = liveItems.filter((item) => item.kind === "restaurant").map((item) => ({ id: item.id || item.providerId, name: item.label, tags: [item.cuisine || "local", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, images: item.images || [], imageStatus: item.imageStatus, latitude: item.latitude, longitude: item.longitude }));
   const resultRestaurants = (result.restaurants || []).filter((item) => item.livePlaceName || /openstreetmap/i.test(String(item.providerSource || ""))).map((item) => ({ name: item.venueName || item.type, tags: [item.cuisine || "local", "public place data"], source: item.providerSource || "OpenStreetMap" }));
   const livePlaces = liveItems.filter((item) => item.kind === "place").map((item) => ({ name: item.label, tags: [item.value || "attraction", "OpenStreetMap"], source: item.source || "OpenStreetMap", imageUrl: item.imageUrl, imageAlt: item.imageAlt, latitude: item.latitude, longitude: item.longitude }));
   const uniqueItems = (items) => { const seen = new Set(); return items.filter((item) => { const key = String(item?.name || "").trim().toLowerCase(); if (!key || seen.has(key)) return false; seen.add(key); return true; }); };
@@ -4039,7 +4041,7 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const resultRestaurantItems = (result.restaurants || []).map((item, index) => {
     const name = getRestaurantName(item);
     const ownImage = previewItemImage(item);
-    const imageUrl = alpha03FoodImageForName(name, ownImage?.url || item.imageUrl || "");
+    const imageUrl = ownImage?.url || item.imageUrl || (!item.livePlaceName ? alpha03FoodImageForName(name, "") : "");
     return name ? { ...item, name, category: "food", image: imageUrl ? { ...(ownImage || {}), url: imageUrl, alt: ownImage?.alt || item.imageAlt || name } : null } : null;
   }).filter(Boolean);
   const revisionRestaurants = (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source === "user_revision" || item?.revisionCandidate);

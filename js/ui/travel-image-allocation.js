@@ -69,3 +69,13 @@ export const allocateSectionTravelImages = (items = [], options = {}) => {
     return contextualReuse;
   });
 };
+
+export const selectNextTravelImageCandidate = (candidates = [], used = new Set()) => {
+  const seen = new Set();
+  return candidates.find((candidate) => {
+    const identity = normalizedImageIdentity(candidate);
+    if (!identity || seen.has(identity)) return false;
+    seen.add(identity);
+    return !used.has(identity);
+  }) || null;
+};

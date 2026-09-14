@@ -19,27 +19,45 @@ test("all displayed entities enter bounded asynchronous media enrichment", async
   });
   assert.equal(attempted.length, 12);
   assert.equal(enriched.length, 12);
-  assert.ok(enriched.every((item) => item.imageStatus === "exact_public_lookup" && item.imageUrl));
+  assert.ok(enriched.every((item) => item.imageStatus === "EXACT_LOADED" && item.imageUrl));
 });
 
 test("provider images are preserved without unnecessary lookup", async () => {
   let calls = 0;
   const [item] = await enrichNamedEntityMedia([{ label: "Sites Hotel", imageUrl: "https://provider.example/sites.jpg" }], mission, async () => { calls += 1; return []; });
   assert.equal(calls, 0);
-  assert.equal(item.imageStatus, "exact_provider");
+  assert.equal(item.imageStatus, "EXACT_LOADED");
   assert.equal(item.imageUrl, "https://provider.example/sites.jpg");
 });
 
 test("location-conflicting and unrelated media become an honest terminal fallback", () => {
   const item = selectExactEntityMedia({ label: "Carmen", kind: "restaurant" }, [{ pageid: 1, title: "Carmen", thumbnail: { source: "https://img.example/carmen.jpg" }, coordinates: [{ lat: 40.7, lon: -74 }] }], mission);
   assert.equal(item.imageUrl, undefined);
-  assert.equal(item.imageStatus, "no_safe_candidate");
+  assert.equal(item.imageStatus, "NO_SAFE_IMAGE");
 });
 
 test("lookup failure exits loading state for every card", async () => {
   const enriched = await enrichNamedEntityMedia([{ label: "A" }, { label: "B" }, { label: "C" }], mission, async () => { throw new Error("offline"); });
-  assert.deepEqual(enriched.map((item) => item.imageStatus), ["lookup_failed", "lookup_failed", "lookup_failed"]);
-  assert.deepEqual(summarizeMediaEnrichment(enriched), { lookup_failed: 3 });
+  assert.deepEqual(enriched.map((item) => item.imageStatus), ["SOURCE_BLOCKED", "SOURCE_BLOCKED", "SOURCE_BLOCKED"]);
+  assert.deepEqual(summarizeMediaEnrichment(enriched), { SOURCE_BLOCKED: 3 });
+});
+
+test("exact lookup preserves multiple independently retryable image candidates", () => {
+  const pages = [1, 2, 3].map((pageid) => ({ pageid, title: `Carmen Medellín ${pageid}`, thumbnail: { source: `https://img.example/carmen-${pageid}.jpg` } }));
+  const item = selectExactEntityMedia({ label: "Carmen Medellín" }, pages, mission);
+  assert.equal(item.imageStatus, "EXACT_LOADED");
+  assert.equal(item.images.length, 3);
+  assert.equal(item.imageUrl, item.images[0].url);
+});
+
+test("one invalid or non-image candidate does not erase a later valid alternate", () => {
+  const pages = [
+    { pageid: 1, title: "Carmen Medellín", imageinfo: [{ url: "https://example.com/not-an-image", mime: "text/html" }] },
+    { pageid: 2, title: "Carmen Medellín dining room", imageinfo: [{ thumburl: "https://img.example/carmen.jpg", mime: "image/jpeg" }] }
+  ];
+  const item = selectExactEntityMedia({ label: "Carmen Medellín" }, pages, mission);
+  assert.equal(item.imageUrl, "https://img.example/carmen.jpg");
+  assert.equal(item.images.length, 1);
 });
 
 test("results renderer does not substitute city context photos for named restaurants or hotels", async () => {
@@ -47,4 +65,6 @@ test("results renderer does not substitute city context photos for named restaur
   assert.doesNotMatch(source, /attachImageCandidatePool\(hotelSource, destinationContextImages/);
   assert.doesNotMatch(source, /restaurants = restaurants\.map\(\(item, index\).*destinationVisualPlaces/s);
   assert.match(source, /evidencedFlights\.length \? evidencedFlights : flightSearchActions/);
+  assert.match(source, /selectNextTravelImageCandidate/);
+  assert.doesNotMatch(source, /alpha03-thumb\.has-image img"\)\) event\.target\.hidden = true/);
 });

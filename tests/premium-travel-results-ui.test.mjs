@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, normalizedImageIdentity } from "../js/ui/travel-image-allocation.js";
+import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, normalizedImageIdentity, selectNextTravelImageCandidate } from "../js/ui/travel-image-allocation.js";
 import { osmEmbedUrlForProfile } from "../js/engine/world/preview-destination-intelligence.js";
 import { resolveSemanticItineraryImages } from "../js/ui/semantic-itinerary-image.js";
 
@@ -44,6 +44,17 @@ test("section allocation reuses truthful context only after global alternates ar
   const assigned = allocateSectionTravelImages(items, { globalUsed: new Set(pool.map(normalizedImageIdentity)) });
   assert.deepEqual(assigned.map((image) => image.url), pool.map((image) => image.url));
   assert.equal(new Set(assigned.map(normalizedImageIdentity)).size, 2);
+});
+
+test("failed or duplicate restaurant images advance to the next unique candidate", () => {
+  const candidates = [
+    { url: "https://img.example/failed.jpg" },
+    { url: "https://img.example/failed.jpg?width=800" },
+    { url: "https://img.example/alternate.jpg" }
+  ];
+  const used = new Set([normalizedImageIdentity(candidates[0])]);
+  assert.equal(selectNextTravelImageCandidate(candidates, used)?.url, candidates[2].url);
+  assert.equal(selectNextTravelImageCandidate(candidates, new Set(candidates.map(normalizedImageIdentity))), null);
 });
 
 test("itinerary never repeats a semantic or destination fallback image", () => {
@@ -124,7 +135,7 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /alpha03DragRail/);
   assert.match(css, /touch-action:pan-y/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260915-global-media-v20/);
+  assert.match(html, /20260915-global-dining-media-v21/);
 });
 
 test("Medellín cards use distinct destination-specific media instead of global stock", async () => {

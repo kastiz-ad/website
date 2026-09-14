@@ -28,28 +28,48 @@ const distanceKm = (fromLat, fromLon, toLat, toLon) => {
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
+const pageImageCandidate = (page = {}) => {
+  const imageInfo = page.imageinfo?.[0] || {};
+  const url = page.original?.source || page.thumbnail?.source || imageInfo.thumburl || imageInfo.url || "";
+  const mime = String(imageInfo.mime || "");
+  if (!url || (mime && !mime.startsWith("image/"))) return null;
+  try { if (new URL(url).protocol !== "https:") return null; } catch { return null; }
+  return {
+    url,
+    alt: String(page.title || "").replace(/^File:/i, "").replace(/\.[a-z0-9]{2,5}$/i, ""),
+    source: page.mediaSource || "Wikipedia",
+    sourceId: page.pageid,
+    attribution: page.attribution || `https://en.wikipedia.org/?curid=${page.pageid}`,
+    imageScope: "ENTITY"
+  };
+};
+
 export const selectExactEntityMedia = (item = {}, pages = [], mission = {}) => {
-  if (item.imageUrl) return { ...item, imageStatus: "exact_provider" };
+  if (item.imageUrl) {
+    const existing = [{ url: item.imageUrl, alt: item.imageAlt || item.label, source: item.imageSource || item.source, sourceId: item.imageSourceId }];
+    return { ...item, images: [...existing, ...(item.images || [])], imageStatus: "EXACT_LOADED" };
+  }
   const name = String(item.label || "").trim();
   if (!name) return { ...item, imageStatus: "provider_missing" };
   const destinationLat = Number(mission?.destination?.latitude);
   const destinationLon = Number(mission?.destination?.longitude);
-  const page = pages.find((candidate) => {
+  const matches = pages.filter((candidate) => {
     if (!mediaTitleMatchesEntity(name, candidate?.title)) return false;
     const coordinates = candidate?.coordinates?.[0];
     const distance = distanceKm(destinationLat, destinationLon, coordinates?.lat, coordinates?.lon);
     return distance === null || distance <= 80;
-  });
-  const imageUrl = page?.original?.source || page?.thumbnail?.source || "";
-  if (!imageUrl) return { ...item, imageStatus: pages.length ? "no_safe_candidate" : "provider_missing" };
+  }).map(pageImageCandidate).filter(Boolean).filter((candidate, index, candidates) => candidates.findIndex((other) => other.url === candidate.url) === index);
+  const image = matches[0];
+  if (!image) return { ...item, images: [], imageStatus: "NO_SAFE_IMAGE" };
   return {
     ...item,
-    imageUrl,
-    imageAlt: page.title || name,
-    imageStatus: "exact_public_lookup",
-    imageSource: "Wikipedia",
-    imageSourceId: page.pageid,
-    imageAttribution: `https://en.wikipedia.org/?curid=${page.pageid}`
+    imageUrl: image.url,
+    imageAlt: image.alt || name,
+    images: matches,
+    imageStatus: "EXACT_LOADED",
+    imageSource: image.source,
+    imageSourceId: image.sourceId,
+    imageAttribution: image.attribution
   };
 };
 
@@ -61,13 +81,13 @@ export const enrichNamedEntityMedia = async (items = [], mission = {}, lookup = 
       const index = cursor++;
       const item = items[index];
       if (item?.imageUrl) {
-        output[index] = { ...item, imageStatus: "exact_provider" };
+        output[index] = selectExactEntityMedia(item, [], mission);
         continue;
       }
       try {
         output[index] = selectExactEntityMedia(item, await lookup(item, mission), mission);
       } catch {
-        output[index] = { ...item, imageStatus: "lookup_failed" };
+        output[index] = { ...item, images: [], imageStatus: "SOURCE_BLOCKED" };
       }
     }
   };
