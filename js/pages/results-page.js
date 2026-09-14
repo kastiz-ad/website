@@ -1952,7 +1952,9 @@ function adaptTravelResultToDestination(result) {
   const worldRestaurants = worldIntelligence.models.restaurants || [];
   const worldFlights = worldIntelligence.models.flights || [];
   const worldHotelNames = worldHotels.map((item) => item.name).filter(Boolean);
-  const liveHotelNames = (livePlaces?.items || []).filter((item) => item.kind === "hotel").map((item) => item.label).slice(0, TRAVEL_OPTION_TARGETS.hotels);
+  const liveHotelItems = (livePlaces?.items || []).filter((item) => item.kind === "hotel").slice(0, TRAVEL_OPTION_TARGETS.hotels);
+  const liveHotelNames = liveHotelItems.map((item) => item.label);
+  const liveHotelByName = new Map(liveHotelItems.map((item) => [String(item.label || "").trim().toLowerCase(), item]));
   const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, TRAVEL_OPTION_TARGETS.restaurants);
   const destinationIdentity = destinationIdentityFromMissionResult(result);
   const regionalFareRanges = {
@@ -2069,6 +2071,7 @@ function adaptTravelResultToDestination(result) {
   });
   const generatedHotels = profile.hotels.map((name, index) => ({
     ...(result.hotels?.[index] || result.hotels?.[0] || {}),
+    ...(liveHotelByName.get(String(name || "").trim().toLowerCase()) || {}),
     id: `hotel-${profileCode}-${index + 1}`,
     name,
     nameKo: localizedVenueNames[name] || name,
@@ -3815,8 +3818,7 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     limit: 12
   }), ...destinationHotelOptions, ...hotelFallbackOptions];
   const hotelSeen = new Set();
-  const destinationContextImages = ((result.providerResults || []).find((provider) => provider.category === "destination_info")?.items?.[0]?.imageAlternates || []);
-  const enrichedHotelSource = attachImageCandidatePool(hotelSource, destinationContextImages, { scope: "DESTINATION" });
+  const enrichedHotelSource = hotelSource;
   const hotels = enrichedHotelSource.map((hotel) => {
     const image = hotel.image || hotel.images?.[0] || (hotel.imageUrl ? { url: hotel.imageUrl, alt: getHotelName(hotel) } : null);
     return ({
@@ -3825,7 +3827,7 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     meta: (hotel.estimatedNightlyPrice
       ? `${alpha03Copy("Estimated per night", "1박 예상", "Estimado por noche", "Estimation par nuit")} ${formatRange(hotel.estimatedNightlyPrice)}`
       : alpha03Copy("Nightly price check required", "1박 요금 확인 필요", "Se requiere verificar el precio por noche", "Prix par nuit à vérifier"))
-      + (image ? alpha03Copy(" · Area/representative photo", " · 지역/대표 이미지", " · Foto de zona/representativa", " · Photo de zone/représentative") : "")
+      + (image ? alpha03Copy(" · Property image", " · 숙소 이미지", " · Imagen del alojamiento", " · Image de l’établissement") : "")
   }); }).filter((hotel) => hotel.name && !/live search|search ready|search required|accommodation live/i.test(hotel.name) && !(destinationCode !== "JP" && /ryokan|료칸|旅館/i.test(hotel.name)) && !hotelSeen.has(hotel.name) && hotelSeen.add(hotel.name)).slice(0, 12);
   const fareUnavailable = alpha03Copy("Current destination fare check required", "현재 목적지 요금 확인 필요", "Se requiere verificar la tarifa actual del destino", "Vérification du tarif actuel à destination requise");
   const isMedellin = /medell[ií]n/i.test(String(destinationLabel));
@@ -4048,9 +4050,6 @@ const createAlpha03ExperienceHtml = (journey, result) => {
     fallback: (result.orchestrationInjections?.restaurants || []).filter((item) => item?.source !== "user_revision" && !item?.revisionCandidate),
     limit: Math.max(0, 12 - revisionRestaurants.length)
   }).concat(revisionRestaurants).slice(0, 12);
-  restaurants = restaurants.map((item, index) => previewItemImage(item) || !destinationVisualPlaces[index]
-    ? item
-    : { ...item, image: destinationVisualPlaces[index].image, contextualImage: true });
   let days = buildAlpha03DayCards(journey, destination, result, { ...profile, restaurants, places });
   const placeImageSeeds = [profile.hero?.url, ...places.map((item) => previewItemImage(item)?.url)].filter(Boolean);
   const itineraryPlaceItems = days.flatMap((day) => day.slots || []).map((slot, index) => {

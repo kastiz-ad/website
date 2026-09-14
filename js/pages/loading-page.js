@@ -7,6 +7,7 @@ import { createCanonicalDestinationIdentity } from "../engine/world/canonical-de
 import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
+import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260915-global-media-v20";
 
 const root = document.documentElement;
 const body = document.body;
@@ -365,10 +366,23 @@ const fetchLocalPlaces = async (mission) => {
     const restaurantResolution = resolveDestinationEntities({ identity: destinationIdentity, candidates: scopedItems.filter((item) => item.kind === "restaurant"), kind: "restaurant", locale: mission.language, includeFallback: false });
     const placeResolution = resolveDestinationEntities({ identity: destinationIdentity, candidates: scopedItems.filter((item) => item.kind === "place"), kind: "place", locale: mission.language, includeFallback: false });
     const normalizedItems = [...restaurantResolution.entities, ...placeResolution.entities, ...scopedItems.filter((item) => item.kind === "hotel")];
-    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: normalizedItems.length > 0, requiresKey: false, requiresPartnerAccess: false, items: normalizedItems, geographicScope, destinationIdentity, entityResolution: { restaurants: restaurantResolution.status, places: placeResolution.status }, attribution: "© OpenStreetMap contributors", error: null };
+    const enrichedItems = await enrichNamedPlaceMedia(normalizedItems, mission);
+    return { provider: "OpenStreetMap Overpass", category: "local_places", sourceStatus: "free_live_api", liveData: enrichedItems.length > 0, requiresKey: false, requiresPartnerAccess: false, items: enrichedItems, geographicScope, destinationIdentity, entityResolution: { restaurants: restaurantResolution.status, places: placeResolution.status }, mediaEnrichment: summarizeMediaEnrichment(enrichedItems), attribution: "© OpenStreetMap contributors · Wikipedia contributors", error: null };
   } catch (error) {
     return fallbackProvider("OpenStreetMap Overpass", "local_places", "Public hotel, restaurant and transport names could not be loaded; prototype fallbacks are shown.", error.message);
   }
+};
+
+const lookupExactWikipediaMedia = async (item, mission) => {
+  const name = String(item?.label || "").trim();
+  const city = mission?.destination?.city || "";
+  const query = [name, city].filter(Boolean).map((part) => `"${String(part).replace(/["\\]/g, " ")}"`).join(" ");
+  const response = await fetchJson(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrnamespace=0&gsrlimit=4&gsrsearch=${encodeURIComponent(query)}&prop=pageimages%7Ccoordinates&piprop=original%7Cthumbnail&pithumbsize=1200&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 });
+  return Object.values(response?.query?.pages || {});
+};
+
+const enrichNamedPlaceMedia = async (items = [], mission = {}) => {
+  return enrichNamedEntityMedia(items, mission, lookupExactWikipediaMedia);
 };
 
 const fetchWikipediaInfo = async (mission) => {

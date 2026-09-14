@@ -105,7 +105,8 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /data-full-itinerary/);
   assert.match(page, /allocateUniqueTravelImages\(restaurants/);
   assert.match(page, /allocateSectionTravelImages\(orderedHighlightPlaces/);
-  assert.match(page, /attachImageCandidatePool\(hotelSource, destinationContextImages/);
+  assert.match(page, /liveHotelByName/);
+  assert.doesNotMatch(page, /attachImageCandidatePool\(hotelSource, destinationContextImages/);
   assert.match(page, /createOneFreeTrustMarkup/);
   assert.match(page, /createAlpha03OptionPreview/);
   assert.match(css, /Premium Travel results v2/);
@@ -123,7 +124,7 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /alpha03DragRail/);
   assert.match(css, /touch-action:pan-y/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260914-global-media-v19/);
+  assert.match(html, /20260915-global-media-v20/);
 });
 
 test("Medellín cards use distinct destination-specific media instead of global stock", async () => {
