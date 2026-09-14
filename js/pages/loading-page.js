@@ -7,7 +7,7 @@ import { createCanonicalDestinationIdentity } from "../engine/world/canonical-de
 import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
-import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260915-global-dining-media-v21";
+import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260915-global-dining-media-v23";
 
 const root = document.documentElement;
 const body = document.body;
@@ -377,7 +377,7 @@ const lookupExactWikipediaMedia = async (item, mission) => {
   const name = String(item?.label || "").trim();
   const city = mission?.destination?.city || "";
   const query = [`intitle:"${name}"`, city].filter(Boolean).join(" ");
-  const wikipedia = fetchJson(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrnamespace=0&gsrlimit=6&gsrsearch=${encodeURIComponent(query)}&prop=pageimages%7Ccoordinates&piprop=original%7Cthumbnail&pithumbsize=1200&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 })
+  const wikipedia = fetchJson(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrnamespace=0&gsrlimit=6&gsrsearch=${encodeURIComponent(query)}&prop=pageimages%7Ccoordinates%7Cdescription%7Cextracts&exintro=1&explaintext=1&piprop=original%7Cthumbnail&pithumbsize=1200&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 })
     .then((response) => Object.values(response?.query?.pages || {}).map((page) => ({ ...page, mediaSource: "Wikipedia" }))).catch(() => []);
   const commons = item?.kind === "restaurant"
     ? fetchJson(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=8&gsrsearch=${encodeURIComponent(`"${name}" ${city}`)}&prop=imageinfo&iiprop=url%7Cmime&iiurlwidth=1200&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 })

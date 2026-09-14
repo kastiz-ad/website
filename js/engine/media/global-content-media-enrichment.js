@@ -28,6 +28,22 @@ const distanceKm = (fromLat, fromLon, toLat, toLon) => {
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
+const candidateMatchesDestination = (candidate = {}, mission = {}, distance = null) => {
+  if (distance !== null) return distance <= 80;
+  const destination = mission?.destination || {};
+  const destinationTokens = [destination.city, destination.region, destination.country]
+    .flatMap((value) => meaningfulMediaTokens(value))
+    .filter((token, index, tokens) => tokens.indexOf(token) === index);
+  if (!destinationTokens.length) return false;
+  const context = normalizeMediaName([
+    candidate?.title,
+    candidate?.description,
+    candidate?.extract,
+    candidate?.attribution
+  ].filter(Boolean).join(" "));
+  return destinationTokens.some((token) => context.includes(token));
+};
+
 const pageImageCandidate = (page = {}) => {
   const imageInfo = page.imageinfo?.[0] || {};
   const url = page.original?.source || page.thumbnail?.source || imageInfo.thumburl || imageInfo.url || "";
@@ -57,7 +73,7 @@ export const selectExactEntityMedia = (item = {}, pages = [], mission = {}) => {
     if (!mediaTitleMatchesEntity(name, candidate?.title)) return false;
     const coordinates = candidate?.coordinates?.[0];
     const distance = distanceKm(destinationLat, destinationLon, coordinates?.lat, coordinates?.lon);
-    return distance === null || distance <= 80;
+    return candidateMatchesDestination(candidate, mission, distance);
   }).map(pageImageCandidate).filter(Boolean).filter((candidate, index, candidates) => candidates.findIndex((other) => other.url === candidate.url) === index);
   const image = matches[0];
   if (!image) return { ...item, images: [], imageStatus: "NO_SAFE_IMAGE" };

@@ -36,6 +36,28 @@ test("location-conflicting and unrelated media become an honest terminal fallbac
   assert.equal(item.imageStatus, "NO_SAFE_IMAGE");
 });
 
+test("ambiguous exact-name media without destination evidence is rejected", () => {
+  const item = selectExactEntityMedia({ label: "Guadalupe", kind: "restaurant" }, [{
+    pageid: 5,
+    title: "Guadalupe",
+    description: "1848 peace treaty between Mexico and the United States",
+    thumbnail: { source: "https://img.example/treaty.jpg" }
+  }], mission);
+  assert.equal(item.imageUrl, undefined);
+  assert.equal(item.imageStatus, "NO_SAFE_IMAGE");
+});
+
+test("exact-name media without coordinates is accepted when destination context is present", () => {
+  const item = selectExactEntityMedia({ label: "Carmen", kind: "restaurant" }, [{
+    pageid: 6,
+    title: "Carmen",
+    description: "Restaurant in Medellín, Colombia",
+    thumbnail: { source: "https://img.example/carmen-medellin.jpg" }
+  }], mission);
+  assert.equal(item.imageUrl, "https://img.example/carmen-medellin.jpg");
+  assert.equal(item.imageStatus, "EXACT_LOADED");
+});
+
 test("lookup failure exits loading state for every card", async () => {
   const enriched = await enrichNamedEntityMedia([{ label: "A" }, { label: "B" }, { label: "C" }], mission, async () => { throw new Error("offline"); });
   assert.deepEqual(enriched.map((item) => item.imageStatus), ["SOURCE_BLOCKED", "SOURCE_BLOCKED", "SOURCE_BLOCKED"]);

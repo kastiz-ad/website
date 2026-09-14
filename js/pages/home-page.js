@@ -1,6 +1,6 @@
 import { trackEvent } from "../analytics.js";
-import { classifyMission, destinationAwareMissionType } from "../engine/mission-classification.js?v=20260908-global-travel-routing-v1";
-import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260908-global-travel-routing-v1";
+import { classifyMission, destinationAwareMissionType } from "../engine/mission-classification.js?v=20260915-global-dining-media-v23";
+import { detectWorldwideTravelDestination } from "../ui/mission-followup.js?v=20260915-global-dining-media-v23";
 import { dedupePreviewDestinations, previewTravelIntent, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260803-preview-chevron-fix";
 import { ensureDisclosureAcknowledged } from "../ui/disclosure.js";
 import { isPresentationMode } from "../engine/demo-missions.js";
