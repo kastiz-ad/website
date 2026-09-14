@@ -38,7 +38,6 @@ const candidateMatchesDestination = (candidate = {}, mission = {}, distance = nu
   const context = normalizeMediaName([
     candidate?.title,
     candidate?.description,
-    candidate?.extract,
     candidate?.attribution
   ].filter(Boolean).join(" "));
   return destinationTokens.some((token) => context.includes(token));
@@ -46,10 +45,10 @@ const candidateMatchesDestination = (candidate = {}, mission = {}, distance = nu
 
 const candidateMatchesEntityKind = (item = {}, candidate = {}) => {
   if (item?.kind !== "restaurant") return true;
+  if (/disambiguation/i.test(String(candidate?.description || ""))) return false;
   const context = normalizeMediaName([
     candidate?.title,
-    candidate?.description,
-    candidate?.extract
+    candidate?.description
   ].filter(Boolean).join(" "));
   return /\b(restaurant|restaurante|ristorante|cafe|café|bistro|brasserie|pizzeria|grill|dining|eatery|food|cuisine|kitchen|bar)\b/.test(context);
 };

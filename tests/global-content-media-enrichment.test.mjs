@@ -69,6 +69,18 @@ test("same-name destination media is rejected when it is not a restaurant", () =
   assert.equal(item.imageStatus, "NO_SAFE_IMAGE");
 });
 
+test("restaurant names do not accept image-bearing disambiguation pages", () => {
+  const item = selectExactEntityMedia({ label: "Lulu", kind: "restaurant" }, [{
+    pageid: 8,
+    title: "Lulu",
+    description: "Wikimedia disambiguation page",
+    extract: "Lulu Ziegler; Lulu restaurant in Stockholm",
+    thumbnail: { source: "https://img.example/lulu-ziegler.jpg" }
+  }], { destination: { city: "Stockholm", country: "Sweden" } });
+  assert.equal(item.imageUrl, undefined);
+  assert.equal(item.imageStatus, "NO_SAFE_IMAGE");
+});
+
 test("lookup failure exits loading state for every card", async () => {
   const enriched = await enrichNamedEntityMedia([{ label: "A" }, { label: "B" }, { label: "C" }], mission, async () => { throw new Error("offline"); });
   assert.deepEqual(enriched.map((item) => item.imageStatus), ["SOURCE_BLOCKED", "SOURCE_BLOCKED", "SOURCE_BLOCKED"]);

@@ -7,7 +7,7 @@ import { createCanonicalDestinationIdentity } from "../engine/world/canonical-de
 import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
-import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260915-global-dining-media-v24";
+import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260915-global-dining-media-v25";
 
 const root = document.documentElement;
 const body = document.body;
