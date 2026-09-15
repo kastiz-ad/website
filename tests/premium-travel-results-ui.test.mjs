@@ -135,7 +135,7 @@ test("Travel renderer uses canonical coordinates and premium compact surfaces", 
   assert.match(page, /alpha03DragRail/);
   assert.match(css, /touch-action:pan-y/);
   assert.match(css, /mission-lifecycle-panel[^}]*display:none!important/);
-  assert.match(html, /20260915-global-dining-media-v25/);
+  assert.match(html, /20260916-global-entity-media-v26/);
 });
 
 test("Medellín cards use distinct destination-specific media instead of global stock", async () => {

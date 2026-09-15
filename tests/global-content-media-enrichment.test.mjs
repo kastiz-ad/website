@@ -22,12 +22,34 @@ test("all displayed entities enter bounded asynchronous media enrichment", async
   assert.ok(enriched.every((item) => item.imageStatus === "EXACT_LOADED" && item.imageUrl));
 });
 
-test("provider images are preserved without unnecessary lookup", async () => {
+test("provider images are preserved while alternate candidates are still collected", async () => {
   let calls = 0;
-  const [item] = await enrichNamedEntityMedia([{ label: "Sites Hotel", imageUrl: "https://provider.example/sites.jpg" }], mission, async () => { calls += 1; return []; });
-  assert.equal(calls, 0);
+  const [item] = await enrichNamedEntityMedia([{ label: "Sites Hotel", providerId: "node/123", imageUrl: "https://provider.example/sites.jpg" }], mission, async () => { calls += 1; return [{ title: "Sites Hotel", thumbnail: { source: "https://img.example/sites-alt.jpg" }, coordinates: [{ lat: 6.25, lon: -75.58 }] }]; });
+  assert.equal(calls, 1);
   assert.equal(item.imageStatus, "EXACT_LOADED");
   assert.equal(item.imageUrl, "https://provider.example/sites.jpg");
+  assert.equal(item.images.length, 2);
+});
+
+test("stable entity-linked media is accepted without weak free-text metadata", () => {
+  const item = selectExactEntityMedia({ label: "Carmen", kind: "restaurant", providerId: "node/456" }, [{
+    title: "File:Dining room.jpg",
+    original: { source: "https://commons.wikimedia.org/wiki/Special:FilePath/Dining_room.jpg" },
+    entityLinked: true,
+    providerEntityId: "node/456",
+    mediaSource: "Wikidata / Wikimedia Commons"
+  }], mission);
+  assert.equal(item.imageStatus, "EXACT_LOADED");
+  assert.equal(item.images[0].entityLinked, true);
+  assert.equal(item.imageDiagnostics.candidates[0].reason, "entity_linked");
+});
+
+test("loader preserves OSM and Nominatim entity-linked media identifiers", async () => {
+  const source = await readFile(new URL("../js/pages/loading-page.js", import.meta.url), "utf8");
+  assert.match(source, /wikidata: tags\.wikidata/);
+  assert.match(source, /providerId: `\$\{entry\.type\}\/\$\{entry\.id\}`/);
+  assert.match(source, /place\.extratags\?\.wikidata/);
+  assert.match(source, /wbgetentities/);
 });
 
 test("location-conflicting and unrelated media become an honest terminal fallback", () => {

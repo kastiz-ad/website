@@ -7,7 +7,7 @@ import { createCanonicalDestinationIdentity } from "../engine/world/canonical-de
 import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
-import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260915-global-dining-media-v25";
+import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260916-global-entity-media-v26";
 
 const root = document.documentElement;
 const body = document.body;
@@ -336,7 +336,7 @@ const fetchLocalPlaces = async (mission) => {
       const tags = entry.tags || {};
       const kind = tags.amenity && /restaurant|cafe|fast_food/.test(tags.amenity) ? "restaurant" : tags.tourism && /hotel|hostel|guest_house|motel|apartment/.test(tags.tourism) ? "hotel" : tags.tourism || tags.historic || /park|garden/.test(tags.leisure || "") ? "place" : "transport";
       const name = tags[mission.language === "ko" ? "name:ko" : "name:en"] || tags.name;
-      const commonsFile = String(tags.wikimedia_commons || "").replace(/^File:/i, ""); const imageUrl = tags.image || (commonsFile ? "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(commonsFile) + "?width=1000" : ""); return stampGeographicEvidence({ label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", imageUrl, imageAlt: name, wikipedia: tags.wikipedia || "", source: "OpenStreetMap" }, geographicScope, { latitude: entry.lat || entry.center?.lat, longitude: entry.lon || entry.center?.lon });
+      const commonsFile = String(tags.wikimedia_commons || "").replace(/^File:/i, ""); const imageUrl = tags.image || (commonsFile ? "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(commonsFile) + "?width=1200" : ""); return stampGeographicEvidence({ label: name, value: tags.tourism || tags.amenity || tags.public_transport || "place", kind, cuisine: tags.cuisine || "", stars: tags.stars || "", imageUrl, imageAlt: name, wikipedia: tags.wikipedia || "", wikidata: tags.wikidata || "", providerId: `${entry.type}/${entry.id}`, source: "OpenStreetMap" }, geographicScope, { latitude: entry.lat || entry.center?.lat, longitude: entry.lon || entry.center?.lon });
     };
     const items = elements.map(normalize).filter((item) => item.label && !seen.has(`${item.kind}:${item.label.toLowerCase()}`) && seen.add(`${item.kind}:${item.label.toLowerCase()}`));
     if (items.filter((item) => item.kind === "restaurant").length < 4) {
@@ -347,7 +347,8 @@ const fetchLocalPlaces = async (mission) => {
         const key = `restaurant:${String(label).toLowerCase()}`;
         if (!label || /^(restaurant|restaurants|cafe)$/i.test(label) || seen.has(key)) return;
         seen.add(key);
-        items.push(stampGeographicEvidence({ label, value: place.type || "restaurant", kind: "restaurant", cuisine: place.extratags?.cuisine || "", stars: "", source: "OpenStreetMap Nominatim" }, geographicScope, { latitude: place.lat, longitude: place.lon }));
+        const commonsFile = String(place.extratags?.wikimedia_commons || "").replace(/^File:/i, "");
+        items.push(stampGeographicEvidence({ label, value: place.type || "restaurant", kind: "restaurant", cuisine: place.extratags?.cuisine || "", stars: "", imageUrl: place.extratags?.image || (commonsFile ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(commonsFile)}?width=1200` : ""), wikipedia: place.extratags?.wikipedia || "", wikidata: place.extratags?.wikidata || "", providerId: `${place.osm_type}/${place.osm_id}`, source: "OpenStreetMap Nominatim" }, geographicScope, { latitude: place.lat, longitude: place.lon }));
       });
     }
     if (items.filter((item) => item.kind === "hotel").length < 5) {
@@ -358,7 +359,8 @@ const fetchLocalPlaces = async (mission) => {
         const key = `hotel:${String(label).toLowerCase()}`;
         if (!label || /^(hotel|hotels|accommodation|accommodations)$/i.test(label) || seen.has(key)) return;
         seen.add(key);
-        items.push(stampGeographicEvidence({ label, value: place.type || "hotel", kind: "hotel", cuisine: "", stars: place.extratags?.stars || "", source: "OpenStreetMap Nominatim" }, geographicScope, { latitude: place.lat, longitude: place.lon }));
+        const commonsFile = String(place.extratags?.wikimedia_commons || "").replace(/^File:/i, "");
+        items.push(stampGeographicEvidence({ label, value: place.type || "hotel", kind: "hotel", cuisine: "", stars: place.extratags?.stars || "", imageUrl: place.extratags?.image || (commonsFile ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(commonsFile)}?width=1200` : ""), wikipedia: place.extratags?.wikipedia || "", wikidata: place.extratags?.wikidata || "", providerId: `${place.osm_type}/${place.osm_id}`, source: "OpenStreetMap Nominatim" }, geographicScope, { latitude: place.lat, longitude: place.lon }));
       });
     }
     const scopedItems = enforceGeographicScope(items, geographicScope);
@@ -377,14 +379,23 @@ const lookupExactWikipediaMedia = async (item, mission) => {
   const name = String(item?.label || "").trim();
   const city = mission?.destination?.city || "";
   const query = [`intitle:"${name}"`, city].filter(Boolean).join(" ");
+  const linkedRequests = [];
+  if (/^Q\d+$/i.test(String(item?.wikidata || ""))) linkedRequests.push(fetchJson(`https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${encodeURIComponent(item.wikidata)}&props=claims&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 }).then((response) => {
+    const filename = response?.entities?.[item.wikidata]?.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+    return filename ? [{ title: name, original: { source: `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}?width=1200` }, mediaSource: "Wikidata / Wikimedia Commons", attribution: `https://www.wikidata.org/wiki/${item.wikidata}`, entityLinked: true, providerEntityId: item.providerId }] : [];
+  }).catch(() => []));
+  if (/^[a-z-]+:.+/i.test(String(item?.wikipedia || ""))) {
+    const [language, ...titleParts] = String(item.wikipedia).split(":"); const linkedTitle = titleParts.join(":");
+    linkedRequests.push(fetchJson(`https://${language}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(linkedTitle)}&prop=pageimages%7Ccoordinates%7Cdescription&piprop=original%7Cthumbnail&pithumbsize=1200&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 }).then((response) => Object.values(response?.query?.pages || {}).map((page) => ({ ...page, mediaSource: "Wikipedia", entityLinked: true, providerEntityId: item.providerId }))).catch(() => []));
+  }
   const wikipedia = fetchJson(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrnamespace=0&gsrlimit=6&gsrsearch=${encodeURIComponent(query)}&prop=pageimages%7Ccoordinates%7Cdescription%7Cextracts&exintro=1&explaintext=1&piprop=original%7Cthumbnail&pithumbsize=1200&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 })
     .then((response) => Object.values(response?.query?.pages || {}).map((page) => ({ ...page, mediaSource: "Wikipedia" }))).catch(() => []);
-  const commons = item?.kind === "restaurant"
+  const commons = /restaurant|hotel|place/.test(String(item?.kind || ""))
     ? fetchJson(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=8&gsrsearch=${encodeURIComponent(`"${name}" ${city}`)}&prop=imageinfo&iiprop=url%7Cmime&iiurlwidth=1200&format=json&origin=*`, { timeout: 5500, retries: 0, cacheTtl: 604800000 })
       .then((response) => Object.values(response?.query?.pages || {}).map((page) => ({ ...page, mediaSource: "Wikimedia Commons", attribution: `https://commons.wikimedia.org/?curid=${page.pageid}` }))).catch(() => [])
     : Promise.resolve([]);
-  const [articlePages, commonsPages] = await Promise.all([wikipedia, commons]);
-  return [...articlePages, ...commonsPages];
+  const [articlePages, commonsPages, ...linkedPages] = await Promise.all([wikipedia, commons, ...linkedRequests]);
+  return [...linkedPages.flat(), ...articlePages, ...commonsPages];
 };
 
 const enrichNamedPlaceMedia = async (items = [], mission = {}) => {

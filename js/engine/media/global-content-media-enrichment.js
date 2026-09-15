@@ -65,28 +65,34 @@ const pageImageCandidate = (page = {}) => {
     source: page.mediaSource || "Wikipedia",
     sourceId: page.pageid,
     attribution: page.attribution || `https://en.wikipedia.org/?curid=${page.pageid}`,
-    imageScope: "ENTITY"
+    imageScope: "ENTITY",
+    entityLinked: Boolean(page.entityLinked),
+    providerEntityId: page.providerEntityId || ""
   };
 };
 
 export const selectExactEntityMedia = (item = {}, pages = [], mission = {}) => {
-  if (item.imageUrl) {
-    const existing = [{ url: item.imageUrl, alt: item.imageAlt || item.label, source: item.imageSource || item.source, sourceId: item.imageSourceId }];
-    return { ...item, images: [...existing, ...(item.images || [])], imageStatus: "EXACT_LOADED" };
-  }
   const name = String(item.label || "").trim();
   if (!name) return { ...item, imageStatus: "provider_missing" };
   const destinationLat = Number(mission?.destination?.latitude);
   const destinationLon = Number(mission?.destination?.longitude);
-  const matches = pages.filter((candidate) => {
-    if (!mediaTitleMatchesEntity(name, candidate?.title)) return false;
-    if (!candidateMatchesEntityKind(item, candidate)) return false;
+  const existingPages = [
+    ...(item.imageUrl ? [{ title: name, original: { source: item.imageUrl }, mediaSource: item.imageSource || item.source, attribution: item.imageAttribution, entityLinked: true, providerEntityId: item.providerId }] : []),
+    ...(item.images || []).map((image) => ({ title: image.alt || name, original: { source: image.url }, mediaSource: image.source || item.source, attribution: image.attribution, entityLinked: Boolean(image.entityLinked), providerEntityId: image.providerEntityId || item.providerId }))
+  ];
+  const diagnostics = [];
+  const matches = [...existingPages, ...pages].filter((candidate) => {
+    if (candidate?.entityLinked) { diagnostics.push({ title: candidate.title, accepted: true, reason: "entity_linked" }); return true; }
+    if (!mediaTitleMatchesEntity(name, candidate?.title)) { diagnostics.push({ title: candidate?.title, accepted: false, reason: "entity_name_mismatch" }); return false; }
+    if (!candidateMatchesEntityKind(item, candidate)) { diagnostics.push({ title: candidate?.title, accepted: false, reason: "entity_kind_mismatch" }); return false; }
     const coordinates = candidate?.coordinates?.[0];
     const distance = distanceKm(destinationLat, destinationLon, coordinates?.lat, coordinates?.lon);
-    return candidateMatchesDestination(candidate, mission, distance);
+    const accepted = candidateMatchesDestination(candidate, mission, distance);
+    diagnostics.push({ title: candidate?.title, accepted, reason: accepted ? "validated_match" : "destination_mismatch" });
+    return accepted;
   }).map(pageImageCandidate).filter(Boolean).filter((candidate, index, candidates) => candidates.findIndex((other) => other.url === candidate.url) === index);
   const image = matches[0];
-  if (!image) return { ...item, images: [], imageStatus: "NO_SAFE_IMAGE" };
+  if (!image) return { ...item, images: [], imageStatus: "NO_SAFE_IMAGE", imageDiagnostics: { rawCandidates: existingPages.length + pages.length, candidates: diagnostics } };
   return {
     ...item,
     imageUrl: image.url,
@@ -95,7 +101,8 @@ export const selectExactEntityMedia = (item = {}, pages = [], mission = {}) => {
     imageStatus: "EXACT_LOADED",
     imageSource: image.source,
     imageSourceId: image.sourceId,
-    imageAttribution: image.attribution
+    imageAttribution: image.attribution,
+    imageDiagnostics: { rawCandidates: existingPages.length + pages.length, acceptedCandidates: matches.length, candidates: diagnostics }
   };
 };
 
@@ -106,10 +113,6 @@ export const enrichNamedEntityMedia = async (items = [], mission = {}, lookup = 
     while (cursor < items.length) {
       const index = cursor++;
       const item = items[index];
-      if (item?.imageUrl) {
-        output[index] = selectExactEntityMedia(item, [], mission);
-        continue;
-      }
       try {
         output[index] = selectExactEntityMedia(item, await lookup(item, mission), mission);
       } catch {
