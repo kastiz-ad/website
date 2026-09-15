@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, imageCandidatesForItem, normalizedImageIdentity, selectNextTravelImageCandidate } from "../ui/travel-image-allocation.js?v=20260916-global-entity-semantics-v27";
+import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, imageCandidatesForItem, normalizedImageIdentity, selectNextTravelImageCandidate } from "../ui/travel-image-allocation.js?v=20260916-tourism-relevance-v28";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -23,7 +23,7 @@ import { buildGlobalItinerary } from "../engine/itinerary/global-itinerary-trans
 import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
-import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-global-entity-semantics-v27";
+import { isPhysicalVisitCandidate, isTourismRelevantCandidate, resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-tourism-relevance-v28";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -3983,7 +3983,9 @@ const createAlpha03ExperienceHtml = (journey, result) => {
   const destinationHero = destinationInfo?.imageUrl
     ? { url: destinationInfo.imageUrl, alt: destinationInfo.imageAlt || destinationInfo.label || destination, source: destinationInfo.source || destinationInfoProvider?.provider || "Wikipedia", attribution: destinationInfo.attribution || "" }
     : baseProfile.hero;
-  const destinationVisualPlaces = (destinationInfo?.imageAlternates || []).map((image) => ({ name: image.alt || `${destination} highlight`, category: "destination", image, source: image.source || "Wikipedia", latitude: image.latitude, longitude: image.longitude }));
+  const destinationVisualPlaces = (destinationInfo?.imageAlternates || [])
+    .map((image) => ({ name: image.alt || `${destination} highlight`, category: image.category || image.description || "destination", description: image.description || "", image, source: image.source || "Wikipedia", latitude: image.latitude, longitude: image.longitude }))
+    .filter((item) => isPhysicalVisitCandidate(item) && isTourismRelevantCandidate(item));
   const profile = { ...baseProfile, id: canonicalDestination.id || baseProfile.id || String(destination).toLowerCase().replace(/\W+/g, "_"), key: canonicalDestination.key || canonicalDestination.destinationKey || catalogDestination?.key || baseProfile.key || baseProfile.id || "", city: canonicalDestination.city || result.destination?.city || baseProfile.city || destination, country: canonicalDestination.country || result.destination?.country || baseProfile.country || result.countryProfile?.name || "", countryCode: canonicalDestination.countryCode || result.destination?.countryCode || catalogDestination?.countryCode || baseProfile.countryCode || result.countryProfile?.code || "", latitude: canonicalLatitude, longitude: canonicalLongitude, hero: destinationHero, restaurants: uniqueItems([...liveRestaurants, ...resultRestaurants, ...(baseProfile.restaurants || [])]), places: uniqueItems([...livePlaces, ...destinationVisualPlaces, ...(baseProfile.places || [])]) };
   const workspace = result.alpha04Workspace || null;
   const { tripDays } = calculateTripDayCounts(result);

@@ -32,7 +32,7 @@ const administrativeEntityPattern = /\b(parliament|house of representatives|legi
 const tourismCategoryPattern = /attraction|museum|gallery|viewpoint|historic|archaeological|monument|landmark|park|garden|market|neighbou?rhood|district|quarter|waterfront|cultural|theatre|theater|religious|mosque|church|temple|synagogue|excursion/i;
 
 export const isPhysicalVisitCandidate = (candidate = {}) => {
-  const context = clean([candidate.value, candidate.category, candidate.type, candidate.entityClass, candidate.description].filter(Boolean).join(" "));
+  const context = clean([candidate.name, candidate.label, candidate.value, candidate.category, candidate.type, candidate.entityClass, candidate.description].filter(Boolean).join(" "));
   if (nonVisitableEntityPattern.test(context)) return false;
   return coordinate(candidate.latitude) !== null && coordinate(candidate.longitude) !== null;
 };

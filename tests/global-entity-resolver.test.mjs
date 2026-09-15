@@ -76,6 +76,12 @@ test("tourism relevance rejects abstract and administrative entities", () => {
   assert.equal(isTourismRelevantCandidate(candidates[2]), true);
 });
 
+test("Wikipedia destination alternates cannot bypass visitability semantics", () => {
+  assert.equal(isPhysicalVisitCandidate({ name: "Narmer Palette", category: "destination", latitude: 30.04, longitude: 31.23 }), false);
+  assert.equal(isTourismRelevantCandidate({ name: "House of Representatives (Egypt)", category: "destination", latitude: 30.04, longitude: 31.23 }), false);
+  assert.equal(isTourismRelevantCandidate({ name: "Egyptian Museum", category: "destination", latitude: 30.04, longitude: 31.23 }), true);
+});
+
 test("localized fallback remains category-level and carries provider handoff", () => {
   const nairobi = identity("Nairobi", "Kenya", "KE", -1.2864, 36.8172);
   const fallback = createEntitySearchFallback({ identity: nairobi, kind: "place", category: "museum", locale: "fr" });

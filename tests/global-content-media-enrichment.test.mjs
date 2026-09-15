@@ -60,6 +60,7 @@ test("missing ratings are never coerced into a zero-star customer rating", async
   const source = await readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   assert.doesNotMatch(source, /Number\(item\.rating \|\| item\.stars\)/);
   assert.match(source, /displayScore > 0/);
+  assert.match(source, /destinationInfo\?\.imageAlternates[\s\S]*isPhysicalVisitCandidate\(item\) && isTourismRelevantCandidate\(item\)/);
   for (const rating of [null, undefined, "", Number.NaN]) {
     const score = rating === null || rating === undefined || rating === "" ? null : Number(rating);
     assert.equal(Number.isFinite(score) && score > 0, false);

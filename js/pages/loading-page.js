@@ -4,10 +4,10 @@ import { normalizeInterfaceLocale } from "../i18n/locale-registry.js";
 import { normalizeResultLocale, resolveResultLocale } from "../i18n/result-localization.js?v=20260811-results-localization-v1";
 import { createGeographicScope, enforceGeographicScope, stampGeographicEvidence } from "../engine/location/geographic-guard.js?v=20260722-location-restore";
 import { createCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
-import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-global-entity-semantics-v27";
+import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-tourism-relevance-v28";
 import { placeFallbackPlan } from "../engine/world/place-intelligence-engine.js";
 import { resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260813-preview-v79-1";
-import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260916-global-entity-semantics-v27";
+import { enrichNamedEntityMedia, summarizeMediaEnrichment } from "../engine/media/global-content-media-enrichment.js?v=20260916-tourism-relevance-v28";
 
 const root = document.documentElement;
 const body = document.body;
