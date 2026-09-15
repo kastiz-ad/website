@@ -28,7 +28,7 @@ const categoryLabel = (kind, category, identity, locale) => {
 export const ENTITY_TYPES = Object.freeze({ restaurant: "RESTAURANT", exactPoi: "EXACT_POI", neighborhood: "NEIGHBORHOOD", nearbyExcursion: "NEARBY_EXCURSION", genericActivity: "GENERIC_ACTIVITY" });
 
 const nonVisitableEntityPattern = /\b(artifact|painting|palette|manuscript|treaty|event|concept|person|politician|company|organization)\b/i;
-const administrativeEntityPattern = /\b(parliament|house of representatives|legislature|ministry|government office|administrative office|corporate office|city hall department)\b/i;
+const administrativeEntityPattern = /\b(parliament|house of representatives|legislature|ministry|headquarters|government office|administrative office|corporate office|city hall department)\b/i;
 const tourismCategoryPattern = /attraction|museum|gallery|viewpoint|historic|archaeological|monument|landmark|park|garden|market|neighbou?rhood|district|quarter|waterfront|cultural|theatre|theater|religious|mosque|church|temple|synagogue|excursion/i;
 
 export const isPhysicalVisitCandidate = (candidate = {}) => {

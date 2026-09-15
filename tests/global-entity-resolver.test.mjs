@@ -79,6 +79,7 @@ test("tourism relevance rejects abstract and administrative entities", () => {
 test("Wikipedia destination alternates cannot bypass visitability semantics", () => {
   assert.equal(isPhysicalVisitCandidate({ name: "Narmer Palette", category: "destination", latitude: 30.04, longitude: 31.23 }), false);
   assert.equal(isTourismRelevantCandidate({ name: "House of Representatives (Egypt)", category: "destination", latitude: 30.04, longitude: 31.23 }), false);
+  assert.equal(isTourismRelevantCandidate({ name: "Headquarters of the Arab League", category: "destination", latitude: 30.04, longitude: 31.23 }), false);
   assert.equal(isTourismRelevantCandidate({ name: "Egyptian Museum", category: "destination", latitude: 30.04, longitude: 31.23 }), true);
 });
 

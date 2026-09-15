@@ -72,8 +72,8 @@ test("rich travel renderer still includes populated result sections", () => {
 
 test("public assets use the release cache buster for the rich preview fix", () => {
   assert.match(resultsHtml, /results\.css\?v=20260915-global-dining-media-v25/);
-  assert.match(resultsHtml, /results\.js\?v=20260916-tourism-relevance-v28/);
-  assert.match(resultsJs, /results-page\.js\?v=20260916-tourism-relevance-v28/);
+  assert.match(resultsHtml, /results\.js\?v=20260916-tourism-relevance-v29/);
+  assert.match(resultsJs, /results-page\.js\?v=20260916-tourism-relevance-v29/);
   assert.match(homepageHtml, /style\.css\?v=20260908-home-cleanup-v1/);
   assert.match(homepageHtml, /script\.js\?v=20260813-preview-v79/);
 });

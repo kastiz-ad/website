@@ -85,7 +85,7 @@ test("homepage cache chain deploys the destination-aware routing fix", async () 
     readFile(new URL("../script.js", import.meta.url), "utf8"),
     readFile(new URL("../js/pages/home-page.js", import.meta.url), "utf8")
   ]);
-  const version = /20260916-tourism-relevance-v28/;
+  const version = /20260916-tourism-relevance-v29/;
   assert.match(html, version);
   assert.match(entry, version);
   assert.match(home, version);
@@ -103,7 +103,7 @@ test("results bootstrap preserves a matching stored Travel mission before URL fa
     results.indexOf("storedResultMatchesRoute(parsed, params)") < results.indexOf("const manualScenario = getManualScenarioResult()"),
     "matching same-flow storage must be considered before manual URL reconstruction"
   );
-  const version = /20260916-tourism-relevance-v28/;
+  const version = /20260916-tourism-relevance-v29/;
   assert.match(resultsHtml, version);
   assert.match(resultsEntry, version);
 });
