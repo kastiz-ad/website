@@ -9,7 +9,7 @@ import { formatResultCurrency, formatResultDateRange, normalizeResultLocale, res
 import { applyMissionEdit } from "../engine/orchestration/mission-orchestration-engine.js?v=20260908-global-modify-state-phase-e-v1";
 import { presentationContainsCandidate, prioritizeRevisionCandidates } from "../ui/revision-presentation.js?v=20260902-founder-revision-presentation-v3";
 import { resolveSemanticItineraryImages } from "../ui/semantic-itinerary-image.js?v=20260908-global-image-truth-phase-c-v1";
-import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, imageCandidatesForItem, normalizedImageIdentity, selectNextTravelImageCandidate } from "../ui/travel-image-allocation.js?v=20260916-global-entity-media-v26";
+import { allocateSectionTravelImages, allocateUniqueTravelImages, attachImageCandidatePool, imageCandidatesForItem, normalizedImageIdentity, selectNextTravelImageCandidate } from "../ui/travel-image-allocation.js?v=20260916-global-entity-semantics-v27";
 import { getRestaurantSelectionState, setAllRestaurantSelections } from "../ui/restaurant-selection.js?v=20260907-founder-qa-v18";
 import { createAIDecisionLayer, decisionMemoryKey, recordDecisionFeedback } from "../engine/decision/ai-decision-engine.js?v=20260730-ai-decision-engine";
 import { createProviderOrchestrationFromMissionData } from "../engine/providers/live/provider-orchestration.js?v=20260730-universal-execution";
@@ -23,7 +23,7 @@ import { buildGlobalItinerary } from "../engine/itinerary/global-itinerary-trans
 import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
-import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260908-global-image-truth-phase-c-v1";
+import { resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-global-entity-semantics-v27";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -3456,12 +3456,13 @@ const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) =
     : `<span class="alpha03-thumb-fallback" aria-hidden="true"><b>📍</b></span>`;
   const isFood = type === "restaurant";
   const selected = isFood && (currentResult?.alpha03FoodSelections || []).includes(item.name);
-  const displayScore = Number(item.rating || item.stars);
+  const rawScore = item.rating ?? item.stars;
+  const displayScore = rawScore === null || rawScore === undefined || rawScore === "" ? null : Number(rawScore);
   const tag = isFood ? "button" : "article";
   return `
   <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" data-media-status="${escapeSummaryText(item.imageStatus || (image?.url ? "EXACT_LOADED" : "NO_SAFE_IMAGE"))}" data-image-candidate-count="${imageCandidatesForItem(item).length}" data-image-source="${escapeSummaryText(image?.source || item.imageSource || item.source || "")}" data-image-scope="${escapeSummaryText(image?.imageScope || item.imageScope || "ENTITY")}" data-entity-key="${escapeSummaryText(item.id || item.providerId || item.name || "")}" data-destination-key="${escapeSummaryText(currentResult?.destinationIdentity?.key || currentResult?.destinationIdentity?.destinationKey || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}${item.contextualImage ? `<small class="alpha03-context-image-label">${escapeSummaryText(alpha03Copy("Area photo", "지역 사진", "Foto de la zona", "Photo du quartier"))}</small>` : ""}</div>
-    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood && Number.isFinite(displayScore) ? `<span class="alpha03-card-score">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
+    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood && Number.isFinite(displayScore) && displayScore > 0 ? `<span class="alpha03-card-score">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
     ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 20.4 4.2 13A5.2 5.2 0 0 1 11.6 5.7L12 6l.4-.3A5.2 5.2 0 0 1 19.8 13Z"/></svg></span>` : ""}
   </${tag}>
 `;

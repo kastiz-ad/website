@@ -50,6 +50,20 @@ test("loader preserves OSM and Nominatim entity-linked media identifiers", async
   assert.match(source, /providerId: `\$\{entry\.type\}\/\$\{entry\.id\}`/);
   assert.match(source, /place\.extratags\?\.wikidata/);
   assert.match(source, /wbgetentities/);
+  assert.match(source, /website: tags\.website/);
+  assert.match(source, /address: \[tags\["addr:housenumber"\]/);
+  assert.match(source, /images = \[tags\.image/);
+  assert.match(source, /osmId: `\$\{entry\.type\}\/\$\{entry\.id\}`/);
+});
+
+test("missing ratings are never coerced into a zero-star customer rating", async () => {
+  const source = await readFile(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /Number\(item\.rating \|\| item\.stars\)/);
+  assert.match(source, /displayScore > 0/);
+  for (const rating of [null, undefined, "", Number.NaN]) {
+    const score = rating === null || rating === undefined || rating === "" ? null : Number(rating);
+    assert.equal(Number.isFinite(score) && score > 0, false);
+  }
 });
 
 test("location-conflicting and unrelated media become an honest terminal fallback", () => {

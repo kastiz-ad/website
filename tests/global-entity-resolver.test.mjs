@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createCanonicalDestinationIdentity } from "../js/engine/world/canonical-destination-identity.js";
-import { createEntitySearchFallback, resolveDestinationEntities } from "../js/engine/world/global-entity-resolver.js";
+import { createEntitySearchFallback, isPhysicalVisitCandidate, isTourismRelevantCandidate, resolveDestinationEntities } from "../js/engine/world/global-entity-resolver.js";
 import { oneFreeTrustIndex } from "../js/ui/one-free-customer-journey.js";
 import { applyMissionEdit } from "../js/engine/orchestration/mission-orchestration-engine.js";
 
@@ -46,17 +46,34 @@ test("country-only and ambiguous identities block local entity generation", () =
 
 test("nearby places are clearly classified as excursions", () => {
   const paris = identity("Paris", "France", "FR", 48.8566, 2.3522);
-  const result = places(paris, [{ label: "Verified nearby place", countryCode: "FR", latitude: 49.4, longitude: 2.4, source: "OpenStreetMap", geographicVerified: true }], "place");
+  const result = places(paris, [{ label: "Verified nearby museum", value: "museum", countryCode: "FR", latitude: 49.4, longitude: 2.4, source: "OpenStreetMap", geographicVerified: true }], "place");
   assert.equal(result.entities[0].entityType, "NEARBY_EXCURSION");
   assert.equal(result.entities[0].relationshipToDestination, "nearby_excursion");
 });
 
 test("deduplication uses provider ids and geographic evidence", () => {
   const reykjavik = identity("Reykjavík", "Iceland", "IS", 64.1466, -21.9426);
-  const candidate = { label: "Real Place", city: "Reykjavík", countryCode: "IS", latitude: 64.15, longitude: -21.94, source: "OpenStreetMap", providerId: "42", geographicVerified: true };
+  const candidate = { label: "Real Place", value: "attraction", city: "Reykjavík", countryCode: "IS", latitude: 64.15, longitude: -21.94, source: "OpenStreetMap", providerId: "42", geographicVerified: true };
   const result = places(reykjavik, [candidate, { ...candidate, label: "Real Place duplicate" }], "place");
   assert.equal(result.entities.filter((item) => item.namedEntity).length, 1);
   assert.ok(result.rejected.some((item) => item.reason === "duplicate"));
+});
+
+test("tourism relevance rejects abstract and administrative entities", () => {
+  const cairo = identity("Cairo", "Egypt", "EG", 30.0444, 31.2357);
+  const candidates = [
+    { label: "Narmer Palette", value: "artifact", latitude: 30.04, longitude: 31.23, source: "OpenStreetMap", geographicVerified: true },
+    { label: "House of Representatives (Egypt)", value: "government office", latitude: 30.03, longitude: 31.24, source: "OpenStreetMap", geographicVerified: true },
+    { label: "Egyptian Museum", value: "museum", latitude: 30.0478, longitude: 31.2336, source: "OpenStreetMap", geographicVerified: true }
+  ];
+  const result = places(cairo, candidates, "place");
+  assert.deepEqual(result.entities.filter((entity) => entity.namedEntity).map((entity) => entity.name), ["Egyptian Museum"]);
+  assert.ok(result.rejected.some((entry) => entry.reason === "not_physical_visit_candidate"));
+  assert.ok(result.rejected.some((entry) => entry.reason === "not_tourism_relevant"));
+  assert.equal(isPhysicalVisitCandidate(candidates[0]), false);
+  assert.equal(isTourismRelevantCandidate(candidates[1]), false);
+  assert.equal(isPhysicalVisitCandidate(candidates[2]), true);
+  assert.equal(isTourismRelevantCandidate(candidates[2]), true);
 });
 
 test("localized fallback remains category-level and carries provider handoff", () => {

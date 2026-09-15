@@ -27,6 +27,22 @@ const categoryLabel = (kind, category, identity, locale) => {
 
 export const ENTITY_TYPES = Object.freeze({ restaurant: "RESTAURANT", exactPoi: "EXACT_POI", neighborhood: "NEIGHBORHOOD", nearbyExcursion: "NEARBY_EXCURSION", genericActivity: "GENERIC_ACTIVITY" });
 
+const nonVisitableEntityPattern = /\b(artifact|painting|palette|manuscript|treaty|event|concept|person|politician|company|organization)\b/i;
+const administrativeEntityPattern = /\b(parliament|house of representatives|legislature|ministry|government office|administrative office|corporate office|city hall department)\b/i;
+const tourismCategoryPattern = /attraction|museum|gallery|viewpoint|historic|archaeological|monument|landmark|park|garden|market|neighbou?rhood|district|quarter|waterfront|cultural|theatre|theater|religious|mosque|church|temple|synagogue|excursion/i;
+
+export const isPhysicalVisitCandidate = (candidate = {}) => {
+  const context = clean([candidate.value, candidate.category, candidate.type, candidate.entityClass, candidate.description].filter(Boolean).join(" "));
+  if (nonVisitableEntityPattern.test(context)) return false;
+  return coordinate(candidate.latitude) !== null && coordinate(candidate.longitude) !== null;
+};
+
+export const isTourismRelevantCandidate = (candidate = {}) => {
+  const context = clean([candidate.name, candidate.label, candidate.value, candidate.category, candidate.type, candidate.entityClass, candidate.description].filter(Boolean).join(" "));
+  if (administrativeEntityPattern.test(context)) return false;
+  return tourismCategoryPattern.test(context) || candidate.tourismRelevant === true;
+};
+
 export function createEntitySearchFallback({ identity, kind = "place", category = "", locale = "en", reason = "provider_data_unavailable" } = {}) {
   const canonical = createCanonicalDestinationIdentity(identity || {}, identity?.provenance || {});
   if (canonical.status !== "resolved" || canonical.requiresLocalAnchor) return null;
@@ -80,6 +96,8 @@ export function resolveDestinationEntities({ identity, candidates = [], kind = "
   for (const candidate of candidates) {
     const name = clean(candidate.name || candidate.label || candidate.venueName);
     if (!name) { rejected.push({ candidate, reason: "missing_name" }); continue; }
+    if (kind === "place" && !isPhysicalVisitCandidate(candidate)) { rejected.push({ candidate, reason: "not_physical_visit_candidate" }); continue; }
+    if (kind === "place" && !isTourismRelevantCandidate(candidate)) { rejected.push({ candidate, reason: "not_tourism_relevant" }); continue; }
     const locality = localityStatus(candidate, canonical);
     const proof = evidence(candidate, locality);
     if (locality === "conflict" || !proof) { rejected.push({ candidate, reason: locality === "conflict" ? "destination_conflict" : "insufficient_entity_evidence" }); continue; }
