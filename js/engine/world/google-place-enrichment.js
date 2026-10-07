@@ -120,3 +120,42 @@ export async function fetchGoogleTravelEntityEnrichment(identity = {}, { languag
 }
 
 export function clearGoogleTravelEntityRequestCache() { missionRequests.clear(); }
+
+const isUserRevision = (item = {}) => item.source === "user_revision" || item.revisionCandidate === true;
+
+export function reconcileVerifiedGoogleEntities(existing = [], verified = [], { kind = "restaurant", limit = 12 } = {}) {
+  const prior = Array.isArray(existing) ? existing : [];
+  const fresh = Array.isArray(verified) ? verified : [];
+  if (!fresh.length) return prior.slice(0, limit);
+  const revisions = prior.filter(isUserRevision);
+  const compatible = prior.filter((item) => !isUserRevision(item));
+  const providerIds = new Set();
+  const names = new Set();
+  const discovered = fresh.flatMap((entity, index) => {
+    const providerId = clean(entity?.providerPlaceId || entity?.providerId || entity?.id);
+    const name = clean(entity?.name || entity?.label);
+    const nameKey = normalized(name);
+    if (!providerId || !name || providerIds.has(providerId) || names.has(nameKey)) return [];
+    providerIds.add(providerId);
+    names.add(nameKey);
+    const financial = compatible[index] || compatible[0] || {};
+    return [{
+      ...(kind === "hotel"
+        ? { estimatedNightlyPrice: financial.estimatedNightlyPrice, priceBasis: financial.priceBasis }
+        : { estimatedPrice: financial.estimatedPrice, recommendation: financial.recommendation, recommendationKo: financial.recommendationKo }),
+      ...entity,
+      id: entity.id || `google:${providerId}`,
+      name,
+      label: name,
+      ...(kind === "restaurant" ? { type: name, venueName: name, livePlaceName: true, editable: true } : {}),
+      providerSource: "Google Places",
+      sourceState: "verified_live"
+    }];
+  });
+  const preservedRevisions = revisions.filter((item) => {
+    const providerId = clean(item?.providerPlaceId || item?.providerId || item?.id);
+    const nameKey = normalized(item?.name || item?.label || item?.venueName || item?.type);
+    return (!providerId || !providerIds.has(providerId)) && (!nameKey || !names.has(nameKey));
+  });
+  return [...discovered, ...preservedRevisions].slice(0, limit);
+}

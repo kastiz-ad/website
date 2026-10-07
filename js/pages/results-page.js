@@ -24,7 +24,7 @@ import { parseTravelConstraints } from "../engine/travel/travel-constraint-parse
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
 import { isPhysicalVisitCandidate, isTourismRelevantCandidate, resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-tourism-relevance-v29";
-import { fetchGoogleTravelEntityEnrichment } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v2";
+import { fetchGoogleTravelEntityEnrichment, reconcileVerifiedGoogleEntities } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v3";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -8270,6 +8270,12 @@ const enrichTravelEntitiesFromGoogle = async () => {
   currentResult = { ...currentResult, destination: enrichedDestination, destinationIdentity: canonicalEnrichmentIdentity };
   currentResult.googlePlaceEnrichment = { ...enrichment, destinationKey: canonicalEnrichmentIdentity.key };
   currentResult = adaptTravelResultToDestination(currentResult);
+  // Final render boundary: current verified provider discovery replaces stale
+  // discovery collections, while explicit user revisions remain available.
+  currentResult.restaurants = reconcileVerifiedGoogleEntities(currentResult.restaurants, enrichment.restaurants, { kind: "restaurant", limit: TRAVEL_OPTION_TARGETS.restaurants });
+  currentResult.hotels = reconcileVerifiedGoogleEntities(currentResult.hotels, enrichment.hotels, { kind: "hotel", limit: TRAVEL_OPTION_TARGETS.hotels });
+  document.body.dataset.googlePlaceVisibleRestaurantCount = String(currentResult.restaurants.filter((item) => item?.sourceState === "verified_live").length);
+  document.body.dataset.googlePlaceVisibleHotelCount = String(currentResult.hotels.filter((item) => item?.sourceState === "verified_live").length);
   sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
   sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
   renderMission({ preserveCurrent: true });

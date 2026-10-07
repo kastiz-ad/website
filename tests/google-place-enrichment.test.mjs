@@ -6,6 +6,7 @@ import {
   clearGoogleTravelEntityRequestCache,
   fetchGoogleTravelEntityEnrichment,
   googlePlaceToDestinationEntity,
+  reconcileVerifiedGoogleEntities,
   validateGooglePlaceForDestination
 } from "../js/engine/world/google-place-enrichment.js";
 import { GOOGLE_PLACES_FIELD_MASK, normalizePlaceResult } from "../functions/api/v1/_lib/providers/google.js";
@@ -70,6 +71,21 @@ test("missing coordinates use one bounded locality lookup before entity searches
   assert.equal(result.identity.latitude, 30.0444);
   assert.equal(result.restaurants.length, 1);
   assert.equal(result.hotels.length, 1);
+});
+
+test("verified live discovery replaces stale collections and preserves explicit revisions", () => {
+  const old = [
+    { id: "old", name: "Old curated card", estimatedPrice: { currency: "KRW", min: 1, max: 2 }, source: "cached_public" },
+    { id: "revision", name: "Founder choice", source: "user_revision", revisionCandidate: true }
+  ];
+  const fresh = [
+    { id: "google:p1", providerPlaceId: "p1", name: "Current Place", source: "Google Places", sourceState: "verified_live", customerRating: 4.7 }
+  ];
+  const final = reconcileVerifiedGoogleEntities(old, fresh, { kind: "restaurant", limit: 12 });
+  assert.deepEqual(final.map((item) => item.name), ["Current Place", "Founder choice"]);
+  assert.deepEqual(final[0].estimatedPrice, old[0].estimatedPrice);
+  assert.equal(final[0].customerRating, 4.7);
+  assert.equal(final.some((item) => item.name === "Old curated card"), false);
 });
 
 test("Google Places field mask is minimal and normalized output omits prohibited extras", () => {
