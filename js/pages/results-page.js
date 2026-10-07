@@ -8232,7 +8232,11 @@ const enrichTravelEntitiesFromGoogle = async () => {
     country: identity.country || profile?.country,
     countryCode: identity.countryCode || profile?.countryCode
   };
+  document.body.dataset.googlePlaceEnrichment = "loading";
   const enrichment = await fetchGoogleTravelEntityEnrichment(enrichmentIdentity, { language: activeLanguage });
+  document.body.dataset.googlePlaceEnrichment = enrichment.status;
+  document.body.dataset.googlePlaceRestaurantCount = String(enrichment.restaurants?.length || 0);
+  document.body.dataset.googlePlaceHotelCount = String(enrichment.hotels?.length || 0);
   if (enrichment.status !== "verified_live") {
     currentResult.googlePlaceEnrichment = { destinationKey: enrichmentIdentity.key, status: enrichment.status, error: enrichment.error || "provider_unavailable", restaurants: [], hotels: [], rejected: enrichment.rejected || [] };
     return;
