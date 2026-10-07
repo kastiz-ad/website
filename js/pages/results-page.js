@@ -8229,13 +8229,21 @@ const enrichTravelEntitiesFromGoogle = async () => {
     currentResult?.destination?.city,
     currentResult?.destination?.country
   ].filter(Boolean).join(" "))?.profile;
+  const worldVisualProfile = WORLD_CITY_VISUAL_PACKS.find((pack) => pack.match.test([
+    getTravelDestinationLabel(currentResult),
+    currentResult?.mission,
+    currentResult?.destination?.city,
+    currentResult?.destination?.country
+  ].filter(Boolean).join(" ")));
   const enrichmentIdentity = {
     ...identity,
     key: identity.key || currentResult?.previewDestination?.id || profile?.key || profile?.id,
-    latitude: identity.latitude ?? currentResult?.destination?.latitude ?? currentResult?.detectedDestination?.latitude ?? resolvedPreviewProfile?.latitude ?? profile?.latitude,
-    longitude: identity.longitude ?? currentResult?.destination?.longitude ?? currentResult?.detectedDestination?.longitude ?? resolvedPreviewProfile?.longitude ?? profile?.longitude,
-    country: identity.country || profile?.country,
-    countryCode: identity.countryCode || profile?.countryCode
+    latitude: identity.latitude ?? currentResult?.destination?.latitude ?? currentResult?.detectedDestination?.latitude ?? worldVisualProfile?.latitude ?? resolvedPreviewProfile?.latitude ?? profile?.latitude,
+    longitude: identity.longitude ?? currentResult?.destination?.longitude ?? currentResult?.detectedDestination?.longitude ?? worldVisualProfile?.longitude ?? resolvedPreviewProfile?.longitude ?? profile?.longitude,
+    city: identity.city || worldVisualProfile?.city || profile?.city,
+    displayName: identity.displayName || [worldVisualProfile?.city, worldVisualProfile?.country].filter(Boolean).join(", "),
+    country: identity.country || worldVisualProfile?.country || profile?.country,
+    countryCode: identity.countryCode || worldVisualProfile?.countryCode || profile?.countryCode
   };
   document.body.dataset.googlePlaceEnrichment = "loading";
   document.body.dataset.googlePlaceDestinationKey = String(enrichmentIdentity.key || "");
