@@ -76,6 +76,8 @@ test("public integration route proxies photos without returning or logging serve
 test("results bootstrap supplies canonical profile coordinates without changing destination identity", () => {
   const results = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   assert.match(results, /const profile = profileForResult\(currentResult, getTravelDestinationLabel\(currentResult\)\)/);
+  assert.match(results, /const identity = \{ \.\.\.derivedIdentity, \.\.\.\(currentResult\?\.destinationIdentity \|\| \{\}\) \}/);
+  assert.match(results, /key: identity\.key \|\| profile\?\.key \|\| profile\?\.id/);
   assert.match(results, /latitude: identity\.latitude \?\? profile\?\.latitude/);
   assert.match(results, /longitude: identity\.longitude \?\? profile\?\.longitude/);
   assert.match(results, /googlePlaceEnrichment\?\.status === "verified_live"/);

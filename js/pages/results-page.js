@@ -8221,10 +8221,12 @@ const enrichTravelEntitiesFromGoogle = async () => {
     currentResult?.googlePlaceEnrichment?.status === "verified_live"
     && currentResult?.googlePlaceEnrichment?.destinationKey === currentResult?.destinationIdentity?.key
   )) return;
-  const identity = currentResult?.destinationIdentity || destinationIdentityFromMissionResult(currentResult);
+  const derivedIdentity = destinationIdentityFromMissionResult(currentResult);
+  const identity = { ...derivedIdentity, ...(currentResult?.destinationIdentity || {}) };
   const profile = profileForResult(currentResult, getTravelDestinationLabel(currentResult));
   const enrichmentIdentity = {
     ...identity,
+    key: identity.key || profile?.key || profile?.id,
     latitude: identity.latitude ?? profile?.latitude,
     longitude: identity.longitude ?? profile?.longitude,
     country: identity.country || profile?.country,
