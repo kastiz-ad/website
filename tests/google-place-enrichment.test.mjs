@@ -69,6 +69,8 @@ test("missing coordinates use one bounded locality lookup before entity searches
   assert.equal(calls.length, 3);
   assert.equal(result.status, "verified_live");
   assert.equal(result.identity.latitude, 30.0444);
+  assert.equal(result.identity.country, "Egypt");
+  assert.equal(result.identity.countryCode, "EG");
   assert.equal(result.restaurants.length, 1);
   assert.equal(result.hotels.length, 1);
 });

@@ -66,6 +66,7 @@ const identityKey = (value = {}) => {
   return `city:${code}:_:${city}`;
 };
 const countryCodeFromPlace = (place = {}) => clean((place.addressComponents || []).find((component) => (component.types || []).includes("country"))?.shortText).toUpperCase();
+const countryNameFromPlace = (place = {}) => clean((place.addressComponents || []).find((component) => (component.types || []).includes("country"))?.longText);
 
 export async function fetchGoogleTravelEntityEnrichment(identity = {}, { language = "en", fetcher = fetch, maxPerKind = 8 } = {}) {
   if (!identity?.key && !identity?.city && !identity?.displayName) return { status: "skipped", restaurants: [], hotels: [], rejected: [] };
@@ -85,6 +86,7 @@ export async function fetchGoogleTravelEntityEnrichment(identity = {}, { languag
       resolvedIdentity = {
         ...resolvedIdentity,
         city: clean(destination.name), displayName: clean(destination.address || destination.name),
+        country: countryNameFromPlace(destination) || resolvedIdentity.country,
         countryCode: countryCodeFromPlace(destination) || resolvedIdentity.countryCode,
         latitude: numeric(destination.coordinates.lat), longitude: numeric(destination.coordinates.lng),
         provenance: { source: "provider_geocoder", provider: "google-places", lookupId: destination.providerPlaceId || destination.id || "" }

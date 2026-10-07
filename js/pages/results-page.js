@@ -24,7 +24,7 @@ import { parseTravelConstraints } from "../engine/travel/travel-constraint-parse
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
 import { isPhysicalVisitCandidate, isTourismRelevantCandidate, resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-tourism-relevance-v29";
-import { fetchGoogleTravelEntityEnrichment, reconcileVerifiedGoogleEntities } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v3";
+import { fetchGoogleTravelEntityEnrichment, reconcileVerifiedGoogleEntities } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v4";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -8274,6 +8274,8 @@ const enrichTravelEntitiesFromGoogle = async () => {
     return;
   }
   const providerIdentity = enrichment.identity || enrichmentIdentity;
+  document.body.dataset.googlePlaceLatitude = String(providerIdentity.latitude ?? "");
+  document.body.dataset.googlePlaceLongitude = String(providerIdentity.longitude ?? "");
   const enrichedDestination = {
     ...(currentResult.destination || {}),
     city: providerIdentity.city || currentResult.destination?.city,
