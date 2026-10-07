@@ -8234,10 +8234,10 @@ const enrichTravelEntitiesFromGoogle = async () => {
   };
   const enrichment = await fetchGoogleTravelEntityEnrichment(enrichmentIdentity, { language: activeLanguage });
   if (enrichment.status !== "verified_live") {
-    currentResult.googlePlaceEnrichment = { destinationKey: identity.key, status: enrichment.status, error: enrichment.error || "provider_unavailable", restaurants: [], hotels: [], rejected: enrichment.rejected || [] };
+    currentResult.googlePlaceEnrichment = { destinationKey: enrichmentIdentity.key, status: enrichment.status, error: enrichment.error || "provider_unavailable", restaurants: [], hotels: [], rejected: enrichment.rejected || [] };
     return;
   }
-  currentResult.googlePlaceEnrichment = { ...enrichment, destinationKey: identity.key };
+  currentResult.googlePlaceEnrichment = { ...enrichment, destinationKey: enrichmentIdentity.key };
   currentResult = adaptTravelResultToDestination(currentResult);
   sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
   sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
