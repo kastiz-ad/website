@@ -24,6 +24,7 @@ import { parseTravelConstraints } from "../engine/travel/travel-constraint-parse
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
 import { isPhysicalVisitCandidate, isTourismRelevantCandidate, resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-tourism-relevance-v29";
+import { fetchGoogleTravelEntityEnrichment } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v1";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -1952,11 +1953,14 @@ function adaptTravelResultToDestination(result) {
   const worldRestaurants = worldIntelligence.models.restaurants || [];
   const worldFlights = worldIntelligence.models.flights || [];
   const worldHotelNames = worldHotels.map((item) => item.name).filter(Boolean);
-  const liveHotelItems = (livePlaces?.items || []).filter((item) => item.kind === "hotel").slice(0, TRAVEL_OPTION_TARGETS.hotels);
+  const destinationIdentity = destinationIdentityFromMissionResult(result);
+  const googleEnrichment = result.googlePlaceEnrichment?.destinationKey === destinationIdentity.key ? result.googlePlaceEnrichment : null;
+  const googleHotels = (googleEnrichment?.hotels || []).map((item) => ({ ...item, label: item.name, kind: "hotel" }));
+  const googleRestaurants = (googleEnrichment?.restaurants || []).map((item) => ({ ...item, label: item.name, kind: "restaurant" }));
+  const liveHotelItems = [...googleHotels, ...(livePlaces?.items || []).filter((item) => item.kind === "hotel")].slice(0, TRAVEL_OPTION_TARGETS.hotels);
   const liveHotelNames = liveHotelItems.map((item) => item.label);
   const liveHotelByName = new Map(liveHotelItems.map((item) => [String(item.label || "").trim().toLowerCase(), item]));
-  const liveRestaurantPlaces = (livePlaces?.items || []).filter((item) => item.kind === "restaurant").slice(0, TRAVEL_OPTION_TARGETS.restaurants);
-  const destinationIdentity = destinationIdentityFromMissionResult(result);
+  const liveRestaurantPlaces = [...googleRestaurants, ...(livePlaces?.items || []).filter((item) => item.kind === "restaurant")].slice(0, TRAVEL_OPTION_TARGETS.restaurants);
   const regionalFareRanges = {
     KR: [[90000, 220000], [100000, 250000], [70000, 190000], [120000, 280000]],
     CN: [[280000, 620000], [300000, 680000], [220000, 520000], [340000, 740000]],
@@ -2112,6 +2116,8 @@ function adaptTravelResultToDestination(result) {
     providerSource: entity.provenance?.provider || entity.provenance?.source || "ONE destination search",
     sourceState: entity.sourceState,
     sourceMetadata: worldRestaurants[index]?.sourceMetadata || null,
+    customerRating: entity.customerRating ?? null,
+    customerRatingCount: entity.customerRatingCount ?? null,
     livePlaceName: entity.namedEntity && Boolean(liveRestaurantPlaces.length),
     estimatedPrice: { currency: "KRW", min, max },
     recommendation: `Prototype dining option matched to ${city}; price and availability require final provider confirmation.`,
@@ -3458,11 +3464,16 @@ const createAlpha03VisualCard = (item, type, index, assignedImage = undefined) =
   const selected = isFood && (currentResult?.alpha03FoodSelections || []).includes(item.name);
   const rawScore = item.rating ?? item.stars;
   const displayScore = rawScore === null || rawScore === undefined || rawScore === "" ? null : Number(rawScore);
+  const customerRating = Number(item.customerRating);
+  const customerRatingCount = Number(item.customerRatingCount);
+  const customerRatingMarkup = isFood && Number.isFinite(customerRating) && customerRating > 0
+    ? `<span class="alpha03-card-score" data-rating-source="google-customer-rating">★ ${customerRating.toFixed(1)}${Number.isFinite(customerRatingCount) && customerRatingCount > 0 ? ` (${customerRatingCount.toLocaleString(activeLanguage)})` : ""}</span>`
+    : isFood && Number.isFinite(displayScore) && displayScore > 0 ? `<span class="alpha03-card-score">★ ${displayScore.toFixed(1)}</span>` : "";
   const tag = isFood ? "button" : "article";
   return `
   <${tag} ${isFood ? 'type="button"' : ""} class="alpha03-visual-card alpha03-premium-card is-${type}${selected ? " is-selected" : ""}" data-alpha03-item-name="${escapeSummaryText(item.name || "")}" data-media-status="${escapeSummaryText(item.imageStatus || (image?.url ? "EXACT_LOADED" : "NO_SAFE_IMAGE"))}" data-image-candidate-count="${imageCandidatesForItem(item).length}" data-image-source="${escapeSummaryText(image?.source || item.imageSource || item.source || "")}" data-image-scope="${escapeSummaryText(image?.imageScope || item.imageScope || "ENTITY")}" data-entity-key="${escapeSummaryText(item.id || item.providerId || item.name || "")}" data-destination-key="${escapeSummaryText(currentResult?.destinationIdentity?.key || currentResult?.destinationIdentity?.destinationKey || "")}" ${isFood ? `data-alpha03-food-index="${index}" aria-pressed="${selected ? "true" : "false"}"` : ""}>
     <div class="alpha03-thumb${image?.url ? " has-image" : " is-fallback"}" data-image-identity="${escapeSummaryText(normalizedImageIdentity(image || {}))}">${imageMarkup}${item.contextualImage ? `<small class="alpha03-context-image-label">${escapeSummaryText(alpha03Copy("Area photo", "지역 사진", "Foto de la zona", "Photo du quartier"))}</small>` : ""}</div>
-    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${isFood && Number.isFinite(displayScore) && displayScore > 0 ? `<span class="alpha03-card-score">★ ${displayScore.toFixed(1)}</span>` : ""}</div>
+    <div><strong>${escapeSummaryText(alpha03LocalizedDisplayName(item.name))}</strong><p>${escapeSummaryText(getAlpha03ItemAdvice(item, type, index))}</p>${customerRatingMarkup}</div>
     ${isFood ? `<span class="alpha03-food-select-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 20.4 4.2 13A5.2 5.2 0 0 1 11.6 5.7L12 6l.4-.3A5.2 5.2 0 0 1 19.8 13Z"/></svg></span>` : ""}
   </${tag}>
 `;
@@ -3826,6 +3837,7 @@ const createAlpha03OptionPreview = (journey, result, transportationSummary, trus
     meta: (hotel.estimatedNightlyPrice
       ? `${alpha03Copy("Estimated per night", "1박 예상", "Estimado por noche", "Estimation par nuit")} ${formatRange(hotel.estimatedNightlyPrice)}`
       : alpha03Copy("Nightly price check required", "1박 요금 확인 필요", "Se requiere verificar el precio por noche", "Prix par nuit à vérifier"))
+      + (Number(hotel.customerRating) > 0 ? ` · ★ ${Number(hotel.customerRating).toFixed(1)}${Number(hotel.customerRatingCount) > 0 ? ` (${Number(hotel.customerRatingCount).toLocaleString(activeLanguage)})` : ""}` : "")
       + (image ? alpha03Copy(" · Property image", " · 숙소 이미지", " · Imagen del alojamiento", " · Image de l’établissement") : "")
   }); }).filter((hotel) => hotel.name && !/live search|search ready|search required|accommodation live/i.test(hotel.name) && !(destinationCode !== "JP" && /ryokan|료칸|旅館/i.test(hotel.name)) && !hotelSeen.has(hotel.name) && hotelSeen.add(hotel.name)).slice(0, 12);
   const fareUnavailable = alpha03Copy("Current destination fare check required", "현재 목적지 요금 확인 필요", "Se requiere verificar la tarifa actual del destino", "Vérification du tarif actuel à destination requise");
@@ -8204,6 +8216,23 @@ updateLocation();
 renderMission();
 initializeOptionSelections();
 renderApprovalList();
+const enrichTravelEntitiesFromGoogle = async () => {
+  if (!isTravelResult(currentResult) || currentResult?.googlePlaceEnrichment?.destinationKey === currentResult?.destinationIdentity?.key) return;
+  const identity = currentResult?.destinationIdentity || destinationIdentityFromMissionResult(currentResult);
+  const enrichment = await fetchGoogleTravelEntityEnrichment(identity, { language: activeLanguage });
+  if (enrichment.status !== "verified_live") {
+    currentResult.googlePlaceEnrichment = { destinationKey: identity.key, status: enrichment.status, error: enrichment.error || "provider_unavailable", restaurants: [], hotels: [], rejected: enrichment.rejected || [] };
+    return;
+  }
+  currentResult.googlePlaceEnrichment = { ...enrichment, destinationKey: identity.key };
+  currentResult = adaptTravelResultToDestination(currentResult);
+  sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+  sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+  renderMission({ preserveCurrent: true });
+  initializeOptionSelections();
+  renderApprovalList();
+};
+enrichTravelEntitiesFromGoogle();
 enableCustomization();
 enableTimelineDragScroll();
 if (isInvestorDemoMode(window.location)) {

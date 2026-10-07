@@ -14,10 +14,11 @@ export const GOOGLE_PLACES_FIELD_MASK = [
   "places.formattedAddress",
   "places.location",
   "places.rating",
-  "places.currentOpeningHours",
+  "places.userRatingCount",
   "places.photos",
-  "places.websiteUri",
-  "places.types"
+  "places.types",
+  "places.primaryType",
+  "places.addressComponents"
 ];
 
 export const GOOGLE_ROUTES_FIELD_MASK = [
@@ -187,8 +188,8 @@ export class GooglePlacesProvider extends PlacesProvider {
         address: place.formattedAddress || "",
         coordinates: place.location ? { lat: place.location.latitude, lng: place.location.longitude } : null,
         rating: place.rating ?? null,
-        isOpen: place.currentOpeningHours?.openNow ?? null,
-        website: place.websiteUri || "",
+        ratingCount: place.userRatingCount ?? null,
+        addressComponents: place.addressComponents || [],
         photos: (place.photos || []).map((photo) => ({ name: photo.name })),
         types: place.types || [],
         provider: this.providerId,

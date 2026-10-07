@@ -6,6 +6,7 @@ import {
   providerSuccess,
   setupRequired
 } from "./provider-contracts.js";
+import { ApiError, fetchWithTimeout } from "../http.js";
 
 export const GOOGLE_GEOCODING_REQUIRED_ENV = Object.freeze(["GOOGLE_MAPS_SERVER_KEY"]);
 export const GOOGLE_PLACES_REQUIRED_ENV = Object.freeze(["GOOGLE_PLACES_API_KEY"]);
@@ -18,17 +19,11 @@ export const GOOGLE_PLACES_FIELD_MASK = Object.freeze([
   "places.location",
   "places.rating",
   "places.userRatingCount",
-  "places.priceLevel",
   "places.businessStatus",
-  "places.currentOpeningHours",
-  "places.regularOpeningHours",
-  "places.websiteUri",
-  "places.nationalPhoneNumber",
-  "places.internationalPhoneNumber",
   "places.photos",
   "places.types",
   "places.primaryType",
-  "places.googleMapsUri"
+  "places.addressComponents"
 ]);
 
 export const GOOGLE_ROUTES_FIELD_MASK = Object.freeze([
@@ -88,13 +83,12 @@ export function normalizePlaceResult(place = {}, { retrievedAt = nowIso() } = {}
     coordinates: locationFromGoogle(place.location),
     rating: place.rating ?? null,
     ratingCount: place.userRatingCount ?? null,
-    priceLevel: place.priceLevel || null,
     businessStatus: place.businessStatus || null,
-    openingStatus: typeof place.currentOpeningHours?.openNow === "boolean" ? { openNow: place.currentOpeningHours.openNow } : null,
-    regularOpeningHours: place.regularOpeningHours || null,
-    website: place.websiteUri || "",
-    phone: place.internationalPhoneNumber || place.nationalPhoneNumber || "",
-    googleMapsUri: place.googleMapsUri || "",
+    addressComponents: (place.addressComponents || []).map((component) => ({
+      longText: component.longText || "",
+      shortText: component.shortText || "",
+      types: component.types || []
+    })),
     photos: (place.photos || []).map((photo) => ({
       name: photo.name,
       widthPx: photo.widthPx || null,
@@ -111,6 +105,32 @@ export function normalizePlaceResult(place = {}, { retrievedAt = nowIso() } = {}
       retrievedAt
     }
   };
+}
+
+const googlePhotoNamePattern = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
+
+export async function fetchGooglePlacePhoto(env = {}, { name, maxWidthPx = 1200 } = {}) {
+  if (!hasEnv(env, GOOGLE_PLACES_REQUIRED_ENV)) throw new ApiError(503, "google_places_not_configured", "Google Places media is unavailable.");
+  const photoName = text(name);
+  if (!googlePhotoNamePattern.test(photoName)) throw new ApiError(400, "invalid_photo_reference", "The photo reference is invalid.");
+  const width = Math.min(Math.max(Number(maxWidthPx) || 1200, 400), 1600);
+  const url = new URL(`https://places.googleapis.com/v1/${photoName}/media`);
+  url.searchParams.set("maxWidthPx", String(width));
+  url.searchParams.set("skipHttpRedirect", "false");
+  url.searchParams.set("key", env.GOOGLE_PLACES_API_KEY);
+  const upstream = await fetchWithTimeout(url.toString(), { redirect: "follow" }, { timeoutMs: Number(env.GOOGLE_PROVIDER_TIMEOUT_MS || 8000), errorCode: "google_photo_timeout" });
+  if (!upstream.ok) throw new ApiError(upstream.status >= 500 ? 502 : upstream.status, `google_photo_http_${upstream.status}`, "Google Places media could not be loaded.");
+  const contentType = upstream.headers.get("Content-Type") || "";
+  if (!contentType.toLowerCase().startsWith("image/")) throw new ApiError(502, "google_photo_invalid_media", "Google Places returned invalid media.");
+  return new Response(upstream.body, {
+    status: 200,
+    headers: {
+      "Content-Type": contentType,
+      "Cache-Control": "private, max-age=300",
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "no-referrer"
+    }
+  });
 }
 
 export function normalizeRouteResult(route = {}, request = {}, { retrievedAt = nowIso() } = {}) {

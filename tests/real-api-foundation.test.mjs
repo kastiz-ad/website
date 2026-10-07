@@ -80,12 +80,13 @@ test("Google normalizers preserve live evidence without inventing missing fields
     location: { latitude: 35.0116, longitude: 135.7681 },
     rating: 4.5,
     userRatingCount: 1200,
-    types: ["cafe"],
-    currentOpeningHours: { openNow: true }
+    types: ["cafe"]
   }, { retrievedAt: "2026-07-30T00:00:00Z" });
   assert.equal(place.name, "Nakamura Tokichi");
-  assert.equal(place.openingStatus.openNow, true);
-  assert.equal(place.priceLevel, null);
+  assert.equal(place.rating, 4.5);
+  assert.equal(place.ratingCount, 1200);
+  assert.equal("openingStatus" in place, false);
+  assert.equal("priceLevel" in place, false);
 
   const route = normalizeRouteResult({
     duration: "1200s",
