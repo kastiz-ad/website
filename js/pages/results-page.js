@@ -8224,11 +8224,16 @@ const enrichTravelEntitiesFromGoogle = async () => {
   const derivedIdentity = destinationIdentityFromMissionResult(currentResult);
   const identity = { ...(currentResult?.destinationIdentity || {}), ...derivedIdentity };
   const profile = profileForResult(currentResult, getTravelDestinationLabel(currentResult));
+  const resolvedPreviewProfile = resolvePreviewDestination([
+    getTravelDestinationLabel(currentResult),
+    currentResult?.destination?.city,
+    currentResult?.destination?.country
+  ].filter(Boolean).join(" "))?.profile;
   const enrichmentIdentity = {
     ...identity,
     key: identity.key || currentResult?.previewDestination?.id || profile?.key || profile?.id,
-    latitude: identity.latitude ?? currentResult?.destination?.latitude ?? currentResult?.detectedDestination?.latitude ?? profile?.latitude,
-    longitude: identity.longitude ?? currentResult?.destination?.longitude ?? currentResult?.detectedDestination?.longitude ?? profile?.longitude,
+    latitude: identity.latitude ?? currentResult?.destination?.latitude ?? currentResult?.detectedDestination?.latitude ?? resolvedPreviewProfile?.latitude ?? profile?.latitude,
+    longitude: identity.longitude ?? currentResult?.destination?.longitude ?? currentResult?.detectedDestination?.longitude ?? resolvedPreviewProfile?.longitude ?? profile?.longitude,
     country: identity.country || profile?.country,
     countryCode: identity.countryCode || profile?.countryCode
   };
