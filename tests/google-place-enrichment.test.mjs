@@ -80,7 +80,7 @@ test("results bootstrap supplies canonical profile coordinates without changing 
   assert.match(results, /key: identity\.key \|\| currentResult\?\.previewDestination\?\.id \|\| profile\?\.key \|\| profile\?\.id/);
   assert.match(results, /currentResult\?\.destination\?\.latitude/);
   assert.match(results, /destinationKey: enrichmentIdentity\.key/);
-  assert.match(results, /latitude: identity\.latitude \?\? profile\?\.latitude/);
-  assert.match(results, /longitude: identity\.longitude \?\? profile\?\.longitude/);
+  assert.match(results, /latitude: identity\.latitude \?\? currentResult\?\.destination\?\.latitude/);
+  assert.match(results, /longitude: identity\.longitude \?\? currentResult\?\.destination\?\.longitude/);
   assert.match(results, /googlePlaceEnrichment\?\.status === "verified_live"/);
 });
