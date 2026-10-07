@@ -8219,7 +8219,15 @@ renderApprovalList();
 const enrichTravelEntitiesFromGoogle = async () => {
   if (!isTravelResult(currentResult) || currentResult?.googlePlaceEnrichment?.destinationKey === currentResult?.destinationIdentity?.key) return;
   const identity = currentResult?.destinationIdentity || destinationIdentityFromMissionResult(currentResult);
-  const enrichment = await fetchGoogleTravelEntityEnrichment(identity, { language: activeLanguage });
+  const profile = profileForResult(currentResult, getTravelDestinationLabel(currentResult));
+  const enrichmentIdentity = {
+    ...identity,
+    latitude: identity.latitude ?? profile?.latitude,
+    longitude: identity.longitude ?? profile?.longitude,
+    country: identity.country || profile?.country,
+    countryCode: identity.countryCode || profile?.countryCode
+  };
+  const enrichment = await fetchGoogleTravelEntityEnrichment(enrichmentIdentity, { language: activeLanguage });
   if (enrichment.status !== "verified_live") {
     currentResult.googlePlaceEnrichment = { destinationKey: identity.key, status: enrichment.status, error: enrichment.error || "provider_unavailable", restaurants: [], hotels: [], rejected: enrichment.rejected || [] };
     return;

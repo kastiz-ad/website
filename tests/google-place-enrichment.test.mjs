@@ -72,3 +72,10 @@ test("public integration route proxies photos without returning or logging serve
   assert.doesNotMatch(page, /GOOGLE_PLACES_API_KEY/);
   assert.doesNotMatch(page, /places\.googleapis\.com/);
 });
+
+test("results bootstrap supplies canonical profile coordinates without changing destination identity", () => {
+  const results = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
+  assert.match(results, /const profile = profileForResult\(currentResult, getTravelDestinationLabel\(currentResult\)\)/);
+  assert.match(results, /latitude: identity\.latitude \?\? profile\?\.latitude/);
+  assert.match(results, /longitude: identity\.longitude \?\? profile\?\.longitude/);
+});
