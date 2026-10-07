@@ -103,7 +103,7 @@ test("results bootstrap preserves a matching stored Travel mission before URL fa
     results.indexOf("storedResultMatchesRoute(parsed, params)") < results.indexOf("const manualScenario = getManualScenarioResult()"),
     "matching same-flow storage must be considered before manual URL reconstruction"
   );
-  const version = /20261008-google-places-v10/;
+  const version = /20261008-google-places-v11/;
   assert.match(resultsHtml, version);
   assert.match(resultsEntry, version);
 });

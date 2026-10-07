@@ -81,6 +81,7 @@ test("results bootstrap supplies canonical profile coordinates without changing 
   assert.match(results, /currentResult\?\.destination\?\.latitude/);
   assert.match(results, /resolvedPreviewProfile\?\.latitude/);
   assert.match(results, /worldVisualProfile\?\.latitude/);
+  assert.match(results, /canonicalEnrichmentIdentity = destinationIdentityFromMissionResult/);
   assert.match(results, /destinationKey: enrichmentIdentity\.key/);
   assert.match(results, /latitude: identity\.latitude \?\? currentResult\?\.destination\?\.latitude/);
   assert.match(results, /longitude: identity\.longitude \?\? currentResult\?\.destination\?\.longitude/);

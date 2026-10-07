@@ -8257,7 +8257,17 @@ const enrichTravelEntitiesFromGoogle = async () => {
     currentResult.googlePlaceEnrichment = { destinationKey: enrichmentIdentity.key, status: enrichment.status, error: enrichment.error || "provider_unavailable", restaurants: [], hotels: [], rejected: enrichment.rejected || [] };
     return;
   }
-  currentResult.googlePlaceEnrichment = { ...enrichment, destinationKey: enrichmentIdentity.key };
+  const enrichedDestination = {
+    ...(currentResult.destination || {}),
+    city: enrichmentIdentity.city || currentResult.destination?.city,
+    country: enrichmentIdentity.country || currentResult.destination?.country,
+    countryCode: enrichmentIdentity.countryCode || currentResult.destination?.countryCode,
+    latitude: enrichmentIdentity.latitude,
+    longitude: enrichmentIdentity.longitude
+  };
+  const canonicalEnrichmentIdentity = destinationIdentityFromMissionResult({ ...currentResult, destinationIdentity: null, destination: enrichedDestination });
+  currentResult = { ...currentResult, destination: enrichedDestination, destinationIdentity: canonicalEnrichmentIdentity };
+  currentResult.googlePlaceEnrichment = { ...enrichment, destinationKey: canonicalEnrichmentIdentity.key };
   currentResult = adaptTravelResultToDestination(currentResult);
   sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
   sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
