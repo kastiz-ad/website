@@ -8238,6 +8238,9 @@ const enrichTravelEntitiesFromGoogle = async () => {
     countryCode: identity.countryCode || profile?.countryCode
   };
   document.body.dataset.googlePlaceEnrichment = "loading";
+  document.body.dataset.googlePlaceDestinationKey = String(enrichmentIdentity.key || "");
+  document.body.dataset.googlePlaceLatitude = String(enrichmentIdentity.latitude ?? "");
+  document.body.dataset.googlePlaceLongitude = String(enrichmentIdentity.longitude ?? "");
   const enrichment = await fetchGoogleTravelEntityEnrichment(enrichmentIdentity, { language: activeLanguage });
   document.body.dataset.googlePlaceEnrichment = enrichment.status;
   document.body.dataset.googlePlaceRestaurantCount = String(enrichment.restaurants?.length || 0);
