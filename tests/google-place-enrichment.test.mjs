@@ -77,7 +77,8 @@ test("results bootstrap supplies canonical profile coordinates without changing 
   const results = readFileSync(new URL("../js/pages/results-page.js", import.meta.url), "utf8");
   assert.match(results, /const profile = profileForResult\(currentResult, getTravelDestinationLabel\(currentResult\)\)/);
   assert.match(results, /const identity = \{ \.\.\.\(currentResult\?\.destinationIdentity \|\| \{\}\), \.\.\.derivedIdentity \}/);
-  assert.match(results, /key: identity\.key \|\| profile\?\.key \|\| profile\?\.id/);
+  assert.match(results, /key: identity\.key \|\| currentResult\?\.previewDestination\?\.id \|\| profile\?\.key \|\| profile\?\.id/);
+  assert.match(results, /currentResult\?\.destination\?\.latitude/);
   assert.match(results, /destinationKey: enrichmentIdentity\.key/);
   assert.match(results, /latitude: identity\.latitude \?\? profile\?\.latitude/);
   assert.match(results, /longitude: identity\.longitude \?\? profile\?\.longitude/);

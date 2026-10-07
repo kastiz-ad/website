@@ -8226,9 +8226,9 @@ const enrichTravelEntitiesFromGoogle = async () => {
   const profile = profileForResult(currentResult, getTravelDestinationLabel(currentResult));
   const enrichmentIdentity = {
     ...identity,
-    key: identity.key || profile?.key || profile?.id,
-    latitude: identity.latitude ?? profile?.latitude,
-    longitude: identity.longitude ?? profile?.longitude,
+    key: identity.key || currentResult?.previewDestination?.id || profile?.key || profile?.id,
+    latitude: identity.latitude ?? currentResult?.destination?.latitude ?? currentResult?.detectedDestination?.latitude ?? profile?.latitude,
+    longitude: identity.longitude ?? currentResult?.destination?.longitude ?? currentResult?.detectedDestination?.longitude ?? profile?.longitude,
     country: identity.country || profile?.country,
     countryCode: identity.countryCode || profile?.countryCode
   };
