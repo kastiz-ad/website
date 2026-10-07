@@ -10,6 +10,8 @@ import {
   validateGooglePlaceForDestination
 } from "../js/engine/world/google-place-enrichment.js";
 import { GOOGLE_PLACES_FIELD_MASK, normalizePlaceResult } from "../functions/api/v1/_lib/providers/google.js";
+import { previewItemImage } from "../js/engine/world/preview-destination-intelligence.js";
+import { normalizedImageIdentity } from "../js/ui/travel-image-allocation.js";
 
 const identity = Object.freeze({ key: "co:medellin", displayName: "Medellín, Colombia", city: "Medellín", country: "Colombia", countryCode: "CO", latitude: 6.2442, longitude: -75.5812 });
 const place = (overrides = {}) => ({
@@ -88,6 +90,12 @@ test("verified live discovery replaces stale collections and preserves explicit 
   assert.deepEqual(final[0].estimatedPrice, old[0].estimatedPrice);
   assert.equal(final[0].customerRating, 4.7);
   assert.equal(final.some((item) => item.name === "Old curated card"), false);
+});
+
+test("proxied Google photos retain distinct provider image identities", () => {
+  const first = previewItemImage({ imageUrl: "/api/v1/providers/google/photo?name=one", photoReference: "places/p1/photos/one", name: "One" });
+  const second = previewItemImage({ imageUrl: "/api/v1/providers/google/photo?name=two", photoReference: "places/p2/photos/two", name: "Two" });
+  assert.notEqual(normalizedImageIdentity(first), normalizedImageIdentity(second));
 });
 
 test("Google Places field mask is minimal and normalized output omits prohibited extras", () => {

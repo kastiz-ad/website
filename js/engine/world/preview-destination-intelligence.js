@@ -1161,7 +1161,7 @@ export function previewItemAdvice(item = {}, language = "en") {
   if (!item.advice || typeof item.advice !== "object") return "";
   return item.advice[language] || (language === "en" ? item.advice.en || "" : "");
 }
-export function previewItemImage(item = {}) { if (item?.image?.url) return item.image; if (item?.imageUrl) return { url: item.imageUrl, alt: item.imageAlt || item.name || item.label || "Destination photo" }; return null; }
+export function previewItemImage(item = {}) { if (item?.image?.url) return item.image; if (item?.imageUrl) return { url: item.imageUrl, alt: item.imageAlt || item.name || item.label || "Destination photo", providerImageId: item.photoReference || item.providerImageId || "" }; return null; }
 export function osmEmbedUrlForProfile(profile) {
   if (!profile?.latitude || !profile?.longitude) return "";
   const lat = Number(profile.latitude); const lon = Number(profile.longitude); const delta = 0.055;

@@ -21,7 +21,7 @@ import { buildTravelWorldIntelligence, sourceStateUserLabel } from "../engine/wo
 import { buildRealisticItinerary, mapMarkersForItinerary } from "../engine/itinerary/realistic-itinerary-engine.js?v=20260813-preview-v79";
 import { buildGlobalItinerary } from "../engine/itinerary/global-itinerary-transport-engine.js?v=20260908-global-release-readiness-phase-g-v1";
 import { parseTravelConstraints } from "../engine/travel/travel-constraint-parser.js?v=20260907-founder-qa-v18";
-import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
+import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20261008-google-photo-identity-v1";
 import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
 import { isPhysicalVisitCandidate, isTourismRelevantCandidate, resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-tourism-relevance-v29";
 import { fetchGoogleTravelEntityEnrichment, reconcileVerifiedGoogleEntities } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v4";
