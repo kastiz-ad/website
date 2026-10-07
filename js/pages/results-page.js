@@ -8217,10 +8217,26 @@ renderMission();
 initializeOptionSelections();
 renderApprovalList();
 const enrichTravelEntitiesFromGoogle = async () => {
-  if (!isTravelResult(currentResult) || (
+  if (!isTravelResult(currentResult)) return;
+  if (
     currentResult?.googlePlaceEnrichment?.status === "verified_live"
     && currentResult?.googlePlaceEnrichment?.destinationKey === currentResult?.destinationIdentity?.key
-  )) return;
+  ) {
+    const restored = currentResult.googlePlaceEnrichment;
+    currentResult.restaurants = reconcileVerifiedGoogleEntities(currentResult.restaurants, restored.restaurants, { kind: "restaurant", limit: TRAVEL_OPTION_TARGETS.restaurants });
+    currentResult.hotels = reconcileVerifiedGoogleEntities(currentResult.hotels, restored.hotels, { kind: "hotel", limit: TRAVEL_OPTION_TARGETS.hotels });
+    document.body.dataset.googlePlaceEnrichment = "verified_live";
+    document.body.dataset.googlePlaceRestaurantCount = String(restored.restaurants?.length || 0);
+    document.body.dataset.googlePlaceHotelCount = String(restored.hotels?.length || 0);
+    document.body.dataset.googlePlaceVisibleRestaurantCount = String(currentResult.restaurants.filter((item) => item?.sourceState === "verified_live").length);
+    document.body.dataset.googlePlaceVisibleHotelCount = String(currentResult.hotels.filter((item) => item?.sourceState === "verified_live").length);
+    sessionStorage.setItem(STORAGE_KEYS.results, JSON.stringify(currentResult));
+    sessionStorage.setItem(STORAGE_KEYS.mission, JSON.stringify(currentResult));
+    renderMission({ preserveCurrent: true });
+    initializeOptionSelections();
+    renderApprovalList();
+    return;
+  }
   const derivedIdentity = destinationIdentityFromMissionResult(currentResult);
   const identity = { ...(currentResult?.destinationIdentity || {}), ...derivedIdentity };
   const profile = profileForResult(currentResult, getTravelDestinationLabel(currentResult));
