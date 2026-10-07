@@ -8217,7 +8217,10 @@ renderMission();
 initializeOptionSelections();
 renderApprovalList();
 const enrichTravelEntitiesFromGoogle = async () => {
-  if (!isTravelResult(currentResult) || currentResult?.googlePlaceEnrichment?.destinationKey === currentResult?.destinationIdentity?.key) return;
+  if (!isTravelResult(currentResult) || (
+    currentResult?.googlePlaceEnrichment?.status === "verified_live"
+    && currentResult?.googlePlaceEnrichment?.destinationKey === currentResult?.destinationIdentity?.key
+  )) return;
   const identity = currentResult?.destinationIdentity || destinationIdentityFromMissionResult(currentResult);
   const profile = profileForResult(currentResult, getTravelDestinationLabel(currentResult));
   const enrichmentIdentity = {

@@ -78,4 +78,5 @@ test("results bootstrap supplies canonical profile coordinates without changing 
   assert.match(results, /const profile = profileForResult\(currentResult, getTravelDestinationLabel\(currentResult\)\)/);
   assert.match(results, /latitude: identity\.latitude \?\? profile\?\.latitude/);
   assert.match(results, /longitude: identity\.longitude \?\? profile\?\.longitude/);
+  assert.match(results, /googlePlaceEnrichment\?\.status === "verified_live"/);
 });
