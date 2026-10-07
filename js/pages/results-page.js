@@ -8222,7 +8222,7 @@ const enrichTravelEntitiesFromGoogle = async () => {
     && currentResult?.googlePlaceEnrichment?.destinationKey === currentResult?.destinationIdentity?.key
   )) return;
   const derivedIdentity = destinationIdentityFromMissionResult(currentResult);
-  const identity = { ...derivedIdentity, ...(currentResult?.destinationIdentity || {}) };
+  const identity = { ...(currentResult?.destinationIdentity || {}), ...derivedIdentity };
   const profile = profileForResult(currentResult, getTravelDestinationLabel(currentResult));
   const enrichmentIdentity = {
     ...identity,
