@@ -55,6 +55,23 @@ test("one mission performs exactly one bounded search per visible entity kind", 
   assert.equal(first.hotels.length, 1);
 });
 
+test("missing coordinates use one bounded locality lookup before entity searches", async () => {
+  clearGoogleTravelEntityRequestCache();
+  const calls = [];
+  const fetcher = async (url, options) => {
+    const body = JSON.parse(options.body); calls.push(body);
+    if (body.includedType === "locality") return new Response(JSON.stringify({ ok: true, items: [place({ name: "Cairo", address: "Cairo, Egypt", coordinates: { lat: 30.0444, lng: 31.2357 }, categories: ["locality"], addressComponents: [{ longText: "Egypt", shortText: "EG", types: ["country"] }] })] }));
+    const kind = body.includedType === "lodging" ? "hotel" : "restaurant";
+    return new Response(JSON.stringify({ ok: true, items: [place({ id: `cairo-${kind}`, providerPlaceId: `cairo-${kind}`, address: "Cairo, Egypt", coordinates: { lat: 30.04, lng: 31.23 }, categories: [kind === "hotel" ? "lodging" : "restaurant"], addressComponents: [{ longText: "Egypt", shortText: "EG", types: ["country"] }] })] }));
+  };
+  const result = await fetchGoogleTravelEntityEnrichment({ key: "city:EG:_:cairo", city: "Cairo", country: "Egypt", countryCode: "EG" }, { fetcher });
+  assert.equal(calls.length, 3);
+  assert.equal(result.status, "verified_live");
+  assert.equal(result.identity.latitude, 30.0444);
+  assert.equal(result.restaurants.length, 1);
+  assert.equal(result.hotels.length, 1);
+});
+
 test("Google Places field mask is minimal and normalized output omits prohibited extras", () => {
   for (const field of ["places.id", "places.displayName", "places.formattedAddress", "places.location", "places.rating", "places.userRatingCount", "places.photos", "places.types", "places.primaryType", "places.addressComponents"]) assert.ok(GOOGLE_PLACES_FIELD_MASK.includes(field));
   for (const field of ["places.currentOpeningHours", "places.regularOpeningHours", "places.websiteUri", "places.nationalPhoneNumber", "places.internationalPhoneNumber", "places.reviews", "places.editorialSummary"]) assert.ok(!GOOGLE_PLACES_FIELD_MASK.includes(field));

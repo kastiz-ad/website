@@ -24,7 +24,7 @@ import { parseTravelConstraints } from "../engine/travel/travel-constraint-parse
 import { buildPreviewMapMarkers, localizedProfileText, osmEmbedUrlForProfile, previewItemAdvice, previewItemImage, previewTravelIntent, profileForResult, resolvePreviewDestination } from "../engine/world/preview-destination-intelligence.js?v=20260907-card-descriptions-v3";
 import { destinationIdentityFromMissionResult, resolveCanonicalDestinationIdentity } from "../engine/world/canonical-destination-identity.js";
 import { isPhysicalVisitCandidate, isTourismRelevantCandidate, resolveDestinationEntities } from "../engine/world/global-entity-resolver.js?v=20260916-tourism-relevance-v29";
-import { fetchGoogleTravelEntityEnrichment } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v1";
+import { fetchGoogleTravelEntityEnrichment } from "../engine/world/google-place-enrichment.js?v=20261008-google-places-v2";
 import { generateMissionInsights, insightStorageKey, splitVisibleMissionInsights } from "../engine/insights/mission-insights-alpha01.js?v=20260727-alpha01";
 import {
   ALPHA04_LIVING_MISSION_VERSION,
@@ -8257,13 +8257,14 @@ const enrichTravelEntitiesFromGoogle = async () => {
     currentResult.googlePlaceEnrichment = { destinationKey: enrichmentIdentity.key, status: enrichment.status, error: enrichment.error || "provider_unavailable", restaurants: [], hotels: [], rejected: enrichment.rejected || [] };
     return;
   }
+  const providerIdentity = enrichment.identity || enrichmentIdentity;
   const enrichedDestination = {
     ...(currentResult.destination || {}),
-    city: enrichmentIdentity.city || currentResult.destination?.city,
-    country: enrichmentIdentity.country || currentResult.destination?.country,
-    countryCode: enrichmentIdentity.countryCode || currentResult.destination?.countryCode,
-    latitude: enrichmentIdentity.latitude,
-    longitude: enrichmentIdentity.longitude
+    city: providerIdentity.city || currentResult.destination?.city,
+    country: providerIdentity.country || currentResult.destination?.country,
+    countryCode: providerIdentity.countryCode || currentResult.destination?.countryCode,
+    latitude: providerIdentity.latitude,
+    longitude: providerIdentity.longitude
   };
   const canonicalEnrichmentIdentity = destinationIdentityFromMissionResult({ ...currentResult, destinationIdentity: null, destination: enrichedDestination });
   currentResult = { ...currentResult, destination: enrichedDestination, destinationIdentity: canonicalEnrichmentIdentity };

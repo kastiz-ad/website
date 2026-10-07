@@ -60,20 +60,45 @@ export function googlePlaceToDestinationEntity(place = {}, identity = {}, kind =
 
 const missionRequests = new Map();
 const requestKey = (identity, language) => `${identity.key || identity.destinationKey}:${language}`;
+const identityKey = (value = {}) => {
+  const city = normalized(value.city || value.name).replaceAll(" ", "-") || "_";
+  const code = clean(value.countryCode).toUpperCase() || "XX";
+  return `city:${code}:_:${city}`;
+};
+const countryCodeFromPlace = (place = {}) => clean((place.addressComponents || []).find((component) => (component.types || []).includes("country"))?.shortText).toUpperCase();
 
 export async function fetchGoogleTravelEntityEnrichment(identity = {}, { language = "en", fetcher = fetch, maxPerKind = 8 } = {}) {
-  if (!identity?.key || !Number.isFinite(Number(identity.latitude)) || !Number.isFinite(Number(identity.longitude))) return { status: "skipped", restaurants: [], hotels: [], rejected: [] };
+  if (!identity?.key && !identity?.city && !identity?.displayName) return { status: "skipped", restaurants: [], hotels: [], rejected: [] };
   const key = requestKey(identity, language);
   if (missionRequests.has(key)) return missionRequests.get(key);
   const run = (async () => {
+    let resolvedIdentity = { ...identity };
+    if (!Number.isFinite(Number(resolvedIdentity.latitude)) || !Number.isFinite(Number(resolvedIdentity.longitude))) {
+      const destinationResponse = await fetcher("/api/v1/providers/google/places", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ textQuery: clean(identity.displayName || identity.city), includedType: "locality", strictTypeFiltering: true, languageCode: language, maxResultCount: 1 })
+      });
+      if (!destinationResponse.ok) throw new Error(`google_destination_http_${destinationResponse.status}`);
+      const destinationPayload = await destinationResponse.json();
+      const destination = destinationPayload.ok ? destinationPayload.items?.[0] : null;
+      if (!destination?.coordinates || !clean(destination.name)) return { status: "unresolved", provider: "google-places", restaurants: [], hotels: [], rejected: [{ kind: "destination", reason: "canonical_destination_unresolved" }] };
+      resolvedIdentity = {
+        ...resolvedIdentity,
+        city: clean(destination.name), displayName: clean(destination.address || destination.name),
+        countryCode: countryCodeFromPlace(destination) || resolvedIdentity.countryCode,
+        latitude: numeric(destination.coordinates.lat), longitude: numeric(destination.coordinates.lng),
+        provenance: { source: "provider_geocoder", provider: "google-places", lookupId: destination.providerPlaceId || destination.id || "" }
+      };
+      resolvedIdentity.key = identityKey(resolvedIdentity);
+    }
     const search = async (kind) => {
       const response = await fetcher("/api/v1/providers/google/places", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          textQuery: `${kind === "hotel" ? "hotels" : "restaurants"} in ${identity.displayName || identity.city}`,
+          textQuery: `${kind === "hotel" ? "hotels" : "restaurants"} in ${resolvedIdentity.displayName || resolvedIdentity.city}`,
           includedType: kind === "hotel" ? "lodging" : "restaurant", strictTypeFiltering: true,
           languageCode: language, maxResultCount: Math.min(Math.max(maxPerKind, 1), 8),
-          locationBias: { lat: identity.latitude, lng: identity.longitude, radiusMeters: 18000 }
+          locationBias: { lat: resolvedIdentity.latitude, lng: resolvedIdentity.longitude, radiusMeters: 18000 }
         })
       });
       if (!response.ok) throw new Error(`google_places_http_${response.status}`);
@@ -83,12 +108,12 @@ export async function fetchGoogleTravelEntityEnrichment(identity = {}, { languag
     };
     const [restaurantPlaces, hotelPlaces] = await Promise.all([search("restaurant"), search("hotel")]);
     const rejected = [];
-    const convert = (items, kind) => items.map((item) => googlePlaceToDestinationEntity(item, identity, kind)).flatMap((result) => {
+    const convert = (items, kind) => items.map((item) => googlePlaceToDestinationEntity(item, resolvedIdentity, kind)).flatMap((result) => {
       if (result.entity) return [result.entity];
       rejected.push({ providerPlaceId: item.providerPlaceId || item.id || "", kind, reason: result.rejection });
       return [];
     });
-    return { status: "verified_live", provider: "google-places", restaurants: convert(restaurantPlaces, "restaurant"), hotels: convert(hotelPlaces, "hotel"), rejected };
+    return { status: "verified_live", provider: "google-places", identity: resolvedIdentity, restaurants: convert(restaurantPlaces, "restaurant"), hotels: convert(hotelPlaces, "hotel"), rejected };
   })().catch((error) => ({ status: "unavailable", error: String(error?.message || error), restaurants: [], hotels: [], rejected: [] }));
   missionRequests.set(key, run);
   return run;
